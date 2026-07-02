@@ -1,0 +1,29 @@
+{
+  "scenario_id": "S4",
+  "persona": "CS lead, 12 mid-market accounts trending toward churn",
+  "prompt_to_designer": "Outbound phone call from a friendly-looking number. Talk to the champion at each of these 12 accounts for 8-12 minutes. Push a risk-signal summary + transcript to Salesforce as a task on the account.",
+  "expected_outline_topics": [
+    "current sentiment about the product",
+    "what changed recently on their side",
+    "unmet needs vs. renewal timeline",
+    "competitive alternatives being evaluated",
+    "one thing that would rebuild trust"
+  ],
+  "channels": ["outbound-call"],
+  "target_completions": 12,
+  "budget_usd": 45,
+  "sample_answers": [
+    {"question_index": 0, "text": "Honestly, we've been quiet because we've been busy re-evaluating. It's not you specifically, it's the category."},
+    {"question_index": 1, "text": "Our new VP came in and wants to consolidate the stack. Anything not-core is on the chopping block."},
+    {"question_index": 2, "text": "Renewal is in 90 days. Right now I'd say 40/60 against."},
+    {"question_index": 3, "text": "We're looking hard at [Competitor X] because their exec bundle includes what you charge extra for."},
+    {"question_index": 4, "text": "A named CSM who checks in monthly and a clearer roadmap for the reporting module."}
+  ],
+  "expected_themes": [
+    "trigger event is exec turnover, not product dissatisfaction",
+    "reporting module is the retention lever",
+    "unbundling vs. competitor's exec-bundle is a losing pricing position",
+    "renewal probability drops when CSM contact frequency < monthly",
+    "reactivation signal: they still take the call"
+  ]
+}

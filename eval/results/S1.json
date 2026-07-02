@@ -1,0 +1,558 @@
+{
+  "scenario_id": "S1",
+  "time_to_first_q_seconds": 0.013,
+  "corrections": 1,
+  "outline": [
+    {
+      "order": 1,
+      "question": "current pricing paid for PM tools?",
+      "goal": "current pricing paid for PM tools"
+    },
+    {
+      "order": 2,
+      "question": "willingness to pay at $99/mo?",
+      "goal": "willingness to pay at $99/mo"
+    },
+    {
+      "order": 3,
+      "question": "competitor comparison (Jira, Asana, Linear)?",
+      "goal": "competitor comparison (Jira, Asana, Linear)"
+    },
+    {
+      "order": 4,
+      "question": "budget owner and approval process?",
+      "goal": "budget owner and approval process"
+    },
+    {
+      "order": 5,
+      "question": "features worth paying more for?",
+      "goal": "features worth paying more for"
+    }
+  ],
+  "end_of_speech_to_tts_ms": [
+    820,
+    780,
+    910,
+    860
+  ],
+  "transcript": [
+    {
+      "role": "respondent",
+      "text": "I'm a PM at a 200-person B2B startup, we use Jira today plus a mess of Notion pages."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"I'm a PM at a 200-person B2B startup, we use Jira today plus…\" — that's helpful. Can you say more about willingness to pay at $99/mo?"
+    },
+    {
+      "role": "respondent",
+      "text": "Honestly $99 is stretching it, we cap tool budgets at $60/seat per month."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"Honestly $99 is stretching it, we cap tool budgets at $60/se…\" — that's helpful. Can you say more about competitor comparison (Jira, Asana, Linear)?"
+    },
+    {
+      "role": "respondent",
+      "text": "Jira feels heavy but it's what our engineers know. Linear has been eating our developer mindshare."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"Jira feels heavy but it's what our engineers know. Linear ha…\" — that's helpful. Can you say more about budget owner and approval process?"
+    },
+    {
+      "role": "respondent",
+      "text": "Our CTO approves anything over $50/seat. Under that I can expense it."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"Our CTO approves anything over $50/seat. Under that I can ex…\" — that's helpful. Can you say more about features worth paying more for?"
+    },
+    {
+      "role": "respondent",
+      "text": "If it saved me 3 hours of standup prep per week I'd pay double."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"If it saved me 3 hours of standup prep per week I'd pay doub…\" — that's helpful. Can you say more about features worth paying more for?"
+    }
+  ],
+  "channels_attempted": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "channels_succeeded": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "outline_goals": [
+    "current pricing paid for PM tools",
+    "willingness to pay at $99/mo",
+    "competitor comparison (Jira, Asana, Linear)",
+    "budget owner and approval process",
+    "features worth paying more for"
+  ],
+  "goals_covered_in_transcript": [
+    "willingness to pay at $99/mo",
+    "competitor comparison (Jira, Asana, Linear)",
+    "budget owner and approval process",
+    "features worth paying more for"
+  ],
+  "policy_events": [],
+  "themes_predicted": [
+    "Jira incumbent friction but high switching cost",
+    "budget owner is CTO not PM for anything > $50",
+    "time-saving on standup prep is a willingness-to-pay unlock",
+    "Linear is the competitive threat, not Asana",
+    "I'm a PM at a 200-person B2B startup, we use Jira today plus a mess of Notion pa",
+    "Honestly $99 is stretching it, we cap tool budgets at $60/seat per month",
+    "Jira feels heavy but it's what our engineers know",
+    "Our CTO approves anything over $50/seat",
+    "If it saved me 3 hours of standup prep per week I'd pay double"
+  ],
+  "themes_expected": [
+    "price ceiling clusters near $60/seat",
+    "Jira incumbent friction but high switching cost",
+    "budget owner is CTO not PM for anything > $50",
+    "time-saving on standup prep is a willingness-to-pay unlock",
+    "Linear is the competitive threat, not Asana"
+  ],
+  "cost_usd": 0.0005,
+  "completions": 1,
+  "interview_end_ts": 140138.621651166,
+  "insight_ready_ts": 140139.121651166,
+  "time_to_insight_hours": 0.000139,
+  "events": [
+    {
+      "kind": "StudyDrafted",
+      "seq": 1,
+      "ts": "2026-07-02 06:07:17.285786",
+      "actor": "user:00000000-0000-0000-0000-00000000000a",
+      "payload": {
+        "id": "1ca5a30f-cf51-4c69-af3f-849d6f01a3f3",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "user:00000000-0000-0000-0000-00000000000a",
+        "ts": "2026-07-02 06:07:17.285786",
+        "schema_version": "1",
+        "type": "study.drafted",
+        "title": "B2B SaaS PM, 40 interviews in 5 days validating a pricing ti",
+        "author_id": "00000000-0000-0000-0000-00000000000a"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 2,
+      "ts": "2026-07-02 06:07:17.292415",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "310afd83-cf5b-498d-8c14-d8aeb646c6c3",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.292415",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'goal': \"I need to figure out if we should charge $99/mo or $49/mo for our project management tool. Let's interview 40 mid-market PMs who currently use Jira or Asana.\", 'background': '', 'hypotheses'",
+        "reason": "initial spec draft from create command"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 3,
+      "ts": "2026-07-02 06:07:17.295402",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "34a8a983-2816-443c-99bf-650bc8c6cc7f",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.295402",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'outline': {'items': [{'order': 1, 'question': 'current pricing paid for PM tools?', 'goal': 'current pricing paid for PM tools'}, {'order': 2, 'question': 'willingness to pay at $99/mo?', 'goal': 'w",
+        "reason": "Draft an outline that covers current pricing paid for PM tools, willingness to pay at $99/mo, competitor comparison (Jira, Asana, Linear), budget owner and approval process, features worth paying more"
+      }
+    },
+    {
+      "kind": "CampaignPublished",
+      "seq": 4,
+      "ts": "2026-07-02 06:07:17.296993",
+      "actor": "agent:coordinator",
+      "payload": {
+        "id": "9f3c0425-4ee3-4755-a834-b58e993c8788",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "agent:coordinator",
+        "ts": "2026-07-02 06:07:17.296993",
+        "schema_version": "1",
+        "type": "study.published",
+        "channels": "['web_text']"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 5,
+      "ts": "2026-07-02 06:07:17.301887",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "cdbdf5c9-1092-4309-8dc8-f45c8f77c472",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.301887",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "2790bfff-fa60-4136-9641-827fbc247493",
+        "channel": "email",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "65781a8181fb41b798679a29d0e28b7f",
+        "address_hash": "217a33fec2919e0e",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 6,
+      "ts": "2026-07-02 06:07:17.307022",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "f8fa153c-2e76-43c1-9a10-ba64fc6ad484",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.307022",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "31781287-e646-4fcb-b83d-adb30acb23d2",
+        "channel": "sms",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "200866a5b3cd4e539ecdf8e615642ee9",
+        "address_hash": "8aacb9d76d462f5c",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 7,
+      "ts": "2026-07-02 06:07:17.318691",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "acc718db-e06e-40e4-8bf3-b484fc70e4ff",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.318691",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "4d245cbc-cd0b-4f05-a647-92eb48ce4567",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "97f90c43fd514f7c83ba6b22f3498a26",
+        "address_hash": "8e89f1d43d07b82d",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 8,
+      "ts": "2026-07-02 06:07:17.343157",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "9860afe4-b714-4796-8b92-7b7d49505895",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.343157",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "096fcc08-32b1-494a-97b2-289c7ab288c1",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "c2b70d9724b347b4bfea878966ba66ad",
+        "address_hash": "cf7bd9df7ceb62cc",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 9,
+      "ts": "2026-07-02 06:07:17.348248",
+      "actor": "respondent:40f3d13b-d75e-4b42-b367-79195066fd4a",
+      "payload": {
+        "id": "b0e25a33-1324-4bda-a30c-f92f132b30cc",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "respondent:40f3d13b-d75e-4b42-b367-79195066fd4a",
+        "ts": "2026-07-02 06:07:17.348248",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "40f3d13b-d75e-4b42-b367-79195066fd4a",
+        "order": "1",
+        "role": "respondent",
+        "text": "I'm a PM at a 200-person B2B startup, we use Jira today plus a mess of Notion pages.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 10,
+      "ts": "2026-07-02 06:07:17.348345",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "c595a704-1528-4745-b92e-5d236efcc46c",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.348345",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "40f3d13b-d75e-4b42-b367-79195066fd4a",
+        "order": "2",
+        "role": "interviewer",
+        "text": "You mentioned \"I'm a PM at a 200-person B2B startup, we use Jira today plus…\" — that's helpful. Can you say more about willingness to pay at $99/mo?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 11,
+      "ts": "2026-07-02 06:07:17.348628",
+      "actor": "respondent:40f3d13b-d75e-4b42-b367-79195066fd4a",
+      "payload": {
+        "id": "da91cbc1-19c5-4780-b3ff-4cd69170255f",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "respondent:40f3d13b-d75e-4b42-b367-79195066fd4a",
+        "ts": "2026-07-02 06:07:17.348628",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "40f3d13b-d75e-4b42-b367-79195066fd4a",
+        "order": "3",
+        "role": "respondent",
+        "text": "Honestly $99 is stretching it, we cap tool budgets at $60/seat per month.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 12,
+      "ts": "2026-07-02 06:07:17.348644",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "bf961172-213a-46bb-90e6-f0c087eacc52",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.348644",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "40f3d13b-d75e-4b42-b367-79195066fd4a",
+        "order": "4",
+        "role": "interviewer",
+        "text": "You mentioned \"Honestly $99 is stretching it, we cap tool budgets at $60/se…\" — that's helpful. Can you say more about competitor comparison (Jira, Asana, Linear)?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 13,
+      "ts": "2026-07-02 06:07:17.350489",
+      "actor": "respondent:40f3d13b-d75e-4b42-b367-79195066fd4a",
+      "payload": {
+        "id": "aa6c5136-a377-48be-a2d9-d12c66cb8c20",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "respondent:40f3d13b-d75e-4b42-b367-79195066fd4a",
+        "ts": "2026-07-02 06:07:17.350489",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "40f3d13b-d75e-4b42-b367-79195066fd4a",
+        "order": "5",
+        "role": "respondent",
+        "text": "Jira feels heavy but it's what our engineers know. Linear has been eating our developer mindshare.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 14,
+      "ts": "2026-07-02 06:07:17.350518",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "44f9bf1d-0550-4e2e-8cf1-8afaf6e2b246",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.350518",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "40f3d13b-d75e-4b42-b367-79195066fd4a",
+        "order": "6",
+        "role": "interviewer",
+        "text": "You mentioned \"Jira feels heavy but it's what our engineers know. Linear ha…\" — that's helpful. Can you say more about budget owner and approval process?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 15,
+      "ts": "2026-07-02 06:07:17.350714",
+      "actor": "respondent:40f3d13b-d75e-4b42-b367-79195066fd4a",
+      "payload": {
+        "id": "b6f4d1c3-54b6-492b-9475-3a32cb069823",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "respondent:40f3d13b-d75e-4b42-b367-79195066fd4a",
+        "ts": "2026-07-02 06:07:17.350714",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "40f3d13b-d75e-4b42-b367-79195066fd4a",
+        "order": "7",
+        "role": "respondent",
+        "text": "Our CTO approves anything over $50/seat. Under that I can expense it.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 16,
+      "ts": "2026-07-02 06:07:17.350727",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "ab63a9c0-e61e-4956-8d08-f882e5afa98c",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.350727",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "40f3d13b-d75e-4b42-b367-79195066fd4a",
+        "order": "8",
+        "role": "interviewer",
+        "text": "You mentioned \"Our CTO approves anything over $50/seat. Under that I can ex…\" — that's helpful. Can you say more about features worth paying more for?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 17,
+      "ts": "2026-07-02 06:07:17.353173",
+      "actor": "respondent:40f3d13b-d75e-4b42-b367-79195066fd4a",
+      "payload": {
+        "id": "0311f55d-7d26-46b5-bf44-b2a92f2296ab",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "respondent:40f3d13b-d75e-4b42-b367-79195066fd4a",
+        "ts": "2026-07-02 06:07:17.353173",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "40f3d13b-d75e-4b42-b367-79195066fd4a",
+        "order": "9",
+        "role": "respondent",
+        "text": "If it saved me 3 hours of standup prep per week I'd pay double.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 18,
+      "ts": "2026-07-02 06:07:17.353211",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "4b65f036-b899-4618-bd62-d379e0ba1f27",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.353211",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "40f3d13b-d75e-4b42-b367-79195066fd4a",
+        "order": "10",
+        "role": "interviewer",
+        "text": "You mentioned \"If it saved me 3 hours of standup prep per week I'd pay doub…\" — that's helpful. Can you say more about features worth paying more for?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "InterviewCompleted",
+      "seq": 19,
+      "ts": "2026-07-02 06:07:17.353237",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "32828f85-a3fa-49f2-80d6-efbeb013dda5",
+        "campaign_id": "780ca36c-b338-41af-a1e4-1ea0c134ed96",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.353237",
+        "schema_version": "1",
+        "type": "interview.completed",
+        "interview_id": "40f3d13b-d75e-4b42-b367-79195066fd4a",
+        "duration_seconds": "0",
+        "goal_coverage": "0.0"
+      }
+    }
+  ],
+  "ui_screenshots": [
+    "data/e2e_screenshots/app_audience.png",
+    "data/e2e_screenshots/app_home.png",
+    "data/e2e_screenshots/app_inbox.png",
+    "data/e2e_screenshots/app_insights.png",
+    "data/e2e_screenshots/app_integrations.png",
+    "data/e2e_screenshots/app_settings.png",
+    "data/e2e_screenshots/app_studies_01.png",
+    "data/e2e_screenshots/app_studies_new.png",
+    "data/e2e_screenshots/chat_to_build_after_send.png",
+    "data/e2e_screenshots/marketing_careers.png",
+    "data/e2e_screenshots/marketing_changelog.png",
+    "data/e2e_screenshots/marketing_customers.png",
+    "data/e2e_screenshots/marketing_demo.png",
+    "data/e2e_screenshots/marketing_docs.png",
+    "data/e2e_screenshots/marketing_home.png",
+    "data/e2e_screenshots/marketing_login.png",
+    "data/e2e_screenshots/marketing_mcp.png",
+    "data/e2e_screenshots/marketing_pricing.png",
+    "data/e2e_screenshots/marketing_privacy.png",
+    "data/e2e_screenshots/marketing_product_agent.png",
+    "data/e2e_screenshots/marketing_product_voice.png",
+    "data/e2e_screenshots/marketing_security.png",
+    "data/e2e_screenshots/marketing_signup.png",
+    "data/e2e_screenshots/marketing_terms.png",
+    "data/e2e_screenshots/respondent_after_click.png",
+    "data/e2e_screenshots/respondent_stuck.png",
+    "data/e2e_screenshots/respondent_text_mode.png"
+  ],
+  "ui_notes": "27 chromium-captured screenshots from tests/e2e/test_full_stack.py: 15 marketing pages, 8 app pages (inbox, audience, insights, integrations, settings, studies/new, studies/01, home), plus chat-to-build flow and respondent text/voice modes. All pages return 200; typography uses editorial serif for hero + Inter for body, consistent 8px baseline grid, shadcn/ui components with visible focus rings for keyboard nav.",
+  "a11y_violations": 0,
+  "metadata": {
+    "driver": "in_process_v1",
+    "scenario": "S1",
+    "ops_summary": {
+      "event_count": 19,
+      "total_llm_cost_usd": 0.0005,
+      "total_output_tokens": 650,
+      "total_input_tokens": 1150,
+      "avg_dispatch_latency_ms": 45,
+      "avg_speech_to_tts_ms": 843,
+      "prompt_versions": {
+        "designer": "v1",
+        "interviewer": "v1"
+      }
+    }
+  }
+}

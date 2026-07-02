@@ -1,0 +1,29 @@
+{
+  "scenario_id": "S7",
+  "persona": "Research ops lead running a paid recruited panel for a fintech client",
+  "prompt_to_designer": "Recruit 100+ from a screener JSON. Drop anyone earning under $75K or not primary account holder. Qualifiers get a Calendly link then a voice interview. Fire the Tremendous incentive webhook exactly once per completion.",
+  "expected_outline_topics": [
+    "screener: income band, primary-account status, banking apps used",
+    "current bank switching triggers",
+    "friction with mobile deposit",
+    "opinion on fee transparency",
+    "willingness to switch to a challenger bank"
+  ],
+  "channels": ["email"],
+  "target_completions": 100,
+  "budget_usd": 1200,
+  "sample_answers": [
+    {"question_index": 0, "text": "Household income $110K, I'm the primary on both checking and savings. I use Chase mobile and Venmo."},
+    {"question_index": 1, "text": "Last time I switched banks was after Wells Fargo overdrew me twice for $35 on a $4 charge."},
+    {"question_index": 2, "text": "Chase's mobile deposit is fine but it holds $5K+ checks for 5 business days — that's when I curse."},
+    {"question_index": 3, "text": "I want the fees on one page. Not buried in a 40-page PDF I can't search."},
+    {"question_index": 4, "text": "I'd try a challenger for savings interest but I don't trust them with my paycheck yet."}
+  ],
+  "expected_themes": [
+    "surprise-fee incidents are the #1 switching trigger",
+    "hold-times on large checks are the mobile-deposit dealbreaker",
+    "fee transparency is table-stakes, not a differentiator",
+    "trust bifurcation: users try challengers on savings, not primary",
+    "screener JSON must exclude non-primary account holders cleanly"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "scenario_id": "S6",
+  "persona": "Shopify D2C brand ops lead, post-purchase satisfaction weekly loop",
+  "prompt_to_designer": "Email every customer 7 days post-delivery. Ask NPS + one open-ended. If they pick a NPS ≤ 6 or ≥ 9, offer to switch to a 3-minute voice call. Roll up to a weekly brand dashboard.",
+  "expected_outline_topics": [
+    "NPS 0-10",
+    "one thing you loved",
+    "one thing that would have made it better",
+    "would you buy again",
+    "voice follow-up opt-in"
+  ],
+  "channels": ["email"],
+  "target_completions": 500,
+  "budget_usd": 250,
+  "sample_answers": [
+    {"question_index": 0, "text": "9"},
+    {"question_index": 1, "text": "The unboxing — the note from the founder felt personal, not templated."},
+    {"question_index": 2, "text": "Shipping took 8 days and I couldn't track it after day 3."},
+    {"question_index": 3, "text": "Yes, already planning a gift order for my sister."},
+    {"question_index": 4, "text": "Sure, evenings PT work."}
+  ],
+  "expected_themes": [
+    "unboxing is the top NPS driver — founder note stands out",
+    "shipping tracking gap between day 3 and delivery hurts NPS",
+    "high repeat-purchase intent even among 7/10 raters",
+    "voice opt-in rate on NPS ≥ 9 is meaningfully higher than ≤ 6",
+    "sentiment agrees with NPS score ≥ 85% — safe for auto-flagging"
+  ]
+}

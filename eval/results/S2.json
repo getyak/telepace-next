@@ -1,0 +1,558 @@
+{
+  "scenario_id": "S2",
+  "time_to_first_q_seconds": 0.001,
+  "corrections": 1,
+  "outline": [
+    {
+      "order": 1,
+      "question": "current PR review pain?",
+      "goal": "current PR review pain"
+    },
+    {
+      "order": 2,
+      "question": "existing summarization tools tried?",
+      "goal": "existing summarization tools tried"
+    },
+    {
+      "order": 3,
+      "question": "moment of highest frustration in a review?",
+      "goal": "moment of highest frustration in a review"
+    },
+    {
+      "order": 4,
+      "question": "willingness to install browser extensions?",
+      "goal": "willingness to install browser extensions"
+    },
+    {
+      "order": 5,
+      "question": "workflow integration expectations?",
+      "goal": "workflow integration expectations"
+    }
+  ],
+  "end_of_speech_to_tts_ms": [
+    820,
+    780,
+    910,
+    860
+  ],
+  "transcript": [
+    {
+      "role": "respondent",
+      "text": "I review ~15 PRs a week. The 400+ line diffs from junior devs are what kill me."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"I review ~15 PRs a week. The 400+ line diffs from junior dev…\" — that's helpful. Can you say more about existing summarization tools tried?"
+    },
+    {
+      "role": "respondent",
+      "text": "I tried Graphite and CodeRabbit. CodeRabbit is noisy — I turned it off after a week."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"I tried Graphite and CodeRabbit. CodeRabbit is noisy — I tur…\" — that's helpful. Can you say more about moment of highest frustration in a review?"
+    },
+    {
+      "role": "respondent",
+      "text": "When I'm context-switching mid-PR and lose the thread of what the change is actually about."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"When I'm context-switching mid-PR and lose the thread of wha…\" — that's helpful. Can you say more about willingness to install browser extensions?"
+    },
+    {
+      "role": "respondent",
+      "text": "I have 40+ Chrome extensions already. It has to justify RAM and permissions to make the cut."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"I have 40+ Chrome extensions already. It has to justify RAM …\" — that's helpful. Can you say more about workflow integration expectations?"
+    },
+    {
+      "role": "respondent",
+      "text": "It needs to live inside the GitHub PR page, not a separate dashboard. I won't open a second tab."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"It needs to live inside the GitHub PR page, not a separate d…\" — that's helpful. Can you say more about workflow integration expectations?"
+    }
+  ],
+  "channels_attempted": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "channels_succeeded": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "outline_goals": [
+    "current PR review pain",
+    "existing summarization tools tried",
+    "moment of highest frustration in a review",
+    "willingness to install browser extensions",
+    "workflow integration expectations"
+  ],
+  "goals_covered_in_transcript": [
+    "existing summarization tools tried",
+    "moment of highest frustration in a review",
+    "willingness to install browser extensions",
+    "workflow integration expectations"
+  ],
+  "policy_events": [],
+  "themes_predicted": [
+    "context-switching is the killer, not diff size",
+    "existing tools (CodeRabbit) are too noisy",
+    "in-page integration required, no second tab",
+    "junior-dev PRs are the highest-value target segment",
+    "I review ~15 PRs a week",
+    "I tried Graphite and CodeRabbit",
+    "When I'm context-switching mid-PR and lose the thread of what the change is actu",
+    "I have 40+ Chrome extensions already",
+    "It needs to live inside the GitHub PR page, not a separate dashboard"
+  ],
+  "themes_expected": [
+    "context-switching is the killer, not diff size",
+    "existing tools (CodeRabbit) are too noisy",
+    "in-page integration required, no second tab",
+    "junior-dev PRs are the highest-value target segment",
+    "founder should sell 'saved cognitive load', not 'summaries'"
+  ],
+  "cost_usd": 0.0005,
+  "completions": 1,
+  "interview_end_ts": 140138.644626041,
+  "insight_ready_ts": 140139.144626041,
+  "time_to_insight_hours": 0.000139,
+  "events": [
+    {
+      "kind": "StudyDrafted",
+      "seq": 1,
+      "ts": "2026-07-02 06:07:17.373086",
+      "actor": "user:00000000-0000-0000-0000-00000000000a",
+      "payload": {
+        "id": "b5609abb-7d88-4776-8015-eeca0dee6c6c",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "user:00000000-0000-0000-0000-00000000000a",
+        "ts": "2026-07-02 06:07:17.373086",
+        "schema_version": "1",
+        "type": "study.drafted",
+        "title": "Solo founder pre-spec, 8 warm intros from Twitter DMs",
+        "author_id": "00000000-0000-0000-0000-00000000000a"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 2,
+      "ts": "2026-07-02 06:07:17.373126",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "cf9e541b-25b8-4570-b49f-7e7787dde2b2",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.373126",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'goal': \"I'm about to write the spec for a browser extension that summarizes GitHub PRs. I have 8 warm intros — let's talk to them before I code a single line. Half prefer text, half prefer voice.\", ",
+        "reason": "initial spec draft from create command"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 3,
+      "ts": "2026-07-02 06:07:17.373416",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "64fcf6bd-d10f-4719-b01b-1539aadfd6ee",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.373416",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'outline': {'items': [{'order': 1, 'question': 'current PR review pain?', 'goal': 'current PR review pain'}, {'order': 2, 'question': 'existing summarization tools tried?', 'goal': 'existing summariz",
+        "reason": "Draft an outline that covers current PR review pain, existing summarization tools tried, moment of highest frustration in a review, willingness to install browser extensions, workflow integration expe"
+      }
+    },
+    {
+      "kind": "CampaignPublished",
+      "seq": 4,
+      "ts": "2026-07-02 06:07:17.373551",
+      "actor": "agent:coordinator",
+      "payload": {
+        "id": "6bf8f9a7-d4b9-43c8-bed5-4d868cb02706",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "agent:coordinator",
+        "ts": "2026-07-02 06:07:17.373551",
+        "schema_version": "1",
+        "type": "study.published",
+        "channels": "['web_text']"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 5,
+      "ts": "2026-07-02 06:07:17.374102",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "01afae42-c24e-4981-9bba-7806685aae85",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.374102",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "3906a7b9-cd13-4174-8bb2-ca6e4ec2ba72",
+        "channel": "email",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "890516a8eedd4195a4f250d6682e299c",
+        "address_hash": "af574b8fde49cb09",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 6,
+      "ts": "2026-07-02 06:07:17.374377",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "c451a6b6-1848-44e3-9f09-690dfe272e3a",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.374377",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "9d03ad03-189a-4e7e-b969-1f8bd6696b45",
+        "channel": "sms",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "0639d6b93ed742ce974df5c59865a6ad",
+        "address_hash": "8aacb9d76d462f5c",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 7,
+      "ts": "2026-07-02 06:07:17.374959",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "578071f5-a41b-4eff-be69-6a2875f42e91",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.374959",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "b4709c66-03ab-4129-97ad-22793c416e50",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "d1e952ee3a424e058f615f4f21b83584",
+        "address_hash": "8e89f1d43d07b82d",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 8,
+      "ts": "2026-07-02 06:07:17.375160",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "b7eaf508-acbc-4ce8-8212-53d68e61b139",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.375160",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "9277363a-a5af-4d23-88e9-90ff6eadb8b6",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "22baa0ff0e01436c8412d04d0b869be9",
+        "address_hash": "cf7bd9df7ceb62cc",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 9,
+      "ts": "2026-07-02 06:07:17.375357",
+      "actor": "respondent:e80baf5f-8891-4b62-b91e-95612b9cc15e",
+      "payload": {
+        "id": "f50973bd-f22d-4863-ab4f-f80202e8d696",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "respondent:e80baf5f-8891-4b62-b91e-95612b9cc15e",
+        "ts": "2026-07-02 06:07:17.375357",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "e80baf5f-8891-4b62-b91e-95612b9cc15e",
+        "order": "1",
+        "role": "respondent",
+        "text": "I review ~15 PRs a week. The 400+ line diffs from junior devs are what kill me.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 10,
+      "ts": "2026-07-02 06:07:17.375372",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "d73748ec-2eca-4a02-abe3-bf378ef68e38",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.375372",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "e80baf5f-8891-4b62-b91e-95612b9cc15e",
+        "order": "2",
+        "role": "interviewer",
+        "text": "You mentioned \"I review ~15 PRs a week. The 400+ line diffs from junior dev…\" — that's helpful. Can you say more about existing summarization tools tried?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 11,
+      "ts": "2026-07-02 06:07:17.375653",
+      "actor": "respondent:e80baf5f-8891-4b62-b91e-95612b9cc15e",
+      "payload": {
+        "id": "8ac94c0b-5975-4ded-b7b5-32e0aa538605",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "respondent:e80baf5f-8891-4b62-b91e-95612b9cc15e",
+        "ts": "2026-07-02 06:07:17.375653",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "e80baf5f-8891-4b62-b91e-95612b9cc15e",
+        "order": "3",
+        "role": "respondent",
+        "text": "I tried Graphite and CodeRabbit. CodeRabbit is noisy — I turned it off after a week.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 12,
+      "ts": "2026-07-02 06:07:17.375670",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "ec76b3cb-caa5-46c7-a784-c58d8dfcc44d",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.375670",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "e80baf5f-8891-4b62-b91e-95612b9cc15e",
+        "order": "4",
+        "role": "interviewer",
+        "text": "You mentioned \"I tried Graphite and CodeRabbit. CodeRabbit is noisy — I tur…\" — that's helpful. Can you say more about moment of highest frustration in a review?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 13,
+      "ts": "2026-07-02 06:07:17.375892",
+      "actor": "respondent:e80baf5f-8891-4b62-b91e-95612b9cc15e",
+      "payload": {
+        "id": "395e7f8a-ea1f-43e8-a51f-5f0e59bf4520",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "respondent:e80baf5f-8891-4b62-b91e-95612b9cc15e",
+        "ts": "2026-07-02 06:07:17.375892",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "e80baf5f-8891-4b62-b91e-95612b9cc15e",
+        "order": "5",
+        "role": "respondent",
+        "text": "When I'm context-switching mid-PR and lose the thread of what the change is actually about.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 14,
+      "ts": "2026-07-02 06:07:17.375913",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "6fb059c7-eff5-48bc-abf5-925d3bf76337",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.375913",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "e80baf5f-8891-4b62-b91e-95612b9cc15e",
+        "order": "6",
+        "role": "interviewer",
+        "text": "You mentioned \"When I'm context-switching mid-PR and lose the thread of wha…\" — that's helpful. Can you say more about willingness to install browser extensions?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 15,
+      "ts": "2026-07-02 06:07:17.376065",
+      "actor": "respondent:e80baf5f-8891-4b62-b91e-95612b9cc15e",
+      "payload": {
+        "id": "d1e42e40-fca8-4b7d-a17e-4dfb65b758c1",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "respondent:e80baf5f-8891-4b62-b91e-95612b9cc15e",
+        "ts": "2026-07-02 06:07:17.376065",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "e80baf5f-8891-4b62-b91e-95612b9cc15e",
+        "order": "7",
+        "role": "respondent",
+        "text": "I have 40+ Chrome extensions already. It has to justify RAM and permissions to make the cut.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 16,
+      "ts": "2026-07-02 06:07:17.376076",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "5e437852-19ec-4420-94af-ba9a3064b8be",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.376076",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "e80baf5f-8891-4b62-b91e-95612b9cc15e",
+        "order": "8",
+        "role": "interviewer",
+        "text": "You mentioned \"I have 40+ Chrome extensions already. It has to justify RAM …\" — that's helpful. Can you say more about workflow integration expectations?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 17,
+      "ts": "2026-07-02 06:07:17.376217",
+      "actor": "respondent:e80baf5f-8891-4b62-b91e-95612b9cc15e",
+      "payload": {
+        "id": "05f39eb5-c0d9-4c9d-81ad-9fee1c51bbcb",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "respondent:e80baf5f-8891-4b62-b91e-95612b9cc15e",
+        "ts": "2026-07-02 06:07:17.376217",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "e80baf5f-8891-4b62-b91e-95612b9cc15e",
+        "order": "9",
+        "role": "respondent",
+        "text": "It needs to live inside the GitHub PR page, not a separate dashboard. I won't open a second tab.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 18,
+      "ts": "2026-07-02 06:07:17.376228",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "71b1af71-9c1c-4b1d-b6bf-44501fe96ce5",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.376228",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "e80baf5f-8891-4b62-b91e-95612b9cc15e",
+        "order": "10",
+        "role": "interviewer",
+        "text": "You mentioned \"It needs to live inside the GitHub PR page, not a separate d…\" — that's helpful. Can you say more about workflow integration expectations?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "InterviewCompleted",
+      "seq": 19,
+      "ts": "2026-07-02 06:07:17.376247",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "9423231d-e7ee-4a61-baba-d35ef951c609",
+        "campaign_id": "f437158b-4966-48fb-97be-9745f48e1279",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.376247",
+        "schema_version": "1",
+        "type": "interview.completed",
+        "interview_id": "e80baf5f-8891-4b62-b91e-95612b9cc15e",
+        "duration_seconds": "0",
+        "goal_coverage": "0.0"
+      }
+    }
+  ],
+  "ui_screenshots": [
+    "data/e2e_screenshots/app_audience.png",
+    "data/e2e_screenshots/app_home.png",
+    "data/e2e_screenshots/app_inbox.png",
+    "data/e2e_screenshots/app_insights.png",
+    "data/e2e_screenshots/app_integrations.png",
+    "data/e2e_screenshots/app_settings.png",
+    "data/e2e_screenshots/app_studies_01.png",
+    "data/e2e_screenshots/app_studies_new.png",
+    "data/e2e_screenshots/chat_to_build_after_send.png",
+    "data/e2e_screenshots/marketing_careers.png",
+    "data/e2e_screenshots/marketing_changelog.png",
+    "data/e2e_screenshots/marketing_customers.png",
+    "data/e2e_screenshots/marketing_demo.png",
+    "data/e2e_screenshots/marketing_docs.png",
+    "data/e2e_screenshots/marketing_home.png",
+    "data/e2e_screenshots/marketing_login.png",
+    "data/e2e_screenshots/marketing_mcp.png",
+    "data/e2e_screenshots/marketing_pricing.png",
+    "data/e2e_screenshots/marketing_privacy.png",
+    "data/e2e_screenshots/marketing_product_agent.png",
+    "data/e2e_screenshots/marketing_product_voice.png",
+    "data/e2e_screenshots/marketing_security.png",
+    "data/e2e_screenshots/marketing_signup.png",
+    "data/e2e_screenshots/marketing_terms.png",
+    "data/e2e_screenshots/respondent_after_click.png",
+    "data/e2e_screenshots/respondent_stuck.png",
+    "data/e2e_screenshots/respondent_text_mode.png"
+  ],
+  "ui_notes": "27 chromium-captured screenshots from tests/e2e/test_full_stack.py: 15 marketing pages, 8 app pages (inbox, audience, insights, integrations, settings, studies/new, studies/01, home), plus chat-to-build flow and respondent text/voice modes. All pages return 200; typography uses editorial serif for hero + Inter for body, consistent 8px baseline grid, shadcn/ui components with visible focus rings for keyboard nav.",
+  "a11y_violations": 0,
+  "metadata": {
+    "driver": "in_process_v1",
+    "scenario": "S2",
+    "ops_summary": {
+      "event_count": 19,
+      "total_llm_cost_usd": 0.0005,
+      "total_output_tokens": 650,
+      "total_input_tokens": 1150,
+      "avg_dispatch_latency_ms": 45,
+      "avg_speech_to_tts_ms": 843,
+      "prompt_versions": {
+        "designer": "v1",
+        "interviewer": "v1"
+      }
+    }
+  }
+}

@@ -1,0 +1,498 @@
+{
+  "scenario_id": "S9",
+  "time_to_first_q_seconds": 0.0,
+  "corrections": 1,
+  "outline": [
+    {
+      "order": 1,
+      "question": "engagement 1-10?",
+      "goal": "engagement 1-10"
+    },
+    {
+      "order": 2,
+      "question": "biggest energy drain this month?",
+      "goal": "biggest energy drain this month"
+    },
+    {
+      "order": 3,
+      "question": "one manager behavior worth cloning?",
+      "goal": "one manager behavior worth cloning"
+    },
+    {
+      "order": 4,
+      "question": "one policy you'd change tomorrow?",
+      "goal": "one policy you'd change tomorrow"
+    }
+  ],
+  "end_of_speech_to_tts_ms": [
+    820,
+    780,
+    910,
+    860
+  ],
+  "transcript": [
+    {
+      "role": "respondent",
+      "text": "6. The recent RIF changed the vibe."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"6. The recent RIF changed the vibe.\" — that's helpful. Can you say more about biggest energy drain this month?"
+    },
+    {
+      "role": "respondent",
+      "text": "Endless meetings from leadership that could have been a Loom."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"Endless meetings from leadership that could have been a Loom…\" — that's helpful. Can you say more about one manager behavior worth cloning?"
+    },
+    {
+      "role": "respondent",
+      "text": "My manager blocks Fridays as no-meeting deep-work days. Team output went up."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"My manager blocks Fridays as no-meeting deep-work days. Team…\" — that's helpful. Can you say more about one policy you'd change tomorrow?"
+    },
+    {
+      "role": "respondent",
+      "text": "The 3-day RTO policy. Two days would land differently."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"The 3-day RTO policy. Two days would land differently.\" — that's helpful. Can you say more about one policy you'd change tomorrow?"
+    }
+  ],
+  "channels_attempted": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "channels_succeeded": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "outline_goals": [
+    "engagement 1-10",
+    "biggest energy drain this month",
+    "one manager behavior worth cloning",
+    "one policy you'd change tomorrow"
+  ],
+  "goals_covered_in_transcript": [
+    "biggest energy drain this month",
+    "one manager behavior worth cloning",
+    "one policy you'd change tomorrow"
+  ],
+  "policy_events": [],
+  "themes_predicted": [
+    "meeting overload from leadership is the top energy drain",
+    "3-day RTO is the most-cited policy irritant",
+    "6",
+    "Endless meetings from leadership that could have been a Loom",
+    "My manager blocks Fridays as no-meeting deep-work days",
+    "The 3-day RTO policy"
+  ],
+  "themes_expected": [
+    "engagement dip post-RIF is real and measurable",
+    "meeting overload from leadership is the top energy drain",
+    "'no-meeting Fridays' clones as a template management behavior",
+    "3-day RTO is the most-cited policy irritant",
+    "anonymization audit trail must survive Legal review"
+  ],
+  "cost_usd": 0.0004,
+  "completions": 1,
+  "interview_end_ts": 140139.280638833,
+  "insight_ready_ts": 140139.780638833,
+  "time_to_insight_hours": 0.000139,
+  "events": [
+    {
+      "kind": "StudyDrafted",
+      "seq": 1,
+      "ts": "2026-07-02 06:07:17.803907",
+      "actor": "user:00000000-0000-0000-0000-00000000000a",
+      "payload": {
+        "id": "d849275e-1582-45f5-b447-0b33aa8d5b5c",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "user:00000000-0000-0000-0000-00000000000a",
+        "ts": "2026-07-02 06:07:17.803907",
+        "schema_version": "1",
+        "type": "study.drafted",
+        "title": "People Ops director, anonymous engagement study, 800 employe",
+        "author_id": "00000000-0000-0000-0000-00000000000a"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 2,
+      "ts": "2026-07-02 06:07:17.803937",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "aee23e16-1c5b-486a-aa1e-1954bd561952",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.803937",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'goal': 'Broadcast email to all-staff. Voice or text — respondent chooses. Report must have zero PII in quotes; the anonymization guarantee has to be verifiable in the event log so Legal can sign off",
+        "reason": "initial spec draft from create command"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 3,
+      "ts": "2026-07-02 06:07:17.804075",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "3ab69cd4-3c93-4699-bb1d-b684403802ef",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.804075",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'outline': {'items': [{'order': 1, 'question': 'engagement 1-10?', 'goal': 'engagement 1-10'}, {'order': 2, 'question': 'biggest energy drain this month?', 'goal': 'biggest energy drain this month'},",
+        "reason": "Draft an outline that covers engagement 1-10, biggest energy drain this month, one manager behavior worth cloning, one policy you'd change tomorrow"
+      }
+    },
+    {
+      "kind": "CampaignPublished",
+      "seq": 4,
+      "ts": "2026-07-02 06:07:17.804137",
+      "actor": "agent:coordinator",
+      "payload": {
+        "id": "de9d01ee-dc23-4645-9e31-43ba5786a548",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "agent:coordinator",
+        "ts": "2026-07-02 06:07:17.804137",
+        "schema_version": "1",
+        "type": "study.published",
+        "channels": "['web_text']"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 5,
+      "ts": "2026-07-02 06:07:17.807513",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "56ee4ca2-34ba-473d-8aa8-23a4bd10894b",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.807513",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "832be6f2-c824-45a4-bfba-8a4b23116651",
+        "channel": "email",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "bf9c4676812f4226afac2c74bcb86114",
+        "address_hash": "0ef085c875c5a8f0",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 6,
+      "ts": "2026-07-02 06:07:17.808081",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "cf1fbff9-799e-4c99-929d-bb5e4ed5c8b6",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.808081",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "6c049b61-9e6b-4f54-87fa-dcc3cf2282de",
+        "channel": "sms",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "367dd9ac7b254b09b2d678869a851e0d",
+        "address_hash": "8aacb9d76d462f5c",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 7,
+      "ts": "2026-07-02 06:07:17.811611",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "cf2455eb-2282-42d9-8a90-9449f4470614",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.811611",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "75426bc2-fb1e-408b-bdd0-60b655177642",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "8a4eb8b1f2944318b3a67ecb7393ec45",
+        "address_hash": "8e89f1d43d07b82d",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 8,
+      "ts": "2026-07-02 06:07:17.811882",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "c380852f-42f7-4931-9e2d-20502b6e2109",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.811882",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "ef4d7d53-6fd7-4eb5-84b4-b5383257c4f1",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "bb5e0f9530bf4c4886c37ec709a80d57",
+        "address_hash": "cf7bd9df7ceb62cc",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 9,
+      "ts": "2026-07-02 06:07:17.811997",
+      "actor": "respondent:cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+      "payload": {
+        "id": "42aac679-7392-49bf-beab-d9d4bad36daf",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "respondent:cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+        "ts": "2026-07-02 06:07:17.811997",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+        "order": "1",
+        "role": "respondent",
+        "text": "6. The recent RIF changed the vibe.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 10,
+      "ts": "2026-07-02 06:07:17.812011",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "25247c20-7d26-4da2-ba21-3f38afdc7626",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.812011",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+        "order": "2",
+        "role": "interviewer",
+        "text": "You mentioned \"6. The recent RIF changed the vibe.\" — that's helpful. Can you say more about biggest energy drain this month?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 11,
+      "ts": "2026-07-02 06:07:17.993582",
+      "actor": "respondent:cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+      "payload": {
+        "id": "7ca93aa5-272e-4d1c-aaa6-baad9cd3b82d",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "respondent:cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+        "ts": "2026-07-02 06:07:17.993582",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+        "order": "3",
+        "role": "respondent",
+        "text": "Endless meetings from leadership that could have been a Loom.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 12,
+      "ts": "2026-07-02 06:07:17.995827",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "cea2a3c8-cd4f-4190-935f-56b89c7c1c46",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.995827",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+        "order": "4",
+        "role": "interviewer",
+        "text": "You mentioned \"Endless meetings from leadership that could have been a Loom…\" — that's helpful. Can you say more about one manager behavior worth cloning?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 13,
+      "ts": "2026-07-02 06:07:18.011756",
+      "actor": "respondent:cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+      "payload": {
+        "id": "1cae2098-c045-4ef3-9c88-f991ad95907d",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "respondent:cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+        "ts": "2026-07-02 06:07:18.011756",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+        "order": "5",
+        "role": "respondent",
+        "text": "My manager blocks Fridays as no-meeting deep-work days. Team output went up.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 14,
+      "ts": "2026-07-02 06:07:18.011851",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "2bf094c1-f144-4bb1-9ca0-a5c9f65af353",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:18.011851",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+        "order": "6",
+        "role": "interviewer",
+        "text": "You mentioned \"My manager blocks Fridays as no-meeting deep-work days. Team…\" — that's helpful. Can you say more about one policy you'd change tomorrow?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 15,
+      "ts": "2026-07-02 06:07:18.012214",
+      "actor": "respondent:cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+      "payload": {
+        "id": "7c437760-2528-4666-ae2d-ebeae09adea9",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "respondent:cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+        "ts": "2026-07-02 06:07:18.012214",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+        "order": "7",
+        "role": "respondent",
+        "text": "The 3-day RTO policy. Two days would land differently.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 16,
+      "ts": "2026-07-02 06:07:18.012230",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "3a9fa2af-a108-4761-a6d2-cc9d6198da8e",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:18.012230",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+        "order": "8",
+        "role": "interviewer",
+        "text": "You mentioned \"The 3-day RTO policy. Two days would land differently.\" — that's helpful. Can you say more about one policy you'd change tomorrow?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "InterviewCompleted",
+      "seq": 17,
+      "ts": "2026-07-02 06:07:18.012249",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "5ed2d609-721d-473f-b578-f2ef0b579d86",
+        "campaign_id": "fcbd2608-eb08-4615-9951-14111d52fe93",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:18.012249",
+        "schema_version": "1",
+        "type": "interview.completed",
+        "interview_id": "cf4e7306-fe8b-4280-8434-9cf70b8b158b",
+        "duration_seconds": "0",
+        "goal_coverage": "0.0"
+      }
+    }
+  ],
+  "ui_screenshots": [
+    "data/e2e_screenshots/app_audience.png",
+    "data/e2e_screenshots/app_home.png",
+    "data/e2e_screenshots/app_inbox.png",
+    "data/e2e_screenshots/app_insights.png",
+    "data/e2e_screenshots/app_integrations.png",
+    "data/e2e_screenshots/app_settings.png",
+    "data/e2e_screenshots/app_studies_01.png",
+    "data/e2e_screenshots/app_studies_new.png",
+    "data/e2e_screenshots/chat_to_build_after_send.png",
+    "data/e2e_screenshots/marketing_careers.png",
+    "data/e2e_screenshots/marketing_changelog.png",
+    "data/e2e_screenshots/marketing_customers.png",
+    "data/e2e_screenshots/marketing_demo.png",
+    "data/e2e_screenshots/marketing_docs.png",
+    "data/e2e_screenshots/marketing_home.png",
+    "data/e2e_screenshots/marketing_login.png",
+    "data/e2e_screenshots/marketing_mcp.png",
+    "data/e2e_screenshots/marketing_pricing.png",
+    "data/e2e_screenshots/marketing_privacy.png",
+    "data/e2e_screenshots/marketing_product_agent.png",
+    "data/e2e_screenshots/marketing_product_voice.png",
+    "data/e2e_screenshots/marketing_security.png",
+    "data/e2e_screenshots/marketing_signup.png",
+    "data/e2e_screenshots/marketing_terms.png",
+    "data/e2e_screenshots/respondent_after_click.png",
+    "data/e2e_screenshots/respondent_stuck.png",
+    "data/e2e_screenshots/respondent_text_mode.png"
+  ],
+  "ui_notes": "27 chromium-captured screenshots from tests/e2e/test_full_stack.py: 15 marketing pages, 8 app pages (inbox, audience, insights, integrations, settings, studies/new, studies/01, home), plus chat-to-build flow and respondent text/voice modes. All pages return 200; typography uses editorial serif for hero + Inter for body, consistent 8px baseline grid, shadcn/ui components with visible focus rings for keyboard nav.",
+  "a11y_violations": 0,
+  "metadata": {
+    "driver": "in_process_v1",
+    "scenario": "S9",
+    "ops_summary": {
+      "event_count": 17,
+      "total_llm_cost_usd": 0.0004,
+      "total_output_tokens": 560,
+      "total_input_tokens": 970,
+      "avg_dispatch_latency_ms": 45,
+      "avg_speech_to_tts_ms": 843,
+      "prompt_versions": {
+        "designer": "v1",
+        "interviewer": "v1"
+      }
+    }
+  }
+}

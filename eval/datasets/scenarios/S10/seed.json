@@ -1,0 +1,29 @@
+{
+  "scenario_id": "S10",
+  "persona": "PhD researcher, longitudinal study N=50, 4 waves over 6 months",
+  "prompt_to_designer": "Consented cohort. Same 50 respondents at wave 0, +6wk, +12wk, +24wk. Voice interview each wave. Show theme-evolution over time in /insights. Consent audit trail must be intact for publication.",
+  "expected_outline_topics": [
+    "current relationship with the technology under study",
+    "changes since last wave",
+    "unexpected uses",
+    "abandonment moments",
+    "would you re-consent for wave N+1"
+  ],
+  "channels": ["email"],
+  "target_completions": 50,
+  "budget_usd": 300,
+  "sample_answers": [
+    {"question_index": 0, "text": "At wave 0 I used it maybe twice a week, mostly for casual queries."},
+    {"question_index": 1, "text": "Since last wave it's become part of my morning routine — I now dictate my journal to it."},
+    {"question_index": 2, "text": "I started using it to argue with myself before big decisions. That wasn't planned."},
+    {"question_index": 3, "text": "I quit it for 8 days after it hallucinated a citation for my dissertation."},
+    {"question_index": 4, "text": "Yes, I'll re-consent. The interviews are honestly making me think more clearly about my own use."}
+  ],
+  "expected_themes": [
+    "usage evolves from casual to daily-ritual by wave 2",
+    "unexpected use case: adversarial self-argument",
+    "hallucinated-citation event is a durable trust rupture",
+    "high re-consent rate — respondents report meta-cognitive benefit",
+    "theme-evolution chart is the North-Star deliverable"
+  ]
+}

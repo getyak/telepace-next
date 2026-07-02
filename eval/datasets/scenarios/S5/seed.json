@@ -1,0 +1,27 @@
+{
+  "scenario_id": "S5",
+  "persona": "B2C growth PM, 10K weekly signups, focused on onboarding drop-off at step 3",
+  "prompt_to_designer": "SMS the users who dropped at step 3 in the last 24 hours. Voice interview, 90 seconds hard cap. Daily digest in one paragraph, not a wall of quotes.",
+  "expected_outline_topics": [
+    "why they stopped at step 3",
+    "what they expected step 3 to be",
+    "whether they came back later",
+    "one word for the onboarding overall"
+  ],
+  "channels": ["sms"],
+  "target_completions": 300,
+  "budget_usd": 200,
+  "sample_answers": [
+    {"question_index": 0, "text": "You asked me to connect my bank and I got scared. I'll come back when I trust you more."},
+    {"question_index": 1, "text": "I thought step 3 was going to be picking a plan, not linking financial accounts."},
+    {"question_index": 2, "text": "No, I forgot honestly. Life got in the way."},
+    {"question_index": 3, "text": "Rushed."}
+  ],
+  "expected_themes": [
+    "bank-connect at step 3 breaks trust for new users",
+    "expectation mismatch: users thought step 3 = plan selection",
+    "'rushed' sentiment dominates single-word summaries",
+    "abandoned users rarely self-return without a nudge",
+    "SMS opt-out compliance is nontrivial — hit a real STOP list"
+  ]
+}

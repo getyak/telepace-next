@@ -1,0 +1,70 @@
+"""Resend email dispatcher — thin HTTP wrapper, no SDK."""
+
+from __future__ import annotations
+
+import logging
+
+import httpx
+
+from interfaces.channels.base import DispatchReceipt, Invite, retry
+
+logger = logging.getLogger(__name__)
+
+_ENDPOINT = "https://api.resend.com/emails"
+
+
+class ResendEmail:
+    provider_name = "resend"
+
+    def __init__(self, *, api_key: str, from_address: str, timeout: float = 10.0) -> None:
+        self._api_key = api_key
+        self._from = from_address
+        self._timeout = timeout
+
+    async def send(
+        self,
+        invite: Invite,
+        subject: str,
+        body_html: str,
+        body_text: str,
+    ) -> DispatchReceipt:
+        headers = {
+            "Authorization": f"Bearer {self._api_key}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "from": self._from,
+            "to": [invite.address],
+            "subject": subject,
+            "html": body_html,
+            "text": body_text,
+        }
+
+        async def _do() -> httpx.Response:
+            async with httpx.AsyncClient(timeout=self._timeout) as client:
+                r = await client.post(_ENDPOINT, headers=headers, json=payload)
+                if r.status_code >= 500:
+                    raise Exception(f"resend 5xx: {r.status_code}")
+                return r
+
+        try:
+            resp = await retry(_do)
+        except Exception as exc:  # network/timeout/5xx after retries
+            return DispatchReceipt(
+                ok=False, provider="resend", provider_id=None, error=str(exc)
+            )
+
+        if resp.status_code >= 400:
+            return DispatchReceipt(
+                ok=False,
+                provider="resend",
+                provider_id=None,
+                error=f"http {resp.status_code}: {resp.text[:200]}",
+            )
+        data = resp.json()
+        return DispatchReceipt(
+            ok=True,
+            provider="resend",
+            provider_id=str(data.get("id")) if data.get("id") else None,
+            error=None,
+        )

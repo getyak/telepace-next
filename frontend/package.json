@@ -1,0 +1,16 @@
+{
+  "name": "telepace-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@9.14.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  }
+}

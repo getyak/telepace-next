@@ -1,0 +1,29 @@
+{
+  "scenario_id": "S3",
+  "persona": "Senior UX researcher at a 500-person SaaS, running in-product feedback",
+  "prompt_to_designer": "Spin up a study triggered from our internal Claude Skill. Embed it in the Intercom 'was this helpful?' widget; if the user taps 'tell us more' switch to realtime voice. This has to be MCP-callable.",
+  "expected_outline_topics": [
+    "what triggered the feedback moment",
+    "what the user expected to happen",
+    "workaround they used",
+    "severity on a 1-5 scale",
+    "opt-in for a longer follow-up call"
+  ],
+  "channels": ["link"],
+  "target_completions": 200,
+  "budget_usd": 60,
+  "sample_answers": [
+    {"question_index": 0, "text": "I clicked 'export report' and got a spinner that never resolved."},
+    {"question_index": 1, "text": "A CSV in my downloads folder within about 5 seconds."},
+    {"question_index": 2, "text": "I copy-pasted rows into Google Sheets one page at a time. Took 20 minutes."},
+    {"question_index": 3, "text": "4 out of 5. Not blocking me, but it wastes my afternoon."},
+    {"question_index": 4, "text": "Sure, ping me tomorrow, mornings PT are best."}
+  ],
+  "expected_themes": [
+    "export spinner-of-death is the top pain point",
+    "manual copy-paste workaround costs users ~20min",
+    "severity clusters at 4/5 — annoying not blocking",
+    "high opt-in rate for voice follow-up when trust is present",
+    "CSP-safe embed matters more than researchers realize"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "scenario_id": "S9",
+  "persona": "People Ops director, anonymous engagement study, 800 employees",
+  "prompt_to_designer": "Broadcast email to all-staff. Voice or text — respondent chooses. Report must have zero PII in quotes; the anonymization guarantee has to be verifiable in the event log so Legal can sign off.",
+  "expected_outline_topics": [
+    "engagement 1-10",
+    "biggest energy drain this month",
+    "one manager behavior worth cloning",
+    "one policy you'd change tomorrow"
+  ],
+  "channels": ["email"],
+  "target_completions": 400,
+  "budget_usd": 400,
+  "sample_answers": [
+    {"question_index": 0, "text": "6. The recent RIF changed the vibe."},
+    {"question_index": 1, "text": "Endless meetings from leadership that could have been a Loom."},
+    {"question_index": 2, "text": "My manager blocks Fridays as no-meeting deep-work days. Team output went up."},
+    {"question_index": 3, "text": "The 3-day RTO policy. Two days would land differently."}
+  ],
+  "expected_themes": [
+    "engagement dip post-RIF is real and measurable",
+    "meeting overload from leadership is the top energy drain",
+    "'no-meeting Fridays' clones as a template management behavior",
+    "3-day RTO is the most-cited policy irritant",
+    "anonymization audit trail must survive Legal review"
+  ]
+}

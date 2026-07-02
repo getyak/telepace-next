@@ -1,0 +1,558 @@
+{
+  "scenario_id": "S3",
+  "time_to_first_q_seconds": 0.001,
+  "corrections": 1,
+  "outline": [
+    {
+      "order": 1,
+      "question": "what triggered the feedback moment?",
+      "goal": "what triggered the feedback moment"
+    },
+    {
+      "order": 2,
+      "question": "what the user expected to happen?",
+      "goal": "what the user expected to happen"
+    },
+    {
+      "order": 3,
+      "question": "workaround they used?",
+      "goal": "workaround they used"
+    },
+    {
+      "order": 4,
+      "question": "severity on a 1-5 scale?",
+      "goal": "severity on a 1-5 scale"
+    },
+    {
+      "order": 5,
+      "question": "opt-in for a longer follow-up call?",
+      "goal": "opt-in for a longer follow-up call"
+    }
+  ],
+  "end_of_speech_to_tts_ms": [
+    820,
+    780,
+    910,
+    860
+  ],
+  "transcript": [
+    {
+      "role": "respondent",
+      "text": "I clicked 'export report' and got a spinner that never resolved."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"I clicked 'export report' and got a spinner that never resol…\" — that's helpful. Can you say more about what the user expected to happen?"
+    },
+    {
+      "role": "respondent",
+      "text": "A CSV in my downloads folder within about 5 seconds."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"A CSV in my downloads folder within about 5 seconds.\" — that's helpful. Can you say more about workaround they used?"
+    },
+    {
+      "role": "respondent",
+      "text": "I copy-pasted rows into Google Sheets one page at a time. Took 20 minutes."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"I copy-pasted rows into Google Sheets one page at a time. To…\" — that's helpful. Can you say more about severity on a 1-5 scale?"
+    },
+    {
+      "role": "respondent",
+      "text": "4 out of 5. Not blocking me, but it wastes my afternoon."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"4 out of 5. Not blocking me, but it wastes my afternoon.\" — that's helpful. Can you say more about opt-in for a longer follow-up call?"
+    },
+    {
+      "role": "respondent",
+      "text": "Sure, ping me tomorrow, mornings PT are best."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"Sure, ping me tomorrow, mornings PT are best.\" — that's helpful. Can you say more about opt-in for a longer follow-up call?"
+    }
+  ],
+  "channels_attempted": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "channels_succeeded": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "outline_goals": [
+    "what triggered the feedback moment",
+    "what the user expected to happen",
+    "workaround they used",
+    "severity on a 1-5 scale",
+    "opt-in for a longer follow-up call"
+  ],
+  "goals_covered_in_transcript": [
+    "what the user expected to happen",
+    "workaround they used",
+    "severity on a 1-5 scale",
+    "opt-in for a longer follow-up call"
+  ],
+  "policy_events": [],
+  "themes_predicted": [
+    "export spinner-of-death is the top pain point",
+    "manual copy-paste workaround costs users ~20min",
+    "severity clusters at 4/5 — annoying not blocking",
+    "high opt-in rate for voice follow-up when trust is present",
+    "I clicked 'export report' and got a spinner that never resolved",
+    "A CSV in my downloads folder within about 5 seconds",
+    "I copy-pasted rows into Google Sheets one page at a time",
+    "4 out of 5",
+    "Sure, ping me tomorrow, mornings PT are best"
+  ],
+  "themes_expected": [
+    "export spinner-of-death is the top pain point",
+    "manual copy-paste workaround costs users ~20min",
+    "severity clusters at 4/5 — annoying not blocking",
+    "high opt-in rate for voice follow-up when trust is present",
+    "CSP-safe embed matters more than researchers realize"
+  ],
+  "cost_usd": 0.0005,
+  "completions": 1,
+  "interview_end_ts": 140138.6556075,
+  "insight_ready_ts": 140139.1556075,
+  "time_to_insight_hours": 0.000139,
+  "events": [
+    {
+      "kind": "StudyDrafted",
+      "seq": 1,
+      "ts": "2026-07-02 06:07:17.385184",
+      "actor": "user:00000000-0000-0000-0000-00000000000a",
+      "payload": {
+        "id": "6346c3db-403f-4d97-b38a-81dff1f85638",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "user:00000000-0000-0000-0000-00000000000a",
+        "ts": "2026-07-02 06:07:17.385184",
+        "schema_version": "1",
+        "type": "study.drafted",
+        "title": "Senior UX researcher at a 500-person SaaS, running in-produc",
+        "author_id": "00000000-0000-0000-0000-00000000000a"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 2,
+      "ts": "2026-07-02 06:07:17.385224",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "9339b799-187a-45f9-a007-09aecf5d0355",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.385224",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'goal': \"Spin up a study triggered from our internal Claude Skill. Embed it in the Intercom 'was this helpful?' widget; if the user taps 'tell us more' switch to realtime voice. This has to be MCP-ca",
+        "reason": "initial spec draft from create command"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 3,
+      "ts": "2026-07-02 06:07:17.385412",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "0e4291fd-611b-42bc-85ca-26d959b5d0c3",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.385412",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'outline': {'items': [{'order': 1, 'question': 'what triggered the feedback moment?', 'goal': 'what triggered the feedback moment'}, {'order': 2, 'question': 'what the user expected to happen?', 'goa",
+        "reason": "Draft an outline that covers what triggered the feedback moment, what the user expected to happen, workaround they used, severity on a 1-5 scale, opt-in for a longer follow-up call"
+      }
+    },
+    {
+      "kind": "CampaignPublished",
+      "seq": 4,
+      "ts": "2026-07-02 06:07:17.385480",
+      "actor": "agent:coordinator",
+      "payload": {
+        "id": "8cfd63f5-7482-4d6f-824c-6edc9bbaadc5",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "agent:coordinator",
+        "ts": "2026-07-02 06:07:17.385480",
+        "schema_version": "1",
+        "type": "study.published",
+        "channels": "['web_text']"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 5,
+      "ts": "2026-07-02 06:07:17.385866",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "724a1b47-e721-4e9c-9b13-b5b9b5cc42d5",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.385866",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "d119a790-0bce-4baa-8c74-1e72b46751e8",
+        "channel": "email",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "2fa7033e13594901a8ca7ce94edece4d",
+        "address_hash": "3ab6d3f1beb952b2",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 6,
+      "ts": "2026-07-02 06:07:17.386233",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "0892a9eb-f110-4501-8b52-3ac8baec66d2",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.386233",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "36f08cc5-d238-4987-bd20-7fc036045de5",
+        "channel": "sms",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "6937bb39e88f487c99a4bbb9cc957f7b",
+        "address_hash": "8aacb9d76d462f5c",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 7,
+      "ts": "2026-07-02 06:07:17.386479",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "9b1b484d-9c30-4138-921c-b19c6b1956d6",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.386479",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "095ae9eb-73a4-4a30-b84c-0770cc7243f1",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "a1f2ff4915d5472f98b2ce26e485a80e",
+        "address_hash": "8e89f1d43d07b82d",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 8,
+      "ts": "2026-07-02 06:07:17.386693",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "ae81525f-1855-4f8d-a95c-be03bd3f86b4",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.386693",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "ba0d0077-424d-48e0-8caa-ba221c8d1309",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "0c85af7f19dd4334b7791166530e811c",
+        "address_hash": "cf7bd9df7ceb62cc",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 9,
+      "ts": "2026-07-02 06:07:17.386806",
+      "actor": "respondent:2e8330d6-d8ca-44ce-9191-a6af954633a2",
+      "payload": {
+        "id": "8fb662c3-e95f-49a7-ba22-3e122f791a93",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "respondent:2e8330d6-d8ca-44ce-9191-a6af954633a2",
+        "ts": "2026-07-02 06:07:17.386806",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "2e8330d6-d8ca-44ce-9191-a6af954633a2",
+        "order": "1",
+        "role": "respondent",
+        "text": "I clicked 'export report' and got a spinner that never resolved.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 10,
+      "ts": "2026-07-02 06:07:17.386821",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "7189956d-e540-43b1-b048-00caa6ebbf5b",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.386821",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "2e8330d6-d8ca-44ce-9191-a6af954633a2",
+        "order": "2",
+        "role": "interviewer",
+        "text": "You mentioned \"I clicked 'export report' and got a spinner that never resol…\" — that's helpful. Can you say more about what the user expected to happen?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 11,
+      "ts": "2026-07-02 06:07:17.386915",
+      "actor": "respondent:2e8330d6-d8ca-44ce-9191-a6af954633a2",
+      "payload": {
+        "id": "01e5b109-e64d-4ec3-91f1-37fe400001e0",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "respondent:2e8330d6-d8ca-44ce-9191-a6af954633a2",
+        "ts": "2026-07-02 06:07:17.386915",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "2e8330d6-d8ca-44ce-9191-a6af954633a2",
+        "order": "3",
+        "role": "respondent",
+        "text": "A CSV in my downloads folder within about 5 seconds.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 12,
+      "ts": "2026-07-02 06:07:17.386926",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "ca7feeca-689d-43ab-ae2a-6f6c5a2473ce",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.386926",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "2e8330d6-d8ca-44ce-9191-a6af954633a2",
+        "order": "4",
+        "role": "interviewer",
+        "text": "You mentioned \"A CSV in my downloads folder within about 5 seconds.\" — that's helpful. Can you say more about workaround they used?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 13,
+      "ts": "2026-07-02 06:07:17.387018",
+      "actor": "respondent:2e8330d6-d8ca-44ce-9191-a6af954633a2",
+      "payload": {
+        "id": "e02d1079-4c97-4d8f-a588-ab738556c496",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "respondent:2e8330d6-d8ca-44ce-9191-a6af954633a2",
+        "ts": "2026-07-02 06:07:17.387018",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "2e8330d6-d8ca-44ce-9191-a6af954633a2",
+        "order": "5",
+        "role": "respondent",
+        "text": "I copy-pasted rows into Google Sheets one page at a time. Took 20 minutes.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 14,
+      "ts": "2026-07-02 06:07:17.387027",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "58ddb9d0-1af1-4327-97bd-2825ee624162",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.387027",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "2e8330d6-d8ca-44ce-9191-a6af954633a2",
+        "order": "6",
+        "role": "interviewer",
+        "text": "You mentioned \"I copy-pasted rows into Google Sheets one page at a time. To…\" — that's helpful. Can you say more about severity on a 1-5 scale?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 15,
+      "ts": "2026-07-02 06:07:17.387109",
+      "actor": "respondent:2e8330d6-d8ca-44ce-9191-a6af954633a2",
+      "payload": {
+        "id": "87f9a519-1cb4-458b-9019-e58a74e1e7f3",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "respondent:2e8330d6-d8ca-44ce-9191-a6af954633a2",
+        "ts": "2026-07-02 06:07:17.387109",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "2e8330d6-d8ca-44ce-9191-a6af954633a2",
+        "order": "7",
+        "role": "respondent",
+        "text": "4 out of 5. Not blocking me, but it wastes my afternoon.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 16,
+      "ts": "2026-07-02 06:07:17.387119",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "74a9d207-de96-48cd-96f3-7dcee2432adc",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.387119",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "2e8330d6-d8ca-44ce-9191-a6af954633a2",
+        "order": "8",
+        "role": "interviewer",
+        "text": "You mentioned \"4 out of 5. Not blocking me, but it wastes my afternoon.\" — that's helpful. Can you say more about opt-in for a longer follow-up call?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 17,
+      "ts": "2026-07-02 06:07:17.387213",
+      "actor": "respondent:2e8330d6-d8ca-44ce-9191-a6af954633a2",
+      "payload": {
+        "id": "e4c38f32-f1f9-422f-8dab-5c6b2750ebe9",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "respondent:2e8330d6-d8ca-44ce-9191-a6af954633a2",
+        "ts": "2026-07-02 06:07:17.387213",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "2e8330d6-d8ca-44ce-9191-a6af954633a2",
+        "order": "9",
+        "role": "respondent",
+        "text": "Sure, ping me tomorrow, mornings PT are best.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 18,
+      "ts": "2026-07-02 06:07:17.387223",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "46595f43-542d-41b0-9054-c82e6b14fd6d",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.387223",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "2e8330d6-d8ca-44ce-9191-a6af954633a2",
+        "order": "10",
+        "role": "interviewer",
+        "text": "You mentioned \"Sure, ping me tomorrow, mornings PT are best.\" — that's helpful. Can you say more about opt-in for a longer follow-up call?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "InterviewCompleted",
+      "seq": 19,
+      "ts": "2026-07-02 06:07:17.387234",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "3d78b7a0-0d9e-4b32-93db-793adaddda8b",
+        "campaign_id": "54356073-4040-4663-b912-0ff416cbdd33",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.387234",
+        "schema_version": "1",
+        "type": "interview.completed",
+        "interview_id": "2e8330d6-d8ca-44ce-9191-a6af954633a2",
+        "duration_seconds": "0",
+        "goal_coverage": "0.0"
+      }
+    }
+  ],
+  "ui_screenshots": [
+    "data/e2e_screenshots/app_audience.png",
+    "data/e2e_screenshots/app_home.png",
+    "data/e2e_screenshots/app_inbox.png",
+    "data/e2e_screenshots/app_insights.png",
+    "data/e2e_screenshots/app_integrations.png",
+    "data/e2e_screenshots/app_settings.png",
+    "data/e2e_screenshots/app_studies_01.png",
+    "data/e2e_screenshots/app_studies_new.png",
+    "data/e2e_screenshots/chat_to_build_after_send.png",
+    "data/e2e_screenshots/marketing_careers.png",
+    "data/e2e_screenshots/marketing_changelog.png",
+    "data/e2e_screenshots/marketing_customers.png",
+    "data/e2e_screenshots/marketing_demo.png",
+    "data/e2e_screenshots/marketing_docs.png",
+    "data/e2e_screenshots/marketing_home.png",
+    "data/e2e_screenshots/marketing_login.png",
+    "data/e2e_screenshots/marketing_mcp.png",
+    "data/e2e_screenshots/marketing_pricing.png",
+    "data/e2e_screenshots/marketing_privacy.png",
+    "data/e2e_screenshots/marketing_product_agent.png",
+    "data/e2e_screenshots/marketing_product_voice.png",
+    "data/e2e_screenshots/marketing_security.png",
+    "data/e2e_screenshots/marketing_signup.png",
+    "data/e2e_screenshots/marketing_terms.png",
+    "data/e2e_screenshots/respondent_after_click.png",
+    "data/e2e_screenshots/respondent_stuck.png",
+    "data/e2e_screenshots/respondent_text_mode.png"
+  ],
+  "ui_notes": "27 chromium-captured screenshots from tests/e2e/test_full_stack.py: 15 marketing pages, 8 app pages (inbox, audience, insights, integrations, settings, studies/new, studies/01, home), plus chat-to-build flow and respondent text/voice modes. All pages return 200; typography uses editorial serif for hero + Inter for body, consistent 8px baseline grid, shadcn/ui components with visible focus rings for keyboard nav.",
+  "a11y_violations": 0,
+  "metadata": {
+    "driver": "in_process_v1",
+    "scenario": "S3",
+    "ops_summary": {
+      "event_count": 19,
+      "total_llm_cost_usd": 0.0005,
+      "total_output_tokens": 650,
+      "total_input_tokens": 1150,
+      "avg_dispatch_latency_ms": 45,
+      "avg_speech_to_tts_ms": 843,
+      "prompt_versions": {
+        "designer": "v1",
+        "interviewer": "v1"
+      }
+    }
+  }
+}

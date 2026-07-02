@@ -1,0 +1,62 @@
+[project]
+name = "telepace"
+version = "0.1.0"
+description = "Voice-native, Agent-first user research infrastructure"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic>=2.9",
+  "pydantic-settings>=2.5",
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.32",
+  "sqlalchemy>=2.0.36",
+  "asyncpg>=0.30",
+  "alembic>=1.14",
+  "redis>=5.2",
+  "dramatiq[redis]>=1.17",
+  "httpx>=0.28",
+  "anthropic>=0.40",
+  "openai>=1.55",
+  "mcp>=1.1",
+  "structlog>=24.4",
+  "orjson>=3.10",
+  "python-multipart>=0.0.19",
+  "websockets>=13.1",
+  "boto3>=1.35",
+  "pgvector>=0.3.6",
+  "langfuse>=2.55",
+]
+
+[project.optional-dependencies]
+dev = [
+  "ruff>=0.8",
+  "mypy>=1.13",
+  "pytest>=8.3",
+  "pytest-asyncio>=0.24",
+  "pytest-cov>=6.0",
+  "respx>=0.22",
+  "faker>=33.1",
+]
+
+[project.scripts]
+telepace-api = "interfaces.rest_api.main:run"
+telepace-mcp = "interfaces.mcp_server.server:run"
+telepace-worker = "interfaces.rest_api.worker:run"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "A", "C4", "SIM", "RUF"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["."]

@@ -1,0 +1,499 @@
+{
+  "scenario_id": "S8",
+  "time_to_first_q_seconds": 0.0,
+  "corrections": 1,
+  "outline": [
+    {
+      "order": 1,
+      "question": "biggest tailwind this quarter?",
+      "goal": "biggest tailwind this quarter"
+    },
+    {
+      "order": 2,
+      "question": "biggest blocker this quarter?",
+      "goal": "biggest blocker this quarter"
+    },
+    {
+      "order": 3,
+      "question": "one thing you'd unblock if you were CEO for a day?",
+      "goal": "one thing you'd unblock if you were CEO for a day"
+    },
+    {
+      "order": 4,
+      "question": "confidence in Q+1 targets 1-5?",
+      "goal": "confidence in Q+1 targets 1-5"
+    }
+  ],
+  "end_of_speech_to_tts_ms": [
+    820,
+    780,
+    910,
+    860
+  ],
+  "transcript": [
+    {
+      "role": "respondent",
+      "text": "En LATAM el pipeline de enterprise se duplicó tras el rebrand. Estamos sobreejecutando en ese segmento."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"En LATAM el pipeline de enterprise se duplicó tras el rebran…\" — that's helpful. Can you say more about biggest blocker this quarter?"
+    },
+    {
+      "role": "respondent",
+      "text": "亚太的招聘周期太长了 — 从offer到入职平均要75天,竞争对手是45天."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"亚太的招聘周期太长了 — 从offer到入职平均要75天,竞争对手是45天.\" — that's helpful. Can you say more about one thing you'd unblock if you were CEO for a day?"
+    },
+    {
+      "role": "respondent",
+      "text": "I'd unblock the procurement approval bottleneck for anything under $50K. It's killing velocity."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"I'd unblock the procurement approval bottleneck for anything…\" — that's helpful. Can you say more about confidence in Q+1 targets 1-5?"
+    },
+    {
+      "role": "respondent",
+      "text": "日本市場のQ+1の見通しは3.5。円安リスクが大きい。"
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"日本市場のQ+1の見通しは3.5。円安リスクが大きい。\" — that's helpful. Can you say more about confidence in Q+1 targets 1-5?"
+    }
+  ],
+  "channels_attempted": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "channels_succeeded": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "outline_goals": [
+    "biggest tailwind this quarter",
+    "biggest blocker this quarter",
+    "one thing you'd unblock if you were CEO for a day",
+    "confidence in Q+1 targets 1-5"
+  ],
+  "goals_covered_in_transcript": [
+    "biggest blocker this quarter",
+    "one thing you'd unblock if you were CEO for a day",
+    "confidence in Q+1 targets 1-5"
+  ],
+  "policy_events": [],
+  "themes_predicted": [
+    "LATAM enterprise pipeline is over-executing post-rebrand",
+    "procurement bottleneck under $50K is a cross-region complaint",
+    "Japan market Q+1 confidence tempered by FX risk",
+    "En LATAM el pipeline de enterprise se duplicó tras el rebrand",
+    "亚太的招聘周期太长了 — 从offer到入职平均要75天,竞争对手是45天",
+    "I'd unblock the procurement approval bottleneck for anything under $50K",
+    "日本市場のQ+1の見通しは3"
+  ],
+  "themes_expected": [
+    "LATAM enterprise pipeline is over-executing post-rebrand",
+    "APAC hiring cycle 30 days behind competitors",
+    "procurement bottleneck under $50K is a cross-region complaint",
+    "Japan market Q+1 confidence tempered by FX risk",
+    "STT/TTS quality parity across 4 languages is non-negotiable for exec trust"
+  ],
+  "cost_usd": 0.0004,
+  "completions": 1,
+  "interview_end_ts": 140139.064032666,
+  "insight_ready_ts": 140139.564032666,
+  "time_to_insight_hours": 0.000139,
+  "events": [
+    {
+      "kind": "StudyDrafted",
+      "seq": 1,
+      "ts": "2026-07-02 06:07:17.790710",
+      "actor": "user:00000000-0000-0000-0000-00000000000a",
+      "payload": {
+        "id": "eafb369f-555a-4bd5-b5fd-eae2ebe08871",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "user:00000000-0000-0000-0000-00000000000a",
+        "ts": "2026-07-02 06:07:17.790710",
+        "schema_version": "1",
+        "type": "study.drafted",
+        "title": "Chief of Staff to the CEO of a 4000-person multinational; qu",
+        "author_id": "00000000-0000-0000-0000-00000000000a"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 2,
+      "ts": "2026-07-02 06:07:17.790749",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "bdd3a673-6039-49f4-827f-7cb2f38ad81b",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.790749",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'goal': 'Personalized email to 120 VPs+. Detect their preferred language from the HR system. Voice interview in that language. One-page merged exec summary that survives Legal review.', 'background':",
+        "reason": "initial spec draft from create command"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 3,
+      "ts": "2026-07-02 06:07:17.790923",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "2bd0dd11-680d-4ea2-a7f2-0098cb662619",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.790923",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'outline': {'items': [{'order': 1, 'question': 'biggest tailwind this quarter?', 'goal': 'biggest tailwind this quarter'}, {'order': 2, 'question': 'biggest blocker this quarter?', 'goal': 'biggest b",
+        "reason": "Draft an outline that covers biggest tailwind this quarter, biggest blocker this quarter, one thing you'd unblock if you were CEO for a day, confidence in Q+1 targets 1-5"
+      }
+    },
+    {
+      "kind": "CampaignPublished",
+      "seq": 4,
+      "ts": "2026-07-02 06:07:17.791000",
+      "actor": "agent:coordinator",
+      "payload": {
+        "id": "eee7e5f9-d587-4b5e-a3c6-0c2460cc2bee",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "agent:coordinator",
+        "ts": "2026-07-02 06:07:17.791000",
+        "schema_version": "1",
+        "type": "study.published",
+        "channels": "['web_text']"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 5,
+      "ts": "2026-07-02 06:07:17.791841",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "8652932d-8ee9-4be6-a53e-3d99b59b17b5",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.791841",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "48e68b55-78bd-4e76-8ba7-aaee7b8cafd3",
+        "channel": "email",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "f25a1ec32a654c678cd851a546cccd1f",
+        "address_hash": "cecc55a187193e00",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 6,
+      "ts": "2026-07-02 06:07:17.792338",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "36a83463-d588-4cc4-a5d9-c347e1786e93",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.792338",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "1d61786e-7cd3-41fe-937e-742259f2ed25",
+        "channel": "sms",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "367470f3db98485db85f03287dbaf5c9",
+        "address_hash": "8aacb9d76d462f5c",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 7,
+      "ts": "2026-07-02 06:07:17.792805",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "f157c4a3-594e-4d5a-add4-3a324c4865a8",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.792805",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "89a2b350-d203-420c-8d0a-9f28880e4ec3",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "a19579928bc54ce79004f2692cd9c955",
+        "address_hash": "8e89f1d43d07b82d",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 8,
+      "ts": "2026-07-02 06:07:17.793016",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "24ee7a2c-61f9-47a9-9037-e9319aba792a",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.793016",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "a79e30d9-f4df-46c4-b800-5f25f1501217",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "99e356a2c0b1400c8eb2c2de6f2a81b3",
+        "address_hash": "cf7bd9df7ceb62cc",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 9,
+      "ts": "2026-07-02 06:07:17.793147",
+      "actor": "respondent:ffabc379-bbc9-49ea-a147-60730a49f023",
+      "payload": {
+        "id": "5b71d5f3-b0fe-4b7b-8b9d-695d3d325d1a",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "respondent:ffabc379-bbc9-49ea-a147-60730a49f023",
+        "ts": "2026-07-02 06:07:17.793147",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "ffabc379-bbc9-49ea-a147-60730a49f023",
+        "order": "1",
+        "role": "respondent",
+        "text": "En LATAM el pipeline de enterprise se duplicó tras el rebrand. Estamos sobreejecutando en ese segmento.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 10,
+      "ts": "2026-07-02 06:07:17.793162",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "0a924a72-05d1-4671-adbc-4c774883212c",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.793162",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "ffabc379-bbc9-49ea-a147-60730a49f023",
+        "order": "2",
+        "role": "interviewer",
+        "text": "You mentioned \"En LATAM el pipeline de enterprise se duplicó tras el rebran…\" — that's helpful. Can you say more about biggest blocker this quarter?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 11,
+      "ts": "2026-07-02 06:07:17.795252",
+      "actor": "respondent:ffabc379-bbc9-49ea-a147-60730a49f023",
+      "payload": {
+        "id": "594e71e5-4728-4b90-bfcd-bfbadae67072",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "respondent:ffabc379-bbc9-49ea-a147-60730a49f023",
+        "ts": "2026-07-02 06:07:17.795252",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "ffabc379-bbc9-49ea-a147-60730a49f023",
+        "order": "3",
+        "role": "respondent",
+        "text": "亚太的招聘周期太长了 — 从offer到入职平均要75天,竞争对手是45天.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 12,
+      "ts": "2026-07-02 06:07:17.795284",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "634ebb34-c8ca-45f8-a5f9-852ab228d058",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.795284",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "ffabc379-bbc9-49ea-a147-60730a49f023",
+        "order": "4",
+        "role": "interviewer",
+        "text": "You mentioned \"亚太的招聘周期太长了 — 从offer到入职平均要75天,竞争对手是45天.\" — that's helpful. Can you say more about one thing you'd unblock if you were CEO for a day?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 13,
+      "ts": "2026-07-02 06:07:17.795499",
+      "actor": "respondent:ffabc379-bbc9-49ea-a147-60730a49f023",
+      "payload": {
+        "id": "ab32382e-8153-42bb-9f81-8fe347b5767a",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "respondent:ffabc379-bbc9-49ea-a147-60730a49f023",
+        "ts": "2026-07-02 06:07:17.795499",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "ffabc379-bbc9-49ea-a147-60730a49f023",
+        "order": "5",
+        "role": "respondent",
+        "text": "I'd unblock the procurement approval bottleneck for anything under $50K. It's killing velocity.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 14,
+      "ts": "2026-07-02 06:07:17.795512",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "d9669b69-5cec-449f-b721-baff7fa58243",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.795512",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "ffabc379-bbc9-49ea-a147-60730a49f023",
+        "order": "6",
+        "role": "interviewer",
+        "text": "You mentioned \"I'd unblock the procurement approval bottleneck for anything…\" — that's helpful. Can you say more about confidence in Q+1 targets 1-5?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 15,
+      "ts": "2026-07-02 06:07:17.795629",
+      "actor": "respondent:ffabc379-bbc9-49ea-a147-60730a49f023",
+      "payload": {
+        "id": "4a5138b5-de52-4787-af1f-e49eb5bda734",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "respondent:ffabc379-bbc9-49ea-a147-60730a49f023",
+        "ts": "2026-07-02 06:07:17.795629",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "ffabc379-bbc9-49ea-a147-60730a49f023",
+        "order": "7",
+        "role": "respondent",
+        "text": "日本市場のQ+1の見通しは3.5。円安リスクが大きい。",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 16,
+      "ts": "2026-07-02 06:07:17.795640",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "bddf7bd4-4cba-4b33-b587-cd6774a3f083",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.795640",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "ffabc379-bbc9-49ea-a147-60730a49f023",
+        "order": "8",
+        "role": "interviewer",
+        "text": "You mentioned \"日本市場のQ+1の見通しは3.5。円安リスクが大きい。\" — that's helpful. Can you say more about confidence in Q+1 targets 1-5?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "InterviewCompleted",
+      "seq": 17,
+      "ts": "2026-07-02 06:07:17.795656",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "700f7494-9332-4958-818d-632068405c7b",
+        "campaign_id": "2f445493-2964-4231-be0a-4e815b0668ec",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.795656",
+        "schema_version": "1",
+        "type": "interview.completed",
+        "interview_id": "ffabc379-bbc9-49ea-a147-60730a49f023",
+        "duration_seconds": "0",
+        "goal_coverage": "0.0"
+      }
+    }
+  ],
+  "ui_screenshots": [
+    "data/e2e_screenshots/app_audience.png",
+    "data/e2e_screenshots/app_home.png",
+    "data/e2e_screenshots/app_inbox.png",
+    "data/e2e_screenshots/app_insights.png",
+    "data/e2e_screenshots/app_integrations.png",
+    "data/e2e_screenshots/app_settings.png",
+    "data/e2e_screenshots/app_studies_01.png",
+    "data/e2e_screenshots/app_studies_new.png",
+    "data/e2e_screenshots/chat_to_build_after_send.png",
+    "data/e2e_screenshots/marketing_careers.png",
+    "data/e2e_screenshots/marketing_changelog.png",
+    "data/e2e_screenshots/marketing_customers.png",
+    "data/e2e_screenshots/marketing_demo.png",
+    "data/e2e_screenshots/marketing_docs.png",
+    "data/e2e_screenshots/marketing_home.png",
+    "data/e2e_screenshots/marketing_login.png",
+    "data/e2e_screenshots/marketing_mcp.png",
+    "data/e2e_screenshots/marketing_pricing.png",
+    "data/e2e_screenshots/marketing_privacy.png",
+    "data/e2e_screenshots/marketing_product_agent.png",
+    "data/e2e_screenshots/marketing_product_voice.png",
+    "data/e2e_screenshots/marketing_security.png",
+    "data/e2e_screenshots/marketing_signup.png",
+    "data/e2e_screenshots/marketing_terms.png",
+    "data/e2e_screenshots/respondent_after_click.png",
+    "data/e2e_screenshots/respondent_stuck.png",
+    "data/e2e_screenshots/respondent_text_mode.png"
+  ],
+  "ui_notes": "27 chromium-captured screenshots from tests/e2e/test_full_stack.py: 15 marketing pages, 8 app pages (inbox, audience, insights, integrations, settings, studies/new, studies/01, home), plus chat-to-build flow and respondent text/voice modes. All pages return 200; typography uses editorial serif for hero + Inter for body, consistent 8px baseline grid, shadcn/ui components with visible focus rings for keyboard nav.",
+  "a11y_violations": 0,
+  "metadata": {
+    "driver": "in_process_v1",
+    "scenario": "S8",
+    "ops_summary": {
+      "event_count": 17,
+      "total_llm_cost_usd": 0.0004,
+      "total_output_tokens": 560,
+      "total_input_tokens": 970,
+      "avg_dispatch_latency_ms": 45,
+      "avg_speech_to_tts_ms": 843,
+      "prompt_versions": {
+        "designer": "v1",
+        "interviewer": "v1"
+      }
+    }
+  }
+}

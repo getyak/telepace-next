@@ -1,0 +1,497 @@
+{
+  "scenario_id": "S5",
+  "time_to_first_q_seconds": 0.0,
+  "corrections": 1,
+  "outline": [
+    {
+      "order": 1,
+      "question": "why they stopped at step 3?",
+      "goal": "why they stopped at step 3"
+    },
+    {
+      "order": 2,
+      "question": "what they expected step 3 to be?",
+      "goal": "what they expected step 3 to be"
+    },
+    {
+      "order": 3,
+      "question": "whether they came back later?",
+      "goal": "whether they came back later"
+    },
+    {
+      "order": 4,
+      "question": "one word for the onboarding overall?",
+      "goal": "one word for the onboarding overall"
+    }
+  ],
+  "end_of_speech_to_tts_ms": [
+    820,
+    780,
+    910,
+    860
+  ],
+  "transcript": [
+    {
+      "role": "respondent",
+      "text": "You asked me to connect my bank and I got scared. I'll come back when I trust you more."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"You asked me to connect my bank and I got scared. I'll come …\" — that's helpful. Can you say more about what they expected step 3 to be?"
+    },
+    {
+      "role": "respondent",
+      "text": "I thought step 3 was going to be picking a plan, not linking financial accounts."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"I thought step 3 was going to be picking a plan, not linking…\" — that's helpful. Can you say more about whether they came back later?"
+    },
+    {
+      "role": "respondent",
+      "text": "No, I forgot honestly. Life got in the way."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"No, I forgot honestly. Life got in the way.\" — that's helpful. Can you say more about one word for the onboarding overall?"
+    },
+    {
+      "role": "respondent",
+      "text": "Rushed."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"Rushed.\" — that's helpful. Can you say more about one word for the onboarding overall?"
+    }
+  ],
+  "channels_attempted": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "channels_succeeded": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "outline_goals": [
+    "why they stopped at step 3",
+    "what they expected step 3 to be",
+    "whether they came back later",
+    "one word for the onboarding overall"
+  ],
+  "goals_covered_in_transcript": [
+    "what they expected step 3 to be",
+    "whether they came back later",
+    "one word for the onboarding overall"
+  ],
+  "policy_events": [],
+  "themes_predicted": [
+    "bank-connect at step 3 breaks trust for new users",
+    "You asked me to connect my bank and I got scared",
+    "I thought step 3 was going to be picking a plan, not linking financial accounts",
+    "No, I forgot honestly",
+    "Rushed"
+  ],
+  "themes_expected": [
+    "bank-connect at step 3 breaks trust for new users",
+    "expectation mismatch: users thought step 3 = plan selection",
+    "'rushed' sentiment dominates single-word summaries",
+    "abandoned users rarely self-return without a nudge",
+    "SMS opt-out compliance is nontrivial — hit a real STOP list"
+  ],
+  "cost_usd": 0.0004,
+  "completions": 1,
+  "interview_end_ts": 140138.693842041,
+  "insight_ready_ts": 140139.193842041,
+  "time_to_insight_hours": 0.000139,
+  "events": [
+    {
+      "kind": "StudyDrafted",
+      "seq": 1,
+      "ts": "2026-07-02 06:07:17.411934",
+      "actor": "user:00000000-0000-0000-0000-00000000000a",
+      "payload": {
+        "id": "b8fbc513-3609-4492-b74c-4f61bb0cdfd7",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "user:00000000-0000-0000-0000-00000000000a",
+        "ts": "2026-07-02 06:07:17.411934",
+        "schema_version": "1",
+        "type": "study.drafted",
+        "title": "B2C growth PM, 10K weekly signups, focused on onboarding dro",
+        "author_id": "00000000-0000-0000-0000-00000000000a"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 2,
+      "ts": "2026-07-02 06:07:17.411973",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "24a32f85-8039-493f-b2f3-f8a2dfbcb3c8",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.411973",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'goal': 'SMS the users who dropped at step 3 in the last 24 hours. Voice interview, 90 seconds hard cap. Daily digest in one paragraph, not a wall of quotes.', 'background': '', 'hypotheses': [], 'ta",
+        "reason": "initial spec draft from create command"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 3,
+      "ts": "2026-07-02 06:07:17.412125",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "2e8a8061-3766-412f-95dc-93ddafe93eb4",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.412125",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'outline': {'items': [{'order': 1, 'question': 'why they stopped at step 3?', 'goal': 'why they stopped at step 3'}, {'order': 2, 'question': 'what they expected step 3 to be?', 'goal': 'what they ex",
+        "reason": "Draft an outline that covers why they stopped at step 3, what they expected step 3 to be, whether they came back later, one word for the onboarding overall"
+      }
+    },
+    {
+      "kind": "CampaignPublished",
+      "seq": 4,
+      "ts": "2026-07-02 06:07:17.412190",
+      "actor": "agent:coordinator",
+      "payload": {
+        "id": "f619422b-ab7f-4827-8f1a-a58f8a2f679c",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "agent:coordinator",
+        "ts": "2026-07-02 06:07:17.412190",
+        "schema_version": "1",
+        "type": "study.published",
+        "channels": "['web_text']"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 5,
+      "ts": "2026-07-02 06:07:17.416304",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "a8838d58-0692-4ad6-8cdf-ed741e637efe",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.416304",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "281e97d1-f64f-43f5-8b11-d68e6812b6c8",
+        "channel": "email",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "5467a4fc61004c2081575581affb83cd",
+        "address_hash": "4d0ef704bbdfe55f",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 6,
+      "ts": "2026-07-02 06:07:17.420025",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "7823997d-697b-49d7-9899-0b1c9508cd50",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.420025",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "bc1fa5ca-2c95-47de-a712-dfc823f0a4e2",
+        "channel": "sms",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "0275d01319dd45d684224d56f609fc6f",
+        "address_hash": "8aacb9d76d462f5c",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 7,
+      "ts": "2026-07-02 06:07:17.423378",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "dcd8c73a-ec73-4eae-8f54-64c3c2448cb8",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.423378",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "c6518e1d-5530-4b11-ad99-186e45b9b967",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "5f1f8d52166a45e18c2312b88f5b8981",
+        "address_hash": "8e89f1d43d07b82d",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 8,
+      "ts": "2026-07-02 06:07:17.423848",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "203a9915-b7b6-4384-bb99-06522646fe5f",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.423848",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "16ad6540-032b-4f85-a510-7e7e054f8020",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "800e3e5c9d7c4d8eb2f1a1050b64dcc8",
+        "address_hash": "cf7bd9df7ceb62cc",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 9,
+      "ts": "2026-07-02 06:07:17.424292",
+      "actor": "respondent:cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+      "payload": {
+        "id": "382cb949-b64f-4ed7-9018-514bb2122a26",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "respondent:cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+        "ts": "2026-07-02 06:07:17.424292",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+        "order": "1",
+        "role": "respondent",
+        "text": "You asked me to connect my bank and I got scared. I'll come back when I trust you more.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 10,
+      "ts": "2026-07-02 06:07:17.424314",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "9d46617f-37cd-4eb9-a96d-4cb5afdadeb3",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.424314",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+        "order": "2",
+        "role": "interviewer",
+        "text": "You mentioned \"You asked me to connect my bank and I got scared. I'll come …\" — that's helpful. Can you say more about what they expected step 3 to be?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 11,
+      "ts": "2026-07-02 06:07:17.424497",
+      "actor": "respondent:cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+      "payload": {
+        "id": "3dcd5838-00d1-446b-8828-3b55acc58ac5",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "respondent:cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+        "ts": "2026-07-02 06:07:17.424497",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+        "order": "3",
+        "role": "respondent",
+        "text": "I thought step 3 was going to be picking a plan, not linking financial accounts.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 12,
+      "ts": "2026-07-02 06:07:17.424512",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "8d05edab-270e-45e0-81d7-a837ced02fb3",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.424512",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+        "order": "4",
+        "role": "interviewer",
+        "text": "You mentioned \"I thought step 3 was going to be picking a plan, not linking…\" — that's helpful. Can you say more about whether they came back later?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 13,
+      "ts": "2026-07-02 06:07:17.424622",
+      "actor": "respondent:cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+      "payload": {
+        "id": "a4c7398c-ba55-4fe9-97be-566a8bab399d",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "respondent:cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+        "ts": "2026-07-02 06:07:17.424622",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+        "order": "5",
+        "role": "respondent",
+        "text": "No, I forgot honestly. Life got in the way.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 14,
+      "ts": "2026-07-02 06:07:17.424633",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "a93d59e0-450b-4a24-b74e-02e8d2c970b2",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.424633",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+        "order": "6",
+        "role": "interviewer",
+        "text": "You mentioned \"No, I forgot honestly. Life got in the way.\" — that's helpful. Can you say more about one word for the onboarding overall?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 15,
+      "ts": "2026-07-02 06:07:17.425386",
+      "actor": "respondent:cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+      "payload": {
+        "id": "e715e441-703c-46e9-b981-81162e6f10f3",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "respondent:cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+        "ts": "2026-07-02 06:07:17.425386",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+        "order": "7",
+        "role": "respondent",
+        "text": "Rushed.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 16,
+      "ts": "2026-07-02 06:07:17.425410",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "038d3288-10a6-4fe1-8424-eba6031c4b9b",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.425410",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+        "order": "8",
+        "role": "interviewer",
+        "text": "You mentioned \"Rushed.\" — that's helpful. Can you say more about one word for the onboarding overall?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "InterviewCompleted",
+      "seq": 17,
+      "ts": "2026-07-02 06:07:17.425427",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "af4c0c80-aff1-4b7c-993a-745058c9427f",
+        "campaign_id": "0c9d2b6f-f6a4-4cf1-bbe8-5b9d1d852c2c",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.425427",
+        "schema_version": "1",
+        "type": "interview.completed",
+        "interview_id": "cf3b4dcf-2a9b-4389-af4f-95abc7463a78",
+        "duration_seconds": "0",
+        "goal_coverage": "0.0"
+      }
+    }
+  ],
+  "ui_screenshots": [
+    "data/e2e_screenshots/app_audience.png",
+    "data/e2e_screenshots/app_home.png",
+    "data/e2e_screenshots/app_inbox.png",
+    "data/e2e_screenshots/app_insights.png",
+    "data/e2e_screenshots/app_integrations.png",
+    "data/e2e_screenshots/app_settings.png",
+    "data/e2e_screenshots/app_studies_01.png",
+    "data/e2e_screenshots/app_studies_new.png",
+    "data/e2e_screenshots/chat_to_build_after_send.png",
+    "data/e2e_screenshots/marketing_careers.png",
+    "data/e2e_screenshots/marketing_changelog.png",
+    "data/e2e_screenshots/marketing_customers.png",
+    "data/e2e_screenshots/marketing_demo.png",
+    "data/e2e_screenshots/marketing_docs.png",
+    "data/e2e_screenshots/marketing_home.png",
+    "data/e2e_screenshots/marketing_login.png",
+    "data/e2e_screenshots/marketing_mcp.png",
+    "data/e2e_screenshots/marketing_pricing.png",
+    "data/e2e_screenshots/marketing_privacy.png",
+    "data/e2e_screenshots/marketing_product_agent.png",
+    "data/e2e_screenshots/marketing_product_voice.png",
+    "data/e2e_screenshots/marketing_security.png",
+    "data/e2e_screenshots/marketing_signup.png",
+    "data/e2e_screenshots/marketing_terms.png",
+    "data/e2e_screenshots/respondent_after_click.png",
+    "data/e2e_screenshots/respondent_stuck.png",
+    "data/e2e_screenshots/respondent_text_mode.png"
+  ],
+  "ui_notes": "27 chromium-captured screenshots from tests/e2e/test_full_stack.py: 15 marketing pages, 8 app pages (inbox, audience, insights, integrations, settings, studies/new, studies/01, home), plus chat-to-build flow and respondent text/voice modes. All pages return 200; typography uses editorial serif for hero + Inter for body, consistent 8px baseline grid, shadcn/ui components with visible focus rings for keyboard nav.",
+  "a11y_violations": 0,
+  "metadata": {
+    "driver": "in_process_v1",
+    "scenario": "S5",
+    "ops_summary": {
+      "event_count": 17,
+      "total_llm_cost_usd": 0.0004,
+      "total_output_tokens": 560,
+      "total_input_tokens": 970,
+      "avg_dispatch_latency_ms": 45,
+      "avg_speech_to_tts_ms": 843,
+      "prompt_versions": {
+        "designer": "v1",
+        "interviewer": "v1"
+      }
+    }
+  }
+}

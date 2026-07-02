@@ -1,0 +1,558 @@
+{
+  "scenario_id": "S4",
+  "time_to_first_q_seconds": 0.0,
+  "corrections": 1,
+  "outline": [
+    {
+      "order": 1,
+      "question": "current sentiment about the product?",
+      "goal": "current sentiment about the product"
+    },
+    {
+      "order": 2,
+      "question": "what changed recently on their side?",
+      "goal": "what changed recently on their side"
+    },
+    {
+      "order": 3,
+      "question": "unmet needs vs. renewal timeline?",
+      "goal": "unmet needs vs. renewal timeline"
+    },
+    {
+      "order": 4,
+      "question": "competitive alternatives being evaluated?",
+      "goal": "competitive alternatives being evaluated"
+    },
+    {
+      "order": 5,
+      "question": "one thing that would rebuild trust?",
+      "goal": "one thing that would rebuild trust"
+    }
+  ],
+  "end_of_speech_to_tts_ms": [
+    820,
+    780,
+    910,
+    860
+  ],
+  "transcript": [
+    {
+      "role": "respondent",
+      "text": "Honestly, we've been quiet because we've been busy re-evaluating. It's not you specifically, it's the category."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"Honestly, we've been quiet because we've been busy re-evalua…\" — that's helpful. Can you say more about what changed recently on their side?"
+    },
+    {
+      "role": "respondent",
+      "text": "Our new VP came in and wants to consolidate the stack. Anything not-core is on the chopping block."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"Our new VP came in and wants to consolidate the stack. Anyth…\" — that's helpful. Can you say more about unmet needs vs. renewal timeline?"
+    },
+    {
+      "role": "respondent",
+      "text": "Renewal is in 90 days. Right now I'd say 40/60 against."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"Renewal is in 90 days. Right now I'd say 40/60 against.\" — that's helpful. Can you say more about competitive alternatives being evaluated?"
+    },
+    {
+      "role": "respondent",
+      "text": "We're looking hard at [Competitor X] because their exec bundle includes what you charge extra for."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"We're looking hard at [Competitor X] because their exec bund…\" — that's helpful. Can you say more about one thing that would rebuild trust?"
+    },
+    {
+      "role": "respondent",
+      "text": "A named CSM who checks in monthly and a clearer roadmap for the reporting module."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"A named CSM who checks in monthly and a clearer roadmap for …\" — that's helpful. Can you say more about one thing that would rebuild trust?"
+    }
+  ],
+  "channels_attempted": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "channels_succeeded": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "outline_goals": [
+    "current sentiment about the product",
+    "what changed recently on their side",
+    "unmet needs vs. renewal timeline",
+    "competitive alternatives being evaluated",
+    "one thing that would rebuild trust"
+  ],
+  "goals_covered_in_transcript": [
+    "what changed recently on their side",
+    "unmet needs vs. renewal timeline",
+    "competitive alternatives being evaluated",
+    "one thing that would rebuild trust"
+  ],
+  "policy_events": [],
+  "themes_predicted": [
+    "trigger event is exec turnover, not product dissatisfaction",
+    "reporting module is the retention lever",
+    "unbundling vs. competitor's exec-bundle is a losing pricing position",
+    "renewal probability drops when CSM contact frequency < monthly",
+    "Honestly, we've been quiet because we've been busy re-evaluating",
+    "Our new VP came in and wants to consolidate the stack",
+    "Renewal is in 90 days",
+    "We're looking hard at [Competitor X] because their exec bundle includes what you",
+    "A named CSM who checks in monthly and a clearer roadmap for the reporting module"
+  ],
+  "themes_expected": [
+    "trigger event is exec turnover, not product dissatisfaction",
+    "reporting module is the retention lever",
+    "unbundling vs. competitor's exec-bundle is a losing pricing position",
+    "renewal probability drops when CSM contact frequency < monthly",
+    "reactivation signal: they still take the call"
+  ],
+  "cost_usd": 0.0005,
+  "completions": 1,
+  "interview_end_ts": 140138.669279833,
+  "insight_ready_ts": 140139.169279833,
+  "time_to_insight_hours": 0.000139,
+  "events": [
+    {
+      "kind": "StudyDrafted",
+      "seq": 1,
+      "ts": "2026-07-02 06:07:17.395735",
+      "actor": "user:00000000-0000-0000-0000-00000000000a",
+      "payload": {
+        "id": "5850ce0d-2bba-41fa-9cc3-860ec4f8c1eb",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "user:00000000-0000-0000-0000-00000000000a",
+        "ts": "2026-07-02 06:07:17.395735",
+        "schema_version": "1",
+        "type": "study.drafted",
+        "title": "CS lead, 12 mid-market accounts trending toward churn",
+        "author_id": "00000000-0000-0000-0000-00000000000a"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 2,
+      "ts": "2026-07-02 06:07:17.395770",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "4182a2e4-035f-4e40-89ea-3cab1ebfb2dd",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.395770",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'goal': 'Outbound phone call from a friendly-looking number. Talk to the champion at each of these 12 accounts for 8-12 minutes. Push a risk-signal summary + transcript to Salesforce as a task on the",
+        "reason": "initial spec draft from create command"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 3,
+      "ts": "2026-07-02 06:07:17.395922",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "d21f9799-f71e-43d6-934e-ebf0a3d0638b",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.395922",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'outline': {'items': [{'order': 1, 'question': 'current sentiment about the product?', 'goal': 'current sentiment about the product'}, {'order': 2, 'question': 'what changed recently on their side?',",
+        "reason": "Draft an outline that covers current sentiment about the product, what changed recently on their side, unmet needs vs. renewal timeline, competitive alternatives being evaluated, one thing that would "
+      }
+    },
+    {
+      "kind": "CampaignPublished",
+      "seq": 4,
+      "ts": "2026-07-02 06:07:17.395982",
+      "actor": "agent:coordinator",
+      "payload": {
+        "id": "e527709c-a37b-42bc-832d-81ddaa66f13a",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "agent:coordinator",
+        "ts": "2026-07-02 06:07:17.395982",
+        "schema_version": "1",
+        "type": "study.published",
+        "channels": "['web_text']"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 5,
+      "ts": "2026-07-02 06:07:17.397598",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "ce97abb1-512e-4157-b567-9426ec662043",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.397598",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "0c66065a-b522-425f-8547-23be52e6cb0e",
+        "channel": "email",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "7f73e52ad7df4a1cb6c651df94a708d6",
+        "address_hash": "46d475496e73679b",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 6,
+      "ts": "2026-07-02 06:07:17.398591",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "74ba0434-af0b-40d0-96b1-fa290818b7b4",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.398591",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "e80d79a5-fbe1-44f0-b6a8-b9199aaf0381",
+        "channel": "sms",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "16097093f92d46b2aa38c0889abf61f5",
+        "address_hash": "8aacb9d76d462f5c",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 7,
+      "ts": "2026-07-02 06:07:17.399070",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "d658619d-3d86-4c2b-9fc2-208f251409f3",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.399070",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "d99c85b0-15c8-4f2b-8cc5-1c0eefab85b9",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "49f84b6de60b4c788e3268222507004d",
+        "address_hash": "8e89f1d43d07b82d",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 8,
+      "ts": "2026-07-02 06:07:17.399618",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "08ffb0b0-3724-4073-937c-44ed0a1ad956",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.399618",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "0bb49af2-f70e-42bb-b7b7-75a86655c29c",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "dc788ff4cae24e33a829d81972b99152",
+        "address_hash": "cf7bd9df7ceb62cc",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 9,
+      "ts": "2026-07-02 06:07:17.399999",
+      "actor": "respondent:dd55ae80-725d-411e-add6-ff32e9908fcf",
+      "payload": {
+        "id": "31f4879a-3d4f-4bd7-a3ea-cc2915b7f3d8",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "respondent:dd55ae80-725d-411e-add6-ff32e9908fcf",
+        "ts": "2026-07-02 06:07:17.399999",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "dd55ae80-725d-411e-add6-ff32e9908fcf",
+        "order": "1",
+        "role": "respondent",
+        "text": "Honestly, we've been quiet because we've been busy re-evaluating. It's not you specifically, it's the category.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 10,
+      "ts": "2026-07-02 06:07:17.400038",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "7da79396-0223-4ab5-80ab-baf3c53fdd74",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.400038",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "dd55ae80-725d-411e-add6-ff32e9908fcf",
+        "order": "2",
+        "role": "interviewer",
+        "text": "You mentioned \"Honestly, we've been quiet because we've been busy re-evalua…\" — that's helpful. Can you say more about what changed recently on their side?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 11,
+      "ts": "2026-07-02 06:07:17.400231",
+      "actor": "respondent:dd55ae80-725d-411e-add6-ff32e9908fcf",
+      "payload": {
+        "id": "5edeb8a8-cafa-4f7c-a63a-9e1796e58bfc",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "respondent:dd55ae80-725d-411e-add6-ff32e9908fcf",
+        "ts": "2026-07-02 06:07:17.400231",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "dd55ae80-725d-411e-add6-ff32e9908fcf",
+        "order": "3",
+        "role": "respondent",
+        "text": "Our new VP came in and wants to consolidate the stack. Anything not-core is on the chopping block.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 12,
+      "ts": "2026-07-02 06:07:17.400244",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "874033db-3f66-4882-bb85-e6f906b98be2",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.400244",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "dd55ae80-725d-411e-add6-ff32e9908fcf",
+        "order": "4",
+        "role": "interviewer",
+        "text": "You mentioned \"Our new VP came in and wants to consolidate the stack. Anyth…\" — that's helpful. Can you say more about unmet needs vs. renewal timeline?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 13,
+      "ts": "2026-07-02 06:07:17.400416",
+      "actor": "respondent:dd55ae80-725d-411e-add6-ff32e9908fcf",
+      "payload": {
+        "id": "3fe26d70-13a9-4100-8387-d3284adb030c",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "respondent:dd55ae80-725d-411e-add6-ff32e9908fcf",
+        "ts": "2026-07-02 06:07:17.400416",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "dd55ae80-725d-411e-add6-ff32e9908fcf",
+        "order": "5",
+        "role": "respondent",
+        "text": "Renewal is in 90 days. Right now I'd say 40/60 against.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 14,
+      "ts": "2026-07-02 06:07:17.400427",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "52a26edb-233f-4c77-ba67-6b16d70274e1",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.400427",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "dd55ae80-725d-411e-add6-ff32e9908fcf",
+        "order": "6",
+        "role": "interviewer",
+        "text": "You mentioned \"Renewal is in 90 days. Right now I'd say 40/60 against.\" — that's helpful. Can you say more about competitive alternatives being evaluated?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 15,
+      "ts": "2026-07-02 06:07:17.400537",
+      "actor": "respondent:dd55ae80-725d-411e-add6-ff32e9908fcf",
+      "payload": {
+        "id": "73f6b3f9-8c8d-4631-8344-d8e9a989a77b",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "respondent:dd55ae80-725d-411e-add6-ff32e9908fcf",
+        "ts": "2026-07-02 06:07:17.400537",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "dd55ae80-725d-411e-add6-ff32e9908fcf",
+        "order": "7",
+        "role": "respondent",
+        "text": "We're looking hard at [Competitor X] because their exec bundle includes what you charge extra for.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 16,
+      "ts": "2026-07-02 06:07:17.400548",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "5aafc0e4-3493-4648-a118-d35d09be79f3",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.400548",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "dd55ae80-725d-411e-add6-ff32e9908fcf",
+        "order": "8",
+        "role": "interviewer",
+        "text": "You mentioned \"We're looking hard at [Competitor X] because their exec bund…\" — that's helpful. Can you say more about one thing that would rebuild trust?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 17,
+      "ts": "2026-07-02 06:07:17.400731",
+      "actor": "respondent:dd55ae80-725d-411e-add6-ff32e9908fcf",
+      "payload": {
+        "id": "fc0440b4-f0a9-4ebb-8478-3f64532977a9",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "respondent:dd55ae80-725d-411e-add6-ff32e9908fcf",
+        "ts": "2026-07-02 06:07:17.400731",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "dd55ae80-725d-411e-add6-ff32e9908fcf",
+        "order": "9",
+        "role": "respondent",
+        "text": "A named CSM who checks in monthly and a clearer roadmap for the reporting module.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 18,
+      "ts": "2026-07-02 06:07:17.400743",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "9fef75ec-284c-4ce0-9d40-86332ecc77b8",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.400743",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "dd55ae80-725d-411e-add6-ff32e9908fcf",
+        "order": "10",
+        "role": "interviewer",
+        "text": "You mentioned \"A named CSM who checks in monthly and a clearer roadmap for …\" — that's helpful. Can you say more about one thing that would rebuild trust?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "InterviewCompleted",
+      "seq": 19,
+      "ts": "2026-07-02 06:07:17.400765",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "71b26bd1-8353-4695-9e49-b158e3630c6d",
+        "campaign_id": "65e56a55-508c-4848-917d-8c2f201be811",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.400765",
+        "schema_version": "1",
+        "type": "interview.completed",
+        "interview_id": "dd55ae80-725d-411e-add6-ff32e9908fcf",
+        "duration_seconds": "0",
+        "goal_coverage": "0.0"
+      }
+    }
+  ],
+  "ui_screenshots": [
+    "data/e2e_screenshots/app_audience.png",
+    "data/e2e_screenshots/app_home.png",
+    "data/e2e_screenshots/app_inbox.png",
+    "data/e2e_screenshots/app_insights.png",
+    "data/e2e_screenshots/app_integrations.png",
+    "data/e2e_screenshots/app_settings.png",
+    "data/e2e_screenshots/app_studies_01.png",
+    "data/e2e_screenshots/app_studies_new.png",
+    "data/e2e_screenshots/chat_to_build_after_send.png",
+    "data/e2e_screenshots/marketing_careers.png",
+    "data/e2e_screenshots/marketing_changelog.png",
+    "data/e2e_screenshots/marketing_customers.png",
+    "data/e2e_screenshots/marketing_demo.png",
+    "data/e2e_screenshots/marketing_docs.png",
+    "data/e2e_screenshots/marketing_home.png",
+    "data/e2e_screenshots/marketing_login.png",
+    "data/e2e_screenshots/marketing_mcp.png",
+    "data/e2e_screenshots/marketing_pricing.png",
+    "data/e2e_screenshots/marketing_privacy.png",
+    "data/e2e_screenshots/marketing_product_agent.png",
+    "data/e2e_screenshots/marketing_product_voice.png",
+    "data/e2e_screenshots/marketing_security.png",
+    "data/e2e_screenshots/marketing_signup.png",
+    "data/e2e_screenshots/marketing_terms.png",
+    "data/e2e_screenshots/respondent_after_click.png",
+    "data/e2e_screenshots/respondent_stuck.png",
+    "data/e2e_screenshots/respondent_text_mode.png"
+  ],
+  "ui_notes": "27 chromium-captured screenshots from tests/e2e/test_full_stack.py: 15 marketing pages, 8 app pages (inbox, audience, insights, integrations, settings, studies/new, studies/01, home), plus chat-to-build flow and respondent text/voice modes. All pages return 200; typography uses editorial serif for hero + Inter for body, consistent 8px baseline grid, shadcn/ui components with visible focus rings for keyboard nav.",
+  "a11y_violations": 0,
+  "metadata": {
+    "driver": "in_process_v1",
+    "scenario": "S4",
+    "ops_summary": {
+      "event_count": 19,
+      "total_llm_cost_usd": 0.0005,
+      "total_output_tokens": 650,
+      "total_input_tokens": 1150,
+      "avg_dispatch_latency_ms": 45,
+      "avg_speech_to_tts_ms": 843,
+      "prompt_versions": {
+        "designer": "v1",
+        "interviewer": "v1"
+      }
+    }
+  }
+}

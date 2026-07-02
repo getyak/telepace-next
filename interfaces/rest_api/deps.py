@@ -1,0 +1,174 @@
+"""FastAPI dependency wiring: app singletons for Harness, Projector, EventStore."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+import asyncpg
+import redis.asyncio as redis
+from fastapi import Request
+
+from agents.analyst import AnalystAgent
+from agents.coordinator import CoordinatorAgent
+from agents.designer import DesignerAgent
+from agents.interviewer import InterviewerAgent
+from agents.shared import AnthropicLLM, MockLLM, OpenRouterLLM
+from harness import (
+    BudgetPolicy,
+    EscalationPolicy,
+    Harness,
+    IntentRouter,
+    NullTracer,
+    PIIPolicy,
+    PolicyStack,
+    RedisMemory,
+)
+from harness.handlers import DispatchHandler
+from interfaces.channels.base import EmailDispatcher, PhoneDispatcher, SmsDispatcher
+from interfaces.channels.email_mock import MockEmail
+from interfaces.channels.email_resend import ResendEmail
+from interfaces.channels.phone_mock import MockPhone
+from interfaces.channels.phone_vapi import VapiPhone
+from interfaces.channels.sms_mock import MockSMS
+from interfaces.channels.sms_twilio import TwilioSMS
+from interfaces.rest_api.config import Settings, get_settings
+from storage.event_store import PostgresEventStore
+from storage.projections import CAMPAIGN_PROJECTION_SQL, CampaignProjector
+
+
+@dataclass(slots=True)
+class AppState:
+    settings: Settings
+    event_store: PostgresEventStore
+    pool: asyncpg.Pool
+    projector: CampaignProjector
+    harness: Harness
+    analyst: AnalystAgent
+    email_dispatcher: EmailDispatcher
+    sms_dispatcher: SmsDispatcher
+    phone_dispatcher: PhoneDispatcher
+
+
+async def build_state() -> AppState:
+    settings = get_settings()
+
+    store = PostgresEventStore(settings.database_url)
+    await store.start()
+
+    pool = await asyncpg.create_pool(settings.database_url, min_size=1, max_size=10)
+    async with pool.acquire() as conn:
+        await conn.execute(CAMPAIGN_PROJECTION_SQL)
+    projector = CampaignProjector(pool)
+
+    redis_client = redis.from_url(settings.redis_url, decode_responses=False)
+    memory = RedisMemory(redis_client)
+
+    llm = _build_llm(settings)
+
+    email_dispatcher = _build_email(settings)
+    sms_dispatcher = _build_sms(settings)
+    phone_dispatcher = _build_phone(settings)
+
+    dispatch_handler = DispatchHandler(
+        email=email_dispatcher,
+        sms=sms_dispatcher,
+        phone=phone_dispatcher,
+        share_url_base=settings.public_base_url,
+    )
+
+    harness = Harness(
+        event_store=store,
+        memory=memory,
+        router=IntentRouter(),
+        policies=PolicyStack([BudgetPolicy(), PIIPolicy(), EscalationPolicy()]),
+        agents={
+            "designer": DesignerAgent(llm=llm),
+            "interviewer": InterviewerAgent(llm=llm),
+            "coordinator": CoordinatorAgent(),
+            "dispatch": dispatch_handler,
+        },
+        tracer=NullTracer(),
+    )
+
+    return AppState(
+        settings=settings,
+        event_store=store,
+        pool=pool,
+        projector=projector,
+        harness=harness,
+        analyst=AnalystAgent(llm=llm),
+        email_dispatcher=email_dispatcher,
+        sms_dispatcher=sms_dispatcher,
+        phone_dispatcher=phone_dispatcher,
+    )
+
+
+def get_state(request: Request) -> AppState:
+    return request.app.state.telepace
+
+
+def get_harness(request: Request) -> Harness:
+    return get_state(request).harness
+
+
+def get_projector(request: Request) -> CampaignProjector:
+    return get_state(request).projector
+
+
+def get_settings_dep(request: Request) -> Settings:
+    return get_state(request).settings
+
+
+def _build_llm(settings: Settings):
+    provider = (settings.llm_provider or "mock").lower()
+    if provider == "openrouter" and settings.openrouter_api_key:
+        return OpenRouterLLM(
+            api_key=settings.openrouter_api_key,
+            base_url=settings.openrouter_base_url,
+            default_model=settings.llm_model_general,
+        )
+    if provider == "anthropic" and settings.anthropic_api_key:
+        return AnthropicLLM(api_key=settings.anthropic_api_key)
+    return MockLLM()
+
+
+def _build_email(settings: Settings) -> EmailDispatcher:
+    provider = (settings.email_provider or "mock").lower()
+    if provider == "resend" and settings.resend_api_key:
+        return ResendEmail(
+            api_key=settings.resend_api_key,
+            from_address=settings.email_from,
+        )
+    return MockEmail()
+
+
+def _build_sms(settings: Settings) -> SmsDispatcher:
+    provider = (settings.sms_provider or "mock").lower()
+    if (
+        provider == "twilio"
+        and settings.twilio_account_sid
+        and settings.twilio_auth_token
+        and settings.twilio_from
+    ):
+        return TwilioSMS(
+            account_sid=settings.twilio_account_sid,
+            auth_token=settings.twilio_auth_token,
+            from_number=settings.twilio_from,
+        )
+    return MockSMS()
+
+
+def _build_phone(settings: Settings) -> PhoneDispatcher:
+    provider = (settings.phone_provider or "mock").lower()
+    if (
+        provider == "vapi"
+        and settings.vapi_api_key
+        and settings.vapi_assistant_id
+        and settings.vapi_phone_number_id
+    ):
+        return VapiPhone(
+            api_key=settings.vapi_api_key,
+            assistant_id=settings.vapi_assistant_id,
+            phone_number_id=settings.vapi_phone_number_id,
+        )
+    return MockPhone()

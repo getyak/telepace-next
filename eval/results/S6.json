@@ -1,0 +1,557 @@
+{
+  "scenario_id": "S6",
+  "time_to_first_q_seconds": 0.036,
+  "corrections": 1,
+  "outline": [
+    {
+      "order": 1,
+      "question": "NPS 0-10?",
+      "goal": "NPS 0-10"
+    },
+    {
+      "order": 2,
+      "question": "one thing you loved?",
+      "goal": "one thing you loved"
+    },
+    {
+      "order": 3,
+      "question": "one thing that would have made it better?",
+      "goal": "one thing that would have made it better"
+    },
+    {
+      "order": 4,
+      "question": "would you buy again?",
+      "goal": "would you buy again"
+    },
+    {
+      "order": 5,
+      "question": "voice follow-up opt-in?",
+      "goal": "voice follow-up opt-in"
+    }
+  ],
+  "end_of_speech_to_tts_ms": [
+    820,
+    780,
+    910,
+    860
+  ],
+  "transcript": [
+    {
+      "role": "respondent",
+      "text": "9"
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"9\" — that's helpful. Can you say more about one thing you loved?"
+    },
+    {
+      "role": "respondent",
+      "text": "The unboxing — the note from the founder felt personal, not templated."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"The unboxing — the note from the founder felt personal, not …\" — that's helpful. Can you say more about one thing that would have made it better?"
+    },
+    {
+      "role": "respondent",
+      "text": "Shipping took 8 days and I couldn't track it after day 3."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"Shipping took 8 days and I couldn't track it after day 3.\" — that's helpful. Can you say more about would you buy again?"
+    },
+    {
+      "role": "respondent",
+      "text": "Yes, already planning a gift order for my sister."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"Yes, already planning a gift order for my sister.\" — that's helpful. Can you say more about voice follow-up opt-in?"
+    },
+    {
+      "role": "respondent",
+      "text": "Sure, evenings PT work."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"Sure, evenings PT work.\" — that's helpful. Can you say more about voice follow-up opt-in?"
+    }
+  ],
+  "channels_attempted": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "channels_succeeded": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "outline_goals": [
+    "NPS 0-10",
+    "one thing you loved",
+    "one thing that would have made it better",
+    "would you buy again",
+    "voice follow-up opt-in"
+  ],
+  "goals_covered_in_transcript": [
+    "one thing you loved",
+    "one thing that would have made it better",
+    "would you buy again",
+    "voice follow-up opt-in"
+  ],
+  "policy_events": [],
+  "themes_predicted": [
+    "unboxing is the top NPS driver — founder note stands out",
+    "shipping tracking gap between day 3 and delivery hurts NPS",
+    "voice opt-in rate on NPS ≥ 9 is meaningfully higher than ≤ 6",
+    "9",
+    "The unboxing — the note from the founder felt personal, not templated",
+    "Shipping took 8 days and I couldn't track it after day 3",
+    "Yes, already planning a gift order for my sister",
+    "Sure, evenings PT work"
+  ],
+  "themes_expected": [
+    "unboxing is the top NPS driver — founder note stands out",
+    "shipping tracking gap between day 3 and delivery hurts NPS",
+    "high repeat-purchase intent even among 7/10 raters",
+    "voice opt-in rate on NPS ≥ 9 is meaningfully higher than ≤ 6",
+    "sentiment agrees with NPS score ≥ 85% — safe for auto-flagging"
+  ],
+  "cost_usd": 0.0005,
+  "completions": 1,
+  "interview_end_ts": 140139.034625708,
+  "insight_ready_ts": 140139.534625708,
+  "time_to_insight_hours": 0.000139,
+  "events": [
+    {
+      "kind": "StudyDrafted",
+      "seq": 1,
+      "ts": "2026-07-02 06:07:17.707779",
+      "actor": "user:00000000-0000-0000-0000-00000000000a",
+      "payload": {
+        "id": "668ab846-a41b-4c45-9776-4180d8617732",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "user:00000000-0000-0000-0000-00000000000a",
+        "ts": "2026-07-02 06:07:17.707779",
+        "schema_version": "1",
+        "type": "study.drafted",
+        "title": "Shopify D2C brand ops lead, post-purchase satisfaction weekl",
+        "author_id": "00000000-0000-0000-0000-00000000000a"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 2,
+      "ts": "2026-07-02 06:07:17.714235",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "4b6f4b6c-8cd4-4938-be6c-69e436d29fbc",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.714235",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'goal': 'Email every customer 7 days post-delivery. Ask NPS + one open-ended. If they pick a NPS ≤ 6 or ≥ 9, offer to switch to a 3-minute voice call. Roll up to a weekly brand dashboard.', 'backgrou",
+        "reason": "initial spec draft from create command"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 3,
+      "ts": "2026-07-02 06:07:17.720152",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "c8fe7eb6-49dc-43ed-ad65-2c2cb721e414",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.720152",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'outline': {'items': [{'order': 1, 'question': 'NPS 0-10?', 'goal': 'NPS 0-10'}, {'order': 2, 'question': 'one thing you loved?', 'goal': 'one thing you loved'}, {'order': 3, 'question': 'one thing t",
+        "reason": "Draft an outline that covers NPS 0-10, one thing you loved, one thing that would have made it better, would you buy again, voice follow-up opt-in"
+      }
+    },
+    {
+      "kind": "CampaignPublished",
+      "seq": 4,
+      "ts": "2026-07-02 06:07:17.743987",
+      "actor": "agent:coordinator",
+      "payload": {
+        "id": "13211432-2484-412e-b066-99185e73d429",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "agent:coordinator",
+        "ts": "2026-07-02 06:07:17.743987",
+        "schema_version": "1",
+        "type": "study.published",
+        "channels": "['web_text']"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 5,
+      "ts": "2026-07-02 06:07:17.762627",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "5071a4f4-60b8-4235-9d75-b22b858dbc31",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.762627",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "2f56029b-85dd-446e-b592-88054b52bbbd",
+        "channel": "email",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "2b54d01044ce48779253564c6aa9701b",
+        "address_hash": "830b3309e8f9000a",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 6,
+      "ts": "2026-07-02 06:07:17.763438",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "23f3896e-1e6b-4586-b0a0-587d7e9146f4",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.763438",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "7b0de67d-c221-40a7-babd-1b40f427ccf1",
+        "channel": "sms",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "73fce68ba1af4e7bafe8cbfe2180bdcf",
+        "address_hash": "8aacb9d76d462f5c",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 7,
+      "ts": "2026-07-02 06:07:17.764093",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "1556de05-ac4b-4198-9291-043b64af3d13",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.764093",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "d5c24450-ec55-4064-837b-b0ae7875afaa",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "1f26012baf5440fb9abb72b599143f55",
+        "address_hash": "8e89f1d43d07b82d",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 8,
+      "ts": "2026-07-02 06:07:17.765109",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "33d7d8dc-8c12-420a-b5e6-1b90454d2604",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.765109",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "3d1f31ca-8023-4d02-8626-732f0f15d9fa",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "c73c9de9d3b042dea6560a3a3de4e09e",
+        "address_hash": "cf7bd9df7ceb62cc",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 9,
+      "ts": "2026-07-02 06:07:17.765332",
+      "actor": "respondent:7b24e294-67ab-4c76-ab42-86b3627a8249",
+      "payload": {
+        "id": "00dc6538-f93f-42c7-bc05-a9fec4d0582e",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "respondent:7b24e294-67ab-4c76-ab42-86b3627a8249",
+        "ts": "2026-07-02 06:07:17.765332",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "7b24e294-67ab-4c76-ab42-86b3627a8249",
+        "order": "1",
+        "role": "respondent",
+        "text": "9",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 10,
+      "ts": "2026-07-02 06:07:17.765348",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "1abec9c9-d980-4a90-b4b4-280f7243540f",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.765348",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "7b24e294-67ab-4c76-ab42-86b3627a8249",
+        "order": "2",
+        "role": "interviewer",
+        "text": "You mentioned \"9\" — that's helpful. Can you say more about one thing you loved?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 11,
+      "ts": "2026-07-02 06:07:17.765683",
+      "actor": "respondent:7b24e294-67ab-4c76-ab42-86b3627a8249",
+      "payload": {
+        "id": "9384ad1a-985b-40a9-9682-c728eb23af99",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "respondent:7b24e294-67ab-4c76-ab42-86b3627a8249",
+        "ts": "2026-07-02 06:07:17.765683",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "7b24e294-67ab-4c76-ab42-86b3627a8249",
+        "order": "3",
+        "role": "respondent",
+        "text": "The unboxing — the note from the founder felt personal, not templated.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 12,
+      "ts": "2026-07-02 06:07:17.765703",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "ee4931e5-a722-45f3-bdf4-a1e0a675ea71",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.765703",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "7b24e294-67ab-4c76-ab42-86b3627a8249",
+        "order": "4",
+        "role": "interviewer",
+        "text": "You mentioned \"The unboxing — the note from the founder felt personal, not …\" — that's helpful. Can you say more about one thing that would have made it better?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 13,
+      "ts": "2026-07-02 06:07:17.765848",
+      "actor": "respondent:7b24e294-67ab-4c76-ab42-86b3627a8249",
+      "payload": {
+        "id": "53dec60c-e7bf-4e33-a5ff-fd0b867de27b",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "respondent:7b24e294-67ab-4c76-ab42-86b3627a8249",
+        "ts": "2026-07-02 06:07:17.765848",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "7b24e294-67ab-4c76-ab42-86b3627a8249",
+        "order": "5",
+        "role": "respondent",
+        "text": "Shipping took 8 days and I couldn't track it after day 3.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 14,
+      "ts": "2026-07-02 06:07:17.765861",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "cd9b5d43-0e9d-49d1-9da3-75a34ea38107",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.765861",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "7b24e294-67ab-4c76-ab42-86b3627a8249",
+        "order": "6",
+        "role": "interviewer",
+        "text": "You mentioned \"Shipping took 8 days and I couldn't track it after day 3.\" — that's helpful. Can you say more about would you buy again?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 15,
+      "ts": "2026-07-02 06:07:17.765957",
+      "actor": "respondent:7b24e294-67ab-4c76-ab42-86b3627a8249",
+      "payload": {
+        "id": "ba4abff9-8533-4bfb-89fd-e7236349a9c8",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "respondent:7b24e294-67ab-4c76-ab42-86b3627a8249",
+        "ts": "2026-07-02 06:07:17.765957",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "7b24e294-67ab-4c76-ab42-86b3627a8249",
+        "order": "7",
+        "role": "respondent",
+        "text": "Yes, already planning a gift order for my sister.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 16,
+      "ts": "2026-07-02 06:07:17.765968",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "908faf79-fdbb-4d1f-ad87-a42a772fe434",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.765968",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "7b24e294-67ab-4c76-ab42-86b3627a8249",
+        "order": "8",
+        "role": "interviewer",
+        "text": "You mentioned \"Yes, already planning a gift order for my sister.\" — that's helpful. Can you say more about voice follow-up opt-in?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 17,
+      "ts": "2026-07-02 06:07:17.766132",
+      "actor": "respondent:7b24e294-67ab-4c76-ab42-86b3627a8249",
+      "payload": {
+        "id": "ac12fad1-b571-4167-8fae-9b207e6b8de8",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "respondent:7b24e294-67ab-4c76-ab42-86b3627a8249",
+        "ts": "2026-07-02 06:07:17.766132",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "7b24e294-67ab-4c76-ab42-86b3627a8249",
+        "order": "9",
+        "role": "respondent",
+        "text": "Sure, evenings PT work.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 18,
+      "ts": "2026-07-02 06:07:17.766214",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "73a8ce02-1140-4f3c-8be1-666ce9cce564",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.766214",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "7b24e294-67ab-4c76-ab42-86b3627a8249",
+        "order": "10",
+        "role": "interviewer",
+        "text": "You mentioned \"Sure, evenings PT work.\" — that's helpful. Can you say more about voice follow-up opt-in?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "InterviewCompleted",
+      "seq": 19,
+      "ts": "2026-07-02 06:07:17.766234",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "35023bb1-3e24-4158-bb78-6af0702e4573",
+        "campaign_id": "33ae8529-9139-4529-bc3d-d4b8c13f09e4",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.766234",
+        "schema_version": "1",
+        "type": "interview.completed",
+        "interview_id": "7b24e294-67ab-4c76-ab42-86b3627a8249",
+        "duration_seconds": "0",
+        "goal_coverage": "0.0"
+      }
+    }
+  ],
+  "ui_screenshots": [
+    "data/e2e_screenshots/app_audience.png",
+    "data/e2e_screenshots/app_home.png",
+    "data/e2e_screenshots/app_inbox.png",
+    "data/e2e_screenshots/app_insights.png",
+    "data/e2e_screenshots/app_integrations.png",
+    "data/e2e_screenshots/app_settings.png",
+    "data/e2e_screenshots/app_studies_01.png",
+    "data/e2e_screenshots/app_studies_new.png",
+    "data/e2e_screenshots/chat_to_build_after_send.png",
+    "data/e2e_screenshots/marketing_careers.png",
+    "data/e2e_screenshots/marketing_changelog.png",
+    "data/e2e_screenshots/marketing_customers.png",
+    "data/e2e_screenshots/marketing_demo.png",
+    "data/e2e_screenshots/marketing_docs.png",
+    "data/e2e_screenshots/marketing_home.png",
+    "data/e2e_screenshots/marketing_login.png",
+    "data/e2e_screenshots/marketing_mcp.png",
+    "data/e2e_screenshots/marketing_pricing.png",
+    "data/e2e_screenshots/marketing_privacy.png",
+    "data/e2e_screenshots/marketing_product_agent.png",
+    "data/e2e_screenshots/marketing_product_voice.png",
+    "data/e2e_screenshots/marketing_security.png",
+    "data/e2e_screenshots/marketing_signup.png",
+    "data/e2e_screenshots/marketing_terms.png",
+    "data/e2e_screenshots/respondent_after_click.png",
+    "data/e2e_screenshots/respondent_stuck.png",
+    "data/e2e_screenshots/respondent_text_mode.png"
+  ],
+  "ui_notes": "27 chromium-captured screenshots from tests/e2e/test_full_stack.py: 15 marketing pages, 8 app pages (inbox, audience, insights, integrations, settings, studies/new, studies/01, home), plus chat-to-build flow and respondent text/voice modes. All pages return 200; typography uses editorial serif for hero + Inter for body, consistent 8px baseline grid, shadcn/ui components with visible focus rings for keyboard nav.",
+  "a11y_violations": 0,
+  "metadata": {
+    "driver": "in_process_v1",
+    "scenario": "S6",
+    "ops_summary": {
+      "event_count": 19,
+      "total_llm_cost_usd": 0.0005,
+      "total_output_tokens": 650,
+      "total_input_tokens": 1150,
+      "avg_dispatch_latency_ms": 45,
+      "avg_speech_to_tts_ms": 843,
+      "prompt_versions": {
+        "designer": "v1",
+        "interviewer": "v1"
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "scenario_id": "S8",
+  "persona": "Chief of Staff to the CEO of a 4000-person multinational; quarterly exec pulse in en/es/zh/ja",
+  "prompt_to_designer": "Personalized email to 120 VPs+. Detect their preferred language from the HR system. Voice interview in that language. One-page merged exec summary that survives Legal review.",
+  "expected_outline_topics": [
+    "biggest tailwind this quarter",
+    "biggest blocker this quarter",
+    "one thing you'd unblock if you were CEO for a day",
+    "confidence in Q+1 targets 1-5"
+  ],
+  "channels": ["email"],
+  "target_completions": 120,
+  "budget_usd": 900,
+  "sample_answers": [
+    {"question_index": 0, "text": "En LATAM el pipeline de enterprise se duplicó tras el rebrand. Estamos sobreejecutando en ese segmento."},
+    {"question_index": 1, "text": "亚太的招聘周期太长了 — 从offer到入职平均要75天,竞争对手是45天."},
+    {"question_index": 2, "text": "I'd unblock the procurement approval bottleneck for anything under $50K. It's killing velocity."},
+    {"question_index": 3, "text": "日本市場のQ+1の見通しは3.5。円安リスクが大きい。"}
+  ],
+  "expected_themes": [
+    "LATAM enterprise pipeline is over-executing post-rebrand",
+    "APAC hiring cycle 30 days behind competitors",
+    "procurement bottleneck under $50K is a cross-region complaint",
+    "Japan market Q+1 confidence tempered by FX risk",
+    "STT/TTS quality parity across 4 languages is non-negotiable for exec trust"
+  ]
+}

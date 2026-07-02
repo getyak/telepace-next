@@ -1,0 +1,29 @@
+{
+  "scenario_id": "S1",
+  "persona": "B2B SaaS PM, 40 interviews in 5 days validating a pricing tier",
+  "prompt_to_designer": "I need to figure out if we should charge $99/mo or $49/mo for our project management tool. Let's interview 40 mid-market PMs who currently use Jira or Asana.",
+  "expected_outline_topics": [
+    "current pricing paid for PM tools",
+    "willingness to pay at $99/mo",
+    "competitor comparison (Jira, Asana, Linear)",
+    "budget owner and approval process",
+    "features worth paying more for"
+  ],
+  "channels": ["email"],
+  "target_completions": 40,
+  "budget_usd": 80,
+  "sample_answers": [
+    {"question_index": 0, "text": "I'm a PM at a 200-person B2B startup, we use Jira today plus a mess of Notion pages."},
+    {"question_index": 1, "text": "Honestly $99 is stretching it, we cap tool budgets at $60/seat per month."},
+    {"question_index": 2, "text": "Jira feels heavy but it's what our engineers know. Linear has been eating our developer mindshare."},
+    {"question_index": 3, "text": "Our CTO approves anything over $50/seat. Under that I can expense it."},
+    {"question_index": 4, "text": "If it saved me 3 hours of standup prep per week I'd pay double."}
+  ],
+  "expected_themes": [
+    "price ceiling clusters near $60/seat",
+    "Jira incumbent friction but high switching cost",
+    "budget owner is CTO not PM for anything > $50",
+    "time-saving on standup prep is a willingness-to-pay unlock",
+    "Linear is the competitive threat, not Asana"
+  ]
+}

@@ -1,0 +1,43 @@
+# syntax=docker/dockerfile:1.7
+FROM python:3.12-slim AS builder
+
+ENV UV_INSTALL_DIR=/opt/uv \
+    PATH=/opt/uv:$PATH \
+    PIP_NO_CACHE_DIR=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+WORKDIR /app
+COPY pyproject.toml README.md ./
+RUN uv sync --no-dev
+
+COPY core/ core/
+COPY agents/ agents/
+COPY harness/ harness/
+COPY storage/ storage/
+COPY interfaces/ interfaces/
+COPY analysis/ analysis/
+
+FROM python:3.12-slim AS runtime
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd -m -u 1000 telepace
+
+WORKDIR /app
+COPY --from=builder /app /app
+COPY --from=builder /app/.venv /app/.venv
+
+ENV PATH=/app/.venv/bin:$PATH \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app
+
+USER telepace
+
+EXPOSE 8000
+CMD ["uvicorn", "interfaces.rest_api.main:app", "--host", "0.0.0.0", "--port", "8000"]

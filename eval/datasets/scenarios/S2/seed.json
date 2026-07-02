@@ -1,0 +1,29 @@
+{
+  "scenario_id": "S2",
+  "persona": "Solo founder pre-spec, 8 warm intros from Twitter DMs",
+  "prompt_to_designer": "I'm about to write the spec for a browser extension that summarizes GitHub PRs. I have 8 warm intros — let's talk to them before I code a single line. Half prefer text, half prefer voice.",
+  "expected_outline_topics": [
+    "current PR review pain",
+    "existing summarization tools tried",
+    "moment of highest frustration in a review",
+    "willingness to install browser extensions",
+    "workflow integration expectations"
+  ],
+  "channels": ["email"],
+  "target_completions": 8,
+  "budget_usd": 25,
+  "sample_answers": [
+    {"question_index": 0, "text": "I review ~15 PRs a week. The 400+ line diffs from junior devs are what kill me."},
+    {"question_index": 1, "text": "I tried Graphite and CodeRabbit. CodeRabbit is noisy — I turned it off after a week."},
+    {"question_index": 2, "text": "When I'm context-switching mid-PR and lose the thread of what the change is actually about."},
+    {"question_index": 3, "text": "I have 40+ Chrome extensions already. It has to justify RAM and permissions to make the cut."},
+    {"question_index": 4, "text": "It needs to live inside the GitHub PR page, not a separate dashboard. I won't open a second tab."}
+  ],
+  "expected_themes": [
+    "context-switching is the killer, not diff size",
+    "existing tools (CodeRabbit) are too noisy",
+    "in-page integration required, no second tab",
+    "junior-dev PRs are the highest-value target segment",
+    "founder should sell 'saved cognitive load', not 'summaries'"
+  ]
+}

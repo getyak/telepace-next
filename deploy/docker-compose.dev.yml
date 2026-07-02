@@ -1,0 +1,120 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: telepace
+      POSTGRES_PASSWORD: telepace
+      POSTGRES_DB: telepace
+    ports:
+      - "15432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U telepace"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "16379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      TELEPACE_DATABASE_URL: postgresql://telepace:telepace@postgres:5432/telepace
+      TELEPACE_REDIS_URL: redis://redis:6379/0
+      TELEPACE_PUBLIC_BASE_URL: http://localhost:3000
+      TELEPACE_API_BASE_URL: http://localhost:8010
+      TELEPACE_DEFAULT_ORG_ID: 00000000-0000-0000-0000-000000000001
+      TELEPACE_DEFAULT_AUTHOR_ID: 00000000-0000-0000-0000-000000000002
+      TELEPACE_LLM_PROVIDER: ${TELEPACE_LLM_PROVIDER:-openrouter}
+      TELEPACE_OPENROUTER_API_KEY: ${TELEPACE_OPENROUTER_API_KEY:-}
+      TELEPACE_OPENROUTER_BASE_URL: ${TELEPACE_OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}
+      TELEPACE_LLM_MODEL_HEAVY: ${TELEPACE_LLM_MODEL_HEAVY:-deepseek/deepseek-v4-pro}
+      TELEPACE_LLM_MODEL_GENERAL: ${TELEPACE_LLM_MODEL_GENERAL:-z-ai/glm-4.7}
+      TELEPACE_LLM_MODEL_FAST: ${TELEPACE_LLM_MODEL_FAST:-deepseek/deepseek-v4-flash}
+      TELEPACE_RESEND_API_KEY: ${TELEPACE_RESEND_API_KEY:-}
+      TELEPACE_TWILIO_ACCOUNT_SID: ${TELEPACE_TWILIO_ACCOUNT_SID:-}
+      TELEPACE_TWILIO_AUTH_TOKEN: ${TELEPACE_TWILIO_AUTH_TOKEN:-}
+      TELEPACE_VAPI_API_KEY: ${TELEPACE_VAPI_API_KEY:-}
+    ports:
+      - "8010:8000"
+    command: ["uvicorn", "interfaces.rest_api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  worker:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      TELEPACE_DATABASE_URL: postgresql://telepace:telepace@postgres:5432/telepace
+      TELEPACE_REDIS_URL: redis://redis:6379/0
+      TELEPACE_LLM_PROVIDER: ${TELEPACE_LLM_PROVIDER:-openrouter}
+      TELEPACE_OPENROUTER_API_KEY: ${TELEPACE_OPENROUTER_API_KEY:-}
+    command: ["python", "-m", "interfaces.rest_api.worker"]
+
+  marketing:
+    image: node:20-alpine
+    working_dir: /app
+    depends_on:
+      - api
+    volumes:
+      - ../frontend/apps/marketing:/app
+      - marketing_node_modules:/app/node_modules
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8010
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install --no-fund --no-audit && npm run dev -- -p 3000 -H 0.0.0.0"
+
+  app:
+    image: node:20-alpine
+    working_dir: /app
+    depends_on:
+      - api
+    volumes:
+      - ../frontend/apps/app:/app
+      - app_node_modules:/app/node_modules
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8010
+    ports:
+      - "3011:3011"
+    command: sh -c "npm install --no-fund --no-audit && npm run dev -- -p 3011 -H 0.0.0.0"
+
+  respondent:
+    image: node:20-alpine
+    working_dir: /app
+    depends_on:
+      - api
+    volumes:
+      - ../frontend/apps/respondent:/app
+      - respondent_node_modules:/app/node_modules
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8010
+    ports:
+      - "3012:3012"
+    command: sh -c "npm install --no-fund --no-audit && npm run dev -- -p 3012 -H 0.0.0.0"
+
+volumes:
+  pg_data:
+  marketing_node_modules:
+  app_node_modules:
+  respondent_node_modules:

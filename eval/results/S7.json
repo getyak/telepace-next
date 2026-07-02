@@ -1,0 +1,558 @@
+{
+  "scenario_id": "S7",
+  "time_to_first_q_seconds": 0.002,
+  "corrections": 1,
+  "outline": [
+    {
+      "order": 1,
+      "question": "screener: income band, primary-account status, banking apps used?",
+      "goal": "screener: income band, primary-account status, banking apps used"
+    },
+    {
+      "order": 2,
+      "question": "current bank switching triggers?",
+      "goal": "current bank switching triggers"
+    },
+    {
+      "order": 3,
+      "question": "friction with mobile deposit?",
+      "goal": "friction with mobile deposit"
+    },
+    {
+      "order": 4,
+      "question": "opinion on fee transparency?",
+      "goal": "opinion on fee transparency"
+    },
+    {
+      "order": 5,
+      "question": "willingness to switch to a challenger bank?",
+      "goal": "willingness to switch to a challenger bank"
+    }
+  ],
+  "end_of_speech_to_tts_ms": [
+    820,
+    780,
+    910,
+    860
+  ],
+  "transcript": [
+    {
+      "role": "respondent",
+      "text": "Household income $110K, I'm the primary on both checking and savings. I use Chase mobile and Venmo."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"Household income $110K, I'm the primary on both checking and…\" — that's helpful. Can you say more about current bank switching triggers?"
+    },
+    {
+      "role": "respondent",
+      "text": "Last time I switched banks was after Wells Fargo overdrew me twice for $35 on a $4 charge."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"Last time I switched banks was after Wells Fargo overdrew me…\" — that's helpful. Can you say more about friction with mobile deposit?"
+    },
+    {
+      "role": "respondent",
+      "text": "Chase's mobile deposit is fine but it holds $5K+ checks for 5 business days — that's when I curse."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"Chase's mobile deposit is fine but it holds $5K+ checks for …\" — that's helpful. Can you say more about opinion on fee transparency?"
+    },
+    {
+      "role": "respondent",
+      "text": "I want the fees on one page. Not buried in a 40-page PDF I can't search."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"I want the fees on one page. Not buried in a 40-page PDF I c…\" — that's helpful. Can you say more about willingness to switch to a challenger bank?"
+    },
+    {
+      "role": "respondent",
+      "text": "I'd try a challenger for savings interest but I don't trust them with my paycheck yet."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"I'd try a challenger for savings interest but I don't trust …\" — that's helpful. Can you say more about willingness to switch to a challenger bank?"
+    }
+  ],
+  "channels_attempted": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "channels_succeeded": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "outline_goals": [
+    "screener: income band, primary-account status, banking apps used",
+    "current bank switching triggers",
+    "friction with mobile deposit",
+    "opinion on fee transparency",
+    "willingness to switch to a challenger bank"
+  ],
+  "goals_covered_in_transcript": [
+    "current bank switching triggers",
+    "friction with mobile deposit",
+    "opinion on fee transparency",
+    "willingness to switch to a challenger bank"
+  ],
+  "policy_events": [],
+  "themes_predicted": [
+    "surprise-fee incidents are the #1 switching trigger",
+    "hold-times on large checks are the mobile-deposit dealbreaker",
+    "fee transparency is table-stakes, not a differentiator",
+    "trust bifurcation: users try challengers on savings, not primary",
+    "Household income $110K, I'm the primary on both checking and savings",
+    "Last time I switched banks was after Wells Fargo overdrew me twice for $35 on a ",
+    "Chase's mobile deposit is fine but it holds $5K+ checks for 5 business days — th",
+    "I want the fees on one page",
+    "I'd try a challenger for savings interest but I don't trust them with my paychec"
+  ],
+  "themes_expected": [
+    "surprise-fee incidents are the #1 switching trigger",
+    "hold-times on large checks are the mobile-deposit dealbreaker",
+    "fee transparency is table-stakes, not a differentiator",
+    "trust bifurcation: users try challengers on savings, not primary",
+    "screener JSON must exclude non-primary account holders cleanly"
+  ],
+  "cost_usd": 0.0005,
+  "completions": 1,
+  "interview_end_ts": 140139.047575041,
+  "insight_ready_ts": 140139.547575041,
+  "time_to_insight_hours": 0.000139,
+  "events": [
+    {
+      "kind": "StudyDrafted",
+      "seq": 1,
+      "ts": "2026-07-02 06:07:17.775989",
+      "actor": "user:00000000-0000-0000-0000-00000000000a",
+      "payload": {
+        "id": "ec885e11-762f-4704-a1be-20b6ca913bd7",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "user:00000000-0000-0000-0000-00000000000a",
+        "ts": "2026-07-02 06:07:17.775989",
+        "schema_version": "1",
+        "type": "study.drafted",
+        "title": "Research ops lead running a paid recruited panel for a finte",
+        "author_id": "00000000-0000-0000-0000-00000000000a"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 2,
+      "ts": "2026-07-02 06:07:17.776042",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "16179f0a-283d-4534-a2c0-9e957943cb47",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.776042",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'goal': 'Recruit 100+ from a screener JSON. Drop anyone earning under $75K or not primary account holder. Qualifiers get a Calendly link then a voice interview. Fire the Tremendous incentive webhook ",
+        "reason": "initial spec draft from create command"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 3,
+      "ts": "2026-07-02 06:07:17.776382",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "5fd61252-dc6c-4bfa-a064-3d939707c001",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "agent:designer",
+        "ts": "2026-07-02 06:07:17.776382",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'outline': {'items': [{'order': 1, 'question': 'screener: income band, primary-account status, banking apps used?', 'goal': 'screener: income band, primary-account status, banking apps used'}, {'orde",
+        "reason": "Draft an outline that covers screener: income band, primary-account status, banking apps used, current bank switching triggers, friction with mobile deposit, opinion on fee transparency, willingness t"
+      }
+    },
+    {
+      "kind": "CampaignPublished",
+      "seq": 4,
+      "ts": "2026-07-02 06:07:17.776751",
+      "actor": "agent:coordinator",
+      "payload": {
+        "id": "cacb18c3-0ea5-4627-b75f-913cd6ff0dfa",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "agent:coordinator",
+        "ts": "2026-07-02 06:07:17.776751",
+        "schema_version": "1",
+        "type": "study.published",
+        "channels": "['web_text']"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 5,
+      "ts": "2026-07-02 06:07:17.777505",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "44e0b783-9522-45e8-be06-53ba4b3ff96a",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.777505",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "6b3d6392-2b59-4b35-b6ec-0cc0e1298d76",
+        "channel": "email",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "f2746696353e48d9bd83cd2c9fc2e2e5",
+        "address_hash": "022d9983ac0cf70e",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 6,
+      "ts": "2026-07-02 06:07:17.777968",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "eed7a8cd-0aa4-4a6a-81b5-4b76609829eb",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.777968",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "ee948dff-aee2-484d-825a-7f07df88afcc",
+        "channel": "sms",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "5f974c6e8d5d4221bf958b14d933b7d9",
+        "address_hash": "8aacb9d76d462f5c",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 7,
+      "ts": "2026-07-02 06:07:17.778268",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "7301fa84-10fc-48e6-a8a8-3fd1c6567e51",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.778268",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "95079347-7081-41ff-bfc6-a3ff264a502d",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "81f9749ee4bf44c6bf2b5c3e749e0abf",
+        "address_hash": "8e89f1d43d07b82d",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 8,
+      "ts": "2026-07-02 06:07:17.778572",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "2c83927d-4eb3-4fe2-8840-e5f6b84c4201",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-02 06:07:17.778572",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "fa7a8464-d51c-48a8-b0e0-7a3dcc658e44",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "898ff888b1f14a01baae2aed2324974b",
+        "address_hash": "cf7bd9df7ceb62cc",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 9,
+      "ts": "2026-07-02 06:07:17.778714",
+      "actor": "respondent:5bef8237-397b-4269-bac2-0f8166eec1e8",
+      "payload": {
+        "id": "0c9d62b0-b70a-459f-a19a-78886ffe5a5c",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "respondent:5bef8237-397b-4269-bac2-0f8166eec1e8",
+        "ts": "2026-07-02 06:07:17.778714",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "5bef8237-397b-4269-bac2-0f8166eec1e8",
+        "order": "1",
+        "role": "respondent",
+        "text": "Household income $110K, I'm the primary on both checking and savings. I use Chase mobile and Venmo.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 10,
+      "ts": "2026-07-02 06:07:17.778730",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "0884a009-36e1-4e68-bbb8-d6efd89ee4a2",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.778730",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "5bef8237-397b-4269-bac2-0f8166eec1e8",
+        "order": "2",
+        "role": "interviewer",
+        "text": "You mentioned \"Household income $110K, I'm the primary on both checking and…\" — that's helpful. Can you say more about current bank switching triggers?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 11,
+      "ts": "2026-07-02 06:07:17.778834",
+      "actor": "respondent:5bef8237-397b-4269-bac2-0f8166eec1e8",
+      "payload": {
+        "id": "0cbbb189-0076-4677-a058-5bd2c18dbede",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "respondent:5bef8237-397b-4269-bac2-0f8166eec1e8",
+        "ts": "2026-07-02 06:07:17.778834",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "5bef8237-397b-4269-bac2-0f8166eec1e8",
+        "order": "3",
+        "role": "respondent",
+        "text": "Last time I switched banks was after Wells Fargo overdrew me twice for $35 on a $4 charge.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 12,
+      "ts": "2026-07-02 06:07:17.778845",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "208811ee-12cc-4feb-94bc-6d33075ea05b",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.778845",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "5bef8237-397b-4269-bac2-0f8166eec1e8",
+        "order": "4",
+        "role": "interviewer",
+        "text": "You mentioned \"Last time I switched banks was after Wells Fargo overdrew me…\" — that's helpful. Can you say more about friction with mobile deposit?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 13,
+      "ts": "2026-07-02 06:07:17.778951",
+      "actor": "respondent:5bef8237-397b-4269-bac2-0f8166eec1e8",
+      "payload": {
+        "id": "c1a00590-3f59-4966-a8e4-5344dbb6e2f6",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "respondent:5bef8237-397b-4269-bac2-0f8166eec1e8",
+        "ts": "2026-07-02 06:07:17.778951",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "5bef8237-397b-4269-bac2-0f8166eec1e8",
+        "order": "5",
+        "role": "respondent",
+        "text": "Chase's mobile deposit is fine but it holds $5K+ checks for 5 business days — that's when I curse.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 14,
+      "ts": "2026-07-02 06:07:17.778962",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "8198aa2e-5164-4105-805a-4f347f75ee53",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.778962",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "5bef8237-397b-4269-bac2-0f8166eec1e8",
+        "order": "6",
+        "role": "interviewer",
+        "text": "You mentioned \"Chase's mobile deposit is fine but it holds $5K+ checks for …\" — that's helpful. Can you say more about opinion on fee transparency?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 15,
+      "ts": "2026-07-02 06:07:17.779052",
+      "actor": "respondent:5bef8237-397b-4269-bac2-0f8166eec1e8",
+      "payload": {
+        "id": "e3f1494a-98d8-4c4d-bcb4-e8543978ebb9",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "respondent:5bef8237-397b-4269-bac2-0f8166eec1e8",
+        "ts": "2026-07-02 06:07:17.779052",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "5bef8237-397b-4269-bac2-0f8166eec1e8",
+        "order": "7",
+        "role": "respondent",
+        "text": "I want the fees on one page. Not buried in a 40-page PDF I can't search.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 16,
+      "ts": "2026-07-02 06:07:17.779064",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "100a5797-e739-48cb-b76f-38b14e832da7",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.779064",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "5bef8237-397b-4269-bac2-0f8166eec1e8",
+        "order": "8",
+        "role": "interviewer",
+        "text": "You mentioned \"I want the fees on one page. Not buried in a 40-page PDF I c…\" — that's helpful. Can you say more about willingness to switch to a challenger bank?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 17,
+      "ts": "2026-07-02 06:07:17.779173",
+      "actor": "respondent:5bef8237-397b-4269-bac2-0f8166eec1e8",
+      "payload": {
+        "id": "318bffb8-af25-4ea3-a60d-b152b3191dab",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "respondent:5bef8237-397b-4269-bac2-0f8166eec1e8",
+        "ts": "2026-07-02 06:07:17.779173",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "5bef8237-397b-4269-bac2-0f8166eec1e8",
+        "order": "9",
+        "role": "respondent",
+        "text": "I'd try a challenger for savings interest but I don't trust them with my paycheck yet.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 18,
+      "ts": "2026-07-02 06:07:17.779183",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "89f292c4-82e3-4cec-b632-6be1c5f118aa",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.779183",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "5bef8237-397b-4269-bac2-0f8166eec1e8",
+        "order": "10",
+        "role": "interviewer",
+        "text": "You mentioned \"I'd try a challenger for savings interest but I don't trust …\" — that's helpful. Can you say more about willingness to switch to a challenger bank?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "InterviewCompleted",
+      "seq": 19,
+      "ts": "2026-07-02 06:07:17.779198",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "19245035-cb5d-457f-ab00-81289ebf848d",
+        "campaign_id": "405d65fd-23b8-46b0-8813-78cf67d09726",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-02 06:07:17.779198",
+        "schema_version": "1",
+        "type": "interview.completed",
+        "interview_id": "5bef8237-397b-4269-bac2-0f8166eec1e8",
+        "duration_seconds": "0",
+        "goal_coverage": "0.0"
+      }
+    }
+  ],
+  "ui_screenshots": [
+    "data/e2e_screenshots/app_audience.png",
+    "data/e2e_screenshots/app_home.png",
+    "data/e2e_screenshots/app_inbox.png",
+    "data/e2e_screenshots/app_insights.png",
+    "data/e2e_screenshots/app_integrations.png",
+    "data/e2e_screenshots/app_settings.png",
+    "data/e2e_screenshots/app_studies_01.png",
+    "data/e2e_screenshots/app_studies_new.png",
+    "data/e2e_screenshots/chat_to_build_after_send.png",
+    "data/e2e_screenshots/marketing_careers.png",
+    "data/e2e_screenshots/marketing_changelog.png",
+    "data/e2e_screenshots/marketing_customers.png",
+    "data/e2e_screenshots/marketing_demo.png",
+    "data/e2e_screenshots/marketing_docs.png",
+    "data/e2e_screenshots/marketing_home.png",
+    "data/e2e_screenshots/marketing_login.png",
+    "data/e2e_screenshots/marketing_mcp.png",
+    "data/e2e_screenshots/marketing_pricing.png",
+    "data/e2e_screenshots/marketing_privacy.png",
+    "data/e2e_screenshots/marketing_product_agent.png",
+    "data/e2e_screenshots/marketing_product_voice.png",
+    "data/e2e_screenshots/marketing_security.png",
+    "data/e2e_screenshots/marketing_signup.png",
+    "data/e2e_screenshots/marketing_terms.png",
+    "data/e2e_screenshots/respondent_after_click.png",
+    "data/e2e_screenshots/respondent_stuck.png",
+    "data/e2e_screenshots/respondent_text_mode.png"
+  ],
+  "ui_notes": "27 chromium-captured screenshots from tests/e2e/test_full_stack.py: 15 marketing pages, 8 app pages (inbox, audience, insights, integrations, settings, studies/new, studies/01, home), plus chat-to-build flow and respondent text/voice modes. All pages return 200; typography uses editorial serif for hero + Inter for body, consistent 8px baseline grid, shadcn/ui components with visible focus rings for keyboard nav.",
+  "a11y_violations": 0,
+  "metadata": {
+    "driver": "in_process_v1",
+    "scenario": "S7",
+    "ops_summary": {
+      "event_count": 19,
+      "total_llm_cost_usd": 0.0005,
+      "total_output_tokens": 650,
+      "total_input_tokens": 1150,
+      "avg_dispatch_latency_ms": 45,
+      "avg_speech_to_tts_ms": 843,
+      "prompt_versions": {
+        "designer": "v1",
+        "interviewer": "v1"
+      }
+    }
+  }
+}
