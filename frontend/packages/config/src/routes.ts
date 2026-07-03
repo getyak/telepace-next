@@ -18,6 +18,9 @@ export const routes = {
   demo: "/demo",
   terms: "/terms",
   privacy: "/privacy",
+  customers: "/customers",
+  changelog: "/changelog",
+  careers: "/careers",
 
   login: "/login",
   signup: "/signup",
@@ -30,6 +33,11 @@ export const routes = {
     insights: "/insights",
     integrations: "/integrations",
     settings: "/settings",
+    studies: {
+      root: "/studies",
+      new: "/studies/new",
+      byId: (id: string) => `/studies/${id}`,
+    },
   },
 
   respondent: (campaignId: string) => `/r/${campaignId}`,

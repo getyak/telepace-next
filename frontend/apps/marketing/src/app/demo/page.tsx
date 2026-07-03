@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button, ChatFeed, ChatComposer, type ChatMessage } from "@telepace/ui";
+import { routes } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
 const SCRIPT: Array<{ prompt: string }> = [
@@ -62,7 +63,7 @@ export default function DemoPage() {
                   <p className="text-body text-sm mb-4">
                     In a real study, telepace runs 100 of these in parallel and clusters the answers into themes.
                   </p>
-                  <Link href="/signup"><Button>Run one for real →</Button></Link>
+                  <Link href={routes.signup}><Button>Run one for real →</Button></Link>
                 </div>
               ) : (
                 <ChatComposer onSend={handleSend} placeholder="Type a reply and press Enter…" />
@@ -82,7 +83,7 @@ export default function DemoPage() {
             <div className="rounded-card border border-hairline bg-ink text-paper p-6">
               <p className="overline text-paper/70 mb-3">Prefer voice?</p>
               <p className="text-sm mb-4">The real interviewer is fully voice-capable — browser, outbound phone, inbound hotline.</p>
-              <Link href="/product/voice"><Button variant="secondary" className="border-paper/30 text-paper hover:bg-paper/10">Explore voice →</Button></Link>
+              <Link href={routes.product.voice}><Button variant="secondary" className="border-paper/30 text-paper hover:bg-paper/10">Explore voice →</Button></Link>
             </div>
           </aside>
         </div>

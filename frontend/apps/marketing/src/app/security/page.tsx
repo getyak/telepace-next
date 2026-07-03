@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { siteConfig } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
 export const metadata = { title: "Security · telepace" };
@@ -78,11 +79,11 @@ export default function SecurityPage() {
           <p className="overline">Responsible disclosure</p>
           <h2 className="font-display text-3xl">Found something? Tell us.</h2>
           <p className="text-body">
-            Report vulnerabilities to <Link href="mailto:security@telepace.io" className="text-accent underline">security@telepace.io</Link>.
+            Report vulnerabilities to <Link href={`mailto:${siteConfig.contact.securityEmail}`} className="text-accent underline">{siteConfig.contact.securityEmail}</Link>.
             We acknowledge within 24 hours, triage within 72, and pay bounties starting at $500 for confirmed issues (up to $10k for critical).
           </p>
           <p className="text-body">
-            PGP key: <code className="font-mono text-sm text-ink">0xA1B2C3D4E5F6</code> · fingerprint on <Link href="https://keys.openpgp.org" className="text-accent underline">keys.openpgp.org</Link>.
+            PGP key: <code className="font-mono text-sm text-ink">{siteConfig.contact.pgpFingerprint}</code> · fingerprint on <Link href={siteConfig.urls.pgpKeyserver} className="text-accent underline">keys.openpgp.org</Link>.
           </p>
         </div>
       </section>

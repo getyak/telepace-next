@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { siteConfig } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
 export const metadata = { title: "Privacy · telepace" };
@@ -95,7 +96,7 @@ export default function PrivacyPage() {
               </div>
             ))}
             <div className="border-t border-hairline pt-8 text-sm text-muted">
-              Questions? Email <Link href="mailto:privacy@telepace.io" className="text-accent underline">privacy@telepace.io</Link>.
+              Questions? Email <Link href={`mailto:${siteConfig.contact.privacyEmail}`} className="text-accent underline">{siteConfig.contact.privacyEmail}</Link>.
             </div>
           </div>
         </div>

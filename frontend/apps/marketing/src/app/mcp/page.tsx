@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@telepace/ui";
+import { routes } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
 export const metadata = { title: "MCP · telepace" };
@@ -108,7 +109,7 @@ export default function McpPage() {
             <p className="text-body mb-6">
               One command, no config. Your Claude gains an entire research team.
             </p>
-            <Link href="/docs"><Button>Read the docs →</Button></Link>
+            <Link href={routes.docs}><Button>Read the docs →</Button></Link>
           </div>
           <pre className="rounded-card border border-hairline bg-ink text-paper font-mono text-[13px] p-6 overflow-x-auto whitespace-pre-wrap">
 {`# 1. Add the MCP server

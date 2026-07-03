@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button, ChatFeed, ChatComposer, type ChatMessage } from "@telepace/ui";
+import { ALL_CHANNELS, CHANNELS } from "@telepace/config";
 import { createCampaign, refineOutlineStream } from "@/lib/api";
 
 type OutlineItem = { order: number; question: string; goal: string };
@@ -27,7 +28,7 @@ const INITIAL_SPEC: Spec = {
   title: "New study",
   goal: "",
   outline: [],
-  channels: ["web_text"],
+  channels: [CHANNELS.webText],
   target_completions: 10,
   estimated_minutes: 15,
 };
@@ -202,7 +203,7 @@ export default function NewStudyPage() {
             <div className="mt-10">
               <p className="overline mb-4">Delivery</p>
               <div className="flex flex-wrap gap-2">
-                {["web_text", "web_voice", "phone_outbound", "email"].map((ch) => (
+                {ALL_CHANNELS.map((ch) => (
                   <button
                     key={ch}
                     onClick={() =>

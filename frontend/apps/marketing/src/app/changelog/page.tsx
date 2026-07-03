@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { siteConfig } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
 export const metadata = { title: "Changelog · telepace" };
@@ -104,7 +105,7 @@ export default function ChangelogPage() {
           <p className="overline mb-3">Feature requests</p>
           <h2 className="font-display text-3xl mb-4">Want something we don't have yet?</h2>
           <p className="text-body">
-            Email <Link href="mailto:feature-request@telepace.io" className="text-accent underline">feature-request@telepace.io</Link> — a founder reads every one.
+            Email <Link href={`mailto:${siteConfig.contact.featureRequestEmail}`} className="text-accent underline">{siteConfig.contact.featureRequestEmail}</Link> — a founder reads every one.
           </p>
         </div>
       </section>

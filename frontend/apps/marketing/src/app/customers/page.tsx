@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@telepace/ui";
+import { routes, siteConfig } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
 export const metadata = { title: "Customers · telepace" };
@@ -87,8 +88,8 @@ export default function CustomersPage() {
           <h2 className="font-display text-4xl md:text-5xl">Ready to write yours?</h2>
           <p className="mt-4 text-body">If you ship a decision this month, we'd like it to be an informed one.</p>
           <div className="mt-8 flex justify-center gap-3">
-            <Link href="/signup"><Button size="lg">Start free</Button></Link>
-            <Link href="mailto:hello@telepace.io"><Button size="lg" variant="secondary">Talk to a founder →</Button></Link>
+            <Link href={routes.signup}><Button size="lg">Start free</Button></Link>
+            <Link href={`mailto:${siteConfig.contact.helloEmail}`}><Button size="lg" variant="secondary">Talk to a founder →</Button></Link>
           </div>
         </div>
       </section>

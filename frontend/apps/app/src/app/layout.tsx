@@ -1,8 +1,9 @@
 import "@telepace/ui/globals.css";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { routes, siteConfig } from "@telepace/config";
 
-export const metadata: Metadata = { title: "telepace" };
+export const metadata: Metadata = { title: siteConfig.brand.name };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -19,17 +20,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="min-h-screen flex">
           <aside className="w-[240px] shrink-0 border-r border-hairline bg-paper-elevated hidden md:flex flex-col">
             <div className="px-5 py-5 border-b border-hairline">
-              <Link href="/" className="font-display text-xl">
-                telepace
+              <Link href={routes.app.root} className="font-display text-xl">
+                {siteConfig.brand.name}
               </Link>
             </div>
             <nav className="flex-1 px-3 py-4 space-y-1 text-sm text-body">
-              <SideLink href="/">Studies</SideLink>
-              <SideLink href="/inbox">Inbox</SideLink>
-              <SideLink href="/audience">Audience</SideLink>
-              <SideLink href="/insights">Insights</SideLink>
-              <SideLink href="/integrations">Integrations</SideLink>
-              <SideLink href="/settings">Settings</SideLink>
+              <SideLink href={routes.app.root}>Studies</SideLink>
+              <SideLink href={routes.app.inbox}>Inbox</SideLink>
+              <SideLink href={routes.app.audience}>Audience</SideLink>
+              <SideLink href={routes.app.insights}>Insights</SideLink>
+              <SideLink href={routes.app.integrations}>Integrations</SideLink>
+              <SideLink href={routes.app.settings}>Settings</SideLink>
             </nav>
             <div className="p-4 border-t border-hairline text-xs text-muted">
               Free plan · 2 / 3 studies

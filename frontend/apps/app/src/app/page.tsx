@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@telepace/ui";
+import { routes } from "@telepace/config";
 
 const studies = [
   { id: "01", title: "Pricing sensitivity for pro tier", status: "live", completed: 32, target: 50 },
@@ -15,7 +16,7 @@ export default function StudiesPage() {
           <p className="overline mb-2">Your studies</p>
           <h1 className="font-display text-4xl">What are we learning today?</h1>
         </div>
-        <Link href="/studies/new">
+        <Link href={routes.app.studies.new}>
           <Button size="lg">+ New study</Button>
         </Link>
       </header>
@@ -24,7 +25,7 @@ export default function StudiesPage() {
         {studies.map((s) => (
           <Link
             key={s.id}
-            href={`/studies/${s.id}`}
+            href={routes.app.studies.byId(s.id)}
             className="grid grid-cols-12 items-center px-6 py-5 hover:bg-paper transition-colors"
           >
             <div className="col-span-1 text-muted font-mono text-sm">{s.id}</div>

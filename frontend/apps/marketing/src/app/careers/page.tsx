@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@telepace/ui";
+import { siteConfig } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
 export const metadata = { title: "Careers · telepace" };
@@ -95,7 +96,7 @@ export default function CareersPage() {
                   <p className="text-body mt-3 max-w-2xl">{r.summary}</p>
                 </div>
                 <div className="mt-4 md:mt-0">
-                  <Link href={`mailto:hiring@telepace.io?subject=Applying · ${r.title}`}>
+                  <Link href={`mailto:${siteConfig.contact.hiringEmail}?subject=Applying · ${r.title}`}>
                     <Button variant="secondary">Apply →</Button>
                   </Link>
                 </div>
@@ -109,7 +110,7 @@ export default function CareersPage() {
         <div className="container-content max-w-2xl">
           <h2 className="font-display text-3xl">Don't see your role?</h2>
           <p className="mt-4 text-body">
-            Send a short note to <Link href="mailto:hiring@telepace.io" className="text-accent underline">hiring@telepace.io</Link> with what you'd want to own.
+            Send a short note to <Link href={`mailto:${siteConfig.contact.hiringEmail}`} className="text-accent underline">{siteConfig.contact.hiringEmail}</Link> with what you'd want to own.
           </p>
         </div>
       </section>

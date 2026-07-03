@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@telepace/ui";
+import { routes } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
 export const metadata = { title: "Voice · telepace" };
@@ -114,8 +115,8 @@ export default function VoicePage() {
           <h2 className="font-display text-4xl md:text-5xl">Hear it for yourself.</h2>
           <p className="mt-4 text-body">A 60-second live interview with an AI researcher who's had a good day.</p>
           <div className="mt-8 flex justify-center gap-3">
-            <Link href="/demo"><Button size="lg">Try the demo →</Button></Link>
-            <Link href="/pricing"><Button size="lg" variant="secondary">See pricing</Button></Link>
+            <Link href={routes.demo}><Button size="lg">Try the demo →</Button></Link>
+            <Link href={routes.pricing}><Button size="lg" variant="secondary">See pricing</Button></Link>
           </div>
         </div>
       </section>

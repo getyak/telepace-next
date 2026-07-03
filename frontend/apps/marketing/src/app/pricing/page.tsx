@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@telepace/ui";
+import { routes, siteConfig } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
 export const metadata = { title: "Pricing · telepace" };
@@ -10,7 +11,7 @@ const tiers = [
     price: "$0",
     cadence: "/month",
     tagline: "For your first three interviews.",
-    cta: { label: "Start free", href: "/signup" },
+    cta: { label: "Start free", href: routes.signup },
     features: [
       "3 studies / month",
       "10 completions per study",
@@ -24,7 +25,7 @@ const tiers = [
     price: "$79",
     cadence: "/month",
     tagline: "For product teams shipping weekly.",
-    cta: { label: "Start Pro trial", href: "/signup?plan=pro" },
+    cta: { label: "Start Pro trial", href: `${routes.signup}?plan=pro` },
     highlight: true,
     features: [
       "Unlimited studies",
@@ -40,7 +41,7 @@ const tiers = [
     price: "$249",
     cadence: "/month",
     tagline: "For research org-charts.",
-    cta: { label: "Talk to us", href: "mailto:hello@telepace.io" },
+    cta: { label: "Talk to us", href: `mailto:${siteConfig.contact.helloEmail}` },
     features: [
       "Everything in Pro",
       "5 seats · SSO",
@@ -55,7 +56,7 @@ const tiers = [
     price: "Custom",
     cadence: "",
     tagline: "VPC deploy, SOC 2, procurement-friendly.",
-    cta: { label: "Contact sales", href: "mailto:sales@telepace.io" },
+    cta: { label: "Contact sales", href: `mailto:${siteConfig.contact.salesEmail}` },
     features: [
       "Self-hosted VPC option",
       "SOC 2 Type II & DPA",
@@ -168,8 +169,8 @@ export default function PricingPage() {
             The free tier is enough to run your first real study. No card required.
           </p>
           <div className="mt-8 flex justify-center gap-3">
-            <Link href="/signup"><Button size="lg">Start free</Button></Link>
-            <Link href="/demo"><Button size="lg" variant="secondary">See a 60s demo →</Button></Link>
+            <Link href={routes.signup}><Button size="lg">Start free</Button></Link>
+            <Link href={routes.demo}><Button size="lg" variant="secondary">See a 60s demo →</Button></Link>
           </div>
         </div>
       </section>

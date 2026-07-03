@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@telepace/ui";
+import { routes, siteConfig } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
 export const metadata = { title: "Docs · telepace" };
@@ -120,8 +121,8 @@ export default function DocsPage() {
               <p className="overline text-paper/70 mb-3">Still stuck?</p>
               <p className="font-display text-2xl mb-4">We answer support in hours, not days.</p>
               <div className="flex gap-3">
-                <Link href="mailto:support@telepace.io"><Button variant="secondary" className="border-paper/30 text-paper hover:bg-paper/10">Email support</Button></Link>
-                <Link href="/mcp"><Button variant="secondary" className="border-paper/30 text-paper hover:bg-paper/10">Browse MCP tools</Button></Link>
+                <Link href={`mailto:${siteConfig.contact.supportEmail}`}><Button variant="secondary" className="border-paper/30 text-paper hover:bg-paper/10">Email support</Button></Link>
+                <Link href={routes.mcp}><Button variant="secondary" className="border-paper/30 text-paper hover:bg-paper/10">Browse MCP tools</Button></Link>
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@telepace/ui";
+import { routes } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
 export const metadata = { title: "Agent · telepace" };
@@ -94,7 +95,7 @@ export default function AgentPage() {
                 It's the engineering discipline your compliance team asks about — built in from day one.
               </p>
             </div>
-            <div className="mt-6"><Link href="/docs"><Button variant="secondary">Read the architecture docs →</Button></Link></div>
+            <div className="mt-6"><Link href={routes.docs}><Button variant="secondary">Read the architecture docs →</Button></Link></div>
           </div>
           <div className="md:col-span-6">
             <div className="rounded-card border border-hairline bg-paper p-6">
@@ -119,8 +120,8 @@ export default function AgentPage() {
             telepace ships as an MCP server + REST + Skill. Wherever your agents live, they get a research team.
           </p>
           <div className="mt-8 flex justify-center gap-3">
-            <Link href="/mcp"><Button size="lg">Browse MCP tools →</Button></Link>
-            <Link href="/signup"><Button size="lg" variant="secondary">Start free</Button></Link>
+            <Link href={routes.mcp}><Button size="lg">Browse MCP tools →</Button></Link>
+            <Link href={routes.signup}><Button size="lg" variant="secondary">Start free</Button></Link>
           </div>
         </div>
       </section>

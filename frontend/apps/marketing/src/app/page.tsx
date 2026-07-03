@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@telepace/ui";
+import { routes } from "@telepace/config";
 import { Nav, Footer } from "@/components/site-chrome";
 
 export default function Home() {
@@ -34,10 +35,10 @@ function Hero() {
             the structured insights back to your agent, so it can act on them.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link href="/signup">
+            <Link href={routes.signup}>
               <Button size="lg">Try for free</Button>
             </Link>
-            <Link href="/demo">
+            <Link href={routes.demo}>
               <Button size="lg" variant="secondary">
                 Try a live 60-sec interview →
               </Button>
@@ -180,7 +181,7 @@ function AgentSurfaces() {
             insights.
           </p>
           <div className="mt-6 flex gap-3">
-            <Link href="/mcp">
+            <Link href={routes.mcp}>
               <Button variant="secondary">Browse MCP tools →</Button>
             </Link>
           </div>
@@ -246,12 +247,12 @@ function FinalCTA() {
           Every product decision deserves a hundred users behind it.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link href="/signup">
+          <Link href={routes.signup}>
             <Button size="lg" className="bg-paper text-ink hover:bg-paper-elevated">
               Start free
             </Button>
           </Link>
-          <Link href="/demo">
+          <Link href={routes.demo}>
             <Button
               size="lg"
               variant="secondary"

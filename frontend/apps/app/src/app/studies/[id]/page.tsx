@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@telepace/ui";
+import { CHANNELS, routes } from "@telepace/config";
 
 type Params = { id: string };
 
@@ -12,17 +13,17 @@ const outline = [
 ];
 
 const completions = [
-  { id: "int-041", channel: "web_voice", duration: "13m 22s", status: "complete", started: "2026-07-02 09:12" },
-  { id: "int-040", channel: "web_text",  duration: "18m 04s", status: "complete", started: "2026-07-02 08:41" },
-  { id: "int-039", channel: "phone",     duration: "11m 55s", status: "complete", started: "2026-07-01 22:03" },
-  { id: "int-038", channel: "web_text",  duration:  "6m 40s", status: "abandoned",started: "2026-07-01 18:19" },
-  { id: "int-037", channel: "web_voice", duration: "15m 11s", status: "complete", started: "2026-07-01 16:45" },
+  { id: "int-041", channel: CHANNELS.webVoice,      duration: "13m 22s", status: "complete", started: "2026-07-02 09:12" },
+  { id: "int-040", channel: CHANNELS.webText,       duration: "18m 04s", status: "complete", started: "2026-07-02 08:41" },
+  { id: "int-039", channel: CHANNELS.phoneOutbound, duration: "11m 55s", status: "complete", started: "2026-07-01 22:03" },
+  { id: "int-038", channel: CHANNELS.webText,       duration:  "6m 40s", status: "abandoned",started: "2026-07-01 18:19" },
+  { id: "int-037", channel: CHANNELS.webVoice,      duration: "15m 11s", status: "complete", started: "2026-07-01 16:45" },
 ];
 
 const channelStyle: Record<string, string> = {
-  web_voice: "bg-accent-soft text-accent border-accent/30",
-  web_text: "bg-paper-sunken text-body border-hairline",
-  phone: "bg-terracotta/10 text-terracotta border-terracotta/20",
+  [CHANNELS.webVoice]: "bg-accent-soft text-accent border-accent/30",
+  [CHANNELS.webText]: "bg-paper-sunken text-body border-hairline",
+  [CHANNELS.phoneOutbound]: "bg-terracotta/10 text-terracotta border-terracotta/20",
 };
 
 export default async function StudyPage({ params }: { params: Promise<Params> }) {
@@ -31,7 +32,7 @@ export default async function StudyPage({ params }: { params: Promise<Params> })
   return (
     <div className="p-10 max-w-content mx-auto">
       <div className="mb-6">
-        <Link href="/" className="text-sm text-muted hover:text-ink transition-colors">← All studies</Link>
+        <Link href={routes.app.root} className="text-sm text-muted hover:text-ink transition-colors">← All studies</Link>
       </div>
 
       <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">

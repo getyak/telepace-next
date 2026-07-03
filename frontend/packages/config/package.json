@@ -12,7 +12,9 @@
     "./endpoints": "./src/endpoints.ts",
     "./site": "./src/site.ts",
     "./storage-keys": "./src/storage-keys.ts",
-    "./auth-schema": "./src/auth-schema.ts"
+    "./auth-schema": "./src/auth-schema.ts",
+    "./channels": "./src/channels.ts",
+    "./voice-protocol": "./src/voice-protocol.ts"
   },
   "devDependencies": {
     "typescript": "^5.6.3"

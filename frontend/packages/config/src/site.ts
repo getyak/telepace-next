@@ -13,6 +13,12 @@ export const siteConfig = {
   contact: {
     supportEmail: "support@telepace.io",
     securityEmail: "security@telepace.io",
+    salesEmail: "sales@telepace.io",
+    helloEmail: "hello@telepace.io",
+    hiringEmail: "hiring@telepace.io",
+    featureRequestEmail: "feature-request@telepace.io",
+    privacyEmail: "privacy@telepace.io",
+    legalEmail: "legal@telepace.io",
     pgpFingerprint: "0xA1B2C3D4E5F6",
   },
   urls: {
@@ -21,6 +27,7 @@ export const siteConfig = {
     home: "https://telepace.io",
     mcpEndpoint: "https://mcp.telepace.io",
     githubOrg: "https://github.com/telepace",
+    pgpKeyserver: "https://keys.openpgp.org",
   },
 } as const;
 

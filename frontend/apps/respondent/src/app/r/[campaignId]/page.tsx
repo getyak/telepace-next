@@ -2,7 +2,14 @@
 
 import { use, useEffect, useRef, useState } from "react";
 import { ChatFeed, ChatComposer, VoiceOrb, type ChatMessage } from "@telepace/ui";
-import { env, wsEndpoints } from "@telepace/config";
+import {
+  env,
+  OPUS_CHUNK_MS,
+  SPEAKING_INDICATOR_MS,
+  VOICE_MIME,
+  VoiceEventType,
+  wsEndpoints,
+} from "@telepace/config";
 
 type Params = { campaignId: string };
 
@@ -29,14 +36,14 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
     ws.onclose = () => setConnected(false);
     ws.onmessage = (evt) => {
       const msg = JSON.parse(evt.data);
-      if (msg.type === "interviewer_turn" && msg.result?.text) {
+      if (msg.type === VoiceEventType.InterviewerTurn && msg.result?.text) {
         setSpeaking(true);
         setMessages((prev) => [
           ...prev,
           { id: crypto.randomUUID(), role: "interviewer", text: msg.result.text },
         ]);
-        window.setTimeout(() => setSpeaking(false), 800);
-        if (msg.result.kind === "wrap_up") setPhase("done");
+        window.setTimeout(() => setSpeaking(false), SPEAKING_INDICATOR_MS);
+        if (msg.result.kind === VoiceEventType.WrapUp) setPhase("done");
       }
     };
     return () => ws.close();
@@ -85,16 +92,14 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
           return;
         }
         micStreamRef.current = stream;
-        const recorder = new MediaRecorder(stream, {
-          mimeType: "audio/webm;codecs=opus",
-        });
+        const recorder = new MediaRecorder(stream, { mimeType: VOICE_MIME });
         mediaRecorderRef.current = recorder;
         recorder.ondataavailable = (ev) => {
           if (ev.data.size > 0 && ws.readyState === WebSocket.OPEN) {
             ev.data.arrayBuffer().then((buf) => ws.send(buf));
           }
         };
-        recorder.start(250); // 250 ms opus chunks
+        recorder.start(OPUS_CHUNK_MS);
       } catch (err) {
         console.error("mic permission denied", err);
       }
@@ -119,16 +124,16 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
         return;
       }
       switch (msg.type) {
-        case "interviewer_turn":
+        case VoiceEventType.InterviewerTurn:
           if (msg.text) {
             setMessages((prev) => [
               ...prev,
               { id: crypto.randomUUID(), role: "interviewer", text: msg.text! },
             ]);
-            if (msg.kind === "wrap_up") setPhase("done");
+            if (msg.kind === VoiceEventType.WrapUp) setPhase("done");
           }
           break;
-        case "stt_delta":
+        case VoiceEventType.SttDelta:
           if (msg.is_final && msg.text) {
             setMessages((prev) => [
               ...prev,
@@ -136,13 +141,13 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
             ]);
           }
           break;
-        case "tts_start":
+        case VoiceEventType.TtsStart:
           setSpeaking(true);
           break;
-        case "tts_end":
+        case VoiceEventType.TtsEnd:
           setSpeaking(false);
           break;
-        case "error":
+        case VoiceEventType.Error:
           console.error("voice ws error", msg.reason);
           break;
       }
@@ -170,7 +175,7 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "respondent", text }]);
     // Text composer only makes sense in text mode; voice mode ignores it.
     if (mode === "text") {
-      wsRef.current?.send(JSON.stringify({ type: "reply", text }));
+      wsRef.current?.send(JSON.stringify({ type: VoiceEventType.Reply, text }));
     }
   }
 

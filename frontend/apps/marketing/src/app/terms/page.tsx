@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { siteConfig } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
 export const metadata = { title: "Terms · telepace" };
@@ -86,7 +87,7 @@ export default function TermsPage() {
               </div>
             ))}
             <div className="border-t border-hairline pt-8 text-sm text-muted">
-              Legal questions? Email <Link href="mailto:legal@telepace.io" className="text-accent underline">legal@telepace.io</Link>.
+              Legal questions? Email <Link href={`mailto:${siteConfig.contact.legalEmail}`} className="text-accent underline">{siteConfig.contact.legalEmail}</Link>.
             </div>
           </div>
         </div>
