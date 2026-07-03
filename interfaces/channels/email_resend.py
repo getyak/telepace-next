@@ -10,15 +10,21 @@ from interfaces.channels.base import DispatchReceipt, Invite, retry
 
 logger = logging.getLogger(__name__)
 
-_ENDPOINT = "https://api.resend.com/emails"
-
 
 class ResendEmail:
     provider_name = "resend"
 
-    def __init__(self, *, api_key: str, from_address: str, timeout: float = 10.0) -> None:
+    def __init__(
+        self,
+        *,
+        api_key: str,
+        from_address: str,
+        base_url: str,
+        timeout: float = 10.0,
+    ) -> None:
         self._api_key = api_key
         self._from = from_address
+        self._endpoint = f"{base_url.rstrip('/')}/emails"
         self._timeout = timeout
 
     async def send(
