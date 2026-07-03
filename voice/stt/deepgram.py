@@ -15,7 +15,7 @@ import websockets
 
 from voice.stt.base import Transcript
 
-_DEEPGRAM_WS = "wss://api.deepgram.com/v1/listen"
+_DEFAULT_DEEPGRAM_WS = "wss://api.deepgram.com/v1/listen"
 
 
 class DeepgramSTT:
@@ -32,12 +32,18 @@ class DeepgramSTT:
         sample_rate: int = 16000,
         model: str = "nova-3",
         language: str = "en-US",
+        ws_url: str = _DEFAULT_DEEPGRAM_WS,
+        ping_interval_s: int = 5,
+        ping_timeout_s: int = 20,
     ) -> None:
         self._api_key = api_key
         self._encoding = encoding
         self._sample_rate = sample_rate
         self._model = model
         self._language = language
+        self._ws_url = ws_url
+        self._ping_interval_s = ping_interval_s
+        self._ping_timeout_s = ping_timeout_s
 
     def _url(self) -> str:
         params = {
@@ -50,7 +56,7 @@ class DeepgramSTT:
         # linear16 requires sample_rate; opus is self-describing in the webm container.
         if self._encoding == "linear16":
             params["sample_rate"] = str(self._sample_rate)
-        return f"{_DEEPGRAM_WS}?{urlencode(params)}"
+        return f"{self._ws_url}?{urlencode(params)}"
 
     async def stream(self, audio: AsyncIterator[bytes]) -> AsyncIterator[Transcript]:
         headers = [("Authorization", f"Token {self._api_key}")]
@@ -58,8 +64,8 @@ class DeepgramSTT:
             self._url(),
             additional_headers=headers,
             max_size=None,
-            ping_interval=5,
-            ping_timeout=20,
+            ping_interval=self._ping_interval_s,
+            ping_timeout=self._ping_timeout_s,
         ) as ws:
             send_task = asyncio.create_task(_pump_audio(ws, audio))
             try:

@@ -13,11 +13,14 @@ from interfaces.channels.base import DispatchReceipt, Invite
 
 logger = logging.getLogger(__name__)
 
-_DISPATCH_DIR = "data/dispatched"
+_DEFAULT_DISPATCH_DIR = "data/dispatched"
 
 
 class MockPhone:
     provider_name = "mock"
+
+    def __init__(self, *, log_dir: str = _DEFAULT_DISPATCH_DIR) -> None:
+        self._log_dir = log_dir
 
     async def place_call(
         self,
@@ -25,9 +28,9 @@ class MockPhone:
         opening_line: str,
         spec_id: UUID,
     ) -> DispatchReceipt:
-        os.makedirs(_DISPATCH_DIR, exist_ok=True)
+        os.makedirs(self._log_dir, exist_ok=True)
         record = {
-            "ts": datetime.utcnow().isoformat() + "Z",
+            "ts": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             "channel": "phone_outbound",
             "to": invite.address,
             "name": invite.name,
@@ -36,7 +39,7 @@ class MockPhone:
             "share_url": invite.share_url,
         }
         with open(
-            os.path.join(_DISPATCH_DIR, "phone_outbound.jsonl"),
+            os.path.join(self._log_dir, "phone_outbound.jsonl"),
             "a",
             encoding="utf-8",
         ) as f:

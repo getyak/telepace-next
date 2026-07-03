@@ -8,6 +8,8 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from core import constants as _consts
+
 
 class _Base(BaseModel):
     model_config = ConfigDict(frozen=False, extra="forbid", str_strip_whitespace=True)
@@ -61,7 +63,7 @@ class RespondentSource(StrEnum):
 class Organization(_Base):
     id: UUID = Field(default_factory=uuid4)
     name: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class User(_Base):
@@ -69,7 +71,7 @@ class User(_Base):
     org_id: UUID
     email: str
     name: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class OutlineItem(_Base):
@@ -77,14 +79,14 @@ class OutlineItem(_Base):
     order: int
     question: str
     goal: str
-    max_followups: int = 2
+    max_followups: int = _consts.DEFAULT_MAX_FOLLOWUPS
     branch_if_positive: str | None = None
     branch_if_negative: str | None = None
 
 
 class Outline(_Base):
     items: list[OutlineItem] = Field(default_factory=list)
-    estimated_duration_minutes: int = 15
+    estimated_duration_minutes: int = _consts.DEFAULT_OUTLINE_DURATION_MIN
     success_criteria: list[str] = Field(default_factory=list)
 
 
@@ -101,8 +103,8 @@ class CampaignSpec(_Base):
     audience_screener: list[str] = Field(default_factory=list)
     outline: Outline = Field(default_factory=Outline)
     channels: list[Channel] = Field(default_factory=list)
-    target_completions: int = 10
-    budget_usd: float = 100.0
+    target_completions: int = _consts.DEFAULT_TARGET_COMPLETIONS
+    budget_usd: float = _consts.DEFAULT_BUDGET_USD
     languages: list[str] = Field(default_factory=lambda: ["en"])
 
 
@@ -114,8 +116,8 @@ class Campaign(_Base):
     status: CampaignStatus = CampaignStatus.DRAFT
     spec: CampaignSpec
     version: int = 1
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class Respondent(_Base):
@@ -134,7 +136,7 @@ class Turn(_Base):
     role: TurnRole
     text: str
     audio_url: str | None = None
-    started_at: datetime = Field(default_factory=datetime.utcnow)
+    started_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     latency_ms: int | None = None
     outline_item_id: UUID | None = None
 
@@ -160,4 +162,4 @@ class Insight(_Base):
     body: str
     confidence: float = Field(ge=0.0, le=1.0, default=0.5)
     supporting_interview_ids: list[UUID] = Field(default_factory=list)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

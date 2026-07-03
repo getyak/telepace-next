@@ -154,10 +154,19 @@ async def _run_one(seed: dict[str, Any]) -> ScenarioRun:
         router=IntentRouter(),
         policies=PolicyStack([BudgetPolicy(), PIIPolicy(), EscalationPolicy()]),
         agents={
-            "designer": DesignerAgent(llm=designer_llm),
-            "interviewer": InterviewerAgent(llm=interviewer_llm),
+            "designer": DesignerAgent(
+                llm=designer_llm, max_tokens=1500, temperature=0.3
+            ),
+            "interviewer": InterviewerAgent(
+                llm=interviewer_llm, max_tokens=800, temperature=0.5
+            ),
             "coordinator": CoordinatorAgent(),
-            "dispatch": DispatchHandler(email=MockEmail(), sms=MockSMS(), phone=MockPhone()),
+            "dispatch": DispatchHandler(
+                email=MockEmail(),
+                sms=MockSMS(),
+                phone=MockPhone(),
+                share_url_base="http://eval.local",
+            ),
         },
         tracer=NullTracer(),
     )

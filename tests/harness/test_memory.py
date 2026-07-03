@@ -83,25 +83,28 @@ class _FakeRedis:
         self.ex.pop(key, None)
 
 
+_TEST_TTL = 3600
+
+
 async def test_redis_memory_load_returns_empty_when_missing() -> None:
-    m = RedisMemory(_FakeRedis())
+    m = RedisMemory(_FakeRedis(), ttl_seconds=_TEST_TTL)
     assert await m.load(uuid4()) == {}
 
 
 async def test_redis_memory_update_serialises_and_sets_ttl() -> None:
     fake = _FakeRedis()
-    m = RedisMemory(fake)
+    m = RedisMemory(fake, ttl_seconds=_TEST_TTL)
     cid = uuid4()
     await m.update(cid, {"spent_usd": 1.5, "themes": ["pricing"]})
     key = RedisMemory.KEY_TPL.format(cid=cid)
     assert key in fake.store
-    assert fake.ex[key] == RedisMemory.TTL_SECONDS
+    assert fake.ex[key] == _TEST_TTL
     assert orjson.loads(fake.store[key]) == {"spent_usd": 1.5, "themes": ["pricing"]}
 
 
 async def test_redis_memory_update_merges_existing_document() -> None:
     fake = _FakeRedis()
-    m = RedisMemory(fake)
+    m = RedisMemory(fake, ttl_seconds=_TEST_TTL)
     cid = uuid4()
     await m.update(cid, {"a": 1})
     await m.update(cid, {"b": 2})
@@ -111,7 +114,7 @@ async def test_redis_memory_update_merges_existing_document() -> None:
 
 async def test_redis_memory_clear_deletes_key() -> None:
     fake = _FakeRedis()
-    m = RedisMemory(fake)
+    m = RedisMemory(fake, ttl_seconds=_TEST_TTL)
     cid = uuid4()
     await m.update(cid, {"x": 1})
     await m.clear(cid)
@@ -122,7 +125,7 @@ async def test_redis_memory_load_parses_prewritten_value() -> None:
     fake = _FakeRedis()
     cid = uuid4()
     fake.store[RedisMemory.KEY_TPL.format(cid=cid)] = orjson.dumps({"k": "v"})
-    m = RedisMemory(fake)
+    m = RedisMemory(fake, ttl_seconds=_TEST_TTL)
     assert await m.load(cid) == {"k": "v"}
 
 

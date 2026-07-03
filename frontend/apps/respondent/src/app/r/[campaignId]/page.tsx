@@ -2,8 +2,7 @@
 
 import { use, useEffect, useRef, useState } from "react";
 import { ChatFeed, ChatComposer, VoiceOrb, type ChatMessage } from "@telepace/ui";
-
-const WS_BASE = process.env.NEXT_PUBLIC_WS_BASE_URL ?? "ws://localhost:8000";
+import { env, wsEndpoints } from "@telepace/config";
 
 type Params = { campaignId: string };
 
@@ -24,7 +23,7 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
   // --- Text-mode WS (unchanged) ---
   useEffect(() => {
     if (phase !== "chat") return;
-    const ws = new WebSocket(`${WS_BASE}/ws/interview/${campaignId}`);
+    const ws = new WebSocket(`${env.wsBaseUrl}${wsEndpoints.interview(campaignId)}`);
     wsRef.current = ws;
     ws.onopen = () => setConnected(true);
     ws.onclose = () => setConnected(false);
@@ -47,7 +46,7 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
   useEffect(() => {
     if (phase !== "voice") return;
     let cancelled = false;
-    const ws = new WebSocket(`${WS_BASE}/ws/voice/${campaignId}`);
+    const ws = new WebSocket(`${env.wsBaseUrl}${wsEndpoints.voice(campaignId)}`);
     ws.binaryType = "arraybuffer";
     wsRef.current = ws;
 

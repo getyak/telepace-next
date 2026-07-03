@@ -31,6 +31,7 @@ from interfaces.channels.phone_mock import MockPhone
 from interfaces.channels.phone_vapi import VapiPhone
 from interfaces.channels.sms_mock import MockSMS
 from interfaces.channels.sms_twilio import TwilioSMS
+from interfaces.rest_api.auth.users_repo import USERS_SCHEMA_SQL, UsersRepo
 from interfaces.rest_api.config import Settings, get_settings
 from storage.event_store import PostgresEventStore
 from storage.projections import CAMPAIGN_PROJECTION_SQL, CampaignProjector
@@ -47,6 +48,7 @@ class AppState:
     email_dispatcher: EmailDispatcher
     sms_dispatcher: SmsDispatcher
     phone_dispatcher: PhoneDispatcher
+    users_repo: UsersRepo | None
 
 
 async def build_state() -> AppState:
@@ -58,10 +60,12 @@ async def build_state() -> AppState:
     pool = await asyncpg.create_pool(settings.database_url, min_size=1, max_size=10)
     async with pool.acquire() as conn:
         await conn.execute(CAMPAIGN_PROJECTION_SQL)
+        await conn.execute(USERS_SCHEMA_SQL)
     projector = CampaignProjector(pool)
+    users_repo = UsersRepo(pool)
 
     redis_client = redis.from_url(settings.redis_url, decode_responses=False)
-    memory = RedisMemory(redis_client)
+    memory = RedisMemory(redis_client, ttl_seconds=settings.memory_ttl_seconds)
 
     llm = _build_llm(settings)
 
@@ -80,10 +84,27 @@ async def build_state() -> AppState:
         event_store=store,
         memory=memory,
         router=IntentRouter(),
-        policies=PolicyStack([BudgetPolicy(), PIIPolicy(), EscalationPolicy()]),
+        policies=PolicyStack(
+            [
+                BudgetPolicy(
+                    warn_ratio=settings.budget_warn_ratio,
+                    hard_stop_ratio=settings.budget_hard_stop_ratio,
+                ),
+                PIIPolicy(),
+                EscalationPolicy(),
+            ]
+        ),
         agents={
-            "designer": DesignerAgent(llm=llm),
-            "interviewer": InterviewerAgent(llm=llm),
+            "designer": DesignerAgent(
+                llm=llm,
+                max_tokens=settings.designer_max_tokens,
+                temperature=settings.designer_temperature,
+            ),
+            "interviewer": InterviewerAgent(
+                llm=llm,
+                max_tokens=settings.interviewer_max_tokens,
+                temperature=settings.interviewer_temperature,
+            ),
             "coordinator": CoordinatorAgent(),
             "dispatch": dispatch_handler,
         },
@@ -96,10 +117,15 @@ async def build_state() -> AppState:
         pool=pool,
         projector=projector,
         harness=harness,
-        analyst=AnalystAgent(llm=llm),
+        analyst=AnalystAgent(
+            llm=llm,
+            max_tokens=settings.analyst_max_tokens,
+            temperature=settings.analyst_temperature,
+        ),
         email_dispatcher=email_dispatcher,
         sms_dispatcher=sms_dispatcher,
         phone_dispatcher=phone_dispatcher,
+        users_repo=users_repo,
     )
 
 
@@ -128,7 +154,10 @@ def _build_llm(settings: Settings):
             default_model=settings.llm_model_general,
         )
     if provider == "anthropic" and settings.anthropic_api_key:
-        return AnthropicLLM(api_key=settings.anthropic_api_key)
+        return AnthropicLLM(
+            api_key=settings.anthropic_api_key,
+            default_model=settings.anthropic_default_model,
+        )
     return MockLLM()
 
 
@@ -138,8 +167,10 @@ def _build_email(settings: Settings) -> EmailDispatcher:
         return ResendEmail(
             api_key=settings.resend_api_key,
             from_address=settings.email_from,
+            base_url=settings.resend_base_url,
+            timeout=settings.channel_http_timeout_s,
         )
-    return MockEmail()
+    return MockEmail(log_dir=settings.dispatch_log_dir)
 
 
 def _build_sms(settings: Settings) -> SmsDispatcher:
@@ -154,8 +185,10 @@ def _build_sms(settings: Settings) -> SmsDispatcher:
             account_sid=settings.twilio_account_sid,
             auth_token=settings.twilio_auth_token,
             from_number=settings.twilio_from,
+            base_url=settings.twilio_base_url,
+            timeout=settings.channel_http_timeout_s,
         )
-    return MockSMS()
+    return MockSMS(log_dir=settings.dispatch_log_dir)
 
 
 def _build_phone(settings: Settings) -> PhoneDispatcher:
@@ -170,5 +203,7 @@ def _build_phone(settings: Settings) -> PhoneDispatcher:
             api_key=settings.vapi_api_key,
             assistant_id=settings.vapi_assistant_id,
             phone_number_id=settings.vapi_phone_number_id,
+            base_url=settings.vapi_base_url,
+            timeout=settings.vapi_call_timeout_s,
         )
-    return MockPhone()
+    return MockPhone(log_dir=settings.dispatch_log_dir)

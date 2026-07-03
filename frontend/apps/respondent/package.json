@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@telepace/config": "workspace:*",
     "@telepace/ui": "workspace:*",
     "next": "^15.0.3",
     "react": "^18.3.1",

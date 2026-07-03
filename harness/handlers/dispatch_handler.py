@@ -80,7 +80,7 @@ class DispatchHandler:
     email: EmailDispatcher | None = None
     sms: SmsDispatcher | None = None
     phone: PhoneDispatcher | None = None
-    share_url_base: str = "http://localhost:3000"
+    share_url_base: str = ""
 
     async def run(
         self,

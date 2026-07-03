@@ -7,11 +7,17 @@ import json
 import logging
 from uuid import UUID
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from agents.designer import DesignerAgent
+from core.constants import (
+    DEFAULT_BUDGET_USD,
+    DEFAULT_TARGET_COMPLETIONS,
+    MAX_TARGET_COMPLETIONS,
+    MIN_TARGET_COMPLETIONS,
+)
 from core.domain.models import ChannelKind
 from core.protocols.commands import (
     CreateCampaign,
@@ -21,15 +27,24 @@ from core.protocols.commands import (
     StartCampaign,
 )
 from harness import Harness
+from interfaces.rest_api.auth.deps import require_current_user
+from interfaces.rest_api.auth.models import AuthUser
+from interfaces.rest_api.config import Settings
 from interfaces.rest_api.deps import (
     get_harness,
     get_projector,
     get_settings_dep,
     get_state,
 )
+from interfaces.rest_api.errors import ErrorMessages
 from storage.projections import CampaignProjector
 
 logger = logging.getLogger(__name__)
+
+
+def _actor_ref(settings: Settings, user: AuthUser) -> str:
+    return f"{settings.actor_prefix_user}:{user.id}"
+
 
 router = APIRouter(prefix="/v1/campaigns", tags=["campaigns"])
 
@@ -40,8 +55,12 @@ class CreateCampaignBody(BaseModel):
     title: str
     goal: str
     background: str = ""
-    target_completions: int = Field(default=10, ge=1, le=1000)
-    budget_usd: float = 100.0
+    target_completions: int = Field(
+        default=DEFAULT_TARGET_COMPLETIONS,
+        ge=MIN_TARGET_COMPLETIONS,
+        le=MAX_TARGET_COMPLETIONS,
+    )
+    budget_usd: float = DEFAULT_BUDGET_USD
     channels: list[ChannelKind] = Field(default_factory=lambda: [ChannelKind.WEB_TEXT])
 
 
@@ -54,12 +73,13 @@ class RefineBody(BaseModel):
 async def create_campaign(
     body: CreateCampaignBody,
     harness: Harness = Depends(get_harness),
-    settings=Depends(get_settings_dep),
+    settings: Settings = Depends(get_settings_dep),
+    user: AuthUser = Depends(require_current_user),
 ) -> dict:
     cmd = CreateCampaign(
-        actor=f"user:{settings.default_author_id}",
-        org_id=UUID(settings.default_org_id),
-        author_id=UUID(settings.default_author_id),
+        actor=_actor_ref(settings, user),
+        org_id=user.org_id,
+        author_id=user.id,
         title=body.title,
         goal=body.goal,
         background=body.background,
@@ -69,7 +89,7 @@ async def create_campaign(
     )
     resp = await harness.handle(cmd)
     if not resp.ok:
-        raise HTTPException(status_code=400, detail=resp.reason)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=resp.reason)
     return {
         "campaign_id": resp.result["campaign_id"],
         "share_url": f"{settings.public_base_url.rstrip('/')}/r/{resp.result['campaign_id']}",
@@ -81,10 +101,13 @@ async def create_campaign(
 async def get_campaign(
     campaign_id: UUID,
     projector: CampaignProjector = Depends(get_projector),
+    _user: AuthUser = Depends(require_current_user),
 ) -> dict:
     campaign = await projector.get_campaign(campaign_id)
     if campaign is None:
-        raise HTTPException(status_code=404, detail="campaign not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=ErrorMessages.CAMPAIGN_NOT_FOUND
+        )
     progress = await projector.get_progress(campaign_id)
     return {
         "campaign": campaign.model_dump(mode="json"),
@@ -105,16 +128,17 @@ async def refine_outline(
     campaign_id: UUID,
     body: RefineBody,
     harness: Harness = Depends(get_harness),
-    settings=Depends(get_settings_dep),
+    settings: Settings = Depends(get_settings_dep),
+    user: AuthUser = Depends(require_current_user),
 ) -> dict:
     cmd = RefineOutline(
-        actor=f"user:{settings.default_author_id}",
+        actor=_actor_ref(settings, user),
         campaign_id=campaign_id,
         instruction=body.instruction,
     )
     resp = await harness.handle(cmd)
     if not resp.ok:
-        raise HTTPException(status_code=400, detail=resp.reason)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=resp.reason)
     return resp.result
 
 
@@ -129,15 +153,9 @@ async def refine_outline_stream(
     request: Request,
     background: BackgroundTasks,
     harness: Harness = Depends(get_harness),
-    settings=Depends(get_settings_dep),
+    settings: Settings = Depends(get_settings_dep),
+    user: AuthUser = Depends(require_current_user),
 ) -> StreamingResponse:
-    """SSE variant of /refine.
-
-    Streams Designer text deltas + the spec_patch the instant it closes.
-    On `done`, we schedule harness.handle(cmd) as a BackgroundTask so the
-    canonical SpecUpdated event still lands via the same code path used by
-    the non-streaming endpoint — preserving event ordering for projections.
-    """
     memory = harness._memory  # type: ignore[attr-defined]
     ctx = await memory.load(campaign_id)
     current_spec = ctx.get("spec") or {}
@@ -145,10 +163,13 @@ async def refine_outline_stream(
     state = get_state(request)
     designer = state.harness._agents.get("designer")  # type: ignore[attr-defined]
     if not isinstance(designer, DesignerAgent):
-        raise HTTPException(status_code=500, detail="designer agent not registered")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=ErrorMessages.DESIGNER_AGENT_MISSING,
+        )
 
     cmd = RefineOutline(
-        actor=f"user:{settings.default_author_id}",
+        actor=_actor_ref(settings, user),
         campaign_id=campaign_id,
         instruction=body.instruction,
     )
@@ -167,7 +188,6 @@ async def refine_outline_stream(
             logger.exception("refine_stream failed for campaign %s", campaign_id)
             yield _sse_pack({"type": "error", "message": str(exc)})
 
-    # Persist the canonical event via harness AFTER the SSE closes.
     async def _persist() -> None:
         try:
             await harness.handle(cmd)
@@ -192,19 +212,17 @@ async def start_campaign(
     campaign_id: UUID,
     harness: Harness = Depends(get_harness),
     projector: CampaignProjector = Depends(get_projector),
-    settings=Depends(get_settings_dep),
+    settings: Settings = Depends(get_settings_dep),
+    user: AuthUser = Depends(require_current_user),
 ) -> dict:
     cmd = StartCampaign(
-        actor=f"user:{settings.default_author_id}",
+        actor=_actor_ref(settings, user),
         campaign_id=campaign_id,
     )
     resp = await harness.handle(cmd)
     if not resp.ok:
-        raise HTTPException(status_code=400, detail=resp.reason)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=resp.reason)
 
-    # If the campaign has non-web dispatch channels configured, we log an
-    # advisory in the response — actual dispatch happens via POST /dispatch,
-    # which accepts explicit invite lists (address is PII, must be caller-owned).
     dispatchable: list[str] = []
     campaign = await projector.get_campaign(campaign_id)
     if campaign is not None:
@@ -241,10 +259,11 @@ async def dispatch_invites(
     campaign_id: UUID,
     body: DispatchInvitesBody,
     harness: Harness = Depends(get_harness),
-    settings=Depends(get_settings_dep),
+    settings: Settings = Depends(get_settings_dep),
+    user: AuthUser = Depends(require_current_user),
 ) -> dict:
     cmd = DispatchInvites(
-        actor=f"user:{settings.default_author_id}",
+        actor=_actor_ref(settings, user),
         campaign_id=campaign_id,
         invites=[
             InviteInput(
@@ -258,5 +277,5 @@ async def dispatch_invites(
     )
     resp = await harness.handle(cmd)
     if not resp.ok:
-        raise HTTPException(status_code=400, detail=resp.reason)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=resp.reason)
     return resp.result

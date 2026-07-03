@@ -9,6 +9,7 @@ from uuid import uuid4
 
 from agents.shared import LLMClient, load_prompt
 from agents.shared.llm import LLMMessage
+from core.domain.models import CampaignStatus
 from core.events import EventBase, SpecUpdated, StudyDrafted
 from core.protocols.commands import CreateCampaign, RefineOutline, spec_from_create
 from harness.orchestrator import AgentResult
@@ -23,8 +24,17 @@ _SPEC_PATCH_CLOSE = "</spec_patch>"
 
 
 class DesignerAgent:
-    def __init__(self, llm: LLMClient, prompt_version: str = "v1") -> None:
+    def __init__(
+        self,
+        llm: LLMClient,
+        *,
+        max_tokens: int,
+        temperature: float,
+        prompt_version: str = "v1",
+    ) -> None:
         self._llm = llm
+        self._max_tokens = max_tokens
+        self._temperature = temperature
         self._system = load_prompt("designer", prompt_version)
 
     async def run(
@@ -63,7 +73,11 @@ class DesignerAgent:
                 "org_id": str(cmd.org_id),
                 "spec": spec.model_dump(mode="json"),
             },
-            response={"campaign_id": str(campaign_id), "title": cmd.title, "status": "draft"},
+            response={
+                "campaign_id": str(campaign_id),
+                "title": cmd.title,
+                "status": CampaignStatus.DRAFT.value,
+            },
         )
 
     async def _on_refine(self, cmd: RefineOutline, context: dict[str, Any]) -> AgentResult:
@@ -78,8 +92,8 @@ class DesignerAgent:
         resp = await self._llm.complete(
             system=self._system,
             messages=[LLMMessage(role="user", content=user_msg)],
-            max_tokens=1500,
-            temperature=0.3,
+            max_tokens=self._max_tokens,
+            temperature=self._temperature,
         )
         patch: dict[str, Any] = {}
         m = _SPEC_PATCH.search(resp.text)
@@ -129,8 +143,8 @@ class DesignerAgent:
         async for chunk in self._llm.stream(
             system=self._system,
             messages=[LLMMessage(role="user", content=user_msg)],
-            max_tokens=1500,
-            temperature=0.3,
+            max_tokens=self._max_tokens,
+            temperature=self._temperature,
         ):
             if chunk.kind == "stop":
                 break

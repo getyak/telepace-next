@@ -26,9 +26,8 @@ import statistics
 import subprocess
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 from eval.judges.types import RubricEvidence, Score
 
@@ -199,7 +198,7 @@ def render_markdown(
 ) -> tuple[str, list[str]]:
     """Return (markdown, list of regression/failure messages)."""
     sha, msg = _git_head_meta()
-    ts = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    ts = datetime.now(UTC).isoformat(timespec="seconds")
     lines: list[str] = []
     lines.append("# Scoreboard")
     lines.append("")

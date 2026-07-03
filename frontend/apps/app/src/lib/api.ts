@@ -1,4 +1,14 @@
-const API = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+/**
+ * Campaign API client.
+ *
+ * Endpoint paths live in `@telepace/config/endpoints`; env-driven base URL
+ * + auth-token injection is centralized in `./http`. No `localhost` fallback
+ * lives here anymore.
+ */
+
+import { apiEndpoints } from "@telepace/config";
+
+import { apiFetch, apiFetchRaw } from "./http";
 
 export type CampaignSummary = {
   campaign_id: string;
@@ -14,23 +24,17 @@ export async function createCampaign(body: {
   budget_usd?: number;
   channels?: string[];
 }): Promise<CampaignSummary> {
-  const res = await fetch(`${API}/v1/campaigns`, {
+  return apiFetch<CampaignSummary>(apiEndpoints.campaigns.root, {
     method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
+    json: body,
   });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
 }
 
 export async function refineOutline(campaignId: string, instruction: string) {
-  const res = await fetch(`${API}/v1/campaigns/${campaignId}/refine`, {
+  return apiFetch(apiEndpoints.campaigns.refine(campaignId), {
     method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ instruction }),
+    json: { instruction },
   });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
 }
 
 export type RefineStreamHandlers = {
@@ -41,43 +45,36 @@ export type RefineStreamHandlers = {
   signal?: AbortSignal;
 };
 
-/**
- * Stream Designer refinements via SSE. Each server event is one JSON line prefixed
- * with `data: `. Message shapes:
- *   { type: "delta", text: string }
- *   { type: "spec_patch", patch: object }
- *   { type: "done", summary: string }
- *   { type: "error", message: string }
- */
 export async function refineOutlineStream(
   campaignId: string,
   instruction: string,
   handlers: RefineStreamHandlers = {},
 ): Promise<void> {
-  const res = await fetch(`${API}/v1/campaigns/${campaignId}/refine/stream`, {
+  const res = await apiFetchRaw(apiEndpoints.campaigns.refineStream(campaignId), {
     method: "POST",
-    headers: { "content-type": "application/json", accept: "text/event-stream" },
-    body: JSON.stringify({ instruction }),
+    headers: { accept: "text/event-stream" },
+    json: { instruction },
     signal: handlers.signal,
   });
-  if (!res.ok || !res.body) {
-    const detail = await res.text().catch(() => res.statusText);
-    throw new Error(detail || `HTTP ${res.status}`);
-  }
 
-  const reader = res.body.getReader();
+  const reader = res.body!.getReader();
   const decoder = new TextDecoder();
   let buf = "";
 
   const dispatch = (raw: string) => {
-    // An SSE "event" is one or more `data:` lines separated by \n, terminated by \n\n.
     const dataLines: string[] = [];
     for (const line of raw.split("\n")) {
       if (line.startsWith("data:")) dataLines.push(line.slice(5).trimStart());
     }
     if (dataLines.length === 0) return;
     const payloadStr = dataLines.join("\n");
-    let payload: { type?: string; text?: string; patch?: Record<string, unknown>; summary?: string; message?: string };
+    let payload: {
+      type?: string;
+      text?: string;
+      patch?: Record<string, unknown>;
+      summary?: string;
+      message?: string;
+    };
     try {
       payload = JSON.parse(payloadStr);
     } catch {
@@ -114,13 +111,9 @@ export async function refineOutlineStream(
 }
 
 export async function getCampaign(id: string) {
-  const res = await fetch(`${API}/v1/campaigns/${id}`);
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  return apiFetch(apiEndpoints.campaigns.byId(id));
 }
 
 export async function startCampaign(id: string) {
-  const res = await fetch(`${API}/v1/campaigns/${id}/start`, { method: "POST" });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  return apiFetch(apiEndpoints.campaigns.start(id), { method: "POST" });
 }

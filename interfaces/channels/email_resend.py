@@ -42,7 +42,7 @@ class ResendEmail:
 
         async def _do() -> httpx.Response:
             async with httpx.AsyncClient(timeout=self._timeout) as client:
-                r = await client.post(_ENDPOINT, headers=headers, json=payload)
+                r = await client.post(self._endpoint, headers=headers, json=payload)
                 if r.status_code >= 500:
                     raise Exception(f"resend 5xx: {r.status_code}")
                 return r

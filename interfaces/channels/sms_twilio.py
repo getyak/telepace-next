@@ -20,15 +20,14 @@ class TwilioSMS:
         account_sid: str,
         auth_token: str,
         from_number: str,
+        base_url: str = "https://api.twilio.com/2010-04-01",
         timeout: float = 10.0,
     ) -> None:
         self._sid = account_sid
         self._token = auth_token
         self._from = from_number
         self._timeout = timeout
-        self._endpoint = (
-            f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json"
-        )
+        self._endpoint = f"{base_url.rstrip('/')}/Accounts/{account_sid}/Messages.json"
 
     async def send(self, invite: Invite, body: str) -> DispatchReceipt:
         auth = httpx.BasicAuth(self._sid, self._token)

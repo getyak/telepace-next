@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 from typing import Any
 from uuid import UUID
 
@@ -29,6 +28,7 @@ from harness import (
     RedisMemory,
 )
 from interfaces.mcp_server.tools import TOOL_HANDLERS
+from interfaces.rest_api.config import Settings, get_settings
 from storage.event_store import PostgresEventStore
 from storage.projections import CAMPAIGN_PROJECTION_SQL, CampaignProjector
 
@@ -43,31 +43,49 @@ class _NullFollowupService:
         return {"answer": "not implemented yet", "evidence": []}
 
 
-async def build_harness_and_projector() -> tuple[Harness, CampaignProjector, PostgresEventStore]:
-    dsn = os.environ["TELEPACE_DATABASE_URL"]
-    redis_url = os.environ.get("TELEPACE_REDIS_URL", "redis://localhost:6379/0")
-
-    store = PostgresEventStore(dsn)
+async def build_harness_and_projector(
+    settings: Settings,
+) -> tuple[Harness, CampaignProjector, PostgresEventStore]:
+    store = PostgresEventStore(settings.database_url)
     await store.start()
 
-    pool = await asyncpg.create_pool(dsn, min_size=1, max_size=5)
+    pool = await asyncpg.create_pool(
+        settings.database_url,
+        min_size=settings.pg_pool_min_size,
+        max_size=settings.pg_pool_max_size,
+    )
     async with pool.acquire() as conn:
         await conn.execute(CAMPAIGN_PROJECTION_SQL)
     projector = CampaignProjector(pool)
 
     import redis.asyncio as redis
 
-    redis_client = redis.from_url(redis_url, decode_responses=False)
-    memory = RedisMemory(redis_client)
+    redis_client = redis.from_url(settings.redis_url, decode_responses=False)
+    memory = RedisMemory(redis_client, ttl_seconds=settings.memory_ttl_seconds)
 
-    llm = AnthropicLLM()
+    llm = AnthropicLLM(
+        api_key=settings.anthropic_api_key,
+        default_model=settings.anthropic_default_model,
+    )
 
     agents = {
-        "designer": DesignerAgent(llm=llm),
-        "interviewer": InterviewerAgent(llm=llm),
+        "designer": DesignerAgent(
+            llm=llm,
+            max_tokens=settings.designer_max_tokens,
+            temperature=settings.designer_temperature,
+        ),
+        "interviewer": InterviewerAgent(
+            llm=llm,
+            max_tokens=settings.interviewer_max_tokens,
+            temperature=settings.interviewer_temperature,
+        ),
         "coordinator": CoordinatorAgent(),
     }
-    _analyst = AnalystAgent(llm=llm)
+    _analyst = AnalystAgent(
+        llm=llm,
+        max_tokens=settings.analyst_max_tokens,
+        temperature=settings.analyst_temperature,
+    )
 
     harness = Harness(
         event_store=store,
@@ -85,14 +103,11 @@ def _tool_schema(input_cls: type) -> dict[str, Any]:
 
 
 async def main() -> None:
-    harness, projector, store = await build_harness_and_projector()
-    public_base = os.environ.get("TELEPACE_PUBLIC_BASE_URL", "http://localhost:3000")
-    default_org = UUID(
-        os.environ.get("TELEPACE_DEFAULT_ORG_ID", "00000000-0000-0000-0000-000000000001")
-    )
-    default_author = UUID(
-        os.environ.get("TELEPACE_DEFAULT_AUTHOR_ID", "00000000-0000-0000-0000-000000000002")
-    )
+    settings = get_settings()
+    harness, projector, store = await build_harness_and_projector(settings)
+    public_base = settings.public_base_url
+    default_org = UUID(settings.default_org_id)
+    default_author = UUID(settings.default_author_id)
 
     server = Server("telepace")
 

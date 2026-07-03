@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Annotated, Literal
 from uuid import UUID, uuid4
 
@@ -15,7 +15,7 @@ class EventBase(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     campaign_id: UUID
     actor: str = "system"
-    ts: datetime = Field(default_factory=datetime.utcnow)
+    ts: datetime = Field(default_factory=lambda: datetime.now(UTC))
     schema_version: int = 1
 
 

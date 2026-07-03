@@ -10,6 +10,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from interfaces.realtime import voice_ws
 from interfaces.rest_api import ws
+from interfaces.rest_api.auth.router import router as auth_router
+from interfaces.rest_api.config import get_settings
 from interfaces.rest_api.deps import build_state
 from interfaces.rest_api.routers import campaigns, health, interviews
 
@@ -25,25 +27,36 @@ async def lifespan(app: FastAPI):
         await state.pool.close()
 
 
-app = FastAPI(title="telepace API", version="0.1.0", lifespan=lifespan)
+def create_app() -> FastAPI:
+    settings = get_settings()
+    application = FastAPI(title="telepace API", version="0.1.0", lifespan=lifespan)
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_allow_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    application.include_router(health.router)
+    application.include_router(auth_router)
+    application.include_router(campaigns.router)
+    application.include_router(interviews.router)
+    application.include_router(ws.router)
+    application.include_router(voice_ws.router)
+    return application
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001", "http://localhost:3002"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
-app.include_router(health.router)
-app.include_router(campaigns.router)
-app.include_router(interviews.router)
-app.include_router(ws.router)
-app.include_router(voice_ws.router)
+app = create_app()
 
 
 def run() -> None:
-    uvicorn.run("interfaces.rest_api.main:app", host="0.0.0.0", port=8000, reload=False)
+    settings = get_settings()
+    uvicorn.run(
+        "interfaces.rest_api.main:app",
+        host=settings.api_host,
+        port=settings.api_port,
+        reload=False,
+    )
 
 
 if __name__ == "__main__":

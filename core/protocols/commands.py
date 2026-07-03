@@ -7,6 +7,7 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from core import constants as _consts
 from core.domain.models import CampaignSpec, ChannelKind
 
 
@@ -25,8 +26,8 @@ class CreateCampaign(CommandBase):
     title: str
     goal: str
     background: str = ""
-    target_completions: int = 10
-    budget_usd: float = 100.0
+    target_completions: int = _consts.DEFAULT_TARGET_COMPLETIONS
+    budget_usd: float = _consts.DEFAULT_BUDGET_USD
     channels: list[ChannelKind] = Field(default_factory=lambda: [ChannelKind.WEB_TEXT])
 
 
@@ -97,5 +98,5 @@ def spec_from_create(cmd: CreateCampaign) -> CampaignSpec:
         target_completions=cmd.target_completions,
         budget_usd=cmd.budget_usd,
         channels=[Channel(kind=ch) for ch in cmd.channels],
-        outline=Outline(items=[], estimated_duration_minutes=15),
+        outline=Outline(items=[], estimated_duration_minutes=_consts.DEFAULT_OUTLINE_DURATION_MIN),
     )

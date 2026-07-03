@@ -32,8 +32,17 @@ class SynthesisResult:
 
 
 class AnalystAgent:
-    def __init__(self, llm: LLMClient, prompt_version: str = "v1") -> None:
+    def __init__(
+        self,
+        llm: LLMClient,
+        *,
+        max_tokens: int,
+        temperature: float,
+        prompt_version: str = "v1",
+    ) -> None:
         self._llm = llm
+        self._max_tokens = max_tokens
+        self._temperature = temperature
         self._system = load_prompt("analyst", prompt_version)
 
     async def synthesize(
@@ -52,8 +61,8 @@ class AnalystAgent:
         resp = await self._llm.complete(
             system=self._system,
             messages=[LLMMessage(role="user", content=json.dumps(payload, ensure_ascii=False))],
-            max_tokens=3000,
-            temperature=0.3,
+            max_tokens=self._max_tokens,
+            temperature=self._temperature,
         )
         block = _INSIGHTS_BLOCK.search(resp.text)
         try:

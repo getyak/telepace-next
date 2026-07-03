@@ -11,6 +11,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from core import constants as _consts
 from core.domain.models import ChannelKind
 
 
@@ -25,8 +26,12 @@ class CreateCampaignInput(_ToolBase):
         default="",
         description="Optional prior context: hypotheses, known constraints.",
     )
-    target_completions: int = Field(default=10, ge=1, le=1000)
-    budget_usd: float = Field(default=100.0, ge=0.0)
+    target_completions: int = Field(
+        default=_consts.DEFAULT_TARGET_COMPLETIONS,
+        ge=_consts.MIN_TARGET_COMPLETIONS,
+        le=_consts.MAX_TARGET_COMPLETIONS,
+    )
+    budget_usd: float = Field(default=_consts.DEFAULT_BUDGET_USD, ge=0.0)
     channels: list[ChannelKind] = Field(
         default_factory=lambda: [ChannelKind.WEB_TEXT],
         description="How respondents will be reached.",

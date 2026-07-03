@@ -22,8 +22,17 @@ _ACTION_BLOCK = re.compile(r"<action>(.*?)</action>", re.DOTALL)
 
 
 class InterviewerAgent:
-    def __init__(self, llm: LLMClient, prompt_version: str = "v1") -> None:
+    def __init__(
+        self,
+        llm: LLMClient,
+        *,
+        max_tokens: int,
+        temperature: float,
+        prompt_version: str = "v1",
+    ) -> None:
         self._llm = llm
+        self._max_tokens = max_tokens
+        self._temperature = temperature
         self._system = load_prompt("interviewer", prompt_version)
 
     async def run(
@@ -55,8 +64,8 @@ class InterviewerAgent:
         resp = await self._llm.complete(
             system=self._system,
             messages=[LLMMessage(role="user", content=prompt_user)],
-            max_tokens=800,
-            temperature=0.5,
+            max_tokens=self._max_tokens,
+            temperature=self._temperature,
         )
 
         action = self._parse_action(resp.text)

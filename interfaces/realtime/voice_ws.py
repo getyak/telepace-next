@@ -35,7 +35,19 @@ def _build_stt(state: AppState) -> tuple[STT, str]:
     s = state.settings
     provider = (s.voice_stt_provider or "mock").lower()
     if provider == "deepgram" and s.deepgram_api_key:
-        return DeepgramSTT(api_key=s.deepgram_api_key, encoding="opus"), "deepgram"
+        return (
+            DeepgramSTT(
+                api_key=s.deepgram_api_key,
+                encoding="opus",
+                sample_rate=s.deepgram_sample_rate_hz,
+                model=s.deepgram_model,
+                language=s.deepgram_language,
+                ws_url=s.deepgram_ws_url,
+                ping_interval_s=s.deepgram_ping_interval_s,
+                ping_timeout_s=s.deepgram_ping_timeout_s,
+            ),
+            "deepgram",
+        )
     return MockSTT(), "mock"
 
 
@@ -47,6 +59,14 @@ def _build_tts(state: AppState) -> tuple[TTS, str]:
             ElevenLabsTTS(
                 api_key=s.elevenlabs_api_key,
                 default_voice_id=s.elevenlabs_voice_id,
+                base_url=s.elevenlabs_base_url,
+                model_id=s.elevenlabs_model_id,
+                output_format=s.elevenlabs_output_format,
+                stability=s.elevenlabs_stability,
+                similarity_boost=s.elevenlabs_similarity_boost,
+                timeout_s=s.elevenlabs_timeout_s,
+                connect_timeout_s=s.elevenlabs_connect_timeout_s,
+                stream_chunk_bytes=s.elevenlabs_stream_chunk_bytes,
             ),
             "elevenlabs",
         )

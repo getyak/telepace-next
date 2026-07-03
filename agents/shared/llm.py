@@ -118,15 +118,17 @@ class MockLLM:
 
 
 class AnthropicLLM:
-    DEFAULT_MODEL = "claude-sonnet-4-6"
-
     def __init__(self, api_key: str | None = None, default_model: str | None = None) -> None:
         import anthropic
 
         self._client = (
             anthropic.AsyncAnthropic(api_key=api_key) if api_key else anthropic.AsyncAnthropic()
         )
-        self._default_model = default_model or self.DEFAULT_MODEL
+        if not default_model:
+            raise ValueError(
+                "AnthropicLLM requires default_model; wire it from Settings.anthropic_default_model"
+            )
+        self._default_model = default_model
 
     async def complete(
         self,
@@ -228,9 +230,6 @@ class OpenRouterLLM:
     `{name, description, input_schema}` to OpenAI's `{type: "function", function: {...}}`.
     """
 
-    DEFAULT_MODEL = "z-ai/glm-4.7"
-    DEFAULT_BASE_URL = "https://openrouter.ai/api/v1"
-
     def __init__(
         self,
         api_key: str | None = None,
@@ -239,8 +238,16 @@ class OpenRouterLLM:
     ) -> None:
         from openai import AsyncOpenAI
 
-        self._client = AsyncOpenAI(api_key=api_key, base_url=base_url or self.DEFAULT_BASE_URL)
-        self._default_model = default_model or self.DEFAULT_MODEL
+        if not base_url:
+            raise ValueError(
+                "OpenRouterLLM requires base_url; wire it from Settings.openrouter_base_url"
+            )
+        if not default_model:
+            raise ValueError(
+                "OpenRouterLLM requires default_model; wire it from Settings.llm_model_general"
+            )
+        self._client = AsyncOpenAI(api_key=api_key, base_url=base_url)
+        self._default_model = default_model
 
     @staticmethod
     def _translate_tools(tools: list[dict[str, Any]] | None) -> list[dict[str, Any]] | None:

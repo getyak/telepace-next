@@ -51,6 +51,14 @@ target-version = "py312"
 select = ["E", "F", "I", "N", "UP", "B", "A", "C4", "SIM", "RUF"]
 ignore = ["E501"]
 
+# B008 is a false positive for FastAPI `Depends(...)` — the framework requires
+# the call in the argument default. Scope the ignore to files that legitimately
+# rely on that pattern.
+[tool.ruff.lint.per-file-ignores]
+"interfaces/rest_api/routers/*.py" = ["B008"]
+"interfaces/rest_api/auth/router.py" = ["B008"]
+"interfaces/rest_api/auth/deps.py" = ["B008"]
+
 [tool.mypy]
 python_version = "3.12"
 strict = true

@@ -36,10 +36,10 @@ class InMemoryMemory(HarnessMemory):
 
 class RedisMemory(HarnessMemory):
     KEY_TPL = "campaign:{cid}:memory"
-    TTL_SECONDS = 3600
 
-    def __init__(self, client: Any) -> None:
+    def __init__(self, client: Any, *, ttl_seconds: int) -> None:
         self._client = client
+        self._ttl_seconds = ttl_seconds
 
     async def load(self, campaign_id: UUID) -> dict[str, Any]:
         raw = await self._client.get(self.KEY_TPL.format(cid=campaign_id))
@@ -51,7 +51,7 @@ class RedisMemory(HarnessMemory):
         key = self.KEY_TPL.format(cid=campaign_id)
         current = await self.load(campaign_id)
         current.update(delta)
-        await self._client.set(key, orjson.dumps(current), ex=self.TTL_SECONDS)
+        await self._client.set(key, orjson.dumps(current), ex=self._ttl_seconds)
 
     async def clear(self, campaign_id: UUID) -> None:
         await self._client.delete(self.KEY_TPL.format(cid=campaign_id))

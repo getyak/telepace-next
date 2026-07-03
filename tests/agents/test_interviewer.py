@@ -19,7 +19,7 @@ def _reply(text: str) -> ReplyInInterview:
 
 
 async def test_reply_records_respondent_and_interviewer_turns() -> None:
-    agent = InterviewerAgent(llm=MockLLM(canned=[LLMResponse(text="Tell me more?")]))
+    agent = InterviewerAgent(llm=MockLLM(canned=[LLMResponse(text="Tell me more?")]), max_tokens=800, temperature=0.5)
     r = await agent.run(_reply("I want cheaper pricing"), context={}, harness=None)  # type: ignore[arg-type]
     types = [e.type for e in r.events]
     assert types.count("interview.turn_recorded") == 2
@@ -32,7 +32,7 @@ async def test_reply_parses_action_block_and_emits_completed_on_wrap_up() -> Non
             "<action>{\"kind\": \"wrap_up\", \"text\": \"Thanks!\"}</action>"
         )
     )
-    agent = InterviewerAgent(llm=MockLLM(canned=[canned]))
+    agent = InterviewerAgent(llm=MockLLM(canned=[canned]), max_tokens=800, temperature=0.5)
     r = await agent.run(_reply("done"), context={"outline_coverage": {"q1": 1.0}}, harness=None)  # type: ignore[arg-type]
     types = [e.type for e in r.events]
     assert "interview.completed" in types
@@ -41,7 +41,7 @@ async def test_reply_parses_action_block_and_emits_completed_on_wrap_up() -> Non
 
 async def test_reply_falls_back_when_action_block_json_is_broken() -> None:
     canned = LLMResponse(text="Prose then\n<action>{not json}</action>")
-    agent = InterviewerAgent(llm=MockLLM(canned=[canned]))
+    agent = InterviewerAgent(llm=MockLLM(canned=[canned]), max_tokens=800, temperature=0.5)
     r = await agent.run(_reply("hello"), context={}, harness=None)  # type: ignore[arg-type]
     assert r.response["kind"] == "ask"
 
@@ -49,7 +49,7 @@ async def test_reply_falls_back_when_action_block_json_is_broken() -> None:
 async def test_run_returns_error_for_unsupported_command() -> None:
     from core.protocols.commands import StartCampaign
 
-    r = await InterviewerAgent(llm=MockLLM()).run(
+    r = await InterviewerAgent(llm=MockLLM(), max_tokens=800, temperature=0.5).run(
         StartCampaign(actor="x", campaign_id=uuid4()),
         {},
         None,  # type: ignore[arg-type]
@@ -59,7 +59,7 @@ async def test_run_returns_error_for_unsupported_command() -> None:
 
 async def test_reply_history_grows_across_context_load() -> None:
     """When context already has 3 prior turns, next respondent turn is order = 4."""
-    agent = InterviewerAgent(llm=MockLLM(canned=[LLMResponse(text="ok")]))
+    agent = InterviewerAgent(llm=MockLLM(canned=[LLMResponse(text="ok")]), max_tokens=800, temperature=0.5)
     prior = [
         {"role": "respondent", "text": "hi"},
         {"role": "interviewer", "text": "hello"},

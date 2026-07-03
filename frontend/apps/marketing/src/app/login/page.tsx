@@ -1,10 +1,44 @@
-import Link from "next/link";
-import { Button, Input, Label } from "@telepace/ui";
-import { Nav, Footer } from "@/components/site-chrome";
+"use client";
 
-export const metadata = { title: "Log in · telepace" };
+import Link from "next/link";
+import { useState } from "react";
+import { Button, Input, Label } from "@telepace/ui";
+import { env, routes, validateLogin } from "@telepace/config";
+import { Nav, Footer } from "@/components/site-chrome";
+import { login } from "@/lib/auth-fetch";
 
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrors([]);
+    const clientErrs = validateLogin({ email, password }).map((v) => v.message);
+    if (clientErrs.length > 0) {
+      setErrors(clientErrs);
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const tokens = await login({ email, password });
+      // Hand off tokens to the app via URL fragment (not query) so browser
+      // history / server logs don't leak them.
+      const target = new URL(env.appUrl);
+      target.hash =
+        `access_token=${encodeURIComponent(tokens.access_token)}` +
+        `&refresh_token=${encodeURIComponent(tokens.refresh_token)}` +
+        `&expires_in=${tokens.expires_in}`;
+      window.location.href = target.toString();
+    } catch (err) {
+      setErrors([err instanceof Error ? err.message : "Login failed"]);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <>
       <Nav />
@@ -16,44 +50,57 @@ export default function LoginPage() {
               Sign in to <span className="italic text-accent">telepace.</span>
             </h1>
             <p className="mt-6 text-body text-lg max-w-md">
-              Studies you've drafted, interviews mid-flight, insights waiting — all right where you left them.
+              Studies you&apos;ve drafted, interviews mid-flight, insights waiting — all right where you left them.
             </p>
           </div>
 
           <div className="md:col-span-6">
             <div className="rounded-card border border-hairline bg-paper-elevated p-8 max-w-md md:ml-auto">
-              <div className="space-y-3">
-                <Button variant="secondary" className="w-full h-11">
-                  <span>Continue with Google</span>
-                </Button>
-                <Button variant="secondary" className="w-full h-11">
-                  <span>Continue with GitHub</span>
-                </Button>
-              </div>
-
-              <div className="flex items-center gap-3 my-6">
-                <div className="flex-1 h-px bg-hairline" />
-                <span className="text-xs text-muted uppercase tracking-wider">or</span>
-                <div className="flex-1 h-px bg-hairline" />
-              </div>
-
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={onSubmit} noValidate>
                 <div>
                   <Label htmlFor="email">Work email</Label>
-                  <Input id="email" type="email" placeholder="you@company.com" required />
+                  <Input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <Label htmlFor="password">Password</Label>
-                    <Link href="/forgot" className="text-xs text-accent">Forgot?</Link>
+                    <Link href={routes.forgot} className="text-xs text-accent">
+                      Forgot?
+                    </Link>
                   </div>
-                  <Input id="password" type="password" required />
+                  <Input
+                    id="password"
+                    type="password"
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
                 </div>
-                <Button className="w-full h-11" type="submit">Log in</Button>
+                {errors.length > 0 && (
+                  <ul className="text-sm text-red-600 space-y-1">
+                    {errors.map((err) => (
+                      <li key={err}>{err}</li>
+                    ))}
+                  </ul>
+                )}
+                <Button className="w-full h-11" type="submit" disabled={submitting}>
+                  {submitting ? "Signing in..." : "Log in"}
+                </Button>
               </form>
 
               <p className="mt-6 text-sm text-muted text-center">
-                Don't have an account? <Link href="/signup" className="text-accent">Sign up →</Link>
+                Don&apos;t have an account?{" "}
+                <Link href={routes.signup} className="text-accent">
+                  Sign up →
+                </Link>
               </p>
             </div>
           </div>
