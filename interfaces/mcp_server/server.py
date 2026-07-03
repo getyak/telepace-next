@@ -16,6 +16,7 @@ from agents.coordinator import CoordinatorAgent
 from agents.designer import DesignerAgent
 from agents.interviewer import InterviewerAgent
 from agents.shared import AnthropicLLM
+from core.constants import PRODUCT_NAME
 from core.protocols.mcp_tools import MCP_TOOL_REGISTRY
 from harness import (
     BudgetPolicy,
@@ -46,7 +47,12 @@ class _NullFollowupService:
 async def build_harness_and_projector(
     settings: Settings,
 ) -> tuple[Harness, CampaignProjector, PostgresEventStore]:
-    store = PostgresEventStore(settings.database_url)
+    store = PostgresEventStore(
+        settings.database_url,
+        pool_min_size=settings.pg_pool_min_size,
+        pool_max_size=settings.pg_pool_max_size,
+        maintenance_interval_s=settings.event_store_maintenance_interval_s,
+    )
     await store.start()
 
     pool = await asyncpg.create_pool(
@@ -91,7 +97,16 @@ async def build_harness_and_projector(
         event_store=store,
         memory=memory,
         router=IntentRouter(),
-        policies=PolicyStack([BudgetPolicy(), PIIPolicy(), EscalationPolicy()]),
+        policies=PolicyStack(
+            [
+                BudgetPolicy(
+                    warn_ratio=settings.budget_warn_ratio,
+                    hard_stop_ratio=settings.budget_hard_stop_ratio,
+                ),
+                PIIPolicy(),
+                EscalationPolicy(),
+            ]
+        ),
         agents=agents,
         tracer=NullTracer(),
     )
@@ -109,7 +124,7 @@ async def main() -> None:
     default_org = UUID(settings.default_org_id)
     default_author = UUID(settings.default_author_id)
 
-    server = Server("telepace")
+    server = Server(PRODUCT_NAME)
 
     @server.list_tools()
     async def _list_tools() -> list[mcp_types.Tool]:

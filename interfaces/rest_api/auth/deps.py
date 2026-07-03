@@ -15,9 +15,11 @@ from uuid import UUID
 
 from fastapi import Depends, HTTPException, Request, status
 
+from core.constants import HTTP_AUTH_SCHEME
 from interfaces.rest_api.auth.jwt import TokenError, decode_access_token
 from interfaces.rest_api.auth.models import AuthUser
 from interfaces.rest_api.config import Settings
+from interfaces.rest_api.errors import ErrorMessages
 
 
 def _extract_bearer(request: Request) -> str | None:
@@ -25,7 +27,7 @@ def _extract_bearer(request: Request) -> str | None:
     if not header:
         return None
     parts = header.split(None, 1)
-    if len(parts) != 2 or parts[0].lower() != "bearer":
+    if len(parts) != 2 or parts[0].lower() != HTTP_AUTH_SCHEME:
         return None
     token = parts[1].strip()
     return token or None
@@ -34,7 +36,7 @@ def _extract_bearer(request: Request) -> str | None:
 def _dev_fallback_user(settings: Settings) -> AuthUser:
     return AuthUser(
         id=UUID(settings.default_author_id),
-        email="dev@telepace.local",
+        email=settings.dev_fallback_user_email,
         org_id=UUID(settings.default_org_id),
         scopes=(),
     )
@@ -78,7 +80,7 @@ def require_current_user(
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="authentication required",
+            detail=ErrorMessages.AUTHENTICATION_REQUIRED,
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user

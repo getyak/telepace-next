@@ -6,6 +6,7 @@ import asyncio
 from collections.abc import AsyncIterator
 from uuid import UUID
 
+from core.constants import EVENT_READ_DEFAULT_LIMIT
 from core.events import EventBase
 from storage.event_store.base import EventStore, EventSubscriber, StoredEvent
 
@@ -34,7 +35,9 @@ class InMemoryEventStore(EventStore):
     async def read_stream(self, campaign_id: UUID) -> list[StoredEvent]:
         return [s for s in self._events if s.event.campaign_id == campaign_id]
 
-    async def read_from(self, seq: int, limit: int = 500) -> list[StoredEvent]:
+    async def read_from(
+        self, seq: int, limit: int = EVENT_READ_DEFAULT_LIMIT
+    ) -> list[StoredEvent]:
         return [s for s in self._events if s.seq > seq][:limit]
 
     async def subscribe(self, subscriber: EventSubscriber) -> None:

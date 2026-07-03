@@ -7,6 +7,7 @@ than Listen Labs's typical build time).
 
 from __future__ import annotations
 
+from core.constants import DIM01_BAD_S, DIM01_GOOD_S
 from eval.judges._util import linear_falloff
 from eval.judges.types import RubricEvidence, Score
 
@@ -21,11 +22,14 @@ async def judge(evidence: RubricEvidence) -> Score:
             rationale="no evidence: time_to_first_q_seconds missing",
             evidence_pointer=f"eval/results/{evidence.scenario_id}.json",
         )
-    score = linear_falloff(t, good=20.0, bad=120.0)
+    score = linear_falloff(t, good=DIM01_GOOD_S, bad=DIM01_BAD_S)
     return Score(
         dim=1,
         scenario_id=evidence.scenario_id,
         score=score,
-        rationale=f"first question published in {t:.1f}s (target <20s, floor at 120s)",
+        rationale=(
+            f"first question published in {t:.1f}s "
+            f"(target <{DIM01_GOOD_S:g}s, floor at {DIM01_BAD_S:g}s)"
+        ),
         evidence_pointer=f"eval/results/{evidence.scenario_id}.json#time_to_first_q_seconds",
     )

@@ -6,6 +6,7 @@ import logging
 
 import httpx
 
+from core.constants import HTTP_ERROR_MSG_MAX
 from interfaces.channels.base import DispatchReceipt, Invite, retry
 
 logger = logging.getLogger(__name__)
@@ -20,12 +21,16 @@ class ResendEmail:
         api_key: str,
         from_address: str,
         base_url: str,
-        timeout: float = 10.0,
+        timeout: float,
+        retry_attempts: int,
+        retry_base_delay_s: float,
     ) -> None:
         self._api_key = api_key
         self._from = from_address
         self._endpoint = f"{base_url.rstrip('/')}/emails"
         self._timeout = timeout
+        self._retry_attempts = retry_attempts
+        self._retry_base_delay_s = retry_base_delay_s
 
     async def send(
         self,
@@ -54,7 +59,9 @@ class ResendEmail:
                 return r
 
         try:
-            resp = await retry(_do)
+            resp = await retry(
+                _do, attempts=self._retry_attempts, base_delay=self._retry_base_delay_s
+            )
         except Exception as exc:  # network/timeout/5xx after retries
             return DispatchReceipt(
                 ok=False, provider="resend", provider_id=None, error=str(exc)
@@ -65,7 +72,7 @@ class ResendEmail:
                 ok=False,
                 provider="resend",
                 provider_id=None,
-                error=f"http {resp.status_code}: {resp.text[:200]}",
+                error=f"http {resp.status_code}: {resp.text[:HTTP_ERROR_MSG_MAX]}",
             )
         data = resp.json()
         return DispatchReceipt(

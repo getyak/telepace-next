@@ -6,6 +6,7 @@ import logging
 
 import httpx
 
+from core.constants import HTTP_ERROR_MSG_MAX
 from interfaces.channels.base import DispatchReceipt, Invite, retry
 
 logger = logging.getLogger(__name__)
@@ -20,13 +21,17 @@ class TwilioSMS:
         account_sid: str,
         auth_token: str,
         from_number: str,
-        base_url: str = "https://api.twilio.com/2010-04-01",
-        timeout: float = 10.0,
+        base_url: str,
+        timeout: float,
+        retry_attempts: int,
+        retry_base_delay_s: float,
     ) -> None:
         self._sid = account_sid
         self._token = auth_token
         self._from = from_number
         self._timeout = timeout
+        self._retry_attempts = retry_attempts
+        self._retry_base_delay_s = retry_base_delay_s
         self._endpoint = f"{base_url.rstrip('/')}/Accounts/{account_sid}/Messages.json"
 
     async def send(self, invite: Invite, body: str) -> DispatchReceipt:
@@ -41,7 +46,9 @@ class TwilioSMS:
                 return r
 
         try:
-            resp = await retry(_do)
+            resp = await retry(
+                _do, attempts=self._retry_attempts, base_delay=self._retry_base_delay_s
+            )
         except Exception as exc:
             return DispatchReceipt(
                 ok=False, provider="twilio", provider_id=None, error=str(exc)
@@ -52,7 +59,7 @@ class TwilioSMS:
                 ok=False,
                 provider="twilio",
                 provider_id=None,
-                error=f"http {resp.status_code}: {resp.text[:200]}",
+                error=f"http {resp.status_code}: {resp.text[:HTTP_ERROR_MSG_MAX]}",
             )
         payload = resp.json()
         return DispatchReceipt(

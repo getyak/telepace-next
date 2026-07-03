@@ -37,6 +37,17 @@ class Settings(BaseSettings):
             "http://localhost:3002",
         ]
     )
+    cors_allow_credentials: bool = True
+    cors_allow_methods: list[str] = Field(
+        default_factory=lambda: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+    )
+    cors_allow_headers: list[str] = Field(
+        default_factory=lambda: ["Authorization", "Content-Type", "X-Requested-With"]
+    )
+
+    # --- FastAPI metadata (shown in /docs)
+    api_title: str = "telepace API"
+    api_version_string: str = "0.1.0"
 
     # --- Postgres pool
     pg_pool_min_size: int = 1
@@ -57,13 +68,21 @@ class Settings(BaseSettings):
 
     # --- Password policy
     password_min_length: int = 8
-    password_hash_rounds: int = 12  # bcrypt cost
+    # PBKDF2-SHA256 iteration count. OWASP-2023 recommends >= 600_000;
+    # the previous `password_hash_rounds * 10_000` scheme yielded only 120k.
+    password_pbkdf2_iterations: int = 600_000
     auth_max_failed_attempts: int = 5
     auth_lockout_seconds: int = 15 * 60
 
-    # --- Actor prefixes
+    # --- Actor prefixes (event `actor` field: "<prefix>:<id>")
     actor_prefix_user: str = "user"
     actor_prefix_system: str = "system"
+    actor_prefix_agent: str = "agent"
+    actor_prefix_respondent: str = "respondent"
+    actor_prefix_interview: str = "interview"
+
+    # --- Dev fallback (only used when auth_enabled=False)
+    dev_fallback_user_email: str = "dev@telepace.local"
 
     # --- LLM provider selection: "openrouter" | "anthropic" | "mock"
     llm_provider: str = "mock"
@@ -96,6 +115,9 @@ class Settings(BaseSettings):
     deepgram_sample_rate_hz: int = 16000
     deepgram_ping_interval_s: int = 5
     deepgram_ping_timeout_s: int = 20
+    deepgram_encoding: str = "opus"
+    deepgram_smart_format: bool = True
+    deepgram_interim_results: bool = True
 
     # ElevenLabs TTS
     elevenlabs_api_key: str | None = None

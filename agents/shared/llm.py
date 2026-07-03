@@ -6,6 +6,8 @@ import json
 from dataclasses import dataclass
 from typing import Any, Literal, Protocol
 
+from core.constants import DEFAULT_LLM_MAX_TOKENS, DEFAULT_LLM_TEMPERATURE
+
 
 @dataclass(slots=True)
 class LLMMessage:
@@ -51,8 +53,8 @@ class LLMClient(Protocol):
         messages: list[LLMMessage],
         tools: list[dict[str, Any]] | None = None,
         model: str | None = None,
-        max_tokens: int = 1024,
-        temperature: float = 0.4,
+        max_tokens: int = DEFAULT_LLM_MAX_TOKENS,
+        temperature: float = DEFAULT_LLM_TEMPERATURE,
     ) -> LLMResponse: ...
 
     def stream(
@@ -62,8 +64,8 @@ class LLMClient(Protocol):
         messages: list[LLMMessage],
         tools: list[dict[str, Any]] | None = None,
         model: str | None = None,
-        max_tokens: int = 1024,
-        temperature: float = 0.4,
+        max_tokens: int = DEFAULT_LLM_MAX_TOKENS,
+        temperature: float = DEFAULT_LLM_TEMPERATURE,
     ) -> AsyncIterator[StreamChunk]: ...
 
 
@@ -79,8 +81,8 @@ class MockLLM:
         messages: list[LLMMessage],
         tools: list[dict[str, Any]] | None = None,
         model: str | None = None,
-        max_tokens: int = 1024,
-        temperature: float = 0.4,
+        max_tokens: int = DEFAULT_LLM_MAX_TOKENS,
+        temperature: float = DEFAULT_LLM_TEMPERATURE,
     ) -> LLMResponse:
         _ = system, messages, tools, model, max_tokens, temperature
         if not self._canned:
@@ -96,8 +98,8 @@ class MockLLM:
         messages: list[LLMMessage],
         tools: list[dict[str, Any]] | None = None,
         model: str | None = None,
-        max_tokens: int = 1024,
-        temperature: float = 0.4,
+        max_tokens: int = DEFAULT_LLM_MAX_TOKENS,
+        temperature: float = DEFAULT_LLM_TEMPERATURE,
     ) -> AsyncIterator[StreamChunk]:
         """No-op passthrough: emit the canned complete() text as a single chunk."""
         resp = await self.complete(
@@ -137,8 +139,8 @@ class AnthropicLLM:
         messages: list[LLMMessage],
         tools: list[dict[str, Any]] | None = None,
         model: str | None = None,
-        max_tokens: int = 1024,
-        temperature: float = 0.4,
+        max_tokens: int = DEFAULT_LLM_MAX_TOKENS,
+        temperature: float = DEFAULT_LLM_TEMPERATURE,
     ) -> LLMResponse:
         api_messages = [{"role": m.role, "content": m.content} for m in messages if m.role != "system"]
         kwargs: dict[str, Any] = {
@@ -184,8 +186,8 @@ class AnthropicLLM:
         messages: list[LLMMessage],
         tools: list[dict[str, Any]] | None = None,
         model: str | None = None,
-        max_tokens: int = 1024,
-        temperature: float = 0.4,
+        max_tokens: int = DEFAULT_LLM_MAX_TOKENS,
+        temperature: float = DEFAULT_LLM_TEMPERATURE,
     ) -> AsyncIterator[StreamChunk]:
         api_messages = [
             {"role": m.role, "content": m.content} for m in messages if m.role != "system"
@@ -278,8 +280,8 @@ class OpenRouterLLM:
         messages: list[LLMMessage],
         tools: list[dict[str, Any]] | None = None,
         model: str | None = None,
-        max_tokens: int = 1024,
-        temperature: float = 0.4,
+        max_tokens: int = DEFAULT_LLM_MAX_TOKENS,
+        temperature: float = DEFAULT_LLM_TEMPERATURE,
     ) -> LLMResponse:
         api_messages: list[dict[str, Any]] = []
         if system:
@@ -332,8 +334,8 @@ class OpenRouterLLM:
         messages: list[LLMMessage],
         tools: list[dict[str, Any]] | None = None,
         model: str | None = None,
-        max_tokens: int = 1024,
-        temperature: float = 0.4,
+        max_tokens: int = DEFAULT_LLM_MAX_TOKENS,
+        temperature: float = DEFAULT_LLM_TEMPERATURE,
     ) -> AsyncIterator[StreamChunk]:
         api_messages: list[dict[str, Any]] = []
         if system:

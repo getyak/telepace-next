@@ -10,6 +10,11 @@ from uuid import UUID, uuid4
 
 from agents.shared import LLMClient, load_prompt
 from agents.shared.llm import LLMMessage
+from core.constants import (
+    ANALYST_TURN_HISTORY_LIMIT,
+    DEFAULT_PERSONA_CONFIDENCE,
+    INSIGHT_TITLE_MAX_CHARS,
+)
 from core.domain.models import InsightKind
 from core.events import EventBase, InsightGenerated
 
@@ -55,7 +60,8 @@ class AnalystAgent:
             "campaign_id": str(campaign_id),
             "want_persona": want_persona,
             "interviews": [
-                {"id": str(t.interview_id), "turns": t.turns[-40:]} for t in transcripts
+                {"id": str(t.interview_id), "turns": t.turns[-ANALYST_TURN_HISTORY_LIMIT:]}
+                for t in transcripts
             ],
         }
         resp = await self._llm.complete(
@@ -83,7 +89,7 @@ class AnalystAgent:
                     actor="agent:analyst",
                     insight_id=uuid4(),
                     kind=InsightKind.THEME.value,
-                    title=str(th.get("label", ""))[:200],
+                    title=str(th.get("label", ""))[:INSIGHT_TITLE_MAX_CHARS],
                     confidence=float(th.get("confidence", 0.0)),
                 )
             )
@@ -94,7 +100,7 @@ class AnalystAgent:
                     actor="agent:analyst",
                     insight_id=uuid4(),
                     kind=InsightKind.VERBATIM.value,
-                    title=str(vb.get("quote", ""))[:200],
+                    title=str(vb.get("quote", ""))[:INSIGHT_TITLE_MAX_CHARS],
                     confidence=float(vb.get("confidence", 0.0)),
                 )
             )
@@ -105,7 +111,7 @@ class AnalystAgent:
                     actor="agent:analyst",
                     insight_id=uuid4(),
                     kind=InsightKind.CONCERN.value,
-                    title=str(co.get("label", ""))[:200],
+                    title=str(co.get("label", ""))[:INSIGHT_TITLE_MAX_CHARS],
                     confidence=float(co.get("confidence", 0.0)),
                 )
             )
@@ -116,8 +122,8 @@ class AnalystAgent:
                     actor="agent:analyst",
                     insight_id=uuid4(),
                     kind=InsightKind.PERSONA.value,
-                    title=str(persona.get("name", "persona"))[:200],
-                    confidence=float(persona.get("confidence", 0.6)),
+                    title=str(persona.get("name", "persona"))[:INSIGHT_TITLE_MAX_CHARS],
+                    confidence=float(persona.get("confidence", DEFAULT_PERSONA_CONFIDENCE)),
                 )
             )
 

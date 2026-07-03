@@ -13,10 +13,13 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from agents.designer import DesignerAgent
 from core.constants import (
+    API_VERSION_PREFIX,
     DEFAULT_BUDGET_USD,
     DEFAULT_TARGET_COMPLETIONS,
     MAX_TARGET_COMPLETIONS,
     MIN_TARGET_COMPLETIONS,
+    RESPONDENT_PATH_PREFIX,
+    SSE_HEADERS,
 )
 from core.domain.models import ChannelKind
 from core.protocols.commands import (
@@ -46,7 +49,7 @@ def _actor_ref(settings: Settings, user: AuthUser) -> str:
     return f"{settings.actor_prefix_user}:{user.id}"
 
 
-router = APIRouter(prefix="/v1/campaigns", tags=["campaigns"])
+router = APIRouter(prefix=f"{API_VERSION_PREFIX}/campaigns", tags=["campaigns"])
 
 
 class CreateCampaignBody(BaseModel):
@@ -92,7 +95,7 @@ async def create_campaign(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=resp.reason)
     return {
         "campaign_id": resp.result["campaign_id"],
-        "share_url": f"{settings.public_base_url.rstrip('/')}/r/{resp.result['campaign_id']}",
+        "share_url": f"{settings.public_base_url.rstrip('/')}{RESPONDENT_PATH_PREFIX}{resp.result['campaign_id']}",
         "status": resp.result["status"],
     }
 
@@ -199,11 +202,7 @@ async def refine_outline_stream(
     return StreamingResponse(
         event_gen(),
         media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "X-Accel-Buffering": "no",
-            "Connection": "keep-alive",
-        },
+        headers=SSE_HEADERS,
     )
 
 

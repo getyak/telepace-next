@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from collections.abc import AsyncIterator
 
+from core.constants import MOCK_TTS_SILENCE_FRAMES
+
 # ~26 ms of MPEG-1 Layer III silence at 44.1 kHz mono, 128 kbps.
 # Repeated ~20x gives roughly 500 ms of audio bytes for the client.
 # Frame header + zeroed payload; every real MP3 decoder tolerates this.
@@ -11,13 +13,12 @@ _MP3_SILENCE_FRAME = (
     b"\xff\xfb\x90\x64"  # MPEG-1 Layer III, 128 kbps, 44.1 kHz, mono
     + b"\x00" * 414  # frame payload (silence)
 )
-_FRAMES_FOR_500MS = 20
 
 
 class MockTTS:
     """Offline TTS that emits a short MP3 silence stream."""
 
-    def __init__(self, chunk_frames: int = _FRAMES_FOR_500MS) -> None:
+    def __init__(self, chunk_frames: int = MOCK_TTS_SILENCE_FRAMES) -> None:
         self._chunk_frames = chunk_frames
 
     async def synthesize(

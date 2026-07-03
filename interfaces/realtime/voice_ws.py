@@ -38,7 +38,7 @@ def _build_stt(state: AppState) -> tuple[STT, str]:
         return (
             DeepgramSTT(
                 api_key=s.deepgram_api_key,
-                encoding="opus",
+                encoding=s.deepgram_encoding,
                 sample_rate=s.deepgram_sample_rate_hz,
                 model=s.deepgram_model,
                 language=s.deepgram_language,
@@ -91,19 +91,20 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
     stt, stt_name = _build_stt(state)
     tts, tts_name = _build_tts(state)
 
+    settings = state.settings
     await state.event_store.append(
         RespondentJoined(
             campaign_id=campaign_id,
-            actor=f"respondent:{respondent_id}",
+            actor=f"{settings.actor_prefix_respondent}:{respondent_id}",
             interview_id=interview_id,
             respondent_id=respondent_id,
-            channel="web_voice",
+            channel=ChannelKind.WEB_VOICE.value,
         )
     )
     await _drain_send_json(
         websocket,
         {
-            "type": "hello",
+            "type": VoiceWSMessage.HELLO,
             "interview_id": str(interview_id),
             "respondent_id": str(respondent_id),
             "stt": stt_name,
@@ -111,7 +112,7 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
         },
     )
 
-    audio_queue: asyncio.Queue[bytes | None] = asyncio.Queue(maxsize=256)
+    audio_queue: asyncio.Queue[bytes | None] = asyncio.Queue(maxsize=VOICE_AUDIO_QUEUE_MAX)
 
     async def _audio_iter() -> AsyncIterator[bytes]:
         while True:
@@ -143,7 +144,7 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
         await state.event_store.append(
             RespondentAudioTurn(
                 campaign_id=campaign_id,
-                actor=f"respondent:{respondent_id}",
+                actor=f"{settings.actor_prefix_respondent}:{respondent_id}",
                 interview_id=interview_id,
                 transcript=transcript.text,
                 confidence=transcript.confidence,
@@ -154,7 +155,7 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
 
         # 2. Harness turn (reuses existing text-mode command shape).
         cmd = ReplyInInterview(
-            actor=f"respondent:{respondent_id}",
+            actor=f"{settings.actor_prefix_respondent}:{respondent_id}",
             campaign_id=campaign_id,
             interview_id=interview_id,
             text=transcript.text,
@@ -162,7 +163,7 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
         resp = await harness.handle(cmd)
         if not resp.ok:
             await _drain_send_json(
-                websocket, {"type": "error", "reason": resp.reason}
+                websocket, {"type": VoiceWSMessage.ERROR, "reason": resp.reason}
             )
             return
 
@@ -170,21 +171,24 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
         if isinstance(resp.result, dict):
             reply_text = str(resp.result.get("text") or "")
         if not reply_text:
-            await _drain_send_json(websocket, {"type": "error", "reason": "empty_reply"})
+            await _drain_send_json(
+                websocket,
+                {"type": VoiceWSMessage.ERROR, "reason": ErrorMessages.VOICE_EMPTY_REPLY},
+            )
             return
 
         # 3. Broadcast the caption so the UI can show text alongside audio.
         await _drain_send_json(
             websocket,
             {
-                "type": "interviewer_turn",
+                "type": VoiceWSMessage.INTERVIEWER_TURN,
                 "text": reply_text,
                 "kind": resp.result.get("kind") if isinstance(resp.result, dict) else None,
             },
         )
 
         # 4. Stream TTS bytes.
-        await _drain_send_json(websocket, {"type": "tts_start"})
+        await _drain_send_json(websocket, {"type": VoiceWSMessage.TTS_START})
         try:
             async for audio_chunk in tts.synthesize(reply_text):
                 try:
@@ -193,10 +197,14 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
                     return
         except Exception as exc:
             await _drain_send_json(
-                websocket, {"type": "error", "reason": f"tts_failed:{exc!r}"}
+                websocket,
+                {
+                    "type": VoiceWSMessage.ERROR,
+                    "reason": ErrorMessages.VOICE_TTS_FAILED.format(exc=repr(exc)),
+                },
             )
             return
-        await _drain_send_json(websocket, {"type": "tts_end"})
+        await _drain_send_json(websocket, {"type": VoiceWSMessage.TTS_END})
 
     async def _stt_task() -> None:
         try:
@@ -204,18 +212,22 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
                 if not tr.is_final:
                     await _drain_send_json(
                         websocket,
-                        {"type": "stt_delta", "text": tr.text, "is_final": False},
+                        {"type": VoiceWSMessage.STT_DELTA, "text": tr.text, "is_final": False},
                     )
                     continue
                 await _drain_send_json(
                     websocket,
-                    {"type": "stt_delta", "text": tr.text, "is_final": True},
+                    {"type": VoiceWSMessage.STT_DELTA, "text": tr.text, "is_final": True},
                 )
                 if tr.text.strip():
                     await _handle_final(tr)
         except Exception as exc:
             await _drain_send_json(
-                websocket, {"type": "error", "reason": f"stt_failed:{exc!r}"}
+                websocket,
+                {
+                    "type": VoiceWSMessage.ERROR,
+                    "reason": ErrorMessages.VOICE_STT_FAILED.format(exc=repr(exc)),
+                },
             )
 
     recv_task = asyncio.create_task(_receive_audio_task())

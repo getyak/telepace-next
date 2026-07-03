@@ -6,17 +6,26 @@ import re
 from typing import Any
 from uuid import UUID
 
+from core.constants import ESCALATION_HIGH_KEYWORDS, ESCALATION_MEDIUM_KEYWORDS
 from core.events import EscalationTriggered
 from harness.policies.base import Policy, PolicyDecision
 
-_HIGH_SIGNALS = re.compile(
-    r"\b(lawsuit|complain|refund|angry|hate|scam|report you|抱怨|投诉|退款|气死|骗子)\b",
-    re.IGNORECASE,
-)
-_MEDIUM_SIGNALS = re.compile(
-    r"\b(disappointed|frustrated|confused|不满意|失望|困惑)\b",
-    re.IGNORECASE,
-)
+
+def _compile_keyword_group(keywords: tuple[str, ...]) -> re.Pattern[str]:
+    # Word-boundary anchoring works for ASCII words; CJK keywords match anywhere
+    # because CJK characters are not "word" characters in the regex engine.
+    ascii_kw = [k for k in keywords if k.isascii()]
+    cjk_kw = [k for k in keywords if not k.isascii()]
+    alternatives = []
+    if ascii_kw:
+        alternatives.append(rf"\b(?:{'|'.join(map(re.escape, ascii_kw))})\b")
+    if cjk_kw:
+        alternatives.append(f"(?:{'|'.join(map(re.escape, cjk_kw))})")
+    return re.compile("|".join(alternatives), re.IGNORECASE)
+
+
+_HIGH_SIGNALS = _compile_keyword_group(ESCALATION_HIGH_KEYWORDS)
+_MEDIUM_SIGNALS = _compile_keyword_group(ESCALATION_MEDIUM_KEYWORDS)
 
 
 class EscalationPolicy(Policy):

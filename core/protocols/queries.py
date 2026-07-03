@@ -7,6 +7,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from core.constants import DEFAULT_LIST_LIMIT
 from core.domain.models import CampaignStatus
 
 
@@ -23,7 +24,7 @@ class ListCampaigns(QueryBase):
     type: Literal["list_campaigns"] = "list_campaigns"
     org_id: UUID
     status: CampaignStatus | None = None
-    limit: int = 20
+    limit: int = DEFAULT_LIST_LIMIT
 
 
 class GetCampaignProgress(QueryBase):

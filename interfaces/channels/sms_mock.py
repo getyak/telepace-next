@@ -6,19 +6,18 @@ import json
 import logging
 import os
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 
+from core.constants import DISPATCH_LOG_FILENAMES
 from interfaces.channels.base import DispatchReceipt, Invite
 
 logger = logging.getLogger(__name__)
-
-_DEFAULT_DISPATCH_DIR = "data/dispatched"
 
 
 class MockSMS:
     provider_name = "mock"
 
-    def __init__(self, *, log_dir: str = _DEFAULT_DISPATCH_DIR) -> None:
+    def __init__(self, *, log_dir: str) -> None:
         self._log_dir = log_dir
 
     async def send(self, invite: Invite, body: str) -> DispatchReceipt:
@@ -31,7 +30,11 @@ class MockSMS:
             "body": body,
             "share_url": invite.share_url,
         }
-        with open(os.path.join(self._log_dir, "sms.jsonl"), "a", encoding="utf-8") as f:
+        with open(
+            os.path.join(self._log_dir, DISPATCH_LOG_FILENAMES["sms"]),
+            "a",
+            encoding="utf-8",
+        ) as f:
             f.write(json.dumps(record) + "\n")
         provider_id = uuid.uuid4().hex
         logger.info("MockSMS sent id=%s to=<redacted>", provider_id)

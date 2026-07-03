@@ -11,33 +11,26 @@ import hashlib
 import hmac
 import os
 
-_ALGORITHM = "pbkdf2_sha256"
-_SALT_BYTES = 16
-_HASH_BYTES = 32
-# PBKDF2 iteration count multiplier — each `password_hash_rounds` step is 10k iterations.
-# 12 rounds -> 120_000 iterations (OWASP 2023 recommendation for PBKDF2-SHA256 is >= 600_000,
-# but many small deployments run this at 120k for latency; env var can push it higher).
-_ITERATIONS_PER_ROUND = 10_000
+from core.constants import (
+    PASSWORD_HASH_ALGORITHM,
+    PASSWORD_HASH_BYTES,
+    PASSWORD_SALT_BYTES,
+)
 
 
-def _iterations(rounds: int) -> int:
-    if rounds < 1:
-        raise ValueError("password_hash_rounds must be >= 1")
-    return rounds * _ITERATIONS_PER_ROUND
-
-
-def hash_password(password: str, *, rounds: int) -> str:
+def hash_password(password: str, *, iterations: int) -> str:
     """Return an encoded hash suitable for verify_password."""
     if not password:
         raise ValueError("password must not be empty")
-    salt = os.urandom(_SALT_BYTES)
-    iterations = _iterations(rounds)
+    if iterations < 1:
+        raise ValueError("iterations must be >= 1")
+    salt = os.urandom(PASSWORD_SALT_BYTES)
     digest = hashlib.pbkdf2_hmac(
-        "sha256", password.encode("utf-8"), salt, iterations, dklen=_HASH_BYTES
+        "sha256", password.encode("utf-8"), salt, iterations, dklen=PASSWORD_HASH_BYTES
     )
     return "$".join(
         (
-            _ALGORITHM,
+            PASSWORD_HASH_ALGORITHM,
             str(iterations),
             base64.b64encode(salt).decode("ascii"),
             base64.b64encode(digest).decode("ascii"),
@@ -50,7 +43,7 @@ def verify_password(password: str, encoded: str) -> bool:
     if not encoded:
         return False
     parts = encoded.split("$")
-    if len(parts) != 4 or parts[0] != _ALGORITHM:
+    if len(parts) != 4 or parts[0] != PASSWORD_HASH_ALGORITHM:
         return False
     try:
         iterations = int(parts[1])

@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
+from core.constants import ACTOR_USER, RESPONDENT_PATH_PREFIX
 from core.protocols.commands import CreateCampaign
 from core.protocols.mcp_tools import CreateCampaignInput, CreateCampaignOutput
 
@@ -16,10 +17,11 @@ async def create_campaign(
     org_id: UUID,
     author_id: UUID,
     public_base_url: str,
+    actor_prefix_user: str = ACTOR_USER,
 ) -> dict[str, Any]:
     parsed = CreateCampaignInput.model_validate(input_data)
     cmd = CreateCampaign(
-        actor=f"user:{author_id}",
+        actor=f"{actor_prefix_user}:{author_id}",
         org_id=org_id,
         author_id=author_id,
         title=parsed.title,
@@ -33,7 +35,7 @@ async def create_campaign(
     if not resp.ok:
         raise RuntimeError(f"create_campaign failed: {resp.reason}")
     campaign_id = UUID(resp.result["campaign_id"])
-    share_url = f"{public_base_url.rstrip('/')}/r/{campaign_id}"
+    share_url = f"{public_base_url.rstrip('/')}{RESPONDENT_PATH_PREFIX}{campaign_id}"
     return CreateCampaignOutput(
         campaign_id=campaign_id,
         share_url=share_url,

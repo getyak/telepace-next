@@ -9,6 +9,7 @@ from uuid import UUID
 
 from agents.shared import LLMClient, load_prompt
 from agents.shared.llm import LLMMessage
+from core.constants import INTERVIEWER_ACTION_TEXT_MAX, INTERVIEWER_HISTORY_WINDOW
 from core.domain.models import TurnRole
 from core.events import EventBase, InterviewCompleted, TurnRecorded
 from core.protocols.commands import ReplyInInterview
@@ -55,7 +56,7 @@ class InterviewerAgent:
             {
                 "outline": outline,
                 "coverage": context.get("outline_coverage", {}),
-                "history": history[-20:],
+                "history": history[-INTERVIEWER_HISTORY_WINDOW:],
                 "last_respondent_text": cmd.text,
             },
             ensure_ascii=False,
@@ -125,11 +126,11 @@ class InterviewerAgent:
     def _parse_action(text: str) -> dict[str, Any]:
         m = _ACTION_BLOCK.search(text)
         if not m:
-            return {"kind": "ask", "text": text.strip()[:500]}
+            return {"kind": "ask", "text": text.strip()[:INTERVIEWER_ACTION_TEXT_MAX]}
         try:
             return json.loads(m.group(1))
         except json.JSONDecodeError:
-            return {"kind": "ask", "text": text.strip()[:500]}
+            return {"kind": "ask", "text": text.strip()[:INTERVIEWER_ACTION_TEXT_MAX]}
 
     @staticmethod
     def _parse_uuid(v: Any) -> UUID | None:

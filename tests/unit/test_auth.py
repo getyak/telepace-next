@@ -27,15 +27,15 @@ _AUD = "telepace-api"
 
 
 def test_password_hash_and_verify_roundtrip() -> None:
-    encoded = hash_password("correct horse battery staple", rounds=2)
+    encoded = hash_password("correct horse battery staple", iterations=1_000)
     assert encoded.startswith("pbkdf2_sha256$")
     assert verify_password("correct horse battery staple", encoded)
     assert not verify_password("wrong password", encoded)
 
 
 def test_password_hash_is_salted() -> None:
-    a = hash_password("same-password", rounds=2)
-    b = hash_password("same-password", rounds=2)
+    a = hash_password("same-password", iterations=1_000)
+    b = hash_password("same-password", iterations=1_000)
     assert a != b, "identical passwords must produce different hashes (salt)"
     assert verify_password("same-password", a)
     assert verify_password("same-password", b)
@@ -50,12 +50,12 @@ def test_password_verify_rejects_malformed_encoded() -> None:
 
 def test_password_empty_password_rejected_on_hash() -> None:
     with pytest.raises(ValueError):
-        hash_password("", rounds=2)
+        hash_password("", iterations=1_000)
 
 
-def test_password_invalid_rounds() -> None:
+def test_password_invalid_iterations() -> None:
     with pytest.raises(ValueError):
-        hash_password("x", rounds=0)
+        hash_password("x", iterations=0)
 
 
 def test_jwt_roundtrip_valid_token() -> None:

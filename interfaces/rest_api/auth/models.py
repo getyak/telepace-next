@@ -13,6 +13,14 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from core.constants import (
+    DISPLAY_NAME_MAX,
+    EMAIL_MAX_LEN,
+    EMAIL_MIN_LEN,
+    JWT_TOKEN_TYPE,
+    PASSWORD_MAX_LEN,
+)
+
 # RFC 5322 is too permissive to hand-roll — accept the practical subset used
 # by everyone. Pydantic's EmailStr requires an extra dependency we don't want
 # to pull in yet; the router lowercases and stores emails opaquely.
@@ -22,17 +30,17 @@ _EMAIL_PATTERN = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
 class RegisterRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    email: str = Field(min_length=3, max_length=254, pattern=_EMAIL_PATTERN)
-    password: str = Field(min_length=1, max_length=256)
-    display_name: str | None = Field(default=None, max_length=256)
+    email: str = Field(min_length=EMAIL_MIN_LEN, max_length=EMAIL_MAX_LEN, pattern=_EMAIL_PATTERN)
+    password: str = Field(min_length=1, max_length=PASSWORD_MAX_LEN)
+    display_name: str | None = Field(default=None, max_length=DISPLAY_NAME_MAX)
     org_id: UUID | None = None
 
 
 class LoginRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    email: str = Field(min_length=3, max_length=254, pattern=_EMAIL_PATTERN)
-    password: str = Field(min_length=1, max_length=256)
+    email: str = Field(min_length=EMAIL_MIN_LEN, max_length=EMAIL_MAX_LEN, pattern=_EMAIL_PATTERN)
+    password: str = Field(min_length=1, max_length=PASSWORD_MAX_LEN)
 
 
 class RefreshRequest(BaseModel):
@@ -46,7 +54,7 @@ class TokenResponse(BaseModel):
 
     access_token: str
     refresh_token: str
-    token_type: str = "bearer"
+    token_type: str = JWT_TOKEN_TYPE
     expires_in: int  # access token seconds until expiry
 
 

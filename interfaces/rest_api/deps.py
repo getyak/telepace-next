@@ -54,10 +54,19 @@ class AppState:
 async def build_state() -> AppState:
     settings = get_settings()
 
-    store = PostgresEventStore(settings.database_url)
+    store = PostgresEventStore(
+        settings.database_url,
+        pool_min_size=settings.pg_pool_min_size,
+        pool_max_size=settings.pg_pool_max_size,
+        maintenance_interval_s=settings.event_store_maintenance_interval_s,
+    )
     await store.start()
 
-    pool = await asyncpg.create_pool(settings.database_url, min_size=1, max_size=10)
+    pool = await asyncpg.create_pool(
+        settings.database_url,
+        min_size=settings.pg_pool_min_size,
+        max_size=settings.pg_pool_max_size,
+    )
     async with pool.acquire() as conn:
         await conn.execute(CAMPAIGN_PROJECTION_SQL)
         await conn.execute(USERS_SCHEMA_SQL)
@@ -78,6 +87,7 @@ async def build_state() -> AppState:
         sms=sms_dispatcher,
         phone=phone_dispatcher,
         share_url_base=settings.public_base_url,
+        actor_prefix_agent=settings.actor_prefix_agent,
     )
 
     harness = Harness(
@@ -169,6 +179,8 @@ def _build_email(settings: Settings) -> EmailDispatcher:
             from_address=settings.email_from,
             base_url=settings.resend_base_url,
             timeout=settings.channel_http_timeout_s,
+            retry_attempts=settings.dispatch_retry_attempts,
+            retry_base_delay_s=settings.dispatch_retry_base_delay_s,
         )
     return MockEmail(log_dir=settings.dispatch_log_dir)
 
@@ -187,6 +199,8 @@ def _build_sms(settings: Settings) -> SmsDispatcher:
             from_number=settings.twilio_from,
             base_url=settings.twilio_base_url,
             timeout=settings.channel_http_timeout_s,
+            retry_attempts=settings.dispatch_retry_attempts,
+            retry_base_delay_s=settings.dispatch_retry_base_delay_s,
         )
     return MockSMS(log_dir=settings.dispatch_log_dir)
 
@@ -205,5 +219,7 @@ def _build_phone(settings: Settings) -> PhoneDispatcher:
             phone_number_id=settings.vapi_phone_number_id,
             base_url=settings.vapi_base_url,
             timeout=settings.vapi_call_timeout_s,
+            retry_attempts=settings.dispatch_retry_attempts,
+            retry_base_delay_s=settings.dispatch_retry_base_delay_s,
         )
     return MockPhone(log_dir=settings.dispatch_log_dir)

@@ -72,7 +72,6 @@ def _issue_pair_for(user_id: UUID, org_id: UUID, email: str, settings: Settings)
     return TokenResponse(
         access_token=pair.access_token,
         refresh_token=pair.refresh_token,
-        token_type="bearer",
         expires_in=settings.jwt_access_ttl_seconds,
     )
 
@@ -92,7 +91,7 @@ async def register(
         )
 
     org_id = body.org_id or UUID(settings.default_org_id)
-    encoded = hash_password(body.password, rounds=settings.password_hash_rounds)
+    encoded = hash_password(body.password, iterations=settings.password_pbkdf2_iterations)
     try:
         user = await users.create(
             email=str(body.email),

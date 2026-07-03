@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from agents.shared import load_prompt
+from core.domain.models import ChannelKind
 from core.events import (
     CampaignPublished,
     EventBase,
@@ -19,10 +20,19 @@ if TYPE_CHECKING:
     from harness.orchestrator import Harness
 
 
+_COORDINATOR_ACTOR_SUFFIX = "coordinator"
+
+
 class CoordinatorAgent:
-    def __init__(self, prompt_version: str = "v1") -> None:
+    def __init__(
+        self,
+        prompt_version: str = "v1",
+        *,
+        actor_prefix_agent: str = "agent",
+    ) -> None:
         self._system = load_prompt("coordinator", prompt_version)
         self._adapters: dict[str, Any] = {}
+        self._actor = f"{actor_prefix_agent}:{_COORDINATOR_ACTOR_SUFFIX}"
 
     async def run(
         self, command: Any, context: dict[str, Any], harness: Harness
@@ -43,9 +53,9 @@ class CoordinatorAgent:
             events.append(
                 InviteDispatched(
                     campaign_id=cmd.campaign_id,
-                    actor="agent:coordinator",
+                    actor=self._actor,
                     respondent_id=uuid4(),
-                    channel=str(r.get("channel", "web_text")),
+                    channel=str(r.get("channel", ChannelKind.WEB_TEXT.value)),
                     external_id=r.get("external_ref"),
                 )
             )
@@ -57,8 +67,8 @@ class CoordinatorAgent:
             events=[
                 CampaignPublished(
                     campaign_id=cmd.campaign_id,
-                    actor="agent:coordinator",
-                    channels=["web_text"],
+                    actor=self._actor,
+                    channels=[ChannelKind.WEB_TEXT.value],
                 )
             ],
             response={"status": "live"},
@@ -70,7 +80,7 @@ class CoordinatorAgent:
             events=[
                 NotificationSent(
                     campaign_id=cmd.campaign_id,
-                    actor="agent:coordinator",
+                    actor=self._actor,
                     to=cmd.config.get("target", ""),
                     channel=cmd.destination,
                     subject="insights pushed",

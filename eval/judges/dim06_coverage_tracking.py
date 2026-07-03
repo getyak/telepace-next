@@ -6,6 +6,7 @@ Missing outline -> 0 with a "no evidence" flag.
 
 from __future__ import annotations
 
+from core.constants import RUBRIC_SCORE_MAX
 from eval.judges.types import RubricEvidence, Score
 
 
@@ -21,7 +22,7 @@ async def judge(evidence: RubricEvidence) -> Score:
             evidence_pointer=f"eval/results/{evidence.scenario_id}.json#outline_goals",
         )
     covered_set = set(covered) & set(goals)
-    score = 12.0 * len(covered_set) / len(goals)
+    score = RUBRIC_SCORE_MAX * len(covered_set) / len(goals)
     return Score(
         dim=6,
         scenario_id=evidence.scenario_id,

@@ -13,6 +13,21 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
+from core.constants import (
+    BRAND_SIGNATURE,
+    DEFAULT_OUTLINE_DURATION_MIN,
+    DISPATCH_EMAIL_BODY_HTML_TPL,
+    DISPATCH_EMAIL_BODY_TEXT_TPL,
+    DISPATCH_EMAIL_GREETING_ANON,
+    DISPATCH_EMAIL_GREETING_NAMED_TPL,
+    DISPATCH_EMAIL_INTRO_FALLBACK_TPL,
+    DISPATCH_EMAIL_SUBJECT_TPL,
+    DISPATCH_PHONE_OPENING_TPL,
+    DISPATCH_SMS_BODY_TPL,
+    DISPATCH_SMS_INTRO_FALLBACK_TPL,
+    PII_HASH_HEX_LEN,
+    PRODUCT_NAME,
+)
 from core.domain.models import ChannelKind
 from core.events import EventBase, InviteDispatched
 from core.protocols.commands import DispatchInvites, InviteInput
@@ -34,42 +49,59 @@ logger = logging.getLogger(__name__)
 def hash_address(address: str) -> str:
     """PII-hygiene: never log raw address; store a truncated SHA-256 instead."""
 
-    return hashlib.sha256(address.encode("utf-8")).hexdigest()[:16]
+    return hashlib.sha256(address.encode("utf-8")).hexdigest()[:PII_HASH_HEX_LEN]
 
 
 def _build_email_content(
-    invite_in: InviteInput, spec_title: str, spec_goal: str, share_url: str
+    invite_in: InviteInput,
+    spec_title: str,
+    spec_goal: str,
+    share_url: str,
+    duration_min: int,
 ) -> tuple[str, str, str]:
-    subject = f"You're invited: {spec_title}"
-    greeting = f"Hi {invite_in.name}," if invite_in.name else "Hi there,"
-    intro = invite_in.personalized_intro or f"We're running a short study: {spec_goal}"
-    body_text = (
-        f"{greeting}\n\n"
-        f"{intro}\n\n"
-        f"It takes ~10 minutes. Start here: {share_url}\n\n"
-        "Thanks,\nThe telepace team"
+    subject = DISPATCH_EMAIL_SUBJECT_TPL.format(spec_title=spec_title)
+    greeting = (
+        DISPATCH_EMAIL_GREETING_NAMED_TPL.format(name=invite_in.name)
+        if invite_in.name
+        else DISPATCH_EMAIL_GREETING_ANON
     )
-    body_html = (
-        f"<p>{greeting}</p>"
-        f"<p>{intro}</p>"
-        f'<p>It takes ~10 minutes. <a href="{share_url}">Start the interview</a>.</p>'
-        "<p>Thanks,<br/>The telepace team</p>"
+    intro = invite_in.personalized_intro or DISPATCH_EMAIL_INTRO_FALLBACK_TPL.format(
+        spec_goal=spec_goal
+    )
+    body_text = DISPATCH_EMAIL_BODY_TEXT_TPL.format(
+        greeting=greeting,
+        intro=intro,
+        duration_min=duration_min,
+        share_url=share_url,
+        brand_signature=BRAND_SIGNATURE,
+    )
+    body_html = DISPATCH_EMAIL_BODY_HTML_TPL.format(
+        greeting=greeting,
+        intro=intro,
+        duration_min=duration_min,
+        share_url=share_url,
+        brand_signature=BRAND_SIGNATURE,
     )
     return subject, body_html, body_text
 
 
-def _build_sms_body(invite_in: InviteInput, spec_title: str, share_url: str) -> str:
-    intro = invite_in.personalized_intro or f"Quick research on {spec_title}"
-    return f"{intro} Join in ~10 min: {share_url}"
+def _build_sms_body(
+    invite_in: InviteInput, spec_title: str, share_url: str, duration_min: int
+) -> str:
+    intro = invite_in.personalized_intro or DISPATCH_SMS_INTRO_FALLBACK_TPL.format(
+        spec_title=spec_title
+    )
+    return DISPATCH_SMS_BODY_TPL.format(
+        intro=intro, duration_min=duration_min, share_url=share_url
+    )
 
 
 def _build_opening_line(invite_in: InviteInput, spec_title: str) -> str:
     if invite_in.personalized_intro:
         return invite_in.personalized_intro
-    name = f" {invite_in.name}" if invite_in.name else ""
-    return (
-        f"Hi{name}, this is telepace calling about {spec_title}. "
-        "Do you have a few minutes?"
+    name_suffix = f" {invite_in.name}" if invite_in.name else ""
+    return DISPATCH_PHONE_OPENING_TPL.format(
+        name_suffix=name_suffix, brand=PRODUCT_NAME, spec_title=spec_title
     )
 
 
@@ -81,6 +113,8 @@ class DispatchHandler:
     sms: SmsDispatcher | None = None
     phone: PhoneDispatcher | None = None
     share_url_base: str = ""
+    actor_prefix_agent: str = "agent"
+    outline_duration_min: int = DEFAULT_OUTLINE_DURATION_MIN
 
     async def run(
         self,
@@ -96,9 +130,11 @@ class DispatchHandler:
         assert command.campaign_id is not None
 
         spec = self._extract_spec(context)
-        spec_title = spec.get("title") or "our study"
-        spec_goal = spec.get("goal") or "understand your experience"
-        share_url = f"{self.share_url_base.rstrip('/')}/r/{command.campaign_id}"
+        spec_title = spec.get("title") or DISPATCH_SPEC_TITLE_FALLBACK
+        spec_goal = spec.get("goal") or DISPATCH_SPEC_GOAL_FALLBACK
+        share_url = (
+            f"{self.share_url_base.rstrip('/')}{RESPONDENT_PATH_PREFIX}{command.campaign_id}"
+        )
 
         events: list[EventBase] = []
         sent = 0
@@ -122,7 +158,7 @@ class DispatchHandler:
             events.append(
                 InviteDispatched(
                     campaign_id=command.campaign_id,
-                    actor="agent:dispatch",
+                    actor=f"{self.actor_prefix_agent}:dispatch",
                     respondent_id=recipient_id,
                     channel=inv.channel.value,
                     provider=receipt.provider,
@@ -164,10 +200,10 @@ class DispatchHandler:
                         ok=False,
                         provider="none",
                         provider_id=None,
-                        error="no email dispatcher configured",
+                        error=ErrorMessages.NO_EMAIL_DISPATCHER,
                     )
                 subject, html, text = _build_email_content(
-                    inv, spec_title, spec_goal, invite.share_url
+                    inv, spec_title, spec_goal, invite.share_url, self.outline_duration_min
                 )
                 return await self.email.send(invite, subject, html, text)
             if inv.channel == ChannelKind.SMS:
@@ -176,9 +212,11 @@ class DispatchHandler:
                         ok=False,
                         provider="none",
                         provider_id=None,
-                        error="no sms dispatcher configured",
+                        error=ErrorMessages.NO_SMS_DISPATCHER,
                     )
-                body = _build_sms_body(inv, spec_title, invite.share_url)
+                body = _build_sms_body(
+                    inv, spec_title, invite.share_url, self.outline_duration_min
+                )
                 return await self.sms.send(invite, body)
             if inv.channel == ChannelKind.PHONE_OUTBOUND:
                 if self.phone is None:
@@ -186,7 +224,7 @@ class DispatchHandler:
                         ok=False,
                         provider="none",
                         provider_id=None,
-                        error="no phone dispatcher configured",
+                        error=ErrorMessages.NO_PHONE_DISPATCHER,
                     )
                 opening = _build_opening_line(inv, spec_title)
                 return await self.phone.place_call(invite, opening, campaign_id)

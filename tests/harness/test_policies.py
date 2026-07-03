@@ -133,16 +133,14 @@ async def test_escalation_medium_severity_signals(text: str) -> None:
     assert d.events[0].severity == "medium"
 
 
-async def test_escalation_chinese_keywords_not_matched_by_word_boundary() -> None:
-    """Known limitation: \\b does not detect word boundaries around CJK glyphs,
-    so the CJK entries in the escalation regexes are effectively unreachable
-    unless surrounded by ASCII whitespace/punctuation the regex engine treats
-    as a boundary. This test locks that behaviour so a fix is a deliberate
-    breaking change rather than a silent regression."""
+async def test_escalation_chinese_keywords_match_via_split_pattern() -> None:
+    """CJK keywords bypass \\b (which does not fire on CJK boundaries) via a
+    separate alternation branch. Verifies the CJK entries in the escalation
+    keyword lists are actually reachable inside CJK text."""
     d = await EscalationPolicy().allow(_reply("很失望", cid=uuid4()), {})
-    assert d.events == []
+    assert d.events and d.events[0].severity == "medium"
     d2 = await EscalationPolicy().allow(_reply("投诉你们客服", cid=uuid4()), {})
-    assert d2.events == []
+    assert d2.events and d2.events[0].severity == "high"
 
 
 async def test_escalation_ignores_neutral_text() -> None:

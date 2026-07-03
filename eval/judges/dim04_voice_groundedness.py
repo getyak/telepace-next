@@ -8,6 +8,7 @@ respondent.
 
 from __future__ import annotations
 
+from core.constants import GROUNDEDNESS_MIN_KEYWORD_LEN, RUBRIC_SCORE_MAX
 from eval.judges._llm_judge import LLMJudgeRequest, run_llm_judge
 from eval.judges.types import RubricEvidence, Score
 
@@ -32,17 +33,17 @@ def _deterministic_groundedness(transcript: list[dict]) -> tuple[float, str]:
         role = turn.get("role", "")
         text = (turn.get("text") or "").lower()
         if role == "respondent":
-            prev_respondent_words = {w for w in text.split() if len(w) >= 4}
+            prev_respondent_words = {w for w in text.split() if len(w) >= GROUNDEDNESS_MIN_KEYWORD_LEN}
             continue
         if role == "interviewer":
             interviewer_turns += 1
-            words = {w for w in text.split() if len(w) >= 4}
+            words = {w for w in text.split() if len(w) >= GROUNDEDNESS_MIN_KEYWORD_LEN}
             if prev_respondent_words and words & prev_respondent_words:
                 grounded_turns += 1
     if interviewer_turns == 0:
         return 0.0, "no interviewer turns to grade"
     ratio = grounded_turns / interviewer_turns
-    score = round(12.0 * ratio, 1)
+    score = round(RUBRIC_SCORE_MAX * ratio, 1)
     return score, (
         f"deterministic fallback: {grounded_turns}/{interviewer_turns} "
         f"interviewer turns quote respondent keywords"

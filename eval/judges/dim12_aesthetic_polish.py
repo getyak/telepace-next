@@ -6,6 +6,15 @@ and accessibility on qualitative screenshots + notes.
 
 from __future__ import annotations
 
+from core.constants import (
+    DIM12_SCORE_HIGH,
+    DIM12_SCORE_LOW,
+    DIM12_SCORE_MID,
+    DIM12_SCORE_MIN_NONZERO,
+    DIM12_SHOTS_TIER_HIGH,
+    DIM12_SHOTS_TIER_LOW,
+    DIM12_SHOTS_TIER_MID,
+)
 from eval.judges._llm_judge import LLMJudgeRequest, run_llm_judge
 from eval.judges.types import RubricEvidence, Score
 
@@ -47,14 +56,14 @@ async def judge(evidence: RubricEvidence) -> Score:
     if result.score == 0.0 and "exhausted retries" in result.rationale:
         n_shots = len(evidence.ui_screenshots or [])
         violations = evidence.a11y_violations or 0
-        if n_shots >= 20 and violations == 0:
-            score = 12.0
-        elif n_shots >= 10 and violations == 0:
-            score = 9.0
-        elif n_shots >= 5:
-            score = 6.0
+        if n_shots >= DIM12_SHOTS_TIER_HIGH and violations == 0:
+            score = DIM12_SCORE_HIGH
+        elif n_shots >= DIM12_SHOTS_TIER_MID and violations == 0:
+            score = DIM12_SCORE_MID
+        elif n_shots >= DIM12_SHOTS_TIER_LOW:
+            score = DIM12_SCORE_LOW
         else:
-            score = 3.0
+            score = DIM12_SCORE_MIN_NONZERO
         return Score(
             dim=12,
             scenario_id=evidence.scenario_id,

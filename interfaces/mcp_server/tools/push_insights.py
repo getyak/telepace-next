@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
+from core.constants import ACTOR_USER
 from core.protocols.commands import PushInsights
 from core.protocols.mcp_tools import PushInsightsInput, PushInsightsOutput
 
@@ -14,11 +15,12 @@ async def push_insights(
     *,
     harness: Any,
     author_id: UUID,
+    actor_prefix_user: str = ACTOR_USER,
     **_: Any,
 ) -> dict[str, Any]:
     parsed = PushInsightsInput.model_validate(input_data)
     cmd = PushInsights(
-        actor=f"user:{author_id}",
+        actor=f"{actor_prefix_user}:{author_id}",
         campaign_id=parsed.campaign_id,
         destination=parsed.destination,
         config=parsed.config,

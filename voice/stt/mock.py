@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 from collections.abc import AsyncIterator
 
+from core.constants import MOCK_STT_INTERVAL_S, MOCK_STT_TEXT
 from voice.stt.base import Transcript
 
 
@@ -14,7 +15,9 @@ class MockSTT:
     Used when TELEPACE_DEEPGRAM_API_KEY is unset (CI, local dev).
     """
 
-    def __init__(self, interval_s: float = 3.0, text: str = "hello") -> None:
+    def __init__(
+        self, interval_s: float = MOCK_STT_INTERVAL_S, text: str = MOCK_STT_TEXT
+    ) -> None:
         self._interval_s = interval_s
         self._text = text
 

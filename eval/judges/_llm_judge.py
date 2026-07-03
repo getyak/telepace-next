@@ -13,6 +13,15 @@ from dataclasses import dataclass
 from typing import Any
 
 from agents.shared.llm import LLMMessage, LLMResponse, MockLLM, OpenRouterLLM
+from core.constants import (
+    JUDGE_FALLBACK_TEMPERATURE,
+    JUDGE_MAX_TOKENS,
+    JUDGE_RETRY_ATTEMPTS,
+    JUDGE_RETRY_BASE_DELAY_S,
+    JUDGE_TEMPERATURE,
+    RUBRIC_SCORE_MAX,
+    RUBRIC_SCORE_MIN,
+)
 from eval.judges.types import Score
 
 _SYSTEM = (
@@ -58,7 +67,7 @@ def _parse_score(resp: LLMResponse) -> tuple[float, str]:
         obj = json.loads(text)
         raw = float(obj.get("score", 0))
         rationale = str(obj.get("rationale", "")).strip() or "(no rationale)"
-        return max(0.0, min(12.0, raw)), rationale
+        return max(RUBRIC_SCORE_MIN, min(RUBRIC_SCORE_MAX, raw)), rationale
     except (json.JSONDecodeError, ValueError, TypeError):
         return 0.0, f"judge returned unparseable output: {text[:120]!r}"
 
@@ -77,7 +86,7 @@ async def _call_once(
     return await client.complete(
         system=system,
         messages=[LLMMessage(role="user", content=user_content)],
-        max_tokens=256,
+        max_tokens=JUDGE_MAX_TOKENS,
         temperature=temperature,
     )
 
@@ -102,9 +111,11 @@ async def run_llm_judge(req: LLMJudgeRequest) -> Score:
     last_err = ""
     # 3 primary attempts, then 1 fallback with stricter prompt + temp bump.
     # Empty '' response is the observed failure — treat as retryable.
-    for attempt in range(3):
+    for attempt in range(JUDGE_RETRY_ATTEMPTS):
         try:
-            resp = await _call_once(client, _SYSTEM, user_content, temperature=0.0)
+            resp = await _call_once(
+                client, _SYSTEM, user_content, temperature=JUDGE_TEMPERATURE
+            )
             if (resp.text or "").strip():
                 score, rationale = _parse_score(resp)
                 return Score(
@@ -117,10 +128,12 @@ async def run_llm_judge(req: LLMJudgeRequest) -> Score:
             last_err = "empty response"
         except Exception as exc:  # pragma: no cover
             last_err = f"{exc.__class__.__name__}: {exc}"
-        await asyncio.sleep(0.5 * (2**attempt))
+        await asyncio.sleep(JUDGE_RETRY_BASE_DELAY_S * (2**attempt))
 
     try:
-        resp = await _call_once(client, _FALLBACK_SYSTEM, user_content, temperature=0.3)
+        resp = await _call_once(
+            client, _FALLBACK_SYSTEM, user_content, temperature=JUDGE_FALLBACK_TEMPERATURE
+        )
         if (resp.text or "").strip():
             score, rationale = _parse_score(resp)
             return Score(

@@ -6,6 +6,7 @@ the seed dataset. Semantic match, not string match.
 
 from __future__ import annotations
 
+from core.constants import GROUNDEDNESS_MIN_KEYWORD_LEN, RUBRIC_SCORE_MAX
 from eval.judges._llm_judge import LLMJudgeRequest, run_llm_judge
 from eval.judges.types import RubricEvidence, Score
 
@@ -26,14 +27,15 @@ def _deterministic_theme_overlap(
     if not expected:
         return 0.0, "expected themes empty"
     exp_words = [
-        {w for w in t.lower().split() if len(w) >= 4} for t in expected
+        {w for w in t.lower().split() if len(w) >= GROUNDEDNESS_MIN_KEYWORD_LEN}
+        for t in expected
     ]
     pred_text = " ".join(predicted).lower()
     hits = sum(
         1 for words in exp_words if words and any(w in pred_text for w in words)
     )
     ratio = hits / len(expected)
-    return round(12.0 * ratio, 1), (
+    return round(RUBRIC_SCORE_MAX * ratio, 1), (
         f"deterministic fallback: {hits}/{len(expected)} expected themes "
         f"have keyword overlap in predicted set"
     )

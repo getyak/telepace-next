@@ -26,7 +26,7 @@ import statistics
 import subprocess
 import sys
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 from eval.judges.types import RubricEvidence, Score
@@ -52,8 +52,14 @@ DIM_MODULES: list[tuple[int, str]] = [
     (12, "eval.judges.dim12_aesthetic_polish"),
 ]
 
-CONCURRENCY = 8
-REGRESSION_THRESHOLD = 1.0  # a dim's score dropping >= 1.0 vs. prior commit = regression
+from core.constants import (
+    SCOREBOARD_CONCURRENCY,
+    SCOREBOARD_FAIL_UNDER,
+    SCOREBOARD_REGRESSION_THRESHOLD,
+)
+
+CONCURRENCY = SCOREBOARD_CONCURRENCY
+REGRESSION_THRESHOLD = SCOREBOARD_REGRESSION_THRESHOLD  # dim drop >= threshold vs. prior commit
 
 
 def discover_scenarios() -> list[str]:
@@ -264,7 +270,7 @@ def render_markdown(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=REPO_ROOT / "docs" / "scoreboard.md")
-    parser.add_argument("--fail-under", type=float, default=10.5)
+    parser.add_argument("--fail-under", type=float, default=SCOREBOARD_FAIL_UNDER)
     parser.add_argument("--verbose", action="store_true")
     args = parser.parse_args(argv)
 

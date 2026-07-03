@@ -6,15 +6,16 @@ Deterministic. Score = 2.4 * len(channels_succeeded); five channels
 
 from __future__ import annotations
 
+from core.constants import DIM05_PER_CHANNEL_WEIGHT, RUBRIC_CHANNELS, RUBRIC_SCORE_MAX
 from eval.judges.types import RubricEvidence, Score
 
-CHANNELS = {"link", "email", "sms", "outbound-call", "inbound-hotline"}
+CHANNELS = set(RUBRIC_CHANNELS)
 
 
 async def judge(evidence: RubricEvidence) -> Score:
     succeeded = set(evidence.channels_succeeded or []) & CHANNELS
     n = len(succeeded)
-    score = min(12.0, 2.4 * n)
+    score = min(RUBRIC_SCORE_MAX, DIM05_PER_CHANNEL_WEIGHT * n)
     attempted = set(evidence.channels_attempted or []) & CHANNELS
     return Score(
         dim=5,

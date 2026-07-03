@@ -29,13 +29,17 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     settings = get_settings()
-    application = FastAPI(title="telepace API", version="0.1.0", lifespan=lifespan)
+    application = FastAPI(
+        title=settings.api_title,
+        version=settings.api_version_string,
+        lifespan=lifespan,
+    )
     application.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_allow_origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_credentials=settings.cors_allow_credentials,
+        allow_methods=settings.cors_allow_methods,
+        allow_headers=settings.cors_allow_headers,
     )
     application.include_router(health.router)
     application.include_router(auth_router)

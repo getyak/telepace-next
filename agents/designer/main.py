@@ -9,6 +9,7 @@ from uuid import uuid4
 
 from agents.shared import LLMClient, load_prompt
 from agents.shared.llm import LLMMessage
+from core.constants import SPEC_UPDATE_REASON_MAX
 from core.domain.models import CampaignStatus
 from core.events import EventBase, SpecUpdated, StudyDrafted
 from core.protocols.commands import CreateCampaign, RefineOutline, spec_from_create
@@ -107,7 +108,7 @@ class DesignerAgent:
                 campaign_id=cmd.campaign_id,
                 actor="agent:designer",
                 patch=patch,
-                reason=cmd.instruction[:200],
+                reason=cmd.instruction[:SPEC_UPDATE_REASON_MAX],
             )
         ]
         return AgentResult(

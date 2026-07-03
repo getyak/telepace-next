@@ -6,8 +6,18 @@ import re
 from typing import Any
 from uuid import UUID
 
+from core.constants import (
+    REDACTION_TOKEN_EMAIL,
+    REDACTION_TOKEN_ID,
+    REDACTION_TOKEN_PHONE,
+)
 from core.events import PIIRedacted
 from harness.policies.base import Policy, PolicyDecision
+
+# Field labels reported in the PIIRedacted event.
+_FIELD_EMAIL = "email"
+_FIELD_PHONE = "phone"
+_FIELD_CN_ID = "cn_id"
 
 _EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
 _PHONE = re.compile(r"(?:\+?\d[\d\s\-]{7,}\d)")
@@ -17,14 +27,14 @@ _CN_ID = re.compile(r"\d{17}[\dXx]")
 def redact(text: str) -> tuple[str, list[str]]:
     fields: list[str] = []
     if _EMAIL.search(text):
-        fields.append("email")
-        text = _EMAIL.sub("[email]", text)
+        fields.append(_FIELD_EMAIL)
+        text = _EMAIL.sub(REDACTION_TOKEN_EMAIL, text)
     if _PHONE.search(text):
-        fields.append("phone")
-        text = _PHONE.sub("[phone]", text)
+        fields.append(_FIELD_PHONE)
+        text = _PHONE.sub(REDACTION_TOKEN_PHONE, text)
     if _CN_ID.search(text):
-        fields.append("cn_id")
-        text = _CN_ID.sub("[id]", text)
+        fields.append(_FIELD_CN_ID)
+        text = _CN_ID.sub(REDACTION_TOKEN_ID, text)
     return text, fields
 
 

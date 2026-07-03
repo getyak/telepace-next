@@ -7,6 +7,7 @@ from collections.abc import AsyncIterator, Awaitable, Callable
 from dataclasses import dataclass
 from uuid import UUID
 
+from core.constants import EVENT_READ_DEFAULT_LIMIT
 from core.events import EventBase
 
 
@@ -30,7 +31,9 @@ class EventStore(ABC):
     async def read_stream(self, campaign_id: UUID) -> list[StoredEvent]: ...
 
     @abstractmethod
-    async def read_from(self, seq: int, limit: int = 500) -> list[StoredEvent]: ...
+    async def read_from(
+        self, seq: int, limit: int = EVENT_READ_DEFAULT_LIMIT
+    ) -> list[StoredEvent]: ...
 
     @abstractmethod
     async def subscribe(self, subscriber: EventSubscriber) -> None:

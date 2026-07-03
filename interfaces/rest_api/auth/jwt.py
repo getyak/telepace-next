@@ -12,6 +12,8 @@ from uuid import UUID
 
 import jwt
 
+from core.constants import JWT_TYP_ACCESS, JWT_TYP_REFRESH
+
 
 class TokenError(Exception):
     """Raised when a token cannot be verified or its claims are invalid."""
@@ -66,7 +68,7 @@ def issue_token_pair(
         "exp": int(access_exp.timestamp()),
         "iss": issuer,
         "aud": audience,
-        "typ": "access",
+        "typ": JWT_TYP_ACCESS,
     }
     refresh_claims = {
         "sub": str(user_id),
@@ -74,7 +76,7 @@ def issue_token_pair(
         "exp": int(refresh_exp.timestamp()),
         "iss": issuer,
         "aud": audience,
-        "typ": "refresh",
+        "typ": JWT_TYP_REFRESH,
     }
     access = jwt.encode(access_claims, secret, algorithm=algorithm)
     refresh = jwt.encode(refresh_claims, secret, algorithm=algorithm)
@@ -108,7 +110,7 @@ def decode_access_token(
     except jwt.InvalidTokenError as exc:
         raise TokenError(f"invalid token: {exc}") from exc
 
-    if payload.get("typ") != "access":
+    if payload.get("typ") != JWT_TYP_ACCESS:
         raise TokenError("wrong token type")
 
     try:
@@ -151,7 +153,7 @@ def decode_refresh_token(
     except jwt.InvalidTokenError as exc:
         raise TokenError(f"invalid refresh token: {exc}") from exc
 
-    if payload.get("typ") != "refresh":
+    if payload.get("typ") != JWT_TYP_REFRESH:
         raise TokenError("wrong token type")
     try:
         return UUID(payload["sub"])

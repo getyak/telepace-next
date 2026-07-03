@@ -6,6 +6,7 @@ whole run — events, prompts, costs, latencies — without diving into raw logs
 
 from __future__ import annotations
 
+from core.constants import DIM11_EVENT_SAMPLE
 from eval.judges._llm_judge import LLMJudgeRequest, run_llm_judge
 from eval.judges.types import RubricEvidence, Score
 
@@ -29,7 +30,7 @@ async def judge(evidence: RubricEvidence) -> Score:
             rationale="no evidence: events list not populated",
             evidence_pointer=f"eval/results/{evidence.scenario_id}.json#events",
         )
-    sample = evidence.events[:50]
+    sample = evidence.events[:DIM11_EVENT_SAMPLE]
     payload = {
         "event_count": len(evidence.events),
         "sample_events": sample,

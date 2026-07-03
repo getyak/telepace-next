@@ -14,6 +14,14 @@ import struct
 from collections import deque
 from typing import Protocol
 
+from core.constants import (
+    DEFAULT_SAMPLE_RATE_HZ,
+    VAD_FRAME_MS,
+    VAD_SILENCE_HANGOVER_MS,
+    VAD_SILENCE_THRESHOLD,
+    VAD_WINDOW_MS,
+)
+
 
 class VAD(Protocol):
     def push(self, pcm_bytes: bytes) -> bool:  # pragma: no cover - protocol
@@ -26,11 +34,11 @@ class EnergyVAD:
     def __init__(
         self,
         *,
-        sample_rate: int = 16000,
-        frame_ms: int = 30,
-        window_ms: int = 300,
-        silence_hangover_ms: int = 500,
-        silence_threshold: float = 500.0,  # int16 RMS; empirical ~mic noise floor
+        sample_rate: int = DEFAULT_SAMPLE_RATE_HZ,
+        frame_ms: int = VAD_FRAME_MS,
+        window_ms: int = VAD_WINDOW_MS,
+        silence_hangover_ms: int = VAD_SILENCE_HANGOVER_MS,
+        silence_threshold: float = VAD_SILENCE_THRESHOLD,  # int16 RMS; ~mic noise floor
     ) -> None:
         self._sample_rate = sample_rate
         self._samples_per_frame = int(sample_rate * frame_ms / 1000)

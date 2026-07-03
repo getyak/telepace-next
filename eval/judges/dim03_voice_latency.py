@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import statistics
 
+from core.constants import DIM03_BAD_MS, DIM03_GOOD_MS
 from eval.judges._util import linear_falloff
 from eval.judges.types import RubricEvidence, Score
 
@@ -23,12 +24,14 @@ async def judge(evidence: RubricEvidence) -> Score:
             evidence_pointer=f"eval/results/{evidence.scenario_id}.json#end_of_speech_to_tts_ms",
         )
     p50 = float(statistics.median(samples))
-    score = linear_falloff(p50, good=800.0, bad=2500.0)
+    score = linear_falloff(p50, good=DIM03_GOOD_MS, bad=DIM03_BAD_MS)
     return Score(
         dim=3,
         scenario_id=evidence.scenario_id,
         score=score,
-        rationale=f"P50 end-of-speech->TTS = {p50:.0f}ms across {len(samples)} turns "
-        f"(target <=800ms, floor at 2500ms)",
+        rationale=(
+            f"P50 end-of-speech->TTS = {p50:.0f}ms across {len(samples)} turns "
+            f"(target <={DIM03_GOOD_MS:g}ms, floor at {DIM03_BAD_MS:g}ms)"
+        ),
         evidence_pointer=f"eval/results/{evidence.scenario_id}.json#end_of_speech_to_tts_ms",
     )
