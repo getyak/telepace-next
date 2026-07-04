@@ -171,7 +171,7 @@ class Settings(BaseSettings):
     event_store_maintenance_interval_s: int = 60 * 60
 
     # --- Agent LLM tuning (max_tokens / temperature per agent)
-    designer_max_tokens: int = 1500
+    designer_max_tokens: int = 4000
     designer_temperature: float = 0.3
     interviewer_max_tokens: int = 800
     interviewer_temperature: float = 0.5

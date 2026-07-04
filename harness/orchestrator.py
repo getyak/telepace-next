@@ -87,6 +87,16 @@ class Harness:
 
             if result.state_delta:
                 cid = self._campaign_id_of(command)
+                if cid is None:
+                    # Fresh-create commands (e.g. CreateCampaign) don't carry a
+                    # campaign_id; the agent minted one and put it into its
+                    # produced events. Grab the first event's campaign_id so
+                    # state_delta (spec / org_id) still gets written.
+                    for ev in result.events:
+                        ev_cid = getattr(ev, "campaign_id", None)
+                        if isinstance(ev_cid, UUID):
+                            cid = ev_cid
+                            break
                 if cid is not None:
                     await self._memory.update(cid, result.state_delta)
 

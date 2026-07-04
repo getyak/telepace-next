@@ -12,7 +12,7 @@ from agents.analyst import AnalystAgent
 from agents.coordinator import CoordinatorAgent
 from agents.designer import DesignerAgent
 from agents.interviewer import InterviewerAgent
-from agents.shared import AnthropicLLM, MockLLM, OpenRouterLLM
+from agents.shared import build_llm_from_settings
 from harness import (
     BudgetPolicy,
     EscalationPolicy,
@@ -49,6 +49,8 @@ class AppState:
     sms_dispatcher: SmsDispatcher
     phone_dispatcher: PhoneDispatcher
     users_repo: UsersRepo | None
+    llm: object = None  # LLMClient — used by ad-hoc endpoints (e.g. simulate)
+    memory: object = None  # HarnessMemory — used to hydrate projection sync
 
 
 async def build_state() -> AppState:
@@ -76,7 +78,7 @@ async def build_state() -> AppState:
     redis_client = redis.from_url(settings.redis_url, decode_responses=False)
     memory = RedisMemory(redis_client, ttl_seconds=settings.memory_ttl_seconds)
 
-    llm = _build_llm(settings)
+    llm = build_llm_from_settings(settings, strict=True)
 
     email_dispatcher = _build_email(settings)
     sms_dispatcher = _build_sms(settings)
@@ -136,6 +138,8 @@ async def build_state() -> AppState:
         sms_dispatcher=sms_dispatcher,
         phone_dispatcher=phone_dispatcher,
         users_repo=users_repo,
+        llm=llm,
+        memory=memory,
     )
 
 
@@ -153,22 +157,6 @@ def get_projector(request: Request) -> CampaignProjector:
 
 def get_settings_dep(request: Request) -> Settings:
     return get_state(request).settings
-
-
-def _build_llm(settings: Settings):
-    provider = (settings.llm_provider or "mock").lower()
-    if provider == "openrouter" and settings.openrouter_api_key:
-        return OpenRouterLLM(
-            api_key=settings.openrouter_api_key,
-            base_url=settings.openrouter_base_url,
-            default_model=settings.llm_model_general,
-        )
-    if provider == "anthropic" and settings.anthropic_api_key:
-        return AnthropicLLM(
-            api_key=settings.anthropic_api_key,
-            default_model=settings.anthropic_default_model,
-        )
-    return MockLLM()
 
 
 def _build_email(settings: Settings) -> EmailDispatcher:

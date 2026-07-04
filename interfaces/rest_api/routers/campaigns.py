@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
@@ -12,6 +13,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from agents.designer import DesignerAgent
+from agents.shared.llm import LLMMessage
 from core.constants import (
     API_VERSION_PREFIX,
     DEFAULT_BUDGET_USD,
@@ -41,6 +43,26 @@ from interfaces.rest_api.deps import (
 )
 from interfaces.rest_api.errors import ErrorMessages
 from storage.projections import CampaignProjector
+
+_SIM_JSON_RE = re.compile(r"```json\s*(.*?)\s*```", re.DOTALL)
+
+
+_SIMULATE_SYSTEM = (
+    "You role-play as a research participant answering an interview. "
+    "Stay in character: give concrete, human, specific answers grounded in the "
+    "persona provided. Never break character, never mention that you are an AI. "
+    "Reply ONLY with a single ```json ... ``` block matching this shape:\n"
+    '{"persona_summary": string, "turns": [{"question": string, "answer": string}, ...]}'
+)
+
+
+_SIMULATE_PERSONA_HINTS = [
+    "a busy but articulate professional who gives concrete anecdotes",
+    "someone who is skeptical and hedges, but reveals a strong opinion when probed",
+    "an enthusiastic early adopter who volunteers extra detail",
+    "a quiet, slightly resistant participant who needs warm-up before opening up",
+    "a pragmatic user who weighs cost vs. convenience in every answer",
+]
 
 logger = logging.getLogger(__name__)
 
@@ -75,6 +97,7 @@ class RefineBody(BaseModel):
 @router.post("")
 async def create_campaign(
     body: CreateCampaignBody,
+    request: Request,
     harness: Harness = Depends(get_harness),
     settings: Settings = Depends(get_settings_dep),
     user: AuthUser = Depends(require_current_user),
@@ -93,11 +116,56 @@ async def create_campaign(
     resp = await harness.handle(cmd)
     if not resp.ok:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=resp.reason)
+    # Sync-apply the events we just produced to the campaigns projection so
+    # that a subsequent GET is guaranteed to see the row. The generic
+    # subscribe-loop can't do this alone: StudyDrafted needs org_id + spec,
+    # which live in harness memory populated *after* the event fires.
+    campaign_id_str = resp.result["campaign_id"]
+    campaign_id = UUID(campaign_id_str)
+    await _apply_pending_to_projection(request, campaign_id)
     return {
-        "campaign_id": resp.result["campaign_id"],
-        "share_url": f"{settings.public_base_url.rstrip('/')}{RESPONDENT_PATH_PREFIX}{resp.result['campaign_id']}",
+        "campaign_id": campaign_id_str,
+        "share_url": f"{settings.public_base_url.rstrip('/')}{RESPONDENT_PATH_PREFIX}{campaign_id_str}",
         "status": resp.result["status"],
     }
+
+
+async def _apply_pending_to_projection(request: Request, campaign_id: UUID) -> None:
+    """Read every event for a campaign and idempotently apply it.
+
+    Called after write commands so the caller can immediately GET the
+    projection without a race. Idempotent via ``ON CONFLICT DO NOTHING``
+    on StudyDrafted and last_event_seq guarding on updates.
+    """
+    from core.domain.models import CampaignSpec
+    from core.events import StudyDrafted
+
+    state = get_state(request)
+    stored_events = await state.event_store.read_stream(campaign_id)
+    memory = state.memory
+    ctx: dict = {}
+    if memory is not None:
+        loaded = await memory.load(campaign_id)  # type: ignore[attr-defined]
+        if isinstance(loaded, dict):
+            ctx = loaded
+    spec_dict = ctx.get("spec")
+    org_id_raw = ctx.get("org_id")
+    for stored in stored_events:
+        try:
+            if isinstance(stored.event, StudyDrafted):
+                if not spec_dict or not org_id_raw:
+                    continue
+                spec = CampaignSpec.model_validate(spec_dict)
+                await state.projector.apply(
+                    stored.seq,
+                    stored.event,
+                    initial_spec=spec,
+                    org_id=UUID(str(org_id_raw)),
+                )
+            else:
+                await state.projector.apply(stored.seq, stored.event)
+        except Exception as exc:  # projector is idempotent + append-only
+            logger.warning("projector apply failed seq=%s type=%s: %s", stored.seq, stored.event.type, exc)
 
 
 @router.get("/{campaign_id}")
@@ -130,6 +198,7 @@ async def get_campaign(
 async def refine_outline(
     campaign_id: UUID,
     body: RefineBody,
+    request: Request,
     harness: Harness = Depends(get_harness),
     settings: Settings = Depends(get_settings_dep),
     user: AuthUser = Depends(require_current_user),
@@ -142,6 +211,7 @@ async def refine_outline(
     resp = await harness.handle(cmd)
     if not resp.ok:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=resp.reason)
+    await _apply_pending_to_projection(request, campaign_id)
     return resp.result
 
 
@@ -194,6 +264,7 @@ async def refine_outline_stream(
     async def _persist() -> None:
         try:
             await harness.handle(cmd)
+            await _apply_pending_to_projection(request, campaign_id)
         except Exception:
             logger.exception("post-stream harness.handle failed for %s", campaign_id)
 
@@ -209,6 +280,7 @@ async def refine_outline_stream(
 @router.post("/{campaign_id}/start")
 async def start_campaign(
     campaign_id: UUID,
+    request: Request,
     harness: Harness = Depends(get_harness),
     projector: CampaignProjector = Depends(get_projector),
     settings: Settings = Depends(get_settings_dep),
@@ -221,6 +293,7 @@ async def start_campaign(
     resp = await harness.handle(cmd)
     if not resp.ok:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=resp.reason)
+    await _apply_pending_to_projection(request, campaign_id)
 
     dispatchable: list[str] = []
     campaign = await projector.get_campaign(campaign_id)
@@ -278,3 +351,138 @@ async def dispatch_invites(
     if not resp.ok:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=resp.reason)
     return resp.result
+
+
+class SimulateBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    persona: str | None = Field(
+        default=None,
+        description=(
+            "Optional persona override. If omitted, one is picked from the "
+            "campaign spec's target_persona (fallback: rotating hint)."
+        ),
+    )
+    seed: int | None = Field(
+        default=None,
+        description="Optional seed to vary the rotating persona hint.",
+    )
+
+
+def _parse_simulation(text: str) -> dict[str, Any] | None:
+    if not text:
+        return None
+    m = _SIM_JSON_RE.search(text)
+    candidate = m.group(1).strip() if m else text.strip()
+    try:
+        val = json.loads(candidate)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(val, dict):
+        return None
+    turns = val.get("turns")
+    if not isinstance(turns, list):
+        return None
+    clean_turns: list[dict[str, str]] = []
+    for t in turns:
+        if not isinstance(t, dict):
+            continue
+        q = t.get("question")
+        a = t.get("answer")
+        if isinstance(q, str) and isinstance(a, str) and q.strip() and a.strip():
+            clean_turns.append({"question": q.strip(), "answer": a.strip()})
+    if not clean_turns:
+        return None
+    persona_summary = val.get("persona_summary")
+    return {
+        "persona_summary": persona_summary if isinstance(persona_summary, str) else "",
+        "turns": clean_turns,
+    }
+
+
+@router.post("/{campaign_id}/simulate")
+async def simulate_interview(
+    campaign_id: UUID,
+    body: SimulateBody,
+    request: Request,
+    projector: CampaignProjector = Depends(get_projector),
+    _user: AuthUser = Depends(require_current_user),
+) -> dict:
+    """Ask the LLM to role-play a respondent and answer the current outline.
+
+    Used by the "AI 假想受访者试跑" drawer in the study creation UI. The
+    campaign spec is fetched from the projection; the LLM sees each outline
+    item's question + goal and produces a single JSON of Q/A turns.
+    """
+    campaign = await projector.get_campaign(campaign_id)
+    if campaign is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=ErrorMessages.CAMPAIGN_NOT_FOUND
+        )
+    outline = campaign.spec.outline.items
+    if not outline:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot simulate: outline is empty.",
+        )
+
+    persona = (body.persona or campaign.spec.target_persona or "").strip()
+    if not persona:
+        idx = (body.seed or 0) % len(_SIMULATE_PERSONA_HINTS)
+        persona = _SIMULATE_PERSONA_HINTS[idx]
+
+    outline_json = [
+        {"order": q.order, "question": q.question, "goal": q.goal}
+        for q in outline
+    ]
+    languages = campaign.spec.languages or []
+    language_hint = (
+        f"Answer in the same language(s) as the study: {languages}. "
+        if languages
+        else ""
+    )
+    user_msg = (
+        f"Persona: {persona}\n\n"
+        f"Study goal: {campaign.spec.goal}\n"
+        f"Background: {campaign.spec.background or '(none)'}\n\n"
+        f"{language_hint}"
+        f"Answer these questions IN ORDER as this persona would in a real "
+        f"interview. Be specific, concrete, and honest. Length: 1-3 sentences "
+        f"per answer.\n\n"
+        f"Questions:\n{json.dumps(outline_json, ensure_ascii=False, indent=2)}"
+    )
+
+    state = get_state(request)
+    llm = state.llm
+    if llm is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="LLM unavailable",
+        )
+    try:
+        resp = await llm.complete(  # type: ignore[attr-defined]
+            system=_SIMULATE_SYSTEM,
+            messages=[LLMMessage(role="user", content=user_msg)],
+            max_tokens=state.settings.designer_max_tokens,
+            temperature=0.7,
+        )
+    except Exception as exc:
+        logger.warning("simulate llm call failed: %s", exc)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY, detail=f"LLM error: {exc}"
+        ) from exc
+
+    parsed = _parse_simulation(resp.text)
+    if parsed is None:
+        return {
+            "persona_used": persona,
+            "turns": [],
+            "raw_reply": resp.text,
+            "parse_ok": False,
+        }
+    return {
+        "persona_used": persona,
+        "persona_summary": parsed["persona_summary"],
+        "turns": parsed["turns"],
+        "parse_ok": True,
+    }

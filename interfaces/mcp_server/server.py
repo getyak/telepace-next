@@ -15,7 +15,6 @@ from agents.analyst import AnalystAgent
 from agents.coordinator import CoordinatorAgent
 from agents.designer import DesignerAgent
 from agents.interviewer import InterviewerAgent
-from agents.shared import AnthropicLLM
 from core.constants import PRODUCT_NAME
 from core.protocols.mcp_tools import MCP_TOOL_REGISTRY
 from harness import (
@@ -69,10 +68,7 @@ async def build_harness_and_projector(
     redis_client = redis.from_url(settings.redis_url, decode_responses=False)
     memory = RedisMemory(redis_client, ttl_seconds=settings.memory_ttl_seconds)
 
-    llm = AnthropicLLM(
-        api_key=settings.anthropic_api_key,
-        default_model=settings.anthropic_default_model,
-    )
+    llm = build_llm_from_settings(settings, strict=True)
 
     agents = {
         "designer": DesignerAgent(

@@ -35,3 +35,6 @@ frontend/**/tsconfig.tsbuildinfo
 # Data
 data/
 *.duckdb
+
+# Playwright MCP debug artifacts
+.playwright-mcp/

@@ -1,12 +1,20 @@
-"""LLM client abstraction. Anthropic Claude primary, mock for tests."""
+"""LLM client abstraction. OpenRouter/Anthropic primary, mock for tests."""
 
 from __future__ import annotations
 
 import json
+from collections.abc import AsyncIterator
 from dataclasses import dataclass
-from typing import Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from core.constants import DEFAULT_LLM_MAX_TOKENS, DEFAULT_LLM_TEMPERATURE
+
+if TYPE_CHECKING:
+    pass
+
+
+class LLMConfigError(RuntimeError):
+    """Raised when LLM provider selection is inconsistent with credentials."""
 
 
 @dataclass(slots=True)
@@ -306,6 +314,18 @@ class OpenRouterLLM:
         msg = choice.message
 
         text = msg.content or ""
+        # Reasoning models (e.g. glm-4.x, deepseek-r1) may leave `content` empty
+        # and expose the answer under `reasoning` / `reasoning_content` — fall
+        # back to those so downstream parsers can still find the JSON block.
+        if not text:
+            extra = getattr(msg, "model_extra", None) or {}
+            text = (
+                extra.get("reasoning")
+                or extra.get("reasoning_content")
+                or getattr(msg, "reasoning", "")
+                or getattr(msg, "reasoning_content", "")
+                or ""
+            )
         calls: list[LLMToolCall] = []
         for tc in getattr(msg, "tool_calls", None) or []:
             fn = getattr(tc, "function", None)
@@ -400,3 +420,60 @@ class OpenRouterLLM:
                 kind="tool_use", tool_name=frag["name"], tool_input=args
             )
         yield StreamChunk(kind="stop")
+
+
+def build_llm_from_settings(
+    settings: Settings,
+    *,
+    strict: bool = True,
+) -> LLMClient:
+    """Single source of truth for LLM client construction.
+
+    Reads `settings.llm_provider` and dispatches to the matching backend.
+    When `strict=True` (default for production entrypoints), an explicit
+    non-mock provider missing its API key raises `LLMConfigError` instead
+    of silently downgrading to `MockLLM` — real API calls fail loudly.
+
+    When `strict=False` (for eval/CI where a missing key means "skip
+    scoring, don't crash"), fall back to `MockLLM`.
+    """
+    provider = (settings.llm_provider or "mock").strip().lower()
+
+    if provider == "openrouter":
+        if not settings.openrouter_api_key:
+            if strict:
+                raise LLMConfigError(
+                    "TELEPACE_LLM_PROVIDER=openrouter but "
+                    "TELEPACE_OPENROUTER_API_KEY is empty. Set it in .env "
+                    "or switch provider to 'mock'."
+                )
+            return MockLLM()
+        return OpenRouterLLM(
+            api_key=settings.openrouter_api_key,
+            base_url=settings.openrouter_base_url,
+            default_model=settings.llm_model_general,
+        )
+
+    if provider == "anthropic":
+        if not settings.anthropic_api_key:
+            if strict:
+                raise LLMConfigError(
+                    "TELEPACE_LLM_PROVIDER=anthropic but "
+                    "TELEPACE_ANTHROPIC_API_KEY is empty. Set it in .env "
+                    "or switch provider to 'mock'."
+                )
+            return MockLLM()
+        return AnthropicLLM(
+            api_key=settings.anthropic_api_key,
+            default_model=settings.anthropic_default_model,
+        )
+
+    if provider == "mock":
+        return MockLLM()
+
+    if strict:
+        raise LLMConfigError(
+            f"Unknown TELEPACE_LLM_PROVIDER={provider!r}. "
+            "Expected one of: openrouter, anthropic, mock."
+        )
+    return MockLLM()
