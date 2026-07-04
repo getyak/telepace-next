@@ -3,7 +3,10 @@ import { Button } from "@telepace/ui";
 import { routes, siteConfig } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
-export const metadata = { title: "Docs · telepace" };
+export const metadata = {
+  title: "Docs",
+  description: "Quickstarts, core concepts, and reference for building on telepace.",
+};
 
 const sections = [
   {

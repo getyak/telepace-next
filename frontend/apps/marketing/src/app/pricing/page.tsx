@@ -3,7 +3,10 @@ import { Button } from "@telepace/ui";
 import { routes, siteConfig } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
-export const metadata = { title: "Pricing · telepace" };
+export const metadata = {
+  title: "Pricing",
+  description: "Simple, usage-based pricing for voice-native user research — start free, scale as you grow.",
+};
 
 const tiers = [
   {

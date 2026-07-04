@@ -16,21 +16,27 @@ const instrumentSerif = Instrument_Serif({
   display: "swap",
 });
 
+const description =
+  "Your Claude, Cursor, and Codex can interview 100 users while you sleep — and wake up to structured insights they can act on.";
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.urls.home),
-  title: "telepace — the voice-native user research infrastructure",
-  description: siteConfig.brand.tagline,
+  title: {
+    default: "telepace — the voice-native user research infrastructure",
+    template: "%s · telepace",
+  },
+  description,
   openGraph: {
     type: "website",
     siteName: siteConfig.brand.name,
     title: "telepace — the voice-native user research infrastructure",
-    description: siteConfig.brand.tagline,
+    description,
     url: siteConfig.urls.home,
   },
   twitter: {
     card: "summary_large_image",
     title: "telepace — the voice-native user research infrastructure",
-    description: siteConfig.brand.tagline,
+    description,
   },
 };
 

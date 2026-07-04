@@ -63,4 +63,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm check:colors
       - run: pnpm typecheck
+      - run: pnpm check:tokens
       - run: pnpm build

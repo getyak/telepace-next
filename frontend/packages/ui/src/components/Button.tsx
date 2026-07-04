@@ -28,6 +28,12 @@ const sizes = {
   lg: "h-12 px-6 text-base",
 };
 
+const spinnerSize = {
+  sm: 12,
+  md: 14,
+  lg: 16,
+};
+
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     { className, variant = "primary", size = "md", loading = false, disabled, children, ...props },
@@ -35,12 +41,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => (
     <button
       ref={ref}
-      className={cn(base, variants[variant], sizes[size], className)}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
+      className={cn(base, variants[variant], sizes[size], className)}
       {...props}
     >
-      {loading && <Spinner size={14} />}
+      {loading && <Spinner size={spinnerSize[size]} />}
       {children}
     </button>
   ),

@@ -4,8 +4,9 @@ import { Inter, Instrument_Serif } from "next/font/google";
 import { siteConfig } from "@telepace/config";
 
 import { AuthProvider } from "../lib/auth/AuthProvider";
-import { Toaster } from "../components/toast/Toaster";
+import { ToastBridge } from "../components/toast/ToastBridge";
 import { Sidebar } from "../components/app/Sidebar";
+import { MobileNav } from "../components/app/MobileNav";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -31,10 +32,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthProvider>
           <div className="min-h-screen flex flex-col md:flex-row">
+            <MobileNav />
             <Sidebar />
             <main className="flex-1 min-w-0">{children}</main>
           </div>
-          <Toaster />
+          <ToastBridge />
         </AuthProvider>
       </body>
     </html>

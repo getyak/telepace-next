@@ -61,6 +61,18 @@ const preset: Partial<Config> = {
           from: { opacity: "0", transform: "scale(0.98)" },
           to: { opacity: "1", transform: "scale(1)" },
         },
+        "live-pulse": {
+          "0%, 100%": { opacity: "1", transform: "scale(1)" },
+          "50%": { opacity: "0.5", transform: "scale(1.15)" },
+        },
+        "message-in": {
+          "0%": { opacity: "0", transform: "translateY(4px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "wave-bar": {
+          "0%, 100%": { transform: "scaleY(0.35)" },
+          "50%": { transform: "scaleY(1)" },
+        },
       },
       animation: {
         skeleton: "skeleton 1.8s ease-in-out infinite",
@@ -68,6 +80,9 @@ const preset: Partial<Config> = {
         "fade-in-up": "fade-in-up 600ms cubic-bezier(0.22, 1, 0.36, 1) both",
         waveform: "waveform 2.4s ease-in-out infinite",
         "dialog-in": "dialog-in 220ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "live-pulse": "live-pulse 2.4s ease-in-out infinite",
+        "message-in": "message-in 500ms ease-out both",
+        "wave-bar": "wave-bar 2.4s ease-in-out infinite",
       },
     },
   },

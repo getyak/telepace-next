@@ -1,43 +1,7 @@
 import Link from "next/link";
-import { Button } from "@telepace/ui";
 import { routes, siteConfig } from "@telepace/config";
-import { MobileNav } from "./mobile-nav";
 
-const NAV_LINKS = [
-  { href: routes.product.voice, label: "Voice" },
-  { href: routes.product.agent, label: "Agent" },
-  { href: routes.pricing, label: "Pricing" },
-  { href: routes.docs, label: "Docs" },
-  { href: routes.mcp, label: "MCP" },
-];
-
-export function Nav() {
-  return (
-    <header className="border-b border-hairline sticky top-0 z-40 bg-paper/85 backdrop-blur">
-      <div className="container-content flex items-center justify-between h-16">
-        <Link href={routes.home} className="font-display text-xl">
-          {siteConfig.brand.name}
-        </Link>
-        <nav className="hidden md:flex items-center gap-8 text-sm text-body">
-          {NAV_LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className="hover:text-ink transition-colors">
-              {l.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="hidden md:flex items-center gap-3">
-          <Link href={routes.login} className="text-sm text-body hover:text-ink transition-colors">
-            Sign in
-          </Link>
-          <Link href={routes.signup}>
-            <Button size="sm">Start free</Button>
-          </Link>
-        </div>
-        <MobileNav links={NAV_LINKS} />
-      </div>
-    </header>
-  );
-}
+export { Nav } from "./nav";
 
 export function Footer() {
   return (

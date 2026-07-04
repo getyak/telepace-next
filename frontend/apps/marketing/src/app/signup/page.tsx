@@ -118,7 +118,7 @@ export default function SignupPage() {
                   </ul>
                 )}
                 <Button className="w-full h-11" type="submit" loading={submitting}>
-                  Create workspace →
+                  {submitting ? "Creating…" : "Create workspace →"}
                 </Button>
               </form>
 

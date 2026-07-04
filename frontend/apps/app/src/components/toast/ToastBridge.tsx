@@ -1,24 +1,21 @@
 "use client";
 
 /**
- * App-specific toast wiring: the reusable Toast primitive lives in
- * `@telepace/ui` (mount once, call `toast.*` from anywhere). This module
- * just bridges classified HTTP errors from the app's http layer into it,
- * so call sites don't have to catch and forward every failed request.
+ * Mounts the shared `Toaster` and bridges classified HTTP errors from
+ * `onHttpEvent` into toasts, so call sites don't need to catch and forward
+ * manually.
  */
 
 import { useEffect } from "react";
-import { Toaster as UiToaster, toast } from "@telepace/ui";
+import { toast, Toaster } from "@telepace/ui";
 
 import { friendlyMessage } from "../../lib/errors";
 import { onHttpEvent } from "../../lib/http";
 
-export { toast };
-
-export function Toaster() {
+export function ToastBridge() {
   useEffect(() => {
     let lastAuthAt = 0;
-    return onHttpEvent((evt) => {
+    const off = onHttpEvent((evt) => {
       if (evt.type === "auth:expired") {
         const now = Date.now();
         if (now - lastAuthAt < 2000) return; // de-dupe parallel 401s
@@ -37,7 +34,8 @@ export function Toaster() {
         toast.error({ title: copy.title, description: copy.description });
       }
     });
+    return off;
   }, []);
 
-  return <UiToaster />;
+  return <Toaster />;
 }

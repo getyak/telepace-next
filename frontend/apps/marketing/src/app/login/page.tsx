@@ -92,7 +92,7 @@ export default function LoginPage() {
                   </ul>
                 )}
                 <Button className="w-full h-11" type="submit" loading={submitting}>
-                  Sign in
+                  {submitting ? "Signing in…" : "Sign in"}
                 </Button>
               </form>
 

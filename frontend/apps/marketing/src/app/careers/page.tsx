@@ -3,7 +3,10 @@ import { Button } from "@telepace/ui";
 import { siteConfig } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
-export const metadata = { title: "Careers · telepace" };
+export const metadata = {
+  title: "Careers",
+  description: "Join the team building voice-native, agent-first user research infrastructure.",
+};
 
 const roles = [
   {
