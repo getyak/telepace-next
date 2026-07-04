@@ -73,11 +73,13 @@ duplicating that pattern elsewhere.
 
 Fade + 8–12px upward translate on scroll. No parallax. No gradient blobs.
 
-**Motion budget: at most one persistent (looping) animation per screen.** A live-status pulse dot
-or a waveform bar is enough; stacking several ambient animations on one view reads as busy, not
-alive. One-shot entrance animations (fade-in on mount, accordion expand) don't count against the
-budget — the constraint is about things that keep moving indefinitely. Everything respects
-`prefers-reduced-motion` (drop to a static state, don't just disable the easing).
+**Motion budget: at most one *decorative* persistent (looping) animation per screen** — e.g. the
+Hero's waveform bars. Small functional status indicators (a "live" pulse dot, a spinner while
+loading) are exempt — they're communicating state, not decorating. Stacking several *ambient*
+animations on one view reads as busy, not alive. One-shot entrance animations (fade-in on mount,
+accordion expand) don't count against the budget either — the constraint is about things that
+keep moving indefinitely. Everything respects `prefers-reduced-motion` (drop to a static state,
+don't just disable the easing).
 
 ## Copy conventions
 

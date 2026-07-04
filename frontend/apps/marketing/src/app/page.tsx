@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@telepace/ui";
 import { routes } from "@telepace/config";
 import { Nav, Footer } from "@/components/site-chrome";
+import { HeroConversation } from "@/components/marketing/HeroConversation";
 
 export default function Home() {
   return (
@@ -49,23 +50,7 @@ function Hero() {
           </p>
         </div>
         <div className="md:col-span-5">
-          <div className="rounded-card border border-hairline bg-paper-elevated overflow-hidden">
-            <div className="flex items-center gap-2 border-b border-hairline px-4 py-2 text-xs text-muted">
-              <div className="w-2 h-2 rounded-full bg-accent motion-safe:animate-live-pulse" />
-              live · Interviewer
-            </div>
-            <div className="p-5 space-y-3 text-[15px]">
-              <div className="rounded-card bg-paper px-4 py-3 border border-hairline">
-                What were you hoping to accomplish when you signed up?
-              </div>
-              <div className="rounded-card bg-ink text-paper px-4 py-3 max-w-[85%] ml-auto">
-                Mostly, I wanted a way to talk to more users without hiring a full research team…
-              </div>
-              <div className="rounded-card bg-paper px-4 py-3 border border-hairline">
-                Got it. What made you stop trying to hire — was it budget, or something else?
-              </div>
-            </div>
-          </div>
+          <HeroConversation />
         </div>
       </div>
     </section>
