@@ -11,6 +11,8 @@
     "dev": "pnpm --parallel -r dev",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "check:colors": "node scripts/check-color-tokens.mjs",
+    "check:tokens": "bash scripts/check-design-tokens.sh"
   }
 }
