@@ -25,6 +25,22 @@
 - **Phase 3 / 4 / 5**：绝大部分已在此前的 PR 中完成（移动端导航、Hero voice 效果、next/font、
   SEO/metadata、Button 变体、Sidebar active 态、UI 组件补全、CI token 守护脚本、design-system.md 补充）。
   剩余已知小项：营销/安全页上的 "SOC 2" 相关文案是真实的路线图声明（非虚构背书），未改动。
+- **持续打磨 Pass**（本轮）：修复了与计划漂移的若干细节——sidebar/nav 图标与 hamburger/close
+  SVG 去重到 `@telepace/ui` 的 icons 集合；`studies/new` 剩余的 loading 三元表达式换成 `Button`
+  的 `loading` prop；`integrations` 页接入共享 `PageHeader`/`EmptyState`；受访者页（`/r/[id]`）
+  的麦克风权限/语音 WS 报错从静默 `console.error` 改为 `toast.error` 提示，并换用共享 `Button`；
+  `/demo` 拆分出 server component 以获得独立 metadata（原为纯 client 组件，无 metadata）；
+  修正首页与 `/customers` 相邻同底色分区、统一两处 final-CTA 文案、careers mailto 主题做
+  `encodeURIComponent`。四项检查（typecheck / check:colors / check:tokens / build）均通过。
+- **已知遗留，留待下一轮决策**（非 bug，需要产品/视觉决策或无法离线验证）：
+  1. `packages/ui` 的 `Card`/`CardHeader`/`CardBody`/`CardFooter` 在 `apps/app` 中零使用，
+     18+ 处手写了等价的 `rounded-card border border-hairline bg-paper-elevated p-…`；
+  2. `UserMenu` 自实现了开合/点击外部关闭/Esc 逻辑，未复用 `DropdownMenu`——因为 `UserMenu`
+     需要向上展开、占满侧栏宽度，而共享组件目前只支持向下展开 + 固定 `min-w-[180px]`；
+  3. `apps/app/src/lib/errors.ts` 与 `ToastBridge` 的错误文案是中文，与站点其余英文 UI 不一致，
+     但注释表明是有意为之的本地化模块，需要产品决策而非顺手改掉；
+  4. Phase 5.3 的 Playwright 截图基线（`docs/design/baselines/`）仍未建立，需要一个可运行的
+     dev server 环境。
 
 ---
 
