@@ -48,7 +48,7 @@ export default function CustomersPage() {
         lede="telepace is in early access — here's how product teams, agencies, and founders are using it, in their own words once we can share them."
       />
 
-      <section className="section-padding border-b border-hairline">
+      <section className="section-padding border-b border-hairline bg-paper-elevated">
         <div className="container-content grid grid-cols-2 md:grid-cols-4 gap-6">
           {capabilities.map((s) => (
             <div key={s.k} className="border-t border-ink pt-4">

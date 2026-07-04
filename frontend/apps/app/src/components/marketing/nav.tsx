@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Button } from "@telepace/ui";
+import { Button, icons } from "@telepace/ui";
 import { routes, siteConfig } from "@telepace/config";
 
 const navLinks = [
@@ -67,13 +67,7 @@ export function Nav() {
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              {open ? (
-                <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              ) : (
-                <path d="M3 6h14M3 14h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              )}
-            </svg>
+            {open ? <icons.CloseIcon size={20} /> : <icons.MenuIcon size={20} />}
           </button>
         </div>
       </header>

@@ -99,7 +99,7 @@ export default function CareersPage() {
                   <p className="text-body mt-3 max-w-2xl">{r.summary}</p>
                 </div>
                 <div className="mt-4 md:mt-0">
-                  <Link href={`mailto:${siteConfig.contact.hiringEmail}?subject=Applying · ${r.title}`}>
+                  <Link href={`mailto:${siteConfig.contact.hiringEmail}?subject=${encodeURIComponent(`Applying · ${r.title}`)}`}>
                     <Button variant="secondary">Apply →</Button>
                   </Link>
                 </div>

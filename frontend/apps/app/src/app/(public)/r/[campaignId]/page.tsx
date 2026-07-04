@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useRef, useState } from "react";
-import { ChatFeed, ChatComposer, VoiceOrb, type ChatMessage } from "@telepace/ui";
+import { Button, ChatFeed, ChatComposer, Spinner, VoiceOrb, toast, type ChatMessage } from "@telepace/ui";
 import {
   env,
   OPUS_CHUNK_MS,
@@ -27,7 +27,7 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
   const audioQueueRef = useRef<Blob[]>([]);
   const audioBusyRef = useRef(false);
 
-  // --- Text-mode WS (unchanged) ---
+  // Text-mode interview WS.
   useEffect(() => {
     if (phase !== "chat") return;
     const ws = new WebSocket(`${env.wsBaseUrl}${wsEndpoints.interview(campaignId)}`);
@@ -49,7 +49,7 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
     return () => ws.close();
   }, [phase, campaignId]);
 
-  // --- Voice-mode WS (new: /ws/voice/{campaignId}) ---
+  // Voice-mode WS: streams mic audio up, plays synthesized speech back.
   useEffect(() => {
     if (phase !== "voice") return;
     let cancelled = false;
@@ -102,6 +102,10 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
         recorder.start(OPUS_CHUNK_MS);
       } catch (err) {
         console.error("mic permission denied", err);
+        toast.error({
+          title: "Microphone access needed",
+          description: "Allow microphone access in your browser to continue by voice, or switch to text.",
+        });
       }
     };
 
@@ -149,6 +153,10 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
           break;
         case VoiceEventType.Error:
           console.error("voice ws error", msg.reason);
+          toast.error({
+            title: "Something went wrong",
+            description: "The voice connection hit an error. Please try again.",
+          });
           break;
       }
     };
@@ -200,7 +208,11 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
           <p className="text-body max-w-md text-center text-lg">
             {messages[messages.length - 1]?.text ?? "Let's begin. Take a breath."}
           </p>
-          {!connected && <p className="text-sm text-muted">connecting…</p>}
+          {!connected && (
+            <p className="flex items-center gap-2 text-sm text-muted">
+              <Spinner size={14} /> connecting…
+            </p>
+          )}
         </div>
         <div className="p-4 border-t border-hairline">
           <ChatComposer
@@ -240,18 +252,12 @@ function Consent({ onStart }: { onStart: (mode: "text" | "voice") => void }) {
           talk:
         </p>
         <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-          <button
-            onClick={() => onStart("text")}
-            className="h-12 px-6 rounded-btn bg-ink text-paper hover:bg-ink-soft"
-          >
+          <Button size="lg" onClick={() => onStart("text")}>
             Start with text
-          </button>
-          <button
-            onClick={() => onStart("voice")}
-            className="h-12 px-6 rounded-btn border border-hairline text-ink hover:bg-paper-elevated"
-          >
+          </Button>
+          <Button size="lg" variant="secondary" onClick={() => onStart("voice")}>
             Use voice →
-          </button>
+          </Button>
         </div>
         <p className="text-xs text-muted mt-6 max-w-sm mx-auto">
           By continuing you consent to your responses being recorded and analyzed

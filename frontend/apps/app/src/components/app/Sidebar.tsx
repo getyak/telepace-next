@@ -41,7 +41,7 @@ function SideLink({ item, active }: { item: NavItem; active: boolean }) {
       }`}
     >
       {active && <span className="absolute left-0 top-1.5 bottom-1.5 w-[2px] rounded-pill bg-accent" />}
-      <Icon className={active ? "text-accent" : "text-muted"} />
+      <Icon size={16} className={active ? "text-accent" : "text-muted"} />
       {item.label}
     </Link>
   );

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { Skeleton, icons } from "@telepace/ui";
 import { routes } from "@telepace/config";
 
 import { useAuth } from "../../lib/auth/AuthProvider";
@@ -31,10 +32,10 @@ export function UserMenu() {
     return (
       <div className="p-4 border-t border-hairline">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-paper animate-pulse" />
+          <Skeleton className="w-9 h-9 rounded-full" />
           <div className="flex-1 space-y-1.5">
-            <div className="h-3 w-24 bg-paper rounded animate-pulse" />
-            <div className="h-2.5 w-32 bg-paper rounded animate-pulse" />
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-2.5 w-32" />
           </div>
         </div>
       </div>
@@ -73,16 +74,10 @@ export function UserMenu() {
           <span className="block text-sm font-medium text-ink truncate">{name}</span>
           <span className="block text-xs text-muted truncate">{user.email}</span>
         </span>
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 20 20"
-          fill="none"
+        <icons.ChevronDownIcon
+          size={14}
           className={`text-muted shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
-          aria-hidden="true"
-        >
-          <path d="M5 8l5 5 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        />
       </button>
 
       {open && (

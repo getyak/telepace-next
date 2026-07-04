@@ -206,7 +206,7 @@ function UseCases() {
     { role: "Founders", d: "Run 30 interviews the week you're building the MVP." },
   ];
   return (
-    <section className="section-padding border-t border-hairline">
+    <section className="section-padding border-t border-hairline bg-paper-elevated">
       <div className="container-content">
         <p className="overline mb-4">Made for</p>
         <div className="mt-6 grid md:grid-cols-4 gap-6">

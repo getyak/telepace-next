@@ -1,4 +1,5 @@
-import { Button } from "@telepace/ui";
+import { Button, EmptyState, icons } from "@telepace/ui";
+import { PageHeader } from "@/components/app/PageHeader";
 
 const integrations = [
   { name: "Notion",   category: "Insight destination", status: "connected",   detail: "Sync into 'Research' database" },
@@ -20,14 +21,20 @@ const statusStyle: Record<string, string> = {
 export default function IntegrationsPage() {
   return (
     <div className="p-10 max-w-content mx-auto">
-      <header className="flex items-end justify-between mb-10">
-        <div>
-          <p className="overline mb-2">Integrations</p>
-          <h1 className="font-display text-4xl">Where telepace connects.</h1>
-        </div>
-        <Button size="sm">+ Add integration</Button>
-      </header>
+      <PageHeader
+        eyebrow="Integrations"
+        title="Where telepace connects."
+        action={<Button size="sm">+ Add integration</Button>}
+      />
 
+      {integrations.length === 0 ? (
+        <EmptyState
+          icon={<icons.IntegrationsIcon size={28} />}
+          title="No integrations yet."
+          description="Connect Notion, Linear, Slack, or a webhook to send insights where your team already works."
+          action={<Button size="sm">+ Add integration</Button>}
+        />
+      ) : (
       <div className="grid md:grid-cols-2 gap-4">
         {integrations.map((it) => (
           <div key={it.name} className="rounded-card border border-hairline bg-paper-elevated p-6 flex items-start justify-between gap-6">
@@ -47,6 +54,7 @@ export default function IntegrationsPage() {
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }

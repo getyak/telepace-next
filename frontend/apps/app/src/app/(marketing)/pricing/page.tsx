@@ -170,7 +170,7 @@ export default function PricingPage() {
           </p>
           <div className="mt-8 flex justify-center gap-3">
             <Link href={routes.signup}><Button size="lg">Start free</Button></Link>
-            <Link href={routes.demo}><Button size="lg" variant="secondary">See a 60s demo →</Button></Link>
+            <Link href={routes.demo}><Button size="lg" variant="secondary">Try a live 60-sec interview →</Button></Link>
           </div>
         </div>
       </section>
