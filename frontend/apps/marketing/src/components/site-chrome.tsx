@@ -1,6 +1,15 @@
 import Link from "next/link";
 import { Button } from "@telepace/ui";
 import { routes, siteConfig } from "@telepace/config";
+import { MobileNav } from "./mobile-nav";
+
+const NAV_LINKS = [
+  { href: routes.product.voice, label: "Voice" },
+  { href: routes.product.agent, label: "Agent" },
+  { href: routes.pricing, label: "Pricing" },
+  { href: routes.docs, label: "Docs" },
+  { href: routes.mcp, label: "MCP" },
+];
 
 export function Nav() {
   return (
@@ -10,20 +19,21 @@ export function Nav() {
           {siteConfig.brand.name}
         </Link>
         <nav className="hidden md:flex items-center gap-8 text-sm text-body">
-          <Link href={routes.product.voice} className="hover:text-ink transition-colors">Voice</Link>
-          <Link href={routes.product.agent} className="hover:text-ink transition-colors">Agent</Link>
-          <Link href={routes.pricing} className="hover:text-ink transition-colors">Pricing</Link>
-          <Link href={routes.docs} className="hover:text-ink transition-colors">Docs</Link>
-          <Link href={routes.mcp} className="hover:text-ink transition-colors">MCP</Link>
+          {NAV_LINKS.map((l) => (
+            <Link key={l.href} href={l.href} className="hover:text-ink transition-colors">
+              {l.label}
+            </Link>
+          ))}
         </nav>
-        <div className="flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3">
           <Link href={routes.login} className="text-sm text-body hover:text-ink transition-colors">
-            Log in
+            Sign in
           </Link>
           <Link href={routes.signup}>
             <Button size="sm">Start free</Button>
           </Link>
         </div>
+        <MobileNav links={NAV_LINKS} />
       </div>
     </header>
   );
@@ -61,7 +71,7 @@ export function Footer() {
       </div>
       <div className="container-content mt-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs text-muted">
         <p>© {new Date().getFullYear()} Telepace, Inc. All rights reserved.</p>
-        <p>Made in the open. SOC 2 Type II in progress.</p>
+        <p>Made in the open.</p>
       </div>
     </footer>
   );

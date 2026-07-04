@@ -85,14 +85,14 @@ export default function LoginPage() {
                   />
                 </div>
                 {errors.length > 0 && (
-                  <ul className="text-sm text-red-600 space-y-1">
+                  <ul className="text-sm text-danger space-y-1" role="alert">
                     {errors.map((err) => (
                       <li key={err}>{err}</li>
                     ))}
                   </ul>
                 )}
-                <Button className="w-full h-11" type="submit" disabled={submitting}>
-                  {submitting ? "Signing in..." : "Log in"}
+                <Button className="w-full h-11" type="submit" loading={submitting}>
+                  Sign in
                 </Button>
               </form>
 

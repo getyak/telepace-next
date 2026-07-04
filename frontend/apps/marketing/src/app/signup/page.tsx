@@ -111,32 +111,32 @@ export default function SignupPage() {
                   />
                 </div>
                 {errors.length > 0 && (
-                  <ul className="text-sm text-red-600 space-y-1">
+                  <ul className="text-sm text-danger space-y-1" role="alert">
                     {errors.map((err) => (
                       <li key={err}>{err}</li>
                     ))}
                   </ul>
                 )}
-                <Button className="w-full h-11" type="submit" disabled={submitting}>
-                  {submitting ? "Creating..." : "Create workspace →"}
+                <Button className="w-full h-11" type="submit" loading={submitting}>
+                  Create workspace →
                 </Button>
               </form>
 
               <p className="mt-6 text-xs text-muted text-center">
-                By signing up you agree to our{" "}
+                By continuing you agree to the{" "}
                 <Link href={routes.terms} className="text-accent">
                   Terms
                 </Link>{" "}
                 and{" "}
                 <Link href={routes.privacy} className="text-accent">
-                  Privacy
+                  Privacy Policy
                 </Link>
                 .
               </p>
               <p className="mt-4 text-sm text-muted text-center">
                 Already have an account?{" "}
                 <Link href={routes.login} className="text-accent">
-                  Log in →
+                  Sign in →
                 </Link>
               </p>
             </div>

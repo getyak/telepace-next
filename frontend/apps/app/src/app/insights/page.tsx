@@ -1,4 +1,5 @@
-import { Button } from "@telepace/ui";
+import { Button, EmptyState, icons } from "@telepace/ui";
+import { PageHeader } from "../../components/app/PageHeader";
 
 const themes = [
   {
@@ -43,17 +44,24 @@ const tagStyle: Record<string, string> = {
 export default function InsightsPage() {
   return (
     <div className="p-10 max-w-content mx-auto">
-      <header className="flex items-end justify-between mb-10">
-        <div>
-          <p className="overline mb-2">Insights</p>
-          <h1 className="font-display text-4xl">Themes, across every study.</h1>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="secondary" size="sm">Filter</Button>
-          <Button size="sm">Push to Notion</Button>
-        </div>
-      </header>
+      <PageHeader
+        eyebrow="Insights"
+        title="Themes, across every study."
+        action={
+          <div className="flex gap-2">
+            <Button variant="secondary" size="sm">Filter</Button>
+            <Button size="sm">Push to Notion</Button>
+          </div>
+        }
+      />
 
+      {themes.length === 0 ? (
+        <EmptyState
+          icon={<icons.InsightsIcon size={28} />}
+          title="No insights yet."
+          description="Themes surface here once your studies start collecting responses."
+        />
+      ) : (
       <div className="grid gap-6">
         {themes.map((t) => (
           <article key={t.title} className="rounded-card border border-hairline bg-paper-elevated p-8">
@@ -81,6 +89,7 @@ export default function InsightsPage() {
           </article>
         ))}
       </div>
+      )}
     </div>
   );
 }

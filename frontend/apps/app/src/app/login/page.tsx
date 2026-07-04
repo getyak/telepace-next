@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Button, Input, Label } from "@telepace/ui";
 import { routes, siteConfig } from "@telepace/config";
 
@@ -10,6 +10,14 @@ import { useAuth } from "../../lib/auth/AuthProvider";
 import { ApiError } from "../../lib/http";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const { login } = useAuth();
@@ -81,13 +89,13 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <p className="text-sm text-terracotta" role="alert">
+            <p className="text-sm text-danger" role="alert">
               {error}
             </p>
           )}
 
-          <Button type="submit" className="w-full" disabled={submitting}>
-            {submitting ? "Signing in…" : "Sign in"}
+          <Button type="submit" className="w-full" loading={submitting}>
+            Sign in
           </Button>
         </form>
 

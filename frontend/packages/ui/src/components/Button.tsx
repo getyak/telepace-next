@@ -1,9 +1,11 @@
 import * as React from "react";
 import { cn } from "../cn";
+import { Spinner } from "./Spinner";
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "primary" | "secondary" | "ghost";
+  variant?: "primary" | "secondary" | "ghost" | "danger" | "inverse" | "inverse-outline";
   size?: "sm" | "md" | "lg";
+  loading?: boolean;
 };
 
 const base =
@@ -15,6 +17,9 @@ const variants = {
   primary: "bg-ink text-paper hover:bg-ink-soft",
   secondary: "bg-transparent text-ink border border-hairline hover:bg-paper-elevated",
   ghost: "bg-transparent text-body hover:text-ink",
+  danger: "bg-danger text-paper hover:bg-danger/90",
+  inverse: "bg-paper text-ink hover:bg-paper-elevated",
+  "inverse-outline": "bg-transparent text-paper border border-paper/30 hover:bg-paper/10",
 };
 
 const sizes = {
@@ -24,12 +29,20 @@ const sizes = {
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size = "md", ...props }, ref) => (
+  (
+    { className, variant = "primary", size = "md", loading = false, disabled, children, ...props },
+    ref,
+  ) => (
     <button
       ref={ref}
       className={cn(base, variants[variant], sizes[size], className)}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       {...props}
-    />
+    >
+      {loading && <Spinner size={14} />}
+      {children}
+    </button>
   ),
 );
 Button.displayName = "Button";
