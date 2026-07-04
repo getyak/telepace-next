@@ -116,6 +116,10 @@ async def build_state() -> AppState:
                 llm=llm,
                 max_tokens=settings.interviewer_max_tokens,
                 temperature=settings.interviewer_temperature,
+                # Per-turn latency matters most here, and reasoning models
+                # (glm-4.x) leak their chain of thought into `text` when
+                # content comes back empty — pin the fast non-reasoning model.
+                model=settings.llm_model_fast,
             ),
             "coordinator": CoordinatorAgent(),
             "dispatch": dispatch_handler,

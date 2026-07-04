@@ -245,6 +245,7 @@ class OpenRouterLLM:
         api_key: str | None = None,
         default_model: str | None = None,
         base_url: str | None = None,
+        timeout_s: float = 90.0,
     ) -> None:
         from openai import AsyncOpenAI
 
@@ -256,7 +257,9 @@ class OpenRouterLLM:
             raise ValueError(
                 "OpenRouterLLM requires default_model; wire it from Settings.llm_model_general"
             )
-        self._client = AsyncOpenAI(api_key=api_key, base_url=base_url)
+        # Without an explicit timeout the SDK default (10 min) lets one hung
+        # upstream call freeze an entire live interview turn.
+        self._client = AsyncOpenAI(api_key=api_key, base_url=base_url, timeout=timeout_s)
         self._default_model = default_model
 
     @staticmethod
@@ -304,6 +307,10 @@ class OpenRouterLLM:
             "messages": api_messages,
             "max_tokens": max_tokens,
             "temperature": temperature,
+            # Reasoning-capable models (glm-4.x, deepseek-v4) otherwise burn
+            # the token budget on chain-of-thought and can return an empty
+            # `content` whose reasoning then leaks to end users.
+            "extra_body": {"reasoning": {"enabled": False}},
         }
         translated = self._translate_tools(tools)
         if translated:
@@ -371,6 +378,7 @@ class OpenRouterLLM:
             "max_tokens": max_tokens,
             "temperature": temperature,
             "stream": True,
+            "extra_body": {"reasoning": {"enabled": False}},
         }
         translated = self._translate_tools(tools)
         if translated:

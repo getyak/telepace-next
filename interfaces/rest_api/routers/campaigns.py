@@ -6,6 +6,7 @@ import asyncio
 import json
 import logging
 import re
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
@@ -168,10 +169,20 @@ async def _apply_pending_to_projection(request: Request, campaign_id: UUID) -> N
             logger.warning("projector apply failed seq=%s type=%s: %s", stored.seq, stored.event.type, exc)
 
 
+@router.get("")
+async def list_campaigns(
+    projector: CampaignProjector = Depends(get_projector),
+    user: AuthUser = Depends(require_current_user),
+) -> dict:
+    campaigns = await projector.list_campaigns(user.org_id)
+    return {"campaigns": campaigns}
+
+
 @router.get("/{campaign_id}")
 async def get_campaign(
     campaign_id: UUID,
     projector: CampaignProjector = Depends(get_projector),
+    settings: Settings = Depends(get_settings_dep),
     _user: AuthUser = Depends(require_current_user),
 ) -> dict:
     campaign = await projector.get_campaign(campaign_id)
@@ -182,6 +193,7 @@ async def get_campaign(
     progress = await projector.get_progress(campaign_id)
     return {
         "campaign": campaign.model_dump(mode="json"),
+        "share_url": f"{settings.public_base_url.rstrip('/')}{RESPONDENT_PATH_PREFIX}{campaign_id}",
         "progress": {
             "invited": progress.invited,
             "started": progress.started,
@@ -192,6 +204,72 @@ async def get_campaign(
             "spent_usd": progress.spent_usd,
         },
     }
+
+
+@router.get("/{campaign_id}/insights")
+async def get_campaign_insights(
+    campaign_id: UUID,
+    projector: CampaignProjector = Depends(get_projector),
+    _user: AuthUser = Depends(require_current_user),
+) -> dict:
+    campaign = await projector.get_campaign(campaign_id)
+    if campaign is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=ErrorMessages.CAMPAIGN_NOT_FOUND
+        )
+    rows = await projector.list_insights(campaign_id)
+    grouped: dict[str, list[dict]] = {
+        "themes": [],
+        "verbatims": [],
+        "concerns": [],
+        "personas": [],
+    }
+    kind_to_group = {
+        "theme": "themes",
+        "verbatim": "verbatims",
+        "concern": "concerns",
+        "persona": "personas",
+    }
+    for row in rows:
+        group = kind_to_group.get(row["kind"])
+        if group is not None:
+            grouped[group].append(row)
+    return {
+        "campaign_id": str(campaign_id),
+        "total": len(rows),
+        "generated_at": rows[0]["created_at"] if rows else None,
+        **grouped,
+    }
+
+
+@router.post("/{campaign_id}/close")
+async def close_campaign(
+    campaign_id: UUID,
+    request: Request,
+    projector: CampaignProjector = Depends(get_projector),
+    settings: Settings = Depends(get_settings_dep),
+    user: AuthUser = Depends(require_current_user),
+) -> dict:
+    campaign = await projector.get_campaign(campaign_id)
+    if campaign is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=ErrorMessages.CAMPAIGN_NOT_FOUND
+        )
+    from core.domain.models import CampaignStatus
+    from core.events import CampaignClosed
+
+    if campaign.status == CampaignStatus.CLOSED:
+        return {"campaign_id": str(campaign_id), "status": CampaignStatus.CLOSED.value}
+    state = get_state(request)
+    stored = await state.event_store.append(
+        CampaignClosed(
+            campaign_id=campaign_id,
+            actor=_actor_ref(settings, user),
+            reason="closed_by_researcher",
+        )
+    )
+    await state.projector.apply(stored.seq, stored.event)
+    return {"campaign_id": str(campaign_id), "status": CampaignStatus.CLOSED.value}
 
 
 @router.post("/{campaign_id}/refine")

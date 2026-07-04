@@ -129,6 +129,10 @@ class InsightGenerated(EventBase):
     kind: str
     title: str
     confidence: float
+    # Full insight payload (theme summary/tags, verbatim quote/attribution,
+    # persona attributes, ...). Kept generic so each InsightKind can evolve
+    # without an event schema bump; defaults keep old records loadable.
+    body: dict[str, object] = Field(default_factory=dict)
 
 
 class NotificationSent(EventBase):

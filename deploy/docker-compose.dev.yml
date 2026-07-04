@@ -37,7 +37,7 @@ services:
     environment:
       TELEPACE_DATABASE_URL: postgresql://telepace:telepace@postgres:5432/telepace
       TELEPACE_REDIS_URL: redis://redis:6379/0
-      TELEPACE_PUBLIC_BASE_URL: http://localhost:3000
+      TELEPACE_PUBLIC_BASE_URL: http://localhost:3300
       TELEPACE_API_BASE_URL: http://localhost:8010
       TELEPACE_DEFAULT_ORG_ID: 00000000-0000-0000-0000-000000000001
       TELEPACE_DEFAULT_AUTHOR_ID: 00000000-0000-0000-0000-000000000002
@@ -82,8 +82,8 @@ services:
     environment:
       NEXT_PUBLIC_API_BASE_URL: http://localhost:8010
     ports:
-      - "3000:3000"
-    command: sh -c "npm install --no-fund --no-audit && npm run dev -- -p 3000 -H 0.0.0.0"
+      - "3300:3300"
+    command: sh -c "npm install --no-fund --no-audit && npm run dev -- -p 3300 -H 0.0.0.0"
 
   app:
     image: node:20-alpine

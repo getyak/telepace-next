@@ -2,7 +2,7 @@
 
 Prereqs (all must already be up):
   - http://localhost:8010  (FastAPI)
-  - http://localhost:3000  (marketing)
+  - http://localhost:3300  (marketing)
   - http://localhost:3011  (app)
   - http://localhost:3012  (respondent)
 
@@ -21,7 +21,7 @@ import pytest
 from playwright.sync_api import Page, expect, sync_playwright
 
 API = os.environ.get("TELEPACE_API_BASE_URL", "http://localhost:8010")
-MARKETING = os.environ.get("TELEPACE_MARKETING_URL", "http://localhost:3000")
+MARKETING = os.environ.get("TELEPACE_MARKETING_URL", "http://localhost:3300")
 APP = os.environ.get("TELEPACE_APP_URL", "http://localhost:3011")
 RESPONDENT = os.environ.get("TELEPACE_RESPONDENT_URL", "http://localhost:3012")
 

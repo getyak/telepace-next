@@ -9,11 +9,24 @@ export type ChatMessage = {
   role: ChatRole;
   text: string;
   timestamp?: string;
+  /** True while the agent is still composing this message (renders typing dots until text arrives). */
+  pending?: boolean;
 };
+
+export function TypingDots({ label = "Thinking" }: { label?: string }) {
+  return (
+    <span className="inline-flex items-center gap-1" role="status" aria-label={label}>
+      <span className="tp-typing-dot h-1.5 w-1.5 rounded-full bg-muted" />
+      <span className="tp-typing-dot h-1.5 w-1.5 rounded-full bg-muted" />
+      <span className="tp-typing-dot h-1.5 w-1.5 rounded-full bg-muted" />
+    </span>
+  );
+}
 
 export function ChatBubble({ message }: { message: ChatMessage }) {
   const isRespondent = message.role === "respondent";
   const isSystem = message.role === "system";
+  const showTyping = message.pending && !message.text;
   return (
     <div
       className={cn(
@@ -32,7 +45,7 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
               : "bg-paper-elevated border border-hairline text-ink",
         )}
       >
-        {message.text}
+        {showTyping ? <TypingDots /> : message.text}
       </div>
     </div>
   );
@@ -40,9 +53,11 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
 
 export function ChatFeed({ messages }: { messages: ChatMessage[] }) {
   const endRef = React.useRef<HTMLDivElement>(null);
+  const lastText = messages[messages.length - 1]?.text ?? "";
   React.useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages.length]);
+    // Track streaming text growth too, not just new messages.
+  }, [messages.length, lastText]);
   return (
     <div className="flex flex-col gap-3 py-4">
       {messages.map((m) => (

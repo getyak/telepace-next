@@ -110,12 +110,108 @@ export async function refineOutlineStream(
   if (buf.trim()) dispatch(buf);
 }
 
-export async function getCampaign(id: string) {
-  return apiFetch(apiEndpoints.campaigns.byId(id));
+export type OutlineItemDoc = {
+  id?: string;
+  order: number;
+  question: string;
+  goal: string;
+};
+
+export type CampaignSpecDoc = {
+  goal?: string;
+  background?: string;
+  hypotheses?: string[];
+  target_persona?: string;
+  audience_screener?: string[];
+  outline?: {
+    items?: OutlineItemDoc[];
+    estimated_duration_minutes?: number;
+    success_criteria?: string[];
+  };
+  channels?: { kind: string }[];
+  target_completions?: number;
+};
+
+export type CampaignProgress = {
+  invited: number;
+  started: number;
+  completed: number;
+  abandoned: number;
+  avg_duration_seconds: number;
+  avg_goal_coverage: number;
+  spent_usd: number;
+};
+
+export type CampaignDetail = {
+  campaign: {
+    id: string;
+    title: string;
+    status: string;
+    spec: CampaignSpecDoc;
+    created_at: string;
+    updated_at: string;
+  };
+  share_url: string;
+  progress: CampaignProgress;
+};
+
+export async function getCampaign(id: string): Promise<CampaignDetail> {
+  return apiFetch<CampaignDetail>(apiEndpoints.campaigns.byId(id));
+}
+
+export type CampaignListItem = {
+  id: string;
+  title: string;
+  status: string;
+  goal: string;
+  target_completions: number;
+  question_count: number;
+  created_at: string;
+  updated_at: string;
+  progress: {
+    invited: number;
+    started: number;
+    completed: number;
+    abandoned: number;
+  };
+};
+
+export async function getCampaigns(): Promise<CampaignListItem[]> {
+  const doc = await apiFetch<{ campaigns: CampaignListItem[] }>(
+    apiEndpoints.campaigns.root,
+  );
+  return doc.campaigns ?? [];
+}
+
+export type InsightItem = {
+  id: string;
+  kind: string;
+  title: string;
+  confidence: number;
+  body: Record<string, unknown>;
+  created_at: string;
+};
+
+export type CampaignInsights = {
+  campaign_id: string;
+  total: number;
+  generated_at: string | null;
+  themes: InsightItem[];
+  verbatims: InsightItem[];
+  concerns: InsightItem[];
+  personas: InsightItem[];
+};
+
+export async function getCampaignInsights(id: string): Promise<CampaignInsights> {
+  return apiFetch<CampaignInsights>(apiEndpoints.campaigns.insights(id));
 }
 
 export async function startCampaign(id: string) {
   return apiFetch(apiEndpoints.campaigns.start(id), { method: "POST" });
+}
+
+export async function closeCampaign(id: string) {
+  return apiFetch(apiEndpoints.campaigns.close(id), { method: "POST" });
 }
 
 export type SimulatedTurn = { question: string; answer: string };

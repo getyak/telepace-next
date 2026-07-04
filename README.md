@@ -46,7 +46,7 @@ interfaces/        mcp_server, rest_api, realtime
 voice/             wrapper around telepace/voiceflow (Go)
 analysis/          sentiment, clustering, persona synthesis
 storage/           event store + projections + vector
-frontend/          marketing site, web app, respondent UI, shared UI
+frontend/          single Next.js app (marketing + app + auth + respondent), shared UI
 eval/              prompt evals + CI
 deploy/            docker-compose, fly.io, github actions
 docs/              architecture, agents, protocols, roadmap

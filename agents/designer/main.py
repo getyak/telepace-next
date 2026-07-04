@@ -27,6 +27,35 @@ _SPEC_PATCH_CLOSE = "</spec_patch>"
 _JSON_BLOCK = re.compile(r"```json\s*(.*?)\s*```", re.DOTALL)
 
 
+def _sanitize_patch(patch: dict[str, Any]) -> dict[str, Any]:
+    """Sanitize an LLM-produced spec patch before it is persisted.
+
+    The model routinely invents outline item ids that merely *look* like
+    UUIDs (e.g. "1a2b3c4d-5e6f-7g8h-…"); persisting them corrupts the
+    projection because CampaignSpec requires real UUIDs. Replace anything
+    unparsable with a fresh uuid4 and drop malformed items.
+    """
+    from uuid import UUID
+
+    outline = patch.get("outline")
+    if not isinstance(outline, dict):
+        return patch
+    items = outline.get("items")
+    if not isinstance(items, list):
+        return patch
+    clean_items: list[dict[str, Any]] = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        raw_id = item.get("id")
+        try:
+            UUID(str(raw_id))
+        except (ValueError, TypeError):
+            item = {**item, "id": str(uuid4())}
+        clean_items.append(item)
+    return {**patch, "outline": {**outline, "items": clean_items}}
+
+
 def _extract_json(text: str) -> dict[str, Any] | None:
     """Best-effort JSON extraction: try ```json ... ``` fence first, then raw."""
     if not text:
@@ -295,7 +324,7 @@ class DesignerAgent:
         m = _SPEC_PATCH.search(resp.text)
         if m:
             try:
-                patch = json.loads(m.group(1))
+                patch = _sanitize_patch(json.loads(m.group(1)))
             except json.JSONDecodeError:
                 patch = {}
         events: list[EventBase] = [
@@ -306,9 +335,14 @@ class DesignerAgent:
                 reason=cmd.instruction[:SPEC_UPDATE_REASON_MAX],
             )
         ]
+        # Keep the in-memory spec in sync with the projection: the patch is a
+        # shallow top-level merge, mirroring the projector's `spec || patch`.
+        # Without this the Interviewer keeps moderating with the pre-refine
+        # outline while the researcher sees the refined one.
+        merged_spec = {**current_spec, **patch} if patch else current_spec
         return AgentResult(
             events=events,
-            state_delta={"last_designer_reply": resp.text},
+            state_delta={"last_designer_reply": resp.text, "spec": merged_spec},
             response={"summary": resp.text, "patch": patch},
         )
 
@@ -354,7 +388,7 @@ class DesignerAgent:
                 if open_idx != -1 and close_idx != -1 and close_idx > open_idx:
                     raw = buf[open_idx + len(_SPEC_PATCH_OPEN) : close_idx].strip()
                     try:
-                        patch = json.loads(raw)
+                        patch = _sanitize_patch(json.loads(raw))
                         yield {"type": "spec_patch", "patch": patch}
                     except json.JSONDecodeError:
                         yield {"type": "spec_patch", "patch": {}, "raw": raw}

@@ -18,7 +18,7 @@
 ```
 frontend/
 ├── apps/
-│   ├── marketing/   # 官网，port 3000，18 个 ts/tsx 文件（含 login/signup）
+│   ├── marketing/   # 官网，port 3300，18 个 ts/tsx 文件（含 login/signup）
 │   ├── app/         # 主应用，port 3001，18 个文件（又一份 login）
 │   └── respondent/  # 受访者问卷页，port 3002，仅 3 个文件（/r/[campaignId]）
 └── packages/
@@ -100,7 +100,7 @@ apps/app/src/app/
    合并后不存在跨应用跳转。
 5. `routes.ts` 不需要大改（它本来就按单站点建模），只把 `app.root`
    从 `/` 改为 `/studies`（营销首页占用 `/`），并全局搜索替换引用。
-6. dev 端口统一为 3000；更新 README / deploy 配置里的端口引用。
+6. dev 端口统一为 3300；更新 README / deploy 配置里的端口引用。
 
 **验收**：`pnpm dev` 只起一个 server；`/`、`/pricing`、`/login`、`/studies`、
 `/r/test-id` 均可访问且布局正确；`pnpm build` 与 `pnpm typecheck` 通过；

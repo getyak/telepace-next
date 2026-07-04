@@ -17,6 +17,7 @@ from core.events import (
     CampaignPublished,
     CampaignReady,
     EventBase,
+    InsightGenerated,
     InterviewAbandoned,
     InterviewCompleted,
     InterviewStarted,
@@ -51,6 +52,18 @@ CREATE TABLE IF NOT EXISTS progress_snapshots (
     spent_usd              DOUBLE PRECISION NOT NULL DEFAULT 0.0,
     updated_at             TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+ALTER TABLE progress_snapshots ADD COLUMN IF NOT EXISTS last_event_seq BIGINT NOT NULL DEFAULT 0;
+
+CREATE TABLE IF NOT EXISTS insights (
+    id          UUID PRIMARY KEY,
+    campaign_id UUID NOT NULL,
+    kind        TEXT NOT NULL,
+    title       TEXT NOT NULL,
+    confidence  DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+    body        JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at  TIMESTAMPTZ NOT NULL
+);
+CREATE INDEX IF NOT EXISTS insights_campaign_idx ON insights (campaign_id, created_at DESC);
 """
 
 
@@ -164,24 +177,41 @@ class CampaignProjector:
                         seq,
                     )
                 elif isinstance(event, InviteDispatched):
-                    await self._bump(conn, event.campaign_id, invited=1)
+                    await self._bump(conn, event.campaign_id, seq, invited=1)
                 elif isinstance(event, InterviewStarted):
-                    await self._bump(conn, event.campaign_id, started=1)
+                    await self._bump(conn, event.campaign_id, seq, started=1)
                 elif isinstance(event, InterviewCompleted):
                     await self._bump(
                         conn,
                         event.campaign_id,
+                        seq,
                         completed=1,
                         total_duration_seconds=event.duration_seconds,
                         total_goal_coverage=event.goal_coverage,
                     )
                 elif isinstance(event, InterviewAbandoned):
-                    await self._bump(conn, event.campaign_id, abandoned=1)
+                    await self._bump(conn, event.campaign_id, seq, abandoned=1)
+                elif isinstance(event, InsightGenerated):
+                    await conn.execute(
+                        """
+                        INSERT INTO insights (id, campaign_id, kind, title, confidence, body, created_at)
+                        VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7)
+                        ON CONFLICT (id) DO NOTHING
+                        """,
+                        event.insight_id,
+                        event.campaign_id,
+                        event.kind,
+                        event.title,
+                        event.confidence,
+                        orjson.dumps(event.body).decode(),
+                        event.ts,
+                    )
 
     @staticmethod
     async def _bump(
         conn: asyncpg.Connection,
         campaign_id: UUID,
+        seq: int,
         *,
         invited: int = 0,
         started: int = 0,
@@ -190,11 +220,14 @@ class CampaignProjector:
         total_duration_seconds: int = 0,
         total_goal_coverage: float = 0.0,
     ) -> None:
+        # last_event_seq guard makes counter bumps idempotent: replays (e.g.
+        # the router's sync re-application of a whole stream) and the live
+        # tail loop can both apply the same event without double counting.
         await conn.execute(
             """
             INSERT INTO progress_snapshots
-              (campaign_id, invited, started, completed, abandoned, total_duration_seconds, total_goal_coverage, updated_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+              (campaign_id, invited, started, completed, abandoned, total_duration_seconds, total_goal_coverage, updated_at, last_event_seq)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8)
             ON CONFLICT (campaign_id) DO UPDATE SET
               invited = progress_snapshots.invited + EXCLUDED.invited,
               started = progress_snapshots.started + EXCLUDED.started,
@@ -202,7 +235,9 @@ class CampaignProjector:
               abandoned = progress_snapshots.abandoned + EXCLUDED.abandoned,
               total_duration_seconds = progress_snapshots.total_duration_seconds + EXCLUDED.total_duration_seconds,
               total_goal_coverage = progress_snapshots.total_goal_coverage + EXCLUDED.total_goal_coverage,
-              updated_at = NOW()
+              updated_at = NOW(),
+              last_event_seq = EXCLUDED.last_event_seq
+            WHERE progress_snapshots.last_event_seq < EXCLUDED.last_event_seq
             """,
             campaign_id,
             invited,
@@ -211,6 +246,7 @@ class CampaignProjector:
             abandoned,
             total_duration_seconds,
             total_goal_coverage,
+            seq,
         )
 
     async def get_campaign(self, campaign_id: UUID) -> CampaignProjection | None:
@@ -246,3 +282,65 @@ class CampaignProjector:
             total_goal_coverage=row["total_goal_coverage"],
             spent_usd=row["spent_usd"],
         )
+
+    async def list_campaigns(self, org_id: UUID) -> list[dict[str, Any]]:
+        """All campaigns for an org, newest first, with progress counters inlined."""
+        rows = await self._pool.fetch(
+            """
+            SELECT c.id, c.title, c.status, c.spec, c.created_at, c.updated_at,
+                   COALESCE(p.invited, 0)   AS invited,
+                   COALESCE(p.started, 0)   AS started,
+                   COALESCE(p.completed, 0) AS completed,
+                   COALESCE(p.abandoned, 0) AS abandoned
+            FROM campaigns c
+            LEFT JOIN progress_snapshots p ON p.campaign_id = c.id
+            WHERE c.org_id = $1
+            ORDER BY c.updated_at DESC
+            """,
+            org_id,
+        )
+        out: list[dict[str, Any]] = []
+        for row in rows:
+            spec = CampaignSpec.model_validate_json(row["spec"])
+            out.append(
+                {
+                    "id": str(row["id"]),
+                    "title": row["title"],
+                    "status": row["status"],
+                    "goal": spec.goal,
+                    "target_completions": spec.target_completions,
+                    "question_count": len(spec.outline.items),
+                    "created_at": row["created_at"].isoformat(),
+                    "updated_at": row["updated_at"].isoformat(),
+                    "progress": {
+                        "invited": row["invited"],
+                        "started": row["started"],
+                        "completed": row["completed"],
+                        "abandoned": row["abandoned"],
+                    },
+                }
+            )
+        return out
+
+    async def list_insights(self, campaign_id: UUID) -> list[dict[str, Any]]:
+        """All persisted insights for one campaign, newest first."""
+        rows = await self._pool.fetch(
+            """
+            SELECT id, kind, title, confidence, body, created_at
+            FROM insights
+            WHERE campaign_id = $1
+            ORDER BY created_at DESC, confidence DESC
+            """,
+            campaign_id,
+        )
+        return [
+            {
+                "id": str(row["id"]),
+                "kind": row["kind"],
+                "title": row["title"],
+                "confidence": row["confidence"],
+                "body": orjson.loads(row["body"]),
+                "created_at": row["created_at"].isoformat(),
+            }
+            for row in rows
+        ]

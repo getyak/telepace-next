@@ -61,5 +61,6 @@ jobs:
         with:
           version: 9
       - run: pnpm install --frozen-lockfile
+      - run: bash scripts/design-guard.sh
       - run: pnpm typecheck
       - run: pnpm build
