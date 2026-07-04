@@ -117,3 +117,22 @@ export async function getCampaign(id: string) {
 export async function startCampaign(id: string) {
   return apiFetch(apiEndpoints.campaigns.start(id), { method: "POST" });
 }
+
+export type SimulatedTurn = { question: string; answer: string };
+export type SimulateResponse = {
+  persona_used: string;
+  persona_summary?: string;
+  turns: SimulatedTurn[];
+  parse_ok: boolean;
+  raw_reply?: string;
+};
+
+export async function simulateInterview(
+  id: string,
+  body: { persona?: string; seed?: number } = {},
+): Promise<SimulateResponse> {
+  return apiFetch<SimulateResponse>(apiEndpoints.campaigns.simulate(id), {
+    method: "POST",
+    json: body,
+  });
+}

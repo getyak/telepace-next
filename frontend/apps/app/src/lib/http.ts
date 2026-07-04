@@ -4,25 +4,69 @@
  * Wraps `fetch` with:
  *   - env-driven base URL (no scattered `localhost:xxxx` fallbacks)
  *   - automatic Bearer token attachment (reads from tokenStore)
- *   - consistent JSON body + error handling
- *   - one place to add refresh-on-401, retries, telemetry later
+ *   - 401 → single-flight token refresh → single retry
+ *   - classified errors (ApiError with `kind`) — see lib/errors.ts
+ *   - a lightweight event bus so a global Toaster can react to every
+ *     failed request without every call site having to opt in
  */
 
 import { env } from "@telepace/config";
 
+import { ApiError, kindFromStatus } from "./errors";
 import { tokenStore } from "./auth/store";
 
-export class ApiError extends Error {
-  constructor(
-    public readonly status: number,
-    public readonly detail: string,
-  ) {
-    super(`HTTP ${status}: ${detail}`);
-    this.name = "ApiError";
+export { ApiError } from "./errors";
+export type { ErrorKind } from "./errors";
+
+type RequestInit_ = RequestInit & { json?: unknown };
+
+// ---------- Event bus (module-local; no framework dep) ---------------------
+
+export type HttpEvent =
+  | { type: "api:error"; error: ApiError; method: string; path: string }
+  | { type: "auth:expired" };
+
+type Listener = (evt: HttpEvent) => void;
+const listeners = new Set<Listener>();
+
+export function onHttpEvent(fn: Listener): () => void {
+  listeners.add(fn);
+  return () => {
+    listeners.delete(fn);
+  };
+}
+
+function emit(evt: HttpEvent): void {
+  for (const fn of listeners) {
+    try {
+      fn(evt);
+    } catch {
+      /* subscriber must not break the request */
+    }
   }
 }
 
-type RequestInit_ = RequestInit & { json?: unknown };
+// ---------- Single-flight refresh -----------------------------------------
+
+let refreshInFlight: Promise<boolean> | null = null;
+
+async function refreshOnce(): Promise<boolean> {
+  if (refreshInFlight) return refreshInFlight;
+  refreshInFlight = (async () => {
+    // Lazy import to avoid a cycle (auth/client.ts imports http.ts).
+    const { refreshTokens } = await import("./auth/client");
+    const res = await refreshTokens();
+    return res != null;
+  })().finally(() => {
+    // Release the lock on next tick so pending 401s don't reuse a stale result.
+    setTimeout(() => {
+      refreshInFlight = null;
+    }, 0);
+  });
+  return refreshInFlight;
+}
+
+// ---------- Core request ---------------------------------------------------
 
 function buildHeaders(init: RequestInit_): Headers {
   const headers = new Headers(init.headers);
@@ -36,22 +80,85 @@ function buildHeaders(init: RequestInit_): Headers {
   return headers;
 }
 
+function methodOf(init: RequestInit_): string {
+  return (init.method || "GET").toUpperCase();
+}
+
+async function doFetch(path: string, init: RequestInit_): Promise<Response> {
+  const { json, headers: _h, ...rest } = init;
+  const headers = buildHeaders(init);
+  try {
+    return await fetch(`${env.apiBaseUrl}${path}`, {
+      ...rest,
+      headers,
+      body: json !== undefined ? JSON.stringify(json) : rest.body,
+    });
+  } catch (cause) {
+    // fetch() only throws on network / abort / CORS — anything else is Response.
+    const aborted =
+      cause instanceof DOMException && cause.name === "AbortError";
+    const err = new ApiError({
+      kind: aborted ? "CANCELED" : "NETWORK",
+      status: 0,
+      detail: (cause as Error)?.message ?? "fetch failed",
+    });
+    emit({ type: "api:error", error: err, method: methodOf(init), path });
+    throw err;
+  }
+}
+
+async function toApiError(
+  res: Response,
+  path: string,
+  init: RequestInit_,
+): Promise<ApiError> {
+  const detail = await res.text().catch(() => res.statusText);
+  const err = new ApiError({
+    kind: kindFromStatus(res.status),
+    status: res.status,
+    detail: detail || res.statusText,
+    requestId: res.headers.get("x-request-id") ?? undefined,
+  });
+  emit({ type: "api:error", error: err, method: methodOf(init), path });
+  return err;
+}
+
+/**
+ * Perform request; on 401 attempt single-flight refresh + one retry.
+ * Returns the final Response (never a 401 unless refresh failed).
+ */
+async function requestWithAuthRetry(
+  path: string,
+  init: RequestInit_,
+): Promise<Response> {
+  let res = await doFetch(path, init);
+  if (res.status !== 401) return res;
+
+  // Never try to refresh the auth endpoints themselves — that would loop.
+  if (path.startsWith("/auth/")) return res;
+
+  const ok = await refreshOnce();
+  if (!ok) {
+    tokenStore.clear();
+    emit({ type: "auth:expired" });
+    return res;
+  }
+  res = await doFetch(path, init);
+  if (res.status === 401) {
+    tokenStore.clear();
+    emit({ type: "auth:expired" });
+  }
+  return res;
+}
+
+// ---------- Public API -----------------------------------------------------
+
 export async function apiFetch<T = unknown>(
   path: string,
   init: RequestInit_ = {},
 ): Promise<T> {
-  const { json, headers: _h, ...rest } = init;
-  const headers = buildHeaders(init);
-  const res = await fetch(`${env.apiBaseUrl}${path}`, {
-    ...rest,
-    headers,
-    body: json !== undefined ? JSON.stringify(json) : rest.body,
-  });
-
-  if (!res.ok) {
-    const detail = await res.text().catch(() => res.statusText);
-    throw new ApiError(res.status, detail || res.statusText);
-  }
+  const res = await requestWithAuthRetry(path, init);
+  if (!res.ok) throw await toApiError(res, path, init);
   if (res.status === 204) return undefined as T;
   return res.json();
 }
@@ -61,16 +168,7 @@ export async function apiFetchRaw(
   path: string,
   init: RequestInit_ = {},
 ): Promise<Response> {
-  const { json, headers: _h, ...rest } = init;
-  const headers = buildHeaders(init);
-  const res = await fetch(`${env.apiBaseUrl}${path}`, {
-    ...rest,
-    headers,
-    body: json !== undefined ? JSON.stringify(json) : rest.body,
-  });
-  if (!res.ok || !res.body) {
-    const detail = await res.text().catch(() => res.statusText);
-    throw new ApiError(res.status, detail || `HTTP ${res.status}`);
-  }
+  const res = await requestWithAuthRetry(path, init);
+  if (!res.ok || !res.body) throw await toApiError(res, path, init);
   return res;
 }

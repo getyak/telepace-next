@@ -21,6 +21,7 @@ export const apiEndpoints = {
     refineStream: (id: string) => `/v1/campaigns/${id}/refine/stream`,
     start: (id: string) => `/v1/campaigns/${id}/start`,
     dispatch: (id: string) => `/v1/campaigns/${id}/dispatch`,
+    simulate: (id: string) => `/v1/campaigns/${id}/simulate`,
   },
   interviews: {
     join: "/v1/interviews/join",

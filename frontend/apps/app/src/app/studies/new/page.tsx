@@ -3,17 +3,40 @@
 import { useState } from "react";
 import { Button, ChatFeed, ChatComposer, type ChatMessage } from "@telepace/ui";
 import { ALL_CHANNELS, CHANNELS } from "@telepace/config";
-import { createCampaign, refineOutlineStream } from "@/lib/api";
+import {
+  createCampaign,
+  getCampaign,
+  refineOutlineStream,
+  simulateInterview,
+  startCampaign,
+  type SimulateResponse,
+} from "@/lib/api";
+import { friendlyMessage } from "@/lib/errors";
+import { useRouter } from "next/navigation";
 
-type OutlineItem = { order: number; question: string; goal: string };
+type OutlineItem = {
+  order: number;
+  question: string;
+  goal: string;
+  max_followups?: number;
+  branch_if_positive?: string | null;
+  branch_if_negative?: string | null;
+};
+
+type ChannelEntry = { kind: string; config?: Record<string, string> };
 
 type Spec = {
   title: string;
   goal: string;
+  background: string;
+  hypotheses: string[];
+  target_persona: string;
+  audience_screener: string[];
   outline: OutlineItem[];
   channels: string[];
   target_completions: number;
   estimated_minutes: number;
+  success_criteria: string[];
 };
 
 const INITIAL_MESSAGES: ChatMessage[] = [
@@ -27,44 +50,125 @@ const INITIAL_MESSAGES: ChatMessage[] = [
 const INITIAL_SPEC: Spec = {
   title: "New study",
   goal: "",
+  background: "",
+  hypotheses: [],
+  target_persona: "",
+  audience_screener: [],
   outline: [],
   channels: [CHANNELS.webText],
   target_completions: 10,
   estimated_minutes: 15,
+  success_criteria: [],
 };
 
+type ServerSpec = {
+  goal?: string;
+  background?: string;
+  hypotheses?: string[];
+  target_persona?: string;
+  audience_screener?: string[];
+  outline?: {
+    items?: OutlineItem[];
+    estimated_duration_minutes?: number;
+    success_criteria?: string[];
+  };
+  channels?: ChannelEntry[];
+  target_completions?: number;
+};
+
+// Merge any subset of server-shaped spec fields into local Spec state.
+// Applied identically to the initial GET-after-create load and to every
+// SSE spec_patch, so no field the Designer produces is silently dropped.
+function mergeServerSpec(prev: Spec, patch: ServerSpec, title?: string): Spec {
+  const next: Spec = { ...prev };
+  if (title !== undefined) next.title = title;
+  if (typeof patch.goal === "string" && patch.goal) next.goal = patch.goal;
+  if (typeof patch.background === "string") next.background = patch.background;
+  if (Array.isArray(patch.hypotheses)) next.hypotheses = patch.hypotheses.filter(Boolean);
+  if (typeof patch.target_persona === "string") next.target_persona = patch.target_persona;
+  if (Array.isArray(patch.audience_screener))
+    next.audience_screener = patch.audience_screener.filter(Boolean);
+  if (patch.outline) {
+    if (Array.isArray(patch.outline.items)) next.outline = patch.outline.items;
+    if (typeof patch.outline.estimated_duration_minutes === "number")
+      next.estimated_minutes = patch.outline.estimated_duration_minutes;
+    if (Array.isArray(patch.outline.success_criteria))
+      next.success_criteria = patch.outline.success_criteria.filter(Boolean);
+  }
+  if (Array.isArray(patch.channels))
+    next.channels = patch.channels.map((c) => c.kind).filter(Boolean);
+  if (typeof patch.target_completions === "number")
+    next.target_completions = patch.target_completions;
+  return next;
+}
+
 export default function NewStudyPage() {
+  const router = useRouter();
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
   const [spec, setSpec] = useState<Spec>(INITIAL_SPEC);
   const [campaignId, setCampaignId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [simOpen, setSimOpen] = useState(false);
+  const [simLoading, setSimLoading] = useState(false);
+  const [simSeed, setSimSeed] = useState(0);
+  const [sim, setSim] = useState<SimulateResponse | null>(null);
+  const [simError, setSimError] = useState<string | null>(null);
+
+  async function handleSimulate(nextSeed?: number) {
+    if (!campaignId || spec.outline.length === 0) return;
+    const seed = nextSeed ?? simSeed;
+    setSimSeed(seed);
+    setSimOpen(true);
+    setSimLoading(true);
+    setSimError(null);
+    try {
+      const r = await simulateInterview(campaignId, { seed });
+      setSim(r);
+      if (!r.parse_ok) {
+        setSimError("AI returned a response we couldn't parse. Try again.");
+      }
+    } catch (err) {
+      setSimError(friendlyMessage(err).description);
+    } finally {
+      setSimLoading(false);
+    }
+  }
 
   async function handleSend(text: string) {
     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "respondent", text }]);
     setBusy(true);
     try {
       if (!campaignId) {
+        const derivedTitle = deriveTitle(text);
         const created = await createCampaign({
-          title: spec.title === "New study" ? deriveTitle(text) : spec.title,
+          title: derivedTitle,
           goal: text,
         });
         setCampaignId(created.campaign_id);
-        setSpec((s) => ({ ...s, title: deriveTitle(text), goal: text }));
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: crypto.randomUUID(),
-            role: "interviewer",
-            text: "I've drafted a starting outline on the right. Anything to change?",
-          },
-        ]);
-        // Seed outline (client-side placeholder — real spec comes from Designer via SpecUpdated events)
-        setSpec((s) => ({
-          ...s,
-          outline: DEFAULT_OUTLINE,
-        }));
+        setSpec((s) => ({ ...s, title: derivedTitle, goal: text }));
+        const fetched = await loadSpecWithRetry(created.campaign_id);
+        if (fetched) {
+          setSpec((s) => mergeServerSpec(s, fetched, derivedTitle));
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: crypto.randomUUID(),
+              role: "interviewer",
+              text: describeSeed(fetched),
+            },
+          ]);
+        } else {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: crypto.randomUUID(),
+              role: "interviewer",
+              text: "I've drafted a starting outline on the right. Anything to change?",
+            },
+          ]);
+        }
       } else {
-        // Create a placeholder interviewer message we mutate in-place as deltas arrive.
         const streamingId = crypto.randomUUID();
         setMessages((prev) => [
           ...prev,
@@ -75,7 +179,6 @@ export default function NewStudyPage() {
             const next = prev.slice();
             const last = next[next.length - 1];
             if (last && last.id === streamingId) {
-              // Strip anything past <spec_patch> from the visible bubble.
               const combined = (last.text ?? "") + delta;
               const cleaned = combined.replace(/<spec_patch>[\s\S]*?(<\/spec_patch>|$)/g, "");
               next[next.length - 1] = { ...last, text: cleaned };
@@ -86,10 +189,7 @@ export default function NewStudyPage() {
         await refineOutlineStream(campaignId, text, {
           onDelta: appendDelta,
           onPatch: (patch) => {
-            const outline = (patch as { outline?: { items?: OutlineItem[] } })?.outline;
-            if (outline?.items) {
-              setSpec((s) => ({ ...s, outline: outline.items! }));
-            }
+            setSpec((s) => mergeServerSpec(s, patch as ServerSpec));
           },
           onDone: (summary) => {
             if (summary) {
@@ -116,16 +216,37 @@ export default function NewStudyPage() {
         });
       }
     } catch (err) {
+      const copy = friendlyMessage(err);
       setMessages((prev) => [
         ...prev,
         {
           id: crypto.randomUUID(),
           role: "system",
-          text: `Error: ${(err as Error).message}`,
+          text: `${copy.title}:${copy.description}`,
         },
       ]);
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function handlePublish() {
+    if (!campaignId) return;
+    setPublishing(true);
+    try {
+      await startCampaign(campaignId);
+      router.push(`/studies/${campaignId}`);
+    } catch (err) {
+      const copy = friendlyMessage(err);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: "system",
+          text: `发布失败 — ${copy.title}:${copy.description}`,
+        },
+      ]);
+      setPublishing(false);
     }
   }
 
@@ -139,7 +260,11 @@ export default function NewStudyPage() {
         <div className="flex-1 overflow-y-auto px-6">
           <ChatFeed messages={messages} />
         </div>
-        <ChatComposer onSend={handleSend} disabled={busy} placeholder="Describe what you want to learn…" />
+        <ChatComposer
+          onSend={handleSend}
+          disabled={busy}
+          placeholder="Describe what you want to learn…"
+        />
       </section>
 
       {/* Right: canvas pane */}
@@ -152,11 +277,20 @@ export default function NewStudyPage() {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm">
-              Preview
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={!campaignId || spec.outline.length === 0 || simLoading}
+              onClick={() => handleSimulate()}
+            >
+              {simLoading ? "Simulating…" : "Simulate respondent"}
             </Button>
-            <Button size="sm" disabled={!campaignId || spec.outline.length === 0}>
-              Publish study
+            <Button
+              size="sm"
+              disabled={!campaignId || spec.outline.length === 0 || publishing}
+              onClick={handlePublish}
+            >
+              {publishing ? "Publishing…" : "Publish study"}
             </Button>
           </div>
         </header>
@@ -170,6 +304,43 @@ export default function NewStudyPage() {
             />
             {spec.goal && (
               <p className="text-body mt-3 text-lg leading-relaxed max-w-xl">{spec.goal}</p>
+            )}
+
+            {spec.target_persona && (
+              <div className="mt-6 rounded-card border border-hairline bg-paper p-4">
+                <p className="overline mb-1">Target persona</p>
+                <p className="text-body">{spec.target_persona}</p>
+              </div>
+            )}
+
+            {spec.hypotheses.length > 0 && (
+              <div className="mt-6">
+                <p className="overline mb-2">Hypotheses</p>
+                <ul className="space-y-1.5">
+                  {spec.hypotheses.map((h, i) => (
+                    <li key={i} className="flex gap-3 text-body">
+                      <span className="font-mono text-xs text-muted pt-0.5">H{i + 1}</span>
+                      <span>{h}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {spec.audience_screener.length > 0 && (
+              <div className="mt-6">
+                <p className="overline mb-2">Audience screener</p>
+                <div className="flex flex-wrap gap-2">
+                  {spec.audience_screener.map((q, i) => (
+                    <span
+                      key={i}
+                      className="px-3 py-1.5 rounded-pill text-xs border border-hairline bg-paper text-body"
+                    >
+                      {q}
+                    </span>
+                  ))}
+                </div>
+              </div>
             )}
 
             <div className="mt-10">
@@ -200,6 +371,20 @@ export default function NewStudyPage() {
               )}
             </div>
 
+            {spec.success_criteria.length > 0 && (
+              <div className="mt-10">
+                <p className="overline mb-2">Success criteria</p>
+                <ul className="space-y-1.5">
+                  {spec.success_criteria.map((c, i) => (
+                    <li key={i} className="flex gap-3 text-body">
+                      <span className="font-mono text-xs text-muted pt-0.5">·</span>
+                      <span>{c}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div className="mt-10">
               <p className="overline mb-4">Delivery</p>
               <div className="flex flex-wrap gap-2">
@@ -228,6 +413,81 @@ export default function NewStudyPage() {
           </div>
         </div>
       </section>
+
+      {simOpen && (
+        <div
+          className="fixed inset-x-0 bottom-0 z-50 border-t border-hairline bg-paper shadow-2xl"
+          style={{ maxHeight: "60vh" }}
+          role="dialog"
+          aria-label="Simulated respondent"
+        >
+          <div className="h-14 px-6 flex items-center justify-between border-b border-hairline">
+            <div className="flex items-center gap-3">
+              <p className="overline">AI simulated respondent</p>
+              {sim?.persona_used && (
+                <span className="text-xs text-muted truncate max-w-md">
+                  {sim.persona_used}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={simLoading}
+                onClick={() => handleSimulate(simSeed + 1)}
+              >
+                {simLoading ? "Loading…" : "Another persona"}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSimOpen(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+          <div className="overflow-y-auto p-6" style={{ maxHeight: "calc(60vh - 3.5rem)" }}>
+            <div className="max-w-3xl mx-auto space-y-4">
+              {simError && (
+                <div className="rounded-card border border-hairline bg-paper-elevated p-4 text-sm text-muted">
+                  {simError}
+                </div>
+              )}
+              {simLoading && !sim && (
+                <div className="rounded-card border border-dashed border-hairline p-8 text-center text-muted">
+                  AI is drafting a respondent…
+                </div>
+              )}
+              {sim?.persona_summary && (
+                <div className="rounded-card border border-hairline bg-paper-elevated p-4">
+                  <p className="overline mb-1">Persona summary</p>
+                  <p className="text-body">{sim.persona_summary}</p>
+                </div>
+              )}
+              {sim?.turns.map((t, i) => (
+                <div key={i} className="rounded-card border border-hairline bg-paper p-4">
+                  <div className="flex gap-3">
+                    <span className="font-mono text-xs text-muted pt-0.5 w-6">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <div className="flex-1 space-y-2">
+                      <p className="text-xs text-muted">{t.question}</p>
+                      <p className="text-ink leading-relaxed">{t.answer}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {sim && sim.turns.length === 0 && !simLoading && !simError && (
+                <div className="rounded-card border border-dashed border-hairline p-8 text-center text-muted">
+                  No turns returned. Try another persona.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -238,10 +498,37 @@ function deriveTitle(text: string) {
   return cut.length < t.length ? `${cut}…` : cut;
 }
 
-const DEFAULT_OUTLINE: OutlineItem[] = [
-  { order: 1, question: "Tell me a bit about your role and what you're working on.", goal: "context" },
-  { order: 2, question: "Walk me through the last time you tried to solve this problem.", goal: "current behavior" },
-  { order: 3, question: "What went well? What was frustrating?", goal: "satisfaction" },
-  { order: 4, question: "If a magic wand solved it, what would 'solved' look like?", goal: "ideal state" },
-  { order: 5, question: "What have you already tried that didn't work?", goal: "prior attempts" },
-];
+function describeSeed(spec: ServerSpec): string {
+  const nQ = spec.outline?.items?.length ?? 0;
+  const nH = spec.hypotheses?.length ?? 0;
+  const persona = spec.target_persona ? "target persona" : "";
+  const parts = [
+    nQ > 0 ? `${nQ} questions` : "",
+    nH > 0 ? `${nH} hypotheses` : "",
+    persona,
+  ].filter(Boolean);
+  if (parts.length === 0) {
+    return "I've drafted a starting outline. Anything to refine?";
+  }
+  return `Drafted ${parts.join(", ")}. Tell me what to sharpen.`;
+}
+
+async function loadSpecWithRetry(id: string): Promise<ServerSpec | null> {
+  // Projection is eventually-consistent: create returns immediately, but the
+  // projector may need a few tens of ms to write the campaigns row. Retry
+  // with short backoff before giving up.
+  const delays = [80, 160, 320, 640, 1200];
+  for (const d of delays) {
+    try {
+      const doc = (await getCampaign(id)) as {
+        campaign?: { spec?: ServerSpec };
+      };
+      const s = doc?.campaign?.spec;
+      if (s) return s;
+    } catch {
+      // fall through
+    }
+    await new Promise((r) => setTimeout(r, d));
+  }
+  return null;
+}
