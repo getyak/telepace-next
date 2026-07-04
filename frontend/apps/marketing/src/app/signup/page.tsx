@@ -123,13 +123,13 @@ export default function SignupPage() {
               </form>
 
               <p className="mt-6 text-xs text-muted text-center">
-                By signing up you agree to our{" "}
+                By continuing you agree to the{" "}
                 <Link href={routes.terms} className="text-accent">
                   Terms
                 </Link>{" "}
                 and{" "}
                 <Link href={routes.privacy} className="text-accent">
-                  Privacy
+                  Privacy Policy
                 </Link>
                 .
               </p>

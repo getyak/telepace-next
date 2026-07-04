@@ -136,11 +136,8 @@ export default function PricingPage() {
               </ul>
               <Link href={t.cta.href} className="mt-8">
                 <Button
-                  className={
-                    "w-full " +
-                    (t.highlight ? "bg-paper text-ink hover:bg-paper-elevated" : "")
-                  }
-                  variant={t.highlight ? "primary" : "secondary"}
+                  className="w-full"
+                  variant={t.highlight ? "inverse" : "secondary"}
                 >
                   {t.cta.label}
                 </Button>

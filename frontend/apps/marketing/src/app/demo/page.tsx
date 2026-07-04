@@ -83,7 +83,7 @@ export default function DemoPage() {
             <div className="rounded-card border border-hairline bg-ink text-paper p-6">
               <p className="overline text-paper/70 mb-3">Prefer voice?</p>
               <p className="text-sm mb-4">The real interviewer is fully voice-capable — browser, outbound phone, inbound hotline.</p>
-              <Link href={routes.product.voice}><Button variant="secondary" className="border-paper/30 text-paper hover:bg-paper/10">Explore voice →</Button></Link>
+              <Link href={routes.product.voice}><Button variant="inverse-outline">Explore voice →</Button></Link>
             </div>
           </aside>
         </div>

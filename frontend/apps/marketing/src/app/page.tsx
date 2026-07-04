@@ -58,12 +58,16 @@ function Hero() {
 }
 
 function TrustBar() {
-  const stats = ["5 channels · one interview", "< 60s to launch a study", "MCP · Skill · REST"];
+  const stats = [
+    "5 channels · one interview",
+    "< 60s to launch a study",
+    "MCP · Skill · REST",
+  ];
   return (
     <section className="border-y border-hairline bg-paper-elevated">
-      <div className="container-content py-10 flex flex-wrap items-center justify-center gap-x-16 gap-y-6">
+      <div className="container-content py-10 flex flex-wrap items-center gap-x-12 gap-y-3 justify-center text-center">
         {stats.map((s) => (
-          <span key={s} className="font-display text-lg md:text-xl text-ink-soft text-center">
+          <span key={s} className="font-display text-lg text-ink-soft">
             {s}
           </span>
         ))}

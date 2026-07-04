@@ -3,8 +3,18 @@ import type { Metadata } from "next";
 import { Inter, Instrument_Serif } from "next/font/google";
 import { siteConfig } from "@telepace/config";
 
-const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-body" });
-const instrumentSerif = Instrument_Serif({ subsets: ["latin"], weight: "400", variable: "--font-display" });
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-body",
+  display: "swap",
+});
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-display",
+  display: "swap",
+});
 
 const description =
   "Your Claude, Cursor, and Codex can interview 100 users while you sleep — and wake up to structured insights they can act on.";

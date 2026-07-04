@@ -1,4 +1,5 @@
-import { Button } from "@telepace/ui";
+import { Button, Badge, EmptyState, icons } from "@telepace/ui";
+import { PageHeader } from "../../components/app/PageHeader";
 
 const items = [
   {
@@ -32,43 +33,49 @@ const items = [
   },
 ];
 
-const kindStyle: Record<string, string> = {
-  escalation: "bg-terracotta/10 text-terracotta border-terracotta/20",
-  insight: "bg-accent-soft text-accent border-accent/30",
-  progress: "bg-paper-sunken text-body border-hairline",
-  system: "bg-paper text-muted border-hairline",
+const kindVariant: Record<string, "danger" | "accent" | "neutral"> = {
+  escalation: "danger",
+  insight: "accent",
+  progress: "neutral",
+  system: "neutral",
 };
 
 export default function InboxPage() {
   return (
     <div className="p-10 max-w-content mx-auto">
-      <header className="flex items-end justify-between mb-10">
-        <div>
-          <p className="overline mb-2">Inbox</p>
-          <h1 className="font-display text-4xl">Everything that needs a human.</h1>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="ghost" size="sm">Mark all read</Button>
-          <Button variant="secondary" size="sm">Filter</Button>
-        </div>
-      </header>
+      <PageHeader
+        eyebrow="Inbox"
+        title="Everything that needs a human."
+        action={
+          <div className="flex gap-2">
+            <Button variant="ghost" size="sm">Mark all read</Button>
+            <Button variant="secondary" size="sm">Filter</Button>
+          </div>
+        }
+      />
 
-      <div className="border border-hairline rounded-card divide-y divide-hairline bg-paper-elevated">
-        {items.map((it) => (
-          <article key={it.id} className="grid grid-cols-12 items-start gap-4 px-6 py-5 hover:bg-paper transition-colors">
-            <div className="col-span-2">
-              <span className={`inline-block px-2.5 py-0.5 rounded-pill border text-xs ${kindStyle[it.kind]}`}>
-                {it.kind}
-              </span>
-            </div>
-            <div className="col-span-8">
-              <p className="text-xs text-muted mb-1">{it.study}</p>
-              <p className={it.urgent ? "text-ink font-medium" : "text-body"}>{it.body}</p>
-            </div>
-            <div className="col-span-2 text-right text-sm text-muted">{it.time}</div>
-          </article>
-        ))}
-      </div>
+      {items.length === 0 ? (
+        <EmptyState
+          icon={<icons.InboxIcon size={28} />}
+          title="Inbox zero."
+          description="Escalations, new insights, and progress updates will show up here as your studies run."
+        />
+      ) : (
+        <div className="border border-hairline rounded-card divide-y divide-hairline bg-paper-elevated">
+          {items.map((it) => (
+            <article className="grid grid-cols-2 md:grid-cols-12 items-start gap-x-4 gap-y-2 px-6 py-5 hover:bg-paper transition-colors" key={it.id}>
+              <div className="md:col-span-2">
+                <Badge variant={kindVariant[it.kind] ?? "neutral"}>{it.kind}</Badge>
+              </div>
+              <div className="text-right text-sm text-muted md:col-span-2 md:order-3">{it.time}</div>
+              <div className="col-span-2 md:col-span-8 md:order-2">
+                <p className="text-xs text-muted mb-1">{it.study}</p>
+                <p className={it.urgent ? "text-ink font-medium" : "text-body"}>{it.body}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

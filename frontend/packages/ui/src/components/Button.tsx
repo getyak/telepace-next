@@ -17,7 +17,7 @@ const variants = {
   primary: "bg-ink text-paper hover:bg-ink-soft",
   secondary: "bg-transparent text-ink border border-hairline hover:bg-paper-elevated",
   ghost: "bg-transparent text-body hover:text-ink",
-  danger: "bg-danger text-paper hover:opacity-90",
+  danger: "bg-danger text-paper hover:bg-danger/90",
   inverse: "bg-paper text-ink hover:bg-paper-elevated",
   "inverse-outline": "bg-transparent text-paper border border-paper/30 hover:bg-paper/10",
 };
@@ -35,7 +35,10 @@ const spinnerSize = {
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size = "md", loading = false, disabled, children, ...props }, ref) => (
+  (
+    { className, variant = "primary", size = "md", loading = false, disabled, children, ...props },
+    ref,
+  ) => (
     <button
       ref={ref}
       disabled={disabled || loading}
