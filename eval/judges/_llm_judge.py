@@ -12,7 +12,7 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-from agents.shared.llm import LLMMessage, LLMResponse, MockLLM, OpenRouterLLM
+from agents.shared.llm import LLMMessage, LLMResponse, MockLLM
 from core.constants import (
     JUDGE_FALLBACK_TEMPERATURE,
     JUDGE_MAX_TOKENS,
@@ -48,13 +48,9 @@ def _build_client():
         s = get_settings()
     except Exception:
         return MockLLM()
-    if s.llm_provider == "openrouter" and s.openrouter_api_key:
-        return OpenRouterLLM(
-            api_key=s.openrouter_api_key,
-            default_model=s.llm_model_general,
-            base_url=s.openrouter_base_url,
-        )
-    return MockLLM()
+    # strict=False: judges tolerate a missing key by falling back to MockLLM,
+    # which downstream skips scoring with a "provider not configured" rationale.
+    return build_llm_from_settings(s, strict=False)
 
 
 def _parse_score(resp: LLMResponse) -> tuple[float, str]:

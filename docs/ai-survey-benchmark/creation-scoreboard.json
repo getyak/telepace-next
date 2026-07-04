@@ -1,0 +1,1033 @@
+{
+  "US-01": {
+    "story_title": "独立咖啡店品牌重塑测试",
+    "ok": true,
+    "error": "",
+    "total": 91.45,
+    "scores": {
+      "intelligence": {
+        "judge": "intelligence",
+        "score": 93.0,
+        "breakdown": {
+          "proactivity": 18.0,
+          "domain_recognition": 14.0,
+          "persona_inference": 14.0,
+          "methodology_explains_why": 19.0,
+          "simulation_realism": 15,
+          "antifragile_edits": 13.0
+        },
+        "notes": [
+          "The 'AI recommendations' section demonstrates high proactivity by suggesting blind tests, competitor comparison, and brand story validation, which go beyond a basic survey.",
+          "Simulation realism is exceptional; the respondent uses local dialect ('摆龙门阵') and articulates nuanced emotional distinctions (loyalty to coffee vs. attachment to brand intimacy) that feel authentic to",
+          "Methodology is strong because every single question includes a specific 'goal' field, explicitly justifying its existence in the study.",
+          "Minor inconsistency: The target persona specifies '5 times' consumption, but the screener asks for 'more than 3 times'. This slight misalignment could let in less loyal users.",
+          "Branching logic in Q5 is well-designed to probe the 'why' behind positive or negative reactions, showing good adaptive planning."
+        ]
+      },
+      "experience": {
+        "judge": "experience",
+        "score": 85.0,
+        "breakdown": {
+          "flow_coherence": 17.0,
+          "state_visibility": 14.0,
+          "error_tolerance": 10.0,
+          "cognitive_load": 14.0,
+          "keyboard_a11y": 12.0,
+          "session_continuity": 9.0,
+          "mobile_usability": 9.0
+        },
+        "notes": [
+          "Critical logic mismatch: Screener question allows users with >3 visits, but the target persona requires >5 visits, risking data contamination.",
+          "High creation latency (62s) suggests a poor user experience during the study setup phase, though the study design itself is solid.",
+          "Strong narrative arc in the outline, moving from broad brand association to specific logo feedback.",
+          "Effective use of branching logic in Q5 to probe specific sentiments (warmth).",
+          "Text-based interface ('web_text') ensures good baseline accessibility and mobile compatibility."
+        ]
+      },
+      "aesthetic": {
+        "judge": "aesthetic",
+        "score": 91.0,
+        "breakdown": {
+          "typography_hierarchy_copy": 18.0,
+          "restraint_no_filler": 14.0,
+          "whitespace_friendly_copy": 12.0,
+          "font_neutral_copy": 10,
+          "motion_worthy_content": 14.0,
+          "dark_mode_ready": 10,
+          "icon_worthy_semantics": 4.0,
+          "empty_state_invitation": 9.0
+        },
+        "notes": [
+          "The copy is concise, professional, and devoid of marketing fluff, fitting the 'Editorial' baseline perfectly.",
+          "The narrative arc from abstract memory (Q1) to specific visual reaction (Q4-Q5) creates a strong logical flow suitable for motion transitions.",
+          "Questions are phrased naturally in Chinese, encouraging thoughtful responses rather than binary clicks.",
+          "The 'AI recommendations' section provides valuable context but needs distinct typographic styling to avoid looking like system noise.",
+          "Some questions (e.g., Q2, Q3) are slightly wordy and may require careful wrapping on smaller viewports to maintain whitespace."
+        ]
+      },
+      "efficiency": {
+        "judge": "efficiency",
+        "score": 100.0,
+        "breakdown": {
+          "time_to_spec": 40.0,
+          "rounds": 30.0,
+          "first_token": 20.0,
+          "publish_one_click": 10.0
+        },
+        "notes": [
+          "total_seconds=62.6, outline_items=8"
+        ]
+      },
+      "vs_listenlabs": {
+        "judge": "vs_listenlabs",
+        "score": 91.0,
+        "breakdown": {
+          "unique_capability": 38.0,
+          "fewer_rounds": 18.0,
+          "aesthetic_edge": 16.0,
+          "methodology_stance": 19.0
+        },
+        "notes": [
+          "The inclusion of conditional branching logic (branch_if_positive/negative) within the outline generation significantly outperforms standard linear outline generation.",
+          "The 'AI recommendations' section in the background acts as a proactive methodological consultant, suggesting blind tests and competitor analysis—addressing the 'single-shot' weakness of the baseline.",
+          "The simulation summary provides a tangible preview of the respondent experience, a feature explicitly missing from Listen Labs.",
+          "The spec includes success criteria and hypotheses, framing the study as a scientific experiment rather than just a questionnaire."
+        ]
+      }
+    },
+    "artifact": {
+      "campaign_id": "9e117458-04a4-4d45-96c6-05322cdae29c",
+      "create_ms": 62361.9934169983,
+      "get_ms": 276.41870800289325,
+      "simulate_ms": 95153.97308299725,
+      "spec_summary": {
+        "n_hypotheses": 4,
+        "n_outline": 8,
+        "n_screener": 4,
+        "n_success_criteria": 3,
+        "target_persona": "成都本地，过去半年内至少消费过 5 次的该店熟客。"
+      },
+      "n_sim_turns": 8
+    }
+  },
+  "US-02": {
+    "story_title": "B2B SaaS 用户流失访谈",
+    "ok": false,
+    "error": "simulate 502: {\"detail\":\"LLM error: Connection error.\"}",
+    "total": 0.0,
+    "scores": {
+      "intelligence": {
+        "judge": "intelligence",
+        "score": 0.0,
+        "breakdown": {},
+        "notes": [
+          "simulate 502: {\"detail\":\"LLM error: Connection error.\"}"
+        ]
+      },
+      "experience": {
+        "judge": "experience",
+        "score": 0.0,
+        "breakdown": {},
+        "notes": [
+          "simulate 502: {\"detail\":\"LLM error: Connection error.\"}"
+        ]
+      },
+      "aesthetic": {
+        "judge": "aesthetic",
+        "score": 0.0,
+        "breakdown": {},
+        "notes": [
+          "simulate 502: {\"detail\":\"LLM error: Connection error.\"}"
+        ]
+      },
+      "efficiency": {
+        "judge": "efficiency",
+        "score": 0.0,
+        "breakdown": {
+          "unavailable": 0.0
+        },
+        "notes": [
+          "simulate 502: {\"detail\":\"LLM error: Connection error.\"}"
+        ]
+      },
+      "vs_listenlabs": {
+        "judge": "vs_listenlabs",
+        "score": 0.0,
+        "breakdown": {},
+        "notes": [
+          "simulate 502: {\"detail\":\"LLM error: Connection error.\"}"
+        ]
+      }
+    },
+    "artifact": {
+      "campaign_id": "71d92093-5eca-41aa-bea9-0fa611567959",
+      "create_ms": 155929.07195900625,
+      "get_ms": 1087.2738330072025,
+      "simulate_ms": 17381.540166999912,
+      "spec_summary": {
+        "n_hypotheses": 4,
+        "n_outline": 7,
+        "n_screener": 3,
+        "n_success_criteria": 3,
+        "target_persona": "过去30天内取消Basic或Pro订阅的B2B SaaS付费用户"
+      },
+      "n_sim_turns": 0
+    }
+  },
+  "US-03": {
+    "story_title": "Figma 原型多市场可用性测试",
+    "ok": true,
+    "error": "",
+    "total": 32.4,
+    "scores": {
+      "intelligence": {
+        "judge": "intelligence",
+        "score": 0.0,
+        "breakdown": {},
+        "notes": [
+          "parse failed after retry; raw first 200: __LLM_ERROR__ Request timed out."
+        ]
+      },
+      "experience": {
+        "judge": "experience",
+        "score": 0.0,
+        "breakdown": {},
+        "notes": [
+          "parse failed after retry; raw first 200: __LLM_ERROR__ Connection error."
+        ]
+      },
+      "aesthetic": {
+        "judge": "aesthetic",
+        "score": 87.0,
+        "breakdown": {
+          "typography_hierarchy_copy": 14.0,
+          "restraint_no_filler": 15,
+          "whitespace_friendly_copy": 11.0,
+          "font_neutral_copy": 10,
+          "motion_worthy_content": 13.0,
+          "dark_mode_ready": 10,
+          "icon_worthy_semantics": 5,
+          "empty_state_invitation": 9.0
+        },
+        "notes": [
+          "The 'goal' field is a long, run-on sentence; splitting it into a headline and subhead would improve editorial impact.",
+          "The 'background' section is a dense block of text; extracting the AI recommendations into a distinct grid or list would enhance whitespace and rhythm.",
+          "Hypotheses are concise and ideal for card-based UI components.",
+          "The outline items (questions/goals) are structured perfectly for a vertical timeline or step-based motion sequence.",
+          "Tone is clinical and precise, aligning well with a high-contrast, data-driven aesthetic."
+        ]
+      },
+      "efficiency": {
+        "judge": "efficiency",
+        "score": 100.0,
+        "breakdown": {
+          "time_to_spec": 40.0,
+          "rounds": 30.0,
+          "first_token": 20.0,
+          "publish_one_click": 10.0
+        },
+        "notes": [
+          "total_seconds=21.0, outline_items=8"
+        ]
+      },
+      "vs_listenlabs": {
+        "judge": "vs_listenlabs",
+        "score": 0.0,
+        "breakdown": {},
+        "notes": [
+          "parse failed after retry; raw first 200: __LLM_ERROR__ Connection error."
+        ]
+      }
+    },
+    "artifact": {
+      "campaign_id": "f15964b7-b352-44b5-859d-427aa2886934",
+      "create_ms": 20985.514375002822,
+      "get_ms": 47.75179199350532,
+      "simulate_ms": 37754.378124998766,
+      "spec_summary": {
+        "n_hypotheses": 4,
+        "n_outline": 8,
+        "n_screener": 4,
+        "n_success_criteria": 3,
+        "target_persona": "过去6个月内在美国、日本或巴西使用过零售App购物的智能手机用户。"
+      },
+      "n_sim_turns": 8
+    }
+  },
+  "US-04": {
+    "story_title": "Z 世代 Slogan 投射测试",
+    "ok": true,
+    "error": "",
+    "total": 86.75,
+    "scores": {
+      "intelligence": {
+        "judge": "intelligence",
+        "score": 92.0,
+        "breakdown": {
+          "proactivity": 18.0,
+          "domain_recognition": 14.0,
+          "persona_inference": 14.0,
+          "methodology_explains_why": 19.0,
+          "simulation_realism": 15,
+          "antifragile_edits": 12.0
+        },
+        "notes": [
+          "Strong proactive suggestions in the 'background' section (randomization, segmentation) showing awareness of research biases.",
+          "Methodology is excellent; every question includes a clear 'goal' explaining the specific psychological or marketing metric being tested.",
+          "Simulation is highly realistic, using authentic Gen Z slang ('氛围感拉满', '养生广告') and consistent psychographics.",
+          "Domain recognition is sharp, correctly identifying the importance of 'social currency' and 'aesthetics' for Chinese Gen Z consumers.",
+          "The inclusion of branching logic (branch_if_positive/negative) makes the interview guide robust.",
+          "Minor inconsistency: Recommends adding 'visual stimuli' in the background notes, but the channel config remains generic 'web_text'."
+        ]
+      },
+      "experience": {
+        "judge": "experience",
+        "score": 77.0,
+        "breakdown": {
+          "flow_coherence": 18.0,
+          "state_visibility": 13.0,
+          "error_tolerance": 11.0,
+          "cognitive_load": 10.0,
+          "keyboard_a11y": 14.0,
+          "session_continuity": 4.0,
+          "mobile_usability": 7.0
+        },
+        "notes": [
+          "Create latency of 63783ms is critically high and severely impacts the setup experience.",
+          "Logical progression from individual slogan analysis to comparison is well-structured.",
+          "Branching logic in Q5 and Q6 effectively captures nuance in user preference.",
+          "Open-ended text questions (Q1-Q3) may be tedious on mobile for the target demographic.",
+          "Estimated duration (10 mins) is appropriate for the depth of inquiry."
+        ]
+      },
+      "aesthetic": {
+        "judge": "aesthetic",
+        "score": 79.0,
+        "breakdown": {
+          "typography_hierarchy_copy": 13.0,
+          "restraint_no_filler": 10.0,
+          "whitespace_friendly_copy": 12.0,
+          "font_neutral_copy": 10,
+          "motion_worthy_content": 11.0,
+          "dark_mode_ready": 10,
+          "icon_worthy_semantics": 5,
+          "empty_state_invitation": 8.0
+        },
+        "notes": [
+          "The 'AI recommendations' section embedded in the background copy breaks the editorial voice and smells like template filler.",
+          "Markdown syntax (`**`) inside the 'background' string creates parsing noise for a clean UI.",
+          "Survey questions are functional but lack a distinct editorial POV; they read like a generic form rather than a curated experience.",
+          "The 'Hypotheses' section is the strongest editorial element—punchy, listable, and high-contrast.",
+          "Repetitive null values in branching logic (e.g., 'branch_if_positive': null) create visual clutter if rendered directly."
+        ]
+      },
+      "efficiency": {
+        "judge": "efficiency",
+        "score": 100.0,
+        "breakdown": {
+          "time_to_spec": 40.0,
+          "rounds": 30.0,
+          "first_token": 20.0,
+          "publish_one_click": 10.0
+        },
+        "notes": [
+          "total_seconds=63.8, outline_items=7"
+        ]
+      },
+      "vs_listenlabs": {
+        "judge": "vs_listenlabs",
+        "score": 91.0,
+        "breakdown": {
+          "unique_capability": 38.0,
+          "fewer_rounds": 18.0,
+          "aesthetic_edge": 16.0,
+          "methodology_stance": 19.0
+        },
+        "notes": [
+          "The inclusion of 'AI recommendations' within the spec (randomization, visual stimuli, segmentation) demonstrates a proactive methodological guardrail that Listen Labs lacks.",
+          "The 'simulation_summary' is a killer feature; it validates the persona and question flow instantly, solving the 'blind launch' anxiety inherent in Listen Labs' single-shot generation.",
+          "The outline's branching logic (branch_if_positive/negative) and max_followups allow for adaptive interviewing, which is significantly more sophisticated than standard linear survey outputs.",
+          "Explicit success criteria and hypotheses show a tighter integration of research objectives compared to generic prompt-to-survey tools."
+        ]
+      }
+    },
+    "artifact": {
+      "campaign_id": "9977ac82-fdb9-4cc3-8ef8-2c20c433eacd",
+      "create_ms": 63782.8066249931,
+      "get_ms": 19.755832996452227,
+      "simulate_ms": 202826.03166700574,
+      "spec_summary": {
+        "n_hypotheses": 3,
+        "n_outline": 7,
+        "n_screener": 3,
+        "n_success_criteria": 3,
+        "target_persona": "18-26岁，关注新消费品牌，乐于尝试新事物的城市青年。"
+      },
+      "n_sim_turns": 7
+    }
+  },
+  "US-05": {
+    "story_title": "糖尿病用户生物数据分享调研",
+    "ok": true,
+    "error": "",
+    "total": 88.4,
+    "scores": {
+      "intelligence": {
+        "judge": "intelligence",
+        "score": 88.0,
+        "breakdown": {
+          "proactivity": 16.0,
+          "domain_recognition": 14.0,
+          "persona_inference": 13.0,
+          "methodology_explains_why": 19.0,
+          "simulation_realism": 15,
+          "antifragile_edits": 11.0
+        },
+        "notes": [
+          "Proactivity: The 'AI recommendations' section adds value by suggesting specific tactics like privacy screenshots and voice channels for elderly users, showing good initiative.",
+          "Domain Recognition: Correctly identifies HIPAA/GDPR sensitivities and the need for explicit consent. The hypotheses reflect a mature understanding of the trust gap between medical and tech entities.",
+          "Persona Inference: The target persona is well-defined and aligns perfectly with the research goal. However, it could be more granular (e.g., distinguishing tech-savvy vs. reluctant adopters).",
+          "Methodology Explains Why: Excellent. Every question in the outline includes a clear 'goal' field, explicitly justifying its existence and linking it to the research objectives.",
+          "Simulation Realism: The simulated respondent is highly convincing. The use of specific device names (LibreLinkup), natural language ('乱七八糟的药品广告'), and consistent skepticism creates a realistic persona",
+          "Antifragile Edits: While the schema supports branching logic and follow-ups, the actual implementation is sparse (many 'null' branches). The design is robust in structure but could be more resilient i"
+        ]
+      },
+      "experience": {
+        "judge": "experience",
+        "score": 78.0,
+        "breakdown": {
+          "flow_coherence": 19.0,
+          "state_visibility": 6.0,
+          "error_tolerance": 14.0,
+          "cognitive_load": 14.0,
+          "keyboard_a11y": 11.0,
+          "session_continuity": 6.0,
+          "mobile_usability": 8.0
+        },
+        "notes": [
+          "The generated study structure is logically sound with excellent branching logic and clear hypotheses.",
+          "Critical UX failure: Create latency is 83,964ms (~84 seconds), which is unacceptable for a study-creation tool, severely impacting state visibility and session continuity.",
+          "Inclusion of 'web_voice' channel is a strong accessibility choice for the target demographic (potentially older diabetic users).",
+          "Screener questions are well-defined to ensure the correct persona is recruited."
+        ]
+      },
+      "aesthetic": {
+        "judge": "aesthetic",
+        "score": 94.0,
+        "breakdown": {
+          "typography_hierarchy_copy": 18.0,
+          "restraint_no_filler": 15,
+          "whitespace_friendly_copy": 14.0,
+          "font_neutral_copy": 10,
+          "motion_worthy_content": 13.0,
+          "dark_mode_ready": 10,
+          "icon_worthy_semantics": 5,
+          "empty_state_invitation": 9.0
+        },
+        "notes": [
+          "High information density with zero fluff; the 'Background' section uses semicolons effectively to maintain rhythm without needing line breaks.",
+          "Hypotheses are punchy and list-ready, perfect for editorial cards.",
+          "Questions are direct and conversational ('您是否...', '描述您...'), avoiding robotic template language.",
+          "The 'AI recommendations' block adds a nice meta-layer that breaks up the visual monotony of a standard list.",
+          "Copy is concise enough to render beautifully on mobile without truncation."
+        ]
+      },
+      "efficiency": {
+        "judge": "efficiency",
+        "score": 100.0,
+        "breakdown": {
+          "time_to_spec": 40.0,
+          "rounds": 30.0,
+          "first_token": 20.0,
+          "publish_one_click": 10.0
+        },
+        "notes": [
+          "total_seconds=84.0, outline_items=7"
+        ]
+      },
+      "vs_listenlabs": {
+        "judge": "vs_listenlabs",
+        "score": 87.0,
+        "breakdown": {
+          "unique_capability": 35.0,
+          "fewer_rounds": 18.0,
+          "aesthetic_edge": 15.0,
+          "methodology_stance": 19.0
+        },
+        "notes": [
+          "The inclusion of `branch_if_positive/negative` logic creates an adaptive interview structure that significantly outclasses Listen Labs' static, single-shot outlines.",
+          "The `simulation_summary` provides immediate validation of the persona and question flow, directly addressing Listen Labs' lack of in-product simulation.",
+          "Explicit methodology recommendations (e.g., 'sensitive question skip mechanism' and 'voice channels for elderly') demonstrate a sophisticated 'methodology-of-methodology' stance that rivals the 'Harva",
+          "The 'AI recommendations' section within the background adds a layer of proactive consultancy that Listen Labs does not explicitly offer in their generation phase.",
+          "While the spec is high-fidelity, the budget ($600 for 25 medical completions) is arguably optimistic compared to Listen Labs' premium 30M pool, though the spec's precision justifies the efficiency."
+        ]
+      }
+    },
+    "artifact": {
+      "campaign_id": "4e931207-5a91-4547-a3ca-42693674c3d5",
+      "create_ms": 83964.19212500041,
+      "get_ms": 23.208832993987016,
+      "simulate_ms": 22263.612416005344,
+      "spec_summary": {
+        "n_hypotheses": 4,
+        "n_outline": 7,
+        "n_screener": 3,
+        "n_success_criteria": 3,
+        "target_persona": "确诊II型糖尿病，使用数字化工具（App或智能设备）监测血糖，关注健康数据隐私的用户。"
+      },
+      "n_sim_turns": 7
+    }
+  },
+  "US-06": {
+    "story_title": "AI 报税助手 PMF 探索访谈",
+    "ok": true,
+    "error": "",
+    "total": 83.28,
+    "scores": {
+      "intelligence": {
+        "judge": "intelligence",
+        "score": 86.0,
+        "breakdown": {
+          "proactivity": 15.0,
+          "domain_recognition": 15,
+          "persona_inference": 15,
+          "methodology_explains_why": 18.0,
+          "simulation_realism": 15,
+          "antifragile_edits": 8.0
+        },
+        "notes": [
+          "Strong domain knowledge demonstrated by identifying specific pain points like 'WeChat/Alipay reconciliation' and the '200 RMB/month' outsourced accounting context.",
+          "The simulation is highly realistic, capturing the anxiety and specific operational friction of a small e-commerce business owner.",
+          "Major inconsistency in execution: The AI explicitly recommends 'voice' interviews in the background notes to capture emotion, yet the channel configuration remains 'web_text'.",
+          "Methodology adheres well to 'The Mom Test' by focusing on past behaviors and costs rather than asking hypothetical 'would you buy' questions directly.",
+          "The screener is functional but could be more robust; asking 'Do you participate' doesn't guarantee they feel the pain (e.g., they might just sign checks)."
+        ]
+      },
+      "experience": {
+        "judge": "experience",
+        "score": 70.0,
+        "breakdown": {
+          "flow_coherence": 18.0,
+          "state_visibility": 8.0,
+          "error_tolerance": 14.0,
+          "cognitive_load": 9.0,
+          "keyboard_a11y": 13.0,
+          "session_continuity": 2.0,
+          "mobile_usability": 6.0
+        },
+        "notes": [
+          "Critical performance issue: Create latency of 150s is unacceptable for a web flow, likely causing user drop-off or perceived failure.",
+          "The resulting study structure is high-quality, demonstrating a logical 'Mom Test' interview flow.",
+          "Complexity of the input (hypotheses, branching logic, specific persona) implies a high cognitive load during the creation phase.",
+          "Session continuity is severely compromised by the long wait time; users may assume the process hung."
+        ]
+      },
+      "aesthetic": {
+        "judge": "aesthetic",
+        "score": 91.0,
+        "breakdown": {
+          "typography_hierarchy_copy": 18.0,
+          "restraint_no_filler": 14.0,
+          "whitespace_friendly_copy": 14.0,
+          "font_neutral_copy": 10,
+          "motion_worthy_content": 12.0,
+          "dark_mode_ready": 10,
+          "icon_worthy_semantics": 5,
+          "empty_state_invitation": 8.0
+        },
+        "notes": [
+          "Copy is exceptionally concise and functional, adhering strictly to the 'Mom Test' philosophy without fluff.",
+          "The distinction between 'Question' and 'Goal' in the outline creates a natural, strong typographic hierarchy suitable for Inter.",
+          "AI recommendations section provides necessary editorial context without breaking the high-contrast aesthetic.",
+          "Questions are direct and short, rendering beautifully on both mobile and desktop viewports.",
+          "No template smell detected; the content feels bespoke to the specific problem space."
+        ]
+      },
+      "efficiency": {
+        "judge": "efficiency",
+        "score": 88.56436482533657,
+        "breakdown": {
+          "time_to_spec": 28.564364825336572,
+          "rounds": 30.0,
+          "first_token": 20.0,
+          "publish_one_click": 10.0
+        },
+        "notes": [
+          "total_seconds=150.0, outline_items=8"
+        ]
+      },
+      "vs_listenlabs": {
+        "judge": "vs_listenlabs",
+        "score": 85.0,
+        "breakdown": {
+          "unique_capability": 38.0,
+          "fewer_rounds": 18.0,
+          "aesthetic_edge": 10.0,
+          "methodology_stance": 19.0
+        },
+        "notes": [
+          "The 'AI recommendations' section acts as a built-in methodological consultant, proactively correcting user bias (e.g., warning against hypothetical 'would you pay' questions) which Listen Labs' single",
+          "The 'simulation_summary' directly exploits Listen Labs' weakness regarding in-product previews, allowing the user to validate the persona and question flow before spending the budget.",
+          "Explicit adherence to 'Mom Test' principles (focusing on past behavior rather than future intent) is demonstrated clearly in the outline, offering superior transparency to a 'black box' Harvard pedigr",
+          "While the logic is sound, the output is raw JSON; it lacks the visual polish and 'Editorial' presentation that Listen Labs uses to sell insights.",
+          "Branching logic is implemented, though currently basic, it exceeds the static nature of standard linear survey generators."
+        ]
+      }
+    },
+    "artifact": {
+      "campaign_id": "18e3be8e-b487-4268-a1e2-5921f83fdee0",
+      "create_ms": 150026.60258399555,
+      "get_ms": 10.482082987437025,
+      "simulate_ms": 48967.54187499755,
+      "spec_summary": {
+        "n_hypotheses": 4,
+        "n_outline": 8,
+        "n_screener": 3,
+        "n_success_criteria": 3,
+        "target_persona": "经营不满3年的小微企业主，目前亲自处理报税或外包给代账公司。"
+      },
+      "n_sim_turns": 8
+    }
+  },
+  "US-07": {
+    "story_title": "K12 家长与孩子课程双身份反馈",
+    "ok": true,
+    "error": "",
+    "total": 77.85,
+    "scores": {
+      "intelligence": {
+        "judge": "intelligence",
+        "score": 64.0,
+        "breakdown": {
+          "proactivity": 12.0,
+          "domain_recognition": 14.0,
+          "persona_inference": 13.0,
+          "methodology_explains_why": 18.0,
+          "simulation_realism": 2.0,
+          "antifragile_edits": 5.0
+        },
+        "notes": [
+          "Critical failure: The spec explicitly sets language to 'zh' (Chinese), but the simulation responds entirely in English.",
+          "Prompt adherence failure: The goal requested 'shared backbone, differentiated wording' for parents vs. children, yet the outline provides only a single generic list of questions without distinct versi",
+          "Strong domain knowledge demonstrated in the 'AI recommendations' section (e.g., suggesting visual cards and separate interviews).",
+          "Methodology is well-structured with clear 'goal' mappings for each question."
+        ]
+      },
+      "experience": {
+        "judge": "experience",
+        "score": 67.0,
+        "breakdown": {
+          "flow_coherence": 14.0,
+          "state_visibility": 12.0,
+          "error_tolerance": 11.0,
+          "cognitive_load": 8.0,
+          "keyboard_a11y": 10.0,
+          "session_continuity": 5.0,
+          "mobile_usability": 7.0
+        },
+        "notes": [
+          "Q5 asks for alignment/comparison, which is difficult if interviews are truly separated as recommended in the background.",
+          "25-minute duration is high for a 10-year-old on mobile; voice support mitigates but doesn't eliminate fatigue.",
+          "Spec lacks explicit 'handoff' or 'mode switch' UI logic for the dual-persona requirement (Parent vs. Child).",
+          "No error handling defined for invalid inputs or non-responses beyond follow-up limits.",
+          "Create latency of 82s is acceptable for setup but doesn't impact the end-user interview experience."
+        ]
+      },
+      "aesthetic": {
+        "judge": "aesthetic",
+        "score": 88.0,
+        "breakdown": {
+          "typography_hierarchy_copy": 18.0,
+          "restraint_no_filler": 14.0,
+          "whitespace_friendly_copy": 14.0,
+          "font_neutral_copy": 9.0,
+          "motion_worthy_content": 12.0,
+          "dark_mode_ready": 9.0,
+          "icon_worthy_semantics": 4.0,
+          "empty_state_invitation": 8.0
+        },
+        "notes": [
+          "Copy is exceptionally tight and editorial; zero template smell or filler.",
+          "Short, punchy sentences are highly whitespace-friendly and render beautifully at large display sizes.",
+          "Branching logic provides excellent hooks for motion and state transitions.",
+          "The dual-audience dynamic (parent vs. child) is clearly articulated in the goal, setting up a strong editorial POV for the UI."
+        ]
+      },
+      "efficiency": {
+        "judge": "efficiency",
+        "score": 100.0,
+        "breakdown": {
+          "time_to_spec": 40.0,
+          "rounds": 30.0,
+          "first_token": 20.0,
+          "publish_one_click": 10.0
+        },
+        "notes": [
+          "total_seconds=82.3, outline_items=7"
+        ]
+      },
+      "vs_listenlabs": {
+        "judge": "vs_listenlabs",
+        "score": 93.0,
+        "breakdown": {
+          "unique_capability": 38.0,
+          "fewer_rounds": 18.0,
+          "aesthetic_edge": 17.0,
+          "methodology_stance": 20
+        },
+        "notes": [
+          "The inclusion of 'AI recommendations' (e.g., separate interviews, voice for kids) provides immediate expert methodological value that Listen Labs lacks.",
+          "The simulation preview is a killer feature, offering a vivid, context-aware test run that validates the study design before launch.",
+          "Branching logic and multi-modal channel configuration (text/voice) demonstrate technical depth in study design that outclasses standard linear outlines.",
+          "Explicitly addresses the dual-audience constraint (parent/child) with nuanced logic (shared backbone, differentiated wording), showing superior contextual awareness."
+        ]
+      }
+    },
+    "artifact": {
+      "campaign_id": "e2b2dbfb-46e6-4c26-b854-4b1d68cec6c2",
+      "create_ms": 82328.47787500941,
+      "get_ms": 12.118124999688007,
+      "simulate_ms": 145683.50949999876,
+      "spec_summary": {
+        "n_hypotheses": 4,
+        "n_outline": 7,
+        "n_screener": 3,
+        "n_success_criteria": 3,
+        "target_persona": "正在修读秋季课程的 10-14 岁学生及其家长。"
+      },
+      "n_sim_turns": 7
+    }
+  },
+  "US-08": {
+    "story_title": "老年数字支付电话访谈",
+    "ok": true,
+    "error": "",
+    "total": 92.71,
+    "scores": {
+      "intelligence": {
+        "judge": "intelligence",
+        "score": 92.0,
+        "breakdown": {
+          "proactivity": 18.0,
+          "domain_recognition": 15,
+          "persona_inference": 14.0,
+          "methodology_explains_why": 18.0,
+          "simulation_realism": 15,
+          "antifragile_edits": 12.0
+        },
+        "notes": [
+          "Proactivity: The 'AI recommendations' section is exceptional, offering specific, high-value tactics (e.g., avoiding 'scan code' jargon, emphasizing 'no transfer' in recruitment) that directly address ",
+          "Domain Recognition: Demonstrates deep understanding of the Chinese elderly digital divide context, specifically identifying anxiety around verification codes and the cognitive load of 'colorful icons'",
+          "Methodology: The inclusion of a 'goal' for every interview question provides clear rationale, ensuring the study stays focused on research objectives.",
+          "Simulation Realism: The simulated respondent is highly authentic; the vocabulary ('一张张数着给心里踏实', '花花绿绿的图标') and the emotional nuance regarding the impatient son are spot-on for this persona.",
+          "Antifragile Edits: While the protocol is robust against user anxiety, the JSON structure for 'branch_if_positive/negative' is left null. A truly antifragile design would include logic for handling non"
+        ]
+      },
+      "experience": {
+        "judge": "experience",
+        "score": 99.0,
+        "breakdown": {
+          "flow_coherence": 20,
+          "state_visibility": 15,
+          "error_tolerance": 14.0,
+          "cognitive_load": 15,
+          "keyboard_a11y": 15,
+          "session_continuity": 10,
+          "mobile_usability": 10
+        },
+        "notes": [
+          "Excellent logical progression in the outline, moving from baseline behavior to specific pain points and emotional barriers.",
+          "AI recommendations demonstrate high empathy and context awareness for the '65+ low education' persona (e.g., avoiding jargon like 'scan code').",
+          "The choice of 'phone_outbound' channel maximizes accessibility for this target demographic, effectively bypassing technical literacy barriers.",
+          "System observation: Create latency is notably high (~158s), which impacts the researcher's workflow efficiency, though the output quality is high.",
+          "Screener questions are well-tailored to filter the correct audience quickly."
+        ]
+      },
+      "aesthetic": {
+        "judge": "aesthetic",
+        "score": 92.0,
+        "breakdown": {
+          "typography_hierarchy_copy": 18.0,
+          "restraint_no_filler": 15,
+          "whitespace_friendly_copy": 14.0,
+          "font_neutral_copy": 10,
+          "motion_worthy_content": 12.0,
+          "dark_mode_ready": 10,
+          "icon_worthy_semantics": 5,
+          "empty_state_invitation": 8.0
+        },
+        "notes": [
+          "The interview questions are exceptionally conversational and grounded ('买菜买药'), avoiding robotic survey syntax.",
+          "Hypotheses are sharp, specific, and visually distinct—perfect for bullet points or cards.",
+          "Zero template smell; the 'AI recommendations' offer specific tactical advice rather than generic fluff.",
+          "Copy length is optimal for Inter; short, punchy strings that won't break layout on mobile.",
+          "High contrast, semantic keys ('goal', 'hypotheses') make the data structure readable as a UI."
+        ]
+      },
+      "efficiency": {
+        "judge": "efficiency",
+        "score": 87.0941754365728,
+        "breakdown": {
+          "time_to_spec": 27.094175436572794,
+          "rounds": 30.0,
+          "first_token": 20.0,
+          "publish_one_click": 10.0
+        },
+        "notes": [
+          "total_seconds=157.8, outline_items=7"
+        ]
+      },
+      "vs_listenlabs": {
+        "judge": "vs_listenlabs",
+        "score": 89.0,
+        "breakdown": {
+          "unique_capability": 38.0,
+          "fewer_rounds": 18.0,
+          "aesthetic_edge": 14.0,
+          "methodology_stance": 19.0
+        },
+        "notes": [
+          "The 'AI recommendations' section is a decisive differentiator, providing tactical recruiting and phrasing advice (e.g., swapping 'scan code' for 'black and white square') that Listen Labs' single-shot",
+          "Directly addresses Listen Labs' 'no in-product simulation preview' weakness by providing a concrete persona response, allowing immediate validation of the interview flow.",
+          "Demonstrates a superior 'methodology-of-methodology' stance by explicitly handling low-literacy constraints and dialect matching, whereas Listen Labs is noted for lacking this explicit stance.",
+          "The inclusion of specific 'Success Criteria' adds a layer of rigor and measurability to the study design that goes beyond standard question generation."
+        ]
+      }
+    },
+    "artifact": {
+      "campaign_id": "851e085e-f738-42d7-89dd-014e18bfea04",
+      "create_ms": 157746.28179099818,
+      "get_ms": 9.297166994656436,
+      "simulate_ms": 54901.63675000076,
+      "spec_summary": {
+        "n_hypotheses": 4,
+        "n_outline": 7,
+        "n_screener": 4,
+        "n_success_criteria": 3,
+        "target_persona": "65岁以上，低学历，居住在不同城市，尝试过但难以坚持使用数字支付的老人。"
+      },
+      "n_sim_turns": 7
+    }
+  },
+  "US-09": {
+    "story_title": "面试失败候选人体验回访",
+    "ok": true,
+    "error": "",
+    "total": 90.67,
+    "scores": {
+      "intelligence": {
+        "judge": "intelligence",
+        "score": 95.0,
+        "breakdown": {
+          "proactivity": 18.0,
+          "domain_recognition": 15,
+          "persona_inference": 15,
+          "methodology_explains_why": 20,
+          "simulation_realism": 15,
+          "antifragile_edits": 12.0
+        },
+        "notes": [
+          "Excellent proactive recommendations, specifically regarding 'blind ads' to prevent retaliation and the 'halo effect' warning.",
+          "Strong domain recognition; the simulation uses authentic industry slang ('打太极', '陪跑', 'HC变动') that fits the Chinese tech context perfectly.",
+          "Methodology is well-justified; CIT is correctly applied to isolate incidents, and projective techniques are strategically used to bypass defensiveness.",
+          "Simulation realism is high; specific details like the director checking WeChat and interrupting make the persona believable.",
+          "The inclusion of branching logic (branch_if_positive/negative) in the outline demonstrates structural robustness for different respondent paths."
+        ]
+      },
+      "experience": {
+        "judge": "experience",
+        "score": 81.0,
+        "breakdown": {
+          "flow_coherence": 18.0,
+          "state_visibility": 12.0,
+          "error_tolerance": 10.0,
+          "cognitive_load": 14.0,
+          "keyboard_a11y": 13.0,
+          "session_continuity": 5.0,
+          "mobile_usability": 9.0
+        },
+        "notes": [
+          "Strong logical progression using CIT (Critical Incident Technique) to establish facts before moving to Projective techniques (weather/social metaphors) for emotional insight.",
+          "Explicit mobile optimization recommendations in the background align well with the target persona (job seekers likely using mobile devices).",
+          "High creation latency (~117s) significantly degrades the experience for the researcher setting up the study, indicating a potential performance bottleneck.",
+          "Screener logic is robust and well-defined, ensuring high-quality participants.",
+          "Lack of explicit 'save and resume' functionality in the spec poses a risk for respondent drop-off during the 15-minute session."
+        ]
+      },
+      "aesthetic": {
+        "judge": "aesthetic",
+        "score": 93.0,
+        "breakdown": {
+          "typography_hierarchy_copy": 18.0,
+          "restraint_no_filler": 13.0,
+          "whitespace_friendly_copy": 14.0,
+          "font_neutral_copy": 10,
+          "motion_worthy_content": 14.0,
+          "dark_mode_ready": 10,
+          "icon_worthy_semantics": 5,
+          "empty_state_invitation": 9.0
+        },
+        "notes": [
+          "The 'AI recommendations' block in the background reads like system leakage or prompt residue; it disrupts the editorial narrative and should be stripped for a clean UI.",
+          "The shift from factual CIT questions to projective metaphors ('Weather', 'Person') offers excellent semantic hooks for motion transitions.",
+          "The 'Question' vs. 'Goal' structure in the outline creates a natural, high-contrast typographic pairing (Headline vs. Subtext) perfect for Inter.",
+          "Copy is concise, empathetic, and devoid of corporate fluff, fitting the high-contrast editorial baseline well."
+        ]
+      },
+      "efficiency": {
+        "judge": "efficiency",
+        "score": 94.83199876990346,
+        "breakdown": {
+          "time_to_spec": 34.831998769903464,
+          "rounds": 30.0,
+          "first_token": 20.0,
+          "publish_one_click": 10.0
+        },
+        "notes": [
+          "total_seconds=117.1, outline_items=7"
+        ]
+      },
+      "vs_listenlabs": {
+        "judge": "vs_listenlabs",
+        "score": 91.0,
+        "breakdown": {
+          "unique_capability": 38.0,
+          "fewer_rounds": 18.0,
+          "aesthetic_edge": 16.0,
+          "methodology_stance": 19.0
+        },
+        "notes": [
+          "The inclusion of an 'AI recommendations' section within the spec acts as an automated methodological review, proactively flagging risks like 'halo effect' and 'psychological defense'—a distinct advant",
+          "Explicit integration of CIT (Critical Incident Technique) and Projective methods, paired with specific 'goal' tags for every question, demonstrates a sophisticated 'methodology-of-methodology' stance ",
+          "The 'simulation_summary' provides a tangible preview of how the persona interacts with the screener, validating the study design before launch—a feature Listen Labs explicitly lacks.",
+          "Branching logic implementation (Question 4) and the granular breakdown of hypotheses suggest a higher fidelity of 'first-pass' generation, significantly reducing the need for iterative refinement."
+        ]
+      }
+    },
+    "artifact": {
+      "campaign_id": "6390988d-963a-4fe3-b900-793099895547",
+      "create_ms": 117119.3280830048,
+      "get_ms": 12.678375001996756,
+      "simulate_ms": 56612.36487500719,
+      "spec_summary": {
+        "n_hypotheses": 3,
+        "n_outline": 7,
+        "n_screener": 3,
+        "n_success_criteria": 3,
+        "target_persona": "过去60天内面试未通过的大厂求职者"
+      },
+      "n_sim_turns": 7
+    }
+  },
+  "US-10": {
+    "story_title": "外卖骑手身份认同学术访谈",
+    "ok": true,
+    "error": "",
+    "total": 90.4,
+    "scores": {
+      "intelligence": {
+        "judge": "intelligence",
+        "score": 94.0,
+        "breakdown": {
+          "proactivity": 18.0,
+          "domain_recognition": 15,
+          "persona_inference": 14.0,
+          "methodology_explains_why": 19.0,
+          "simulation_realism": 15,
+          "antifragile_edits": 13.0
+        },
+        "notes": [
+          "The 'AI recommendations' section is exceptional, demonstrating high-level understanding of qualitative research pitfalls (e.g., platform gatekeeping, social desirability bias/performative complaining)",
+          "The interview guide is perfectly structured for IPA, logically progressing from concrete narrative (recent run) to abstract identity construction (mirror self, intrinsic motivation).",
+          "The simulation is highly realistic; the respondent's answer in Q6 ('used to work in office') and Q8 ('loneliness') adds necessary depth that validates the 'identity' research goal.",
+          "The screener is solid but could be slightly improved by adding a question about current platform rating to ensure the 'internalization of metrics' hypothesis can be effectively tested.",
+          "Branching logic is present but somewhat binary; it lacks specific handling for neutral or 'I don't know' responses, which are common in identity research."
+        ]
+      },
+      "experience": {
+        "judge": "experience",
+        "score": 78.0,
+        "breakdown": {
+          "flow_coherence": 18.0,
+          "state_visibility": 14.0,
+          "error_tolerance": 13.0,
+          "cognitive_load": 14.0,
+          "keyboard_a11y": 10.0,
+          "session_continuity": 2.0,
+          "mobile_usability": 7.0
+        },
+        "notes": [
+          "The study structure is logically sound, following a clear narrative arc suitable for IPA interviews.",
+          "Branching logic and follow-up limits are well-defined, aiding the interviewer in managing the conversation depth.",
+          "Critical performance issue: Create latency is 61.6 seconds, which is unacceptable for a user-facing action and severely impacts perceived reliability.",
+          "The persona and screener questions are precise, ensuring high participant relevance."
+        ]
+      },
+      "aesthetic": {
+        "judge": "aesthetic",
+        "score": 92.0,
+        "breakdown": {
+          "typography_hierarchy_copy": 19.0,
+          "restraint_no_filler": 14.0,
+          "whitespace_friendly_copy": 14.0,
+          "font_neutral_copy": 9.0,
+          "motion_worthy_content": 14.0,
+          "dark_mode_ready": 9.0,
+          "icon_worthy_semantics": 5,
+          "empty_state_invitation": 8.0
+        },
+        "notes": [
+          "Highly specific academic POV ('IPA', 'PhD thesis') eliminates generic template feel immediately.",
+          "Interview questions are concise, narrative-driven, and typographically balanced for large Inter rendering.",
+          "'AI recommendations' section adds editorial depth without clutter; actionable and specific.",
+          "Copy is dense with meaning but visually light; perfect for high-contrast editorial layouts.",
+          "No fluff detected; every string serves the research goal."
+        ]
+      },
+      "efficiency": {
+        "judge": "efficiency",
+        "score": 100.0,
+        "breakdown": {
+          "time_to_spec": 40.0,
+          "rounds": 30.0,
+          "first_token": 20.0,
+          "publish_one_click": 10.0
+        },
+        "notes": [
+          "total_seconds=61.8, outline_items=8"
+        ]
+      },
+      "vs_listenlabs": {
+        "judge": "vs_listenlabs",
+        "score": 93.0,
+        "breakdown": {
+          "unique_capability": 38.0,
+          "fewer_rounds": 18.0,
+          "aesthetic_edge": 17.0,
+          "methodology_stance": 20
+        },
+        "notes": [
+          "The inclusion of 'branch_if_positive/negative' logic in the outline is a massive leap over Listen Labs' linear, single-shot generation.",
+          "The 'AI recommendations' section demonstrates a 'methodology-of-methodology' stance that Listen Labs lacks, specifically addressing bias (platform selection) and validity (performative complaining).",
+          "Explicitly targeting IPA (Interpretative Phenomenological Analysis) with academic rigor (PhD thesis context) outclasses the generalist market research focus of Listen Labs.",
+          "The simulation preview provides a 'try before you buy' experience for the interview flow, mitigating the risk of poor question design before real recruitment.",
+          "While Listen Labs wins on actual recruitment scale (30M pool), this spec wins on the *design* of the qualitative instrument."
+        ]
+      }
+    },
+    "artifact": {
+      "campaign_id": "2dfc779f-d9fd-4c05-a475-9816fe964546",
+      "create_ms": 61615.08158300421,
+      "get_ms": 173.3217919972958,
+      "simulate_ms": 41060.49204200099,
+      "spec_summary": {
+        "n_hypotheses": 4,
+        "n_outline": 8,
+        "n_screener": 4,
+        "n_success_criteria": 3,
+        "target_persona": "拥有半年以上经验的全职或高频兼职外卖骑手，熟悉平台规则与考核体系。"
+      },
+      "n_sim_turns": 8
+    }
+  }
+}
