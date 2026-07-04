@@ -36,4 +36,4 @@ fly secrets set \
 fly deploy
 ```
 
-Frontend deploys on Vercel — one project per app: `apps/marketing` (root), `apps/app` (subdomain `app.`), `apps/respondent` (subdomain `r.`).
+Frontend deploys on Vercel as a single project — `apps/app` — serving marketing (`/`), auth (`/login`, `/signup`), the dashboard (`/studies`, ...), and the respondent gateway (`/r/:campaignId`) from one Next.js app.

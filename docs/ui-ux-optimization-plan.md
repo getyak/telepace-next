@@ -9,6 +9,23 @@
 > 产品应有的"声音感"视觉语言。**不要**引入 shadcn 默认风格、渐变紫、玻璃拟态等
 > 与现有 token 冲突的元素。
 
+## 执行状态（持续更新）
+
+- **Phase 1.1 应用合并** ✅ 已完成：`apps/marketing` / `apps/app` / `apps/respondent` 已合并为单一
+  `apps/app`（`(marketing)/(auth)/(app)/(public)` route groups），`routes.app.root` 改为 `/studies`，
+  dev/build 端口统一 3000，`pnpm build`/`pnpm typecheck` 通过。URL hash 跨应用传 token（A1）随之消失
+  （合并后登录页直接调用 `useAuth().login()`，无需跨源跳转）。
+- **Phase 1.2 httpOnly cookie 认证** ⏳ 未完成：`tokenStore` 仍用 localStorage（A3 仍在）。这一步需要
+  新增 BFF route handlers 代理全部后端调用（不只是 auth），依赖后端 CORS/cookie 域名配置，**必须先与
+  后端联调验证**才能安全上线，本轮未改动，避免在无法端到端测试的情况下破坏登录能力。
+- **Phase 2.1/2.3 统一登录/注册页** ✅ 已完成：共享 `AuthCard` 组件（`components/auth/AuthCard.tsx`），
+  两页视觉与错误处理同源。
+- **Phase 2.2 Google OAuth** ✅ UI 占位已完成：`components/auth/OAuthButtons.tsx`，
+  由 `NEXT_PUBLIC_OAUTH_GOOGLE`（默认 false）控制显隐；后端 `/auth/oauth/google` 流程未实现。
+- **Phase 3 / 4 / 5**：绝大部分已在此前的 PR 中完成（移动端导航、Hero voice 效果、next/font、
+  SEO/metadata、Button 变体、Sidebar active 态、UI 组件补全、CI token 守护脚本、design-system.md 补充）。
+  剩余已知小项：营销/安全页上的 "SOC 2" 相关文案是真实的路线图声明（非虚构背书），未改动。
+
 ---
 
 ## 0. 现状审计摘要（改动依据）
