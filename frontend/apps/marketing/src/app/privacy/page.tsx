@@ -2,7 +2,10 @@ import Link from "next/link";
 import { siteConfig } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
-export const metadata = { title: "Privacy · telepace" };
+export const metadata = {
+  title: "Privacy",
+  description: "How telepace collects, uses, and protects your data and your respondents'.",
+};
 
 const sections = [
   {

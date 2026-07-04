@@ -3,7 +3,10 @@ import { Button } from "@telepace/ui";
 import { routes } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
-export const metadata = { title: "Voice · telepace" };
+export const metadata = {
+  title: "Voice",
+  description: "Real-time browser voice and outbound phone interviews, moderated by AI.",
+};
 
 const specs = [
   { k: "Latency", v: "~380 ms round trip", note: "browser · WSS" },

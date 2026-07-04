@@ -1,5 +1,6 @@
 import "@telepace/ui/globals.css";
 import type { Metadata } from "next";
+import { Inter, Instrument_Serif } from "next/font/google";
 import Link from "next/link";
 import { routes, siteConfig } from "@telepace/config";
 
@@ -7,19 +8,14 @@ import { AuthProvider } from "../lib/auth/AuthProvider";
 import { ToastBridge } from "../components/toast/ToastBridge";
 import { UserMenu } from "../components/user/UserMenu";
 
+const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-body" });
+const instrumentSerif = Instrument_Serif({ subsets: ["latin"], weight: "400", variable: "--font-display" });
+
 export const metadata: Metadata = { title: siteConfig.brand.name };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${instrumentSerif.variable}`}>
       <body>
         <AuthProvider>
           <div className="min-h-screen flex">

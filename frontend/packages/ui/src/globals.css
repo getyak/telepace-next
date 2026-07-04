@@ -10,7 +10,7 @@
   html, body {
     background: #F8F6F1;
     color: #141414;
-    font-family: "Inter", "Söhne", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-family: var(--font-body), "Inter", "Söhne", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
     letter-spacing: -0.011em;
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
@@ -18,7 +18,7 @@
   }
 
   h1, h2, h3, .font-display {
-    font-family: "Instrument Serif", "Fraunces", "Tiempos Headline", ui-serif, Georgia, serif;
+    font-family: var(--font-display), "Instrument Serif", "Fraunces", "Tiempos Headline", ui-serif, Georgia, serif;
     letter-spacing: -0.02em;
     line-height: 1.05;
     font-weight: 400;

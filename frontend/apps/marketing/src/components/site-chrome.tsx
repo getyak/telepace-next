@@ -1,33 +1,7 @@
 import Link from "next/link";
-import { Button } from "@telepace/ui";
 import { routes, siteConfig } from "@telepace/config";
 
-export function Nav() {
-  return (
-    <header className="border-b border-hairline sticky top-0 z-40 bg-paper/85 backdrop-blur">
-      <div className="container-content flex items-center justify-between h-16">
-        <Link href={routes.home} className="font-display text-xl">
-          {siteConfig.brand.name}
-        </Link>
-        <nav className="hidden md:flex items-center gap-8 text-sm text-body">
-          <Link href={routes.product.voice} className="hover:text-ink transition-colors">Voice</Link>
-          <Link href={routes.product.agent} className="hover:text-ink transition-colors">Agent</Link>
-          <Link href={routes.pricing} className="hover:text-ink transition-colors">Pricing</Link>
-          <Link href={routes.docs} className="hover:text-ink transition-colors">Docs</Link>
-          <Link href={routes.mcp} className="hover:text-ink transition-colors">MCP</Link>
-        </nav>
-        <div className="flex items-center gap-3">
-          <Link href={routes.login} className="text-sm text-body hover:text-ink transition-colors">
-            Sign in
-          </Link>
-          <Link href={routes.signup}>
-            <Button size="sm">Start free</Button>
-          </Link>
-        </div>
-      </div>
-    </header>
-  );
-}
+export { Nav } from "./nav";
 
 export function Footer() {
   return (

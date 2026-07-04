@@ -3,7 +3,10 @@ import { Button } from "@telepace/ui";
 import { routes } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
-export const metadata = { title: "Agent · telepace" };
+export const metadata = {
+  title: "Agent",
+  description: "Give your Claude, Cursor, or Codex agent a user researcher via MCP, Skill, or REST.",
+};
 
 const agents = [
   {
