@@ -27,7 +27,7 @@ export const routes = {
   forgot: "/forgot",
 
   app: {
-    root: "/",
+    root: "/studies",
     inbox: "/inbox",
     audience: "/audience",
     insights: "/insights",

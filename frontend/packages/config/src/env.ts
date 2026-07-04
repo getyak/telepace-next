@@ -13,10 +13,8 @@
 type Env = {
   apiBaseUrl: string;
   wsBaseUrl: string;
-  appUrl: string;
-  marketingUrl: string;
-  respondentUrl: string;
   mcpUrl: string;
+  oauthGoogleEnabled: boolean;
 };
 
 const REQUIRED_KEYS = {
@@ -25,16 +23,10 @@ const REQUIRED_KEYS = {
 } as const;
 
 const OPTIONAL_KEYS = {
-  appUrl: "NEXT_PUBLIC_APP_URL",
-  marketingUrl: "NEXT_PUBLIC_MARKETING_URL",
-  respondentUrl: "NEXT_PUBLIC_RESPONDENT_URL",
   mcpUrl: "NEXT_PUBLIC_MCP_URL",
 } as const;
 
 const OPTIONAL_FALLBACKS = {
-  appUrl: "http://localhost:3001",
-  marketingUrl: "http://localhost:3000",
-  respondentUrl: "http://localhost:3012",
   mcpUrl: "https://mcp.telepace.io",
 } as const satisfies Record<keyof typeof OPTIONAL_KEYS, string>;
 
@@ -96,12 +88,16 @@ export function loadEnv(): Env {
     raw[key] = v ? assertUrl(envName, v) : OPTIONAL_FALLBACKS[key];
   }
 
+  // Feature-flagged: the Google OAuth button stays hidden until the backend
+  // OAuth flow (docs/ui-ux-optimization-plan.md Phase 2.2) ships.
+  raw.oauthGoogleEnabled = readRaw("NEXT_PUBLIC_OAUTH_GOOGLE") === "true";
+
   cached = raw as Env;
   return cached;
 }
 
 export const env = new Proxy({} as Env, {
   get(_target, prop: string) {
-    return (loadEnv() as Record<string, string>)[prop];
+    return (loadEnv() as Record<string, unknown>)[prop];
   },
 });
