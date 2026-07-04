@@ -2,7 +2,10 @@ import Link from "next/link";
 import { siteConfig } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
-export const metadata = { title: "Security · telepace" };
+export const metadata = {
+  title: "Security",
+  description: "Data isolation, encryption, PII redaction, and access control at telepace.",
+};
 
 const pillars = [
   {

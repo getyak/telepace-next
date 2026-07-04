@@ -2,7 +2,10 @@ import Link from "next/link";
 import { siteConfig } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
-export const metadata = { title: "Changelog · telepace" };
+export const metadata = {
+  title: "Changelog",
+  description: "What shipped recently across telepace's voice, MCP, and insights surfaces.",
+};
 
 const entries = [
   {

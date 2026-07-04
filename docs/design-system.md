@@ -26,6 +26,13 @@ Source of truth: `frontend/packages/ui/src/tokens.ts`.
 | `accent` | `#4A5D3B` | Primary CTA / links / active state |
 | `accent-soft` | `#DCE4D2` | Pills, active fills |
 | `terracotta` | `#B45A3C` | Optional warm emphasis |
+| `success` | `#3C7A5C` | Success badges/toasts (paired with `success/10` fill) |
+| `warning` | `#B8862B` | Warning badges/toasts (paired with `warning/10` fill) |
+| `danger` | `#A83A2F` | Error/destructive state — the **only** acceptable "red". Never Tailwind's `red-*` |
+
+Radii also include a `pill` token (`999px`, `rounded-pill`) for tags and status chips, alongside `input` (4px), `button`/`btn` (8px), and `card` (12px).
+
+**Never use Tailwind's default palette classes** (`text-red-600`, `bg-blue-500`, `text-green-600`, `bg-gray-100`, …) anywhere in `apps/**`. Always go through the token-backed utilities above. `pnpm check:tokens` (wired into CI) greps for this and fails the build if a raw palette class slips in.
 
 ## Typography
 
@@ -39,10 +46,22 @@ Overline Inter Medium        0.75rem uppercase           +0.14em
 
 ## Components (@telepace/ui)
 
-- `Button(variant: primary | secondary | ghost, size: sm | md | lg)`
+- `Button(variant: primary | secondary | ghost | danger | inverse | inverse-outline, size: sm | md | lg, loading?: boolean)` —
+  `inverse`/`inverse-outline` are for dark sections (e.g. the marketing FinalCTA), replacing one-off
+  `className` color overrides. `loading` renders the built-in `Spinner` and disables the button;
+  don't hand-roll `{submitting ? "…" : "…"}` ternaries for button label + disabled state.
 - `Card` + `CardHeader` + `CardBody` + `CardFooter`
 - `Input`, `Textarea`, `Label`
 - `ChatBubble`, `ChatFeed`, `ChatComposer`, `VoiceOrb`
+- `Spinner` — single-color `currentColor` arc, ~800ms rotation
+- `Badge(variant: neutral | accent | success | warning | danger)` — soft-fill tags/status chips
+- `Skeleton` — `bg-paper-sunken` with a 1.8s opacity breathe (**not** a shimmer sweep — shimmer reads as generic SaaS, not editorial)
+- `EmptyState(icon?, title, description?, action?)` — centered zero-state block
+- `Toaster` / `toast.{success,error,warning,info}` — token-colored toast system; apps should not implement their own
+
+Components not yet in `@telepace/ui` (`Dialog`, `DropdownMenu`) are still hand-rolled per-app
+(see `apps/app/src/components/user/UserMenu.tsx`); sink them into the shared package before
+duplicating that pattern elsewhere.
 
 ## Motion
 
@@ -53,6 +72,23 @@ Overline Inter Medium        0.75rem uppercase           +0.14em
 | slow | 420ms | `cubic-bezier(0.22, 1, 0.36, 1)` |
 
 Fade + 8–12px upward translate on scroll. No parallax. No gradient blobs.
+
+**Motion budget: at most one *decorative* persistent (looping) animation per screen** — e.g. the
+Hero's waveform bars. Small functional status indicators (a "live" pulse dot, a spinner while
+loading) are exempt — they're communicating state, not decorating. Stacking several *ambient*
+animations on one view reads as busy, not alive. One-shot entrance animations (fade-in on mount,
+accordion expand) don't count against the budget either — the constraint is about things that
+keep moving indefinitely. Everything respects `prefers-reduced-motion` (drop to a static state,
+don't just disable the easing).
+
+## Copy conventions
+
+- **"Sign in"**, never "Log in" — applies to nav links, login page copy, and any "already have an
+  account?" prompts on signup.
+- Primary CTA: **"Start free"**. Secondary/demo CTA: **"Try a live 60-sec interview →"**. Don't
+  introduce new phrasing for the same actions on new pages.
+- Inline field/form errors are a single sentence with `role="alert"`, styled `text-danger` — never
+  a bulleted list styled with a raw Tailwind color.
 
 ## Design references (aesthetic anchor)
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@telepace/ui";
 import { routes } from "@telepace/config";
 import { Nav, Footer } from "@/components/site-chrome";
+import { HeroConversation } from "@/components/marketing/HeroConversation";
 
 export default function Home() {
   return (
@@ -36,7 +37,7 @@ function Hero() {
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link href={routes.signup}>
-              <Button size="lg">Try for free</Button>
+              <Button size="lg">Start free</Button>
             </Link>
             <Link href={routes.demo}>
               <Button size="lg" variant="secondary">
@@ -49,23 +50,7 @@ function Hero() {
           </p>
         </div>
         <div className="md:col-span-5">
-          <div className="rounded-card border border-hairline bg-paper-elevated overflow-hidden">
-            <div className="flex items-center gap-2 border-b border-hairline px-4 py-2 text-xs text-muted">
-              <div className="w-2 h-2 rounded-full bg-accent" />
-              live · Interviewer
-            </div>
-            <div className="p-5 space-y-3 text-[15px]">
-              <div className="rounded-card bg-paper px-4 py-3 border border-hairline">
-                What were you hoping to accomplish when you signed up?
-              </div>
-              <div className="rounded-card bg-ink text-paper px-4 py-3 max-w-[85%] ml-auto">
-                Mostly, I wanted a way to talk to more users without hiring a full research team…
-              </div>
-              <div className="rounded-card bg-paper px-4 py-3 border border-hairline">
-                Got it. What made you stop trying to hire — was it budget, or something else?
-              </div>
-            </div>
-          </div>
+          <HeroConversation />
         </div>
       </div>
     </section>
@@ -73,14 +58,13 @@ function Hero() {
 }
 
 function TrustBar() {
-  const logos = ["Radicle", "Northstar", "Pentagram", "Vercel Studio", "Stripe Design"];
+  const stats = ["5 channels · one interview", "< 60s to launch a study", "MCP · Skill · REST"];
   return (
     <section className="border-y border-hairline bg-paper-elevated">
-      <div className="container-content py-10 flex flex-wrap items-center gap-x-12 gap-y-4 justify-center text-muted text-sm">
-        <span className="overline">trusted by teams at</span>
-        {logos.map((l) => (
-          <span key={l} className="font-display text-lg text-ink-soft">
-            {l}
+      <div className="container-content py-10 flex flex-wrap items-center justify-center gap-x-16 gap-y-6">
+        {stats.map((s) => (
+          <span key={s} className="font-display text-lg md:text-xl text-ink-soft text-center">
+            {s}
           </span>
         ))}
       </div>
@@ -248,17 +232,13 @@ function FinalCTA() {
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link href={routes.signup}>
-            <Button size="lg" className="bg-paper text-ink hover:bg-paper-elevated">
+            <Button size="lg" variant="inverse">
               Start free
             </Button>
           </Link>
           <Link href={routes.demo}>
-            <Button
-              size="lg"
-              variant="secondary"
-              className="border-paper/30 text-paper hover:bg-paper/10"
-            >
-              See a live demo →
+            <Button size="lg" variant="inverse-outline">
+              Try a live 60-sec interview →
             </Button>
           </Link>
         </div>

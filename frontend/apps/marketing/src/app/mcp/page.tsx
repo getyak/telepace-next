@@ -3,7 +3,10 @@ import { Button } from "@telepace/ui";
 import { routes } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
-export const metadata = { title: "MCP · telepace" };
+export const metadata = {
+  title: "MCP",
+  description: "The telepace MCP server: tools your agent can call to design, dispatch, and read back research.",
+};
 
 const tools = [
   {

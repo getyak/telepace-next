@@ -30,6 +30,7 @@ const preset: Partial<Config> = {
         input: radii.input,
         btn: radii.button,
         card: radii.card,
+        pill: radii.pill,
       },
       boxShadow: {
         hairline: shadows.hairline,
@@ -38,6 +39,30 @@ const preset: Partial<Config> = {
       },
       maxWidth: {
         content: "1120px",
+      },
+      keyframes: {
+        skeleton: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.5" },
+        },
+        "live-pulse": {
+          "0%, 100%": { opacity: "1", transform: "scale(1)" },
+          "50%": { opacity: "0.5", transform: "scale(1.15)" },
+        },
+        "message-in": {
+          "0%": { opacity: "0", transform: "translateY(4px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "wave-bar": {
+          "0%, 100%": { transform: "scaleY(0.35)" },
+          "50%": { transform: "scaleY(1)" },
+        },
+      },
+      animation: {
+        skeleton: "skeleton 1.8s ease-in-out infinite",
+        "live-pulse": "live-pulse 2.4s ease-in-out infinite",
+        "message-in": "message-in 500ms ease-out both",
+        "wave-bar": "wave-bar 2.4s ease-in-out infinite",
       },
     },
   },

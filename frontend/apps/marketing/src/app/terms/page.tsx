@@ -2,7 +2,10 @@ import Link from "next/link";
 import { siteConfig } from "@telepace/config";
 import { Nav, Footer, PageHeader } from "@/components/site-chrome";
 
-export const metadata = { title: "Terms · telepace" };
+export const metadata = {
+  title: "Terms",
+  description: "The terms of service governing use of telepace.",
+};
 
 const sections = [
   {
