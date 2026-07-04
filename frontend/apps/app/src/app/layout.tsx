@@ -4,7 +4,7 @@ import Link from "next/link";
 import { routes, siteConfig } from "@telepace/config";
 
 import { AuthProvider } from "../lib/auth/AuthProvider";
-import { Toaster } from "../components/toast/Toaster";
+import { ToastBridge } from "../components/toast/ToastBridge";
 import { UserMenu } from "../components/user/UserMenu";
 
 export const metadata: Metadata = { title: siteConfig.brand.name };
@@ -41,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </aside>
             <main className="flex-1 min-w-0">{children}</main>
           </div>
-          <Toaster />
+          <ToastBridge />
         </AuthProvider>
       </body>
     </html>

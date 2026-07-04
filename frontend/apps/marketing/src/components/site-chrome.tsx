@@ -18,7 +18,7 @@ export function Nav() {
         </nav>
         <div className="flex items-center gap-3">
           <Link href={routes.login} className="text-sm text-body hover:text-ink transition-colors">
-            Log in
+            Sign in
           </Link>
           <Link href={routes.signup}>
             <Button size="sm">Start free</Button>
@@ -61,7 +61,7 @@ export function Footer() {
       </div>
       <div className="container-content mt-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs text-muted">
         <p>© {new Date().getFullYear()} Telepace, Inc. All rights reserved.</p>
-        <p>Made in the open. SOC 2 Type II in progress.</p>
+        <p>Made in the open.</p>
       </div>
     </footer>
   );

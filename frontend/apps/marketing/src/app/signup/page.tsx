@@ -136,7 +136,7 @@ export default function SignupPage() {
               <p className="mt-4 text-sm text-muted text-center">
                 Already have an account?{" "}
                 <Link href={routes.login} className="text-accent">
-                  Log in →
+                  Sign in →
                 </Link>
               </p>
             </div>
