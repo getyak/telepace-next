@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { routes } from "@telepace/config";
 import {
   DropdownMenu,
@@ -16,6 +17,7 @@ import { ChevronDownIcon } from "@telepace/icons";
 import { useAuth } from "../../lib/auth/AuthProvider";
 
 export function UserMenu() {
+  const t = useTranslations("nav.app.userMenu");
   const router = useRouter();
   const { status, user, logout } = useAuth();
 
@@ -40,7 +42,7 @@ export function UserMenu() {
           href={routes.login}
           className="block w-full rounded-btn border border-hairline px-3 py-2 text-center text-sm text-body transition-colors hover:bg-paper hover:text-ink"
         >
-          Sign in
+          {t("signIn")}
         </Link>
       </div>
     );
@@ -64,20 +66,20 @@ export function UserMenu() {
 
       <DropdownMenuContent side="top" className="left-3 right-3">
         <div className="border-b border-hairline px-4 py-3">
-          <p className="text-xs text-muted">Signed in as</p>
+          <p className="text-xs text-muted">{t("signedInAs")}</p>
           <p className="truncate text-sm text-ink">{user.email}</p>
         </div>
         <DropdownMenuItem onSelect={() => router.push(`${routes.app.settings}#workspace`)}>
-          Workspace
+          {t("workspace")}
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => router.push(`${routes.app.settings}#members`)}>
-          Members
+          {t("members")}
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => router.push(`${routes.app.settings}#billing`)}>
-          Billing
+          {t("billing")}
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => router.push(`${routes.app.settings}#api-keys`)}>
-          API keys
+          {t("apiKeys")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
@@ -86,7 +88,7 @@ export function UserMenu() {
             void logout();
           }}
         >
-          Sign out
+          {t("signOut")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

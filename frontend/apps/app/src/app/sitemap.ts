@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { routes, siteConfig } from "@telepace/config";
 
+import { routing } from "@/i18n/routing";
+
 /** Public marketing surface only — app/auth/respondent URLs stay out. */
 const MARKETING_PATHS: string[] = [
   routes.home,
@@ -18,12 +20,28 @@ const MARKETING_PATHS: string[] = [
   routes.terms,
 ];
 
+function localizedUrl(locale: string, path: string): string {
+  const suffix = path === "/" ? "" : path;
+  return `${siteConfig.urls.home}/${locale}${suffix}`;
+}
+
+function changeFrequencyFor(path: string): "weekly" | "monthly" {
+  return path === routes.changelog ? "weekly" : "monthly";
+}
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
-  return MARKETING_PATHS.map((path) => ({
-    url: `${siteConfig.urls.home}${path === "/" ? "" : path}`,
-    lastModified,
-    changeFrequency: path === routes.changelog ? "weekly" : "monthly",
-    priority: path === "/" ? 1 : 0.7,
-  }));
+  return MARKETING_PATHS.flatMap((path) =>
+    routing.locales.map((locale) => ({
+      url: localizedUrl(locale, path),
+      lastModified,
+      changeFrequency: changeFrequencyFor(path),
+      priority: path === "/" ? 1 : 0.7,
+      alternates: {
+        languages: Object.fromEntries(
+          routing.locales.map((l) => [l, localizedUrl(l, path)]),
+        ),
+      },
+    })),
+  );
 }

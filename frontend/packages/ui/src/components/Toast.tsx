@@ -64,7 +64,7 @@ const kindAccent: Record<Kind, string> = {
   info: "text-body",
 };
 
-export function Toaster() {
+export function Toaster({ dismissLabel = "Dismiss" }: { dismissLabel?: string }) {
   const [items, setItems] = useState<ToastItem[]>([]);
   const timers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
 
@@ -100,7 +100,7 @@ export function Toaster() {
       className="pointer-events-none fixed right-4 top-4 z-[9999] flex flex-col gap-2"
     >
       {items.map((t) => (
-        <ToastCard key={t.id} toast={t} onDismiss={() => dismiss(t.id)} />
+        <ToastCard key={t.id} toast={t} onDismiss={() => dismiss(t.id)} dismissLabel={dismissLabel} />
       ))}
     </div>
   );
@@ -109,9 +109,11 @@ export function Toaster() {
 function ToastCard({
   toast: t,
   onDismiss,
+  dismissLabel,
 }: {
   toast: ToastItem;
   onDismiss: () => void;
+  dismissLabel: string;
 }) {
   return (
     <div
@@ -143,7 +145,7 @@ function ToastCard({
         </div>
         <button
           type="button"
-          aria-label="Dismiss"
+          aria-label={dismissLabel}
           onClick={onDismiss}
           className="-m-1 p-1 leading-none text-muted transition-colors hover:text-ink"
         >

@@ -29,9 +29,13 @@ async def analyze_completion(state: AppState, ev: InterviewCompleted) -> None:
         return
     from agents.analyst.main import TranscriptView
 
+    campaign = await state.projector.get_campaign(ev.campaign_id)
+    language = campaign.spec.primary_language if campaign else "en"
+
     result = await state.analyst.synthesize(
         campaign_id=ev.campaign_id,
         transcripts=[TranscriptView(interview_id=ev.interview_id, turns=turns)],
+        language=language,
     )
     if not result.events:
         return

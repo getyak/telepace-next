@@ -16,17 +16,21 @@ from uuid import UUID, uuid4
 from core.constants import (
     BRAND_SIGNATURE,
     DEFAULT_OUTLINE_DURATION_MIN,
-    DISPATCH_EMAIL_BODY_HTML_TPL,
-    DISPATCH_EMAIL_BODY_TEXT_TPL,
-    DISPATCH_EMAIL_GREETING_ANON,
-    DISPATCH_EMAIL_GREETING_NAMED_TPL,
-    DISPATCH_EMAIL_INTRO_FALLBACK_TPL,
-    DISPATCH_EMAIL_SUBJECT_TPL,
-    DISPATCH_PHONE_OPENING_TPL,
-    DISPATCH_SMS_BODY_TPL,
-    DISPATCH_SMS_INTRO_FALLBACK_TPL,
+    DISPATCH_EMAIL_BODY_HTML_TPL_I18N,
+    DISPATCH_EMAIL_BODY_TEXT_TPL_I18N,
+    DISPATCH_EMAIL_GREETING_ANON_I18N,
+    DISPATCH_EMAIL_GREETING_NAMED_TPL_I18N,
+    DISPATCH_EMAIL_INTRO_FALLBACK_TPL_I18N,
+    DISPATCH_EMAIL_SUBJECT_TPL_I18N,
+    DISPATCH_LANGUAGE_FALLBACK,
+    DISPATCH_PHONE_OPENING_TPL_I18N,
+    DISPATCH_SMS_BODY_TPL_I18N,
+    DISPATCH_SMS_INTRO_FALLBACK_TPL_I18N,
+    DISPATCH_SPEC_GOAL_FALLBACK,
+    DISPATCH_SPEC_TITLE_FALLBACK,
     PII_HASH_HEX_LEN,
     PRODUCT_NAME,
+    RESPONDENT_PATH_PREFIX,
 )
 from core.domain.models import ChannelKind
 from core.events import EventBase, InviteDispatched
@@ -39,6 +43,7 @@ from interfaces.channels.base import (
     PhoneDispatcher,
     SmsDispatcher,
 )
+from interfaces.rest_api.errors import ErrorMessages
 
 if TYPE_CHECKING:
     from harness.orchestrator import Harness
@@ -52,30 +57,40 @@ def hash_address(address: str) -> str:
     return hashlib.sha256(address.encode("utf-8")).hexdigest()[:PII_HASH_HEX_LEN]
 
 
+def _resolve_language(language: str) -> str:
+    """Map a BCP-47 tag to a template bucket key, falling back to `en`."""
+    primary = language.split("-")[0].lower() if language else ""
+    if primary in DISPATCH_EMAIL_SUBJECT_TPL_I18N:
+        return primary
+    return DISPATCH_LANGUAGE_FALLBACK
+
+
 def _build_email_content(
     invite_in: InviteInput,
     spec_title: str,
     spec_goal: str,
     share_url: str,
     duration_min: int,
+    language: str = DISPATCH_LANGUAGE_FALLBACK,
 ) -> tuple[str, str, str]:
-    subject = DISPATCH_EMAIL_SUBJECT_TPL.format(spec_title=spec_title)
+    lang = _resolve_language(language)
+    subject = DISPATCH_EMAIL_SUBJECT_TPL_I18N[lang].format(spec_title=spec_title)
     greeting = (
-        DISPATCH_EMAIL_GREETING_NAMED_TPL.format(name=invite_in.name)
+        DISPATCH_EMAIL_GREETING_NAMED_TPL_I18N[lang].format(name=invite_in.name)
         if invite_in.name
-        else DISPATCH_EMAIL_GREETING_ANON
+        else DISPATCH_EMAIL_GREETING_ANON_I18N[lang]
     )
-    intro = invite_in.personalized_intro or DISPATCH_EMAIL_INTRO_FALLBACK_TPL.format(
+    intro = invite_in.personalized_intro or DISPATCH_EMAIL_INTRO_FALLBACK_TPL_I18N[lang].format(
         spec_goal=spec_goal
     )
-    body_text = DISPATCH_EMAIL_BODY_TEXT_TPL.format(
+    body_text = DISPATCH_EMAIL_BODY_TEXT_TPL_I18N[lang].format(
         greeting=greeting,
         intro=intro,
         duration_min=duration_min,
         share_url=share_url,
         brand_signature=BRAND_SIGNATURE,
     )
-    body_html = DISPATCH_EMAIL_BODY_HTML_TPL.format(
+    body_html = DISPATCH_EMAIL_BODY_HTML_TPL_I18N[lang].format(
         greeting=greeting,
         intro=intro,
         duration_min=duration_min,
@@ -86,21 +101,36 @@ def _build_email_content(
 
 
 def _build_sms_body(
-    invite_in: InviteInput, spec_title: str, share_url: str, duration_min: int
+    invite_in: InviteInput,
+    spec_title: str,
+    share_url: str,
+    duration_min: int,
+    language: str = DISPATCH_LANGUAGE_FALLBACK,
 ) -> str:
-    intro = invite_in.personalized_intro or DISPATCH_SMS_INTRO_FALLBACK_TPL.format(
+    lang = _resolve_language(language)
+    intro = invite_in.personalized_intro or DISPATCH_SMS_INTRO_FALLBACK_TPL_I18N[lang].format(
         spec_title=spec_title
     )
-    return DISPATCH_SMS_BODY_TPL.format(
+    return DISPATCH_SMS_BODY_TPL_I18N[lang].format(
         intro=intro, duration_min=duration_min, share_url=share_url
     )
 
 
-def _build_opening_line(invite_in: InviteInput, spec_title: str) -> str:
+def _build_opening_line(
+    invite_in: InviteInput,
+    spec_title: str,
+    language: str = DISPATCH_LANGUAGE_FALLBACK,
+) -> str:
     if invite_in.personalized_intro:
         return invite_in.personalized_intro
-    name_suffix = f" {invite_in.name}" if invite_in.name else ""
-    return DISPATCH_PHONE_OPENING_TPL.format(
+    lang = _resolve_language(language)
+    if not invite_in.name:
+        name_suffix = ""
+    elif lang == "zh":
+        name_suffix = invite_in.name
+    else:
+        name_suffix = f" {invite_in.name}"
+    return DISPATCH_PHONE_OPENING_TPL_I18N[lang].format(
         name_suffix=name_suffix, brand=PRODUCT_NAME, spec_title=spec_title
     )
 
@@ -132,6 +162,7 @@ class DispatchHandler:
         spec = self._extract_spec(context)
         spec_title = spec.get("title") or DISPATCH_SPEC_TITLE_FALLBACK
         spec_goal = spec.get("goal") or DISPATCH_SPEC_GOAL_FALLBACK
+        language = spec.get("primary_language") or DISPATCH_LANGUAGE_FALLBACK
         share_url = (
             f"{self.share_url_base.rstrip('/')}{RESPONDENT_PATH_PREFIX}{command.campaign_id}"
         )
@@ -152,7 +183,7 @@ class DispatchHandler:
             addr_hash = hash_address(inv.address)
 
             receipt = await self._dispatch_one(
-                inv, invite, spec_title, spec_goal, command.campaign_id
+                inv, invite, spec_title, spec_goal, command.campaign_id, language
             )
 
             events.append(
@@ -191,6 +222,7 @@ class DispatchHandler:
         spec_title: str,
         spec_goal: str,
         campaign_id: UUID,
+        language: str = DISPATCH_LANGUAGE_FALLBACK,
     ) -> DispatchReceipt:
         _ = spec_goal  # currently only surfaced through email body
         try:
@@ -203,7 +235,12 @@ class DispatchHandler:
                         error=ErrorMessages.NO_EMAIL_DISPATCHER,
                     )
                 subject, html, text = _build_email_content(
-                    inv, spec_title, spec_goal, invite.share_url, self.outline_duration_min
+                    inv,
+                    spec_title,
+                    spec_goal,
+                    invite.share_url,
+                    self.outline_duration_min,
+                    language,
                 )
                 return await self.email.send(invite, subject, html, text)
             if inv.channel == ChannelKind.SMS:
@@ -215,7 +252,7 @@ class DispatchHandler:
                         error=ErrorMessages.NO_SMS_DISPATCHER,
                     )
                 body = _build_sms_body(
-                    inv, spec_title, invite.share_url, self.outline_duration_min
+                    inv, spec_title, invite.share_url, self.outline_duration_min, language
                 )
                 return await self.sms.send(invite, body)
             if inv.channel == ChannelKind.PHONE_OUTBOUND:
@@ -226,7 +263,7 @@ class DispatchHandler:
                         provider_id=None,
                         error=ErrorMessages.NO_PHONE_DISPATCHER,
                     )
-                opening = _build_opening_line(inv, spec_title)
+                opening = _build_opening_line(inv, spec_title, language)
                 return await self.phone.place_call(invite, opening, campaign_id)
             return DispatchReceipt(
                 ok=False,

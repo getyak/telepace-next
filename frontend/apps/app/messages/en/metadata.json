@@ -1,0 +1,66 @@
+{
+  "marketing": {
+    "home": {
+      "title": "telepace — Voice-native, Agent-first user research infrastructure",
+      "description": "telepace runs voice interviews with your users on autopilot — and hands the structured insights back to your agent, so it can act on them."
+    },
+    "pricing": {
+      "title": "Pricing",
+      "description": "Simple pricing that scales with your research — free tier, Pro, and Team. No card required to start."
+    },
+    "docs": {
+      "title": "Docs",
+      "description": "Quickstarts, core concepts, and integration guides for telepace."
+    },
+    "mcp": {
+      "title": "MCP",
+      "description": "The telepace MCP server: stateful research tools for any MCP-compatible agent."
+    },
+    "productAgent": {
+      "title": "Agent",
+      "description": "Designer, Interviewer, Analyst, Coordinator — four agents that run research end to end."
+    },
+    "productVoice": {
+      "title": "Voice",
+      "description": "Voice interviews in the browser, by phone, or on a hotline — natural turn-taking, ten languages."
+    },
+    "careers": {
+      "title": "Careers",
+      "description": "Join the team building voice-native user research for the agent era."
+    },
+    "changelog": {
+      "title": "Changelog",
+      "description": "Product releases and improvements, in the open."
+    },
+    "terms": {
+      "title": "Terms",
+      "description": "The terms that govern your use of telepace."
+    },
+    "privacy": {
+      "title": "Privacy",
+      "description": "What we collect, how we use it, and the rights you keep."
+    },
+    "customers": {
+      "title": "Customers",
+      "description": "How product teams use telepace to put customer voice behind every decision."
+    },
+    "security": {
+      "title": "Security",
+      "description": "How telepace protects your data: tenant isolation, encryption, and PII redaction."
+    },
+    "demo": {
+      "title": "Live demo",
+      "description": "Try a 60-second live interview with telepace's AI researcher — no signup required."
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "description": "Sign in to telepace."
+    },
+    "signup": {
+      "title": "Create your account",
+      "description": "Create a telepace account — free tier includes 3 studies a month, no card required."
+    }
+  }
+}

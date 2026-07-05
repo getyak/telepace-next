@@ -59,6 +59,8 @@ class InterviewerAgent:
         outline: list[dict[str, Any]] = (
             outline_ctx.get("items", []) if isinstance(outline_ctx, dict) else []
         )
+        spec_ctx = context.get("spec", {}) if isinstance(context.get("spec"), dict) else {}
+        language = spec_ctx.get("primary_language", "en")
 
         respondent_order = len(history) + 1
         history.append({"role": "respondent", "text": cmd.text})
@@ -69,6 +71,7 @@ class InterviewerAgent:
                 "coverage": context.get("outline_coverage", {}),
                 "history": history[-INTERVIEWER_HISTORY_WINDOW:],
                 "last_respondent_text": cmd.text,
+                "language": language,
             },
             ensure_ascii=False,
         )

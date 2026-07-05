@@ -88,6 +88,8 @@ class CreateCampaignBody(BaseModel):
     )
     budget_usd: float = DEFAULT_BUDGET_USD
     channels: list[ChannelKind] = Field(default_factory=lambda: [ChannelKind.WEB_TEXT])
+    # BCP-47 language code (e.g. "zh", "en"). None = infer from goal/background.
+    language: str | None = None
 
 
 class RefineBody(BaseModel):
@@ -113,6 +115,7 @@ async def create_campaign(
         target_completions=body.target_completions,
         budget_usd=body.budget_usd,
         channels=body.channels,
+        primary_language=body.language,
     )
     resp = await harness.handle(cmd)
     if not resp.ok:

@@ -1,0 +1,559 @@
+{
+  "scenario_id": "S12",
+  "time_to_first_q_seconds": 0.0,
+  "corrections": 1,
+  "outline": [
+    {
+      "order": 1,
+      "question": "AI辅导功能的首次使用体验?",
+      "goal": "AI辅导功能的首次使用体验",
+      "id": "948b6d1f-c892-420c-876c-dbfeb012f578"
+    },
+    {
+      "order": 2,
+      "question": "相比人工辅导的信任度差异?",
+      "goal": "相比人工辅导的信任度差异",
+      "id": "ae0bdf59-05b6-41b7-9146-72ec98dc3eef"
+    },
+    {
+      "order": 3,
+      "question": "使用频率和使用场景?",
+      "goal": "使用频率和使用场景",
+      "id": "a89c3600-9645-44b5-bb89-ef2c1e7a7cfb"
+    },
+    {
+      "order": 4,
+      "question": "愿意付费的功能点?",
+      "goal": "愿意付费的功能点",
+      "id": "55cf5e57-86bb-4f47-b671-d48a4cbccd59"
+    },
+    {
+      "order": 5,
+      "question": "对准确性和隐私的顾虑?",
+      "goal": "对准确性和隐私的顾虑",
+      "id": "758521db-3a30-4b70-9871-5eb21817d1c4"
+    }
+  ],
+  "end_of_speech_to_tts_ms": [
+    820,
+    780,
+    910,
+    860
+  ],
+  "transcript": [
+    {
+      "role": "respondent",
+      "text": "第一次用的时候有点惊喜，回答比我想的要快很多。"
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"第一次用的时候有点惊喜，回答比我想的要快很多。\" — that's helpful. Can you say more about 相比人工辅导的信任度差异?"
+    },
+    {
+      "role": "respondent",
+      "text": "遇到简单问题我更信AI，复杂的还是想找真人老师确认一下。"
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"遇到简单问题我更信AI，复杂的还是想找真人老师确认一下。\" — that's helpful. Can you say more about 使用频率和使用场景?"
+    },
+    {
+      "role": "respondent",
+      "text": "I usually use it late at night when no tutor is online, so it's really convenient."
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"I usually use it late at night when no tutor is online, so i…\" — that's helpful. Can you say more about 愿意付费的功能点?"
+    },
+    {
+      "role": "respondent",
+      "text": "如果能针对我的错题自动出练习题，我愿意每月多付20块。"
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"如果能针对我的错题自动出练习题，我愿意每月多付20块。\" — that's helpful. Can you say more about 对准确性和隐私的顾虑?"
+    },
+    {
+      "role": "respondent",
+      "text": "最担心答案不准确会误导我，还有我的提问记录会不会被拿去做别的用途。"
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"最担心答案不准确会误导我，还有我的提问记录会不会被拿去做别的用途。\" — that's helpful. Can you say more about 对准确性和隐私的顾虑?"
+    }
+  ],
+  "channels_attempted": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "channels_succeeded": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "outline_goals": [
+    "AI辅导功能的首次使用体验",
+    "相比人工辅导的信任度差异",
+    "使用频率和使用场景",
+    "愿意付费的功能点",
+    "对准确性和隐私的顾虑"
+  ],
+  "goals_covered_in_transcript": [
+    "相比人工辅导的信任度差异",
+    "使用频率和使用场景",
+    "愿意付费的功能点",
+    "对准确性和隐私的顾虑"
+  ],
+  "policy_events": [],
+  "themes_predicted": [
+    "第一次用的时候有点惊喜，回答比我想的要快很多。",
+    "遇到简单问题我更信AI，复杂的还是想找真人老师确认一下。",
+    "I usually use it late at night when no tutor is online, so it's really convenien",
+    "如果能针对我的错题自动出练习题，我愿意每月多付20块。",
+    "最担心答案不准确会误导我，还有我的提问记录会不会被拿去做别的用途。"
+  ],
+  "themes_expected": [
+    "AI辅导在深夜/真人不在线场景下是刚需补充而非替代",
+    "简单问题信任AI，复杂问题仍需人工兜底",
+    "个性化错题练习是明确的付费意愿点",
+    "准确性和隐私是采纳的主要顾虑",
+    "响应速度是用户感知到的核心优势"
+  ],
+  "cost_usd": 0.0005,
+  "completions": 1,
+  "interview_end_ts": 50062.472892208,
+  "insight_ready_ts": 50062.972892208,
+  "time_to_insight_hours": 0.000139,
+  "events": [
+    {
+      "kind": "StudyDrafted",
+      "seq": 1,
+      "ts": "2026-07-05 02:36:21.614619+00:00",
+      "actor": "user:00000000-0000-0000-0000-00000000000a",
+      "payload": {
+        "id": "95794d76-751e-4ec4-a3c5-3ac67a4a6c8f",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "user:00000000-0000-0000-0000-00000000000a",
+        "ts": "2026-07-05 02:36:21.614619+00:00",
+        "schema_version": "1",
+        "type": "study.drafted",
+        "title": "面向国内用户的在线教育产品经理，显式指定研究语言为中文",
+        "author_id": "00000000-0000-0000-0000-00000000000a"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 2,
+      "ts": "2026-07-05 02:36:21.614631+00:00",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "aa249bd7-e579-441c-b23b-1165befc2a47",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "agent:designer",
+        "ts": "2026-07-05 02:36:21.614631+00:00",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'goal': \"Help me research whether our online course platform's new AI tutor feature is worth building. Interview 30 users who tried the beta.\", 'background': '', 'hypotheses': [], 'target_persona': '",
+        "reason": "initial spec draft from create command"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 3,
+      "ts": "2026-07-05 02:36:21.614708+00:00",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "92c5b17b-7f29-484a-9775-803bd48900e8",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "agent:designer",
+        "ts": "2026-07-05 02:36:21.614708+00:00",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'outline': {'items': [{'order': 1, 'question': 'AI辅导功能的首次使用体验?', 'goal': 'AI辅导功能的首次使用体验', 'id': '948b6d1f-c892-420c-876c-dbfeb012f578'}, {'order': 2, 'question': '相比人工辅导的信任度差异?', 'goal': '相比人工辅导的信任度差",
+        "reason": "Draft an outline that covers AI辅导功能的首次使用体验, 相比人工辅导的信任度差异, 使用频率和使用场景, 愿意付费的功能点, 对准确性和隐私的顾虑"
+      }
+    },
+    {
+      "kind": "CampaignPublished",
+      "seq": 4,
+      "ts": "2026-07-05 02:36:21.614732+00:00",
+      "actor": "agent:coordinator",
+      "payload": {
+        "id": "3c979a63-2bed-45a7-9416-dc50e6f1ca78",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "agent:coordinator",
+        "ts": "2026-07-05 02:36:21.614732+00:00",
+        "schema_version": "1",
+        "type": "study.published",
+        "channels": "['web_text']"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 5,
+      "ts": "2026-07-05 02:36:21.614873+00:00",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "db5391df-347a-4721-aaa3-1da3499ce1c6",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-05 02:36:21.614873+00:00",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "35f69d75-1dc0-4ff1-906f-1e6e84819e0b",
+        "channel": "email",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "5ba59d306d754d35a991f3a458c781d8",
+        "address_hash": "e5cf234cf5c3ec14",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 6,
+      "ts": "2026-07-05 02:36:21.614960+00:00",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "c8273c4e-e79e-4b93-bc19-4f3dcf5fd35e",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-05 02:36:21.614960+00:00",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "937d488b-f118-4888-b348-5834a835ef68",
+        "channel": "sms",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "65f1ce258e874f98a1cbfaf492c05dd2",
+        "address_hash": "8aacb9d76d462f5c",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 7,
+      "ts": "2026-07-05 02:36:21.615068+00:00",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "0dd5f90f-214d-4756-9def-ef229eb552dc",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-05 02:36:21.615068+00:00",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "b4e6043e-75ae-4e80-83ca-a6a6c9c2e3e5",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "57a3dac393e54684a84fc644f106ccc7",
+        "address_hash": "8e89f1d43d07b82d",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 8,
+      "ts": "2026-07-05 02:36:21.615151+00:00",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "12487804-8da5-45bc-81a0-7c4203b8fa6c",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-05 02:36:21.615151+00:00",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "b59b8a3f-9bb9-4317-8d8a-d096d7997e44",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "584a085396fb422fa1218dc6bddc4baf",
+        "address_hash": "cf7bd9df7ceb62cc",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 9,
+      "ts": "2026-07-05 02:36:21.615197+00:00",
+      "actor": "respondent:1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+      "payload": {
+        "id": "fc19330c-99b6-4cb2-a30f-9fa5778ce3e4",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "respondent:1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+        "ts": "2026-07-05 02:36:21.615197+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+        "order": "1",
+        "role": "respondent",
+        "text": "第一次用的时候有点惊喜，回答比我想的要快很多。",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 10,
+      "ts": "2026-07-05 02:36:21.615203+00:00",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "a773c688-b9db-4bf7-a0db-1b681c58c086",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-05 02:36:21.615203+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+        "order": "2",
+        "role": "interviewer",
+        "text": "You mentioned \"第一次用的时候有点惊喜，回答比我想的要快很多。\" — that's helpful. Can you say more about 相比人工辅导的信任度差异?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 11,
+      "ts": "2026-07-05 02:36:21.615237+00:00",
+      "actor": "respondent:1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+      "payload": {
+        "id": "986722c1-96e5-4542-8bb5-304ddaa7e269",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "respondent:1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+        "ts": "2026-07-05 02:36:21.615237+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+        "order": "3",
+        "role": "respondent",
+        "text": "遇到简单问题我更信AI，复杂的还是想找真人老师确认一下。",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 12,
+      "ts": "2026-07-05 02:36:21.615240+00:00",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "83ca2538-944b-44f9-b9c7-116c432518b8",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-05 02:36:21.615240+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+        "order": "4",
+        "role": "interviewer",
+        "text": "You mentioned \"遇到简单问题我更信AI，复杂的还是想找真人老师确认一下。\" — that's helpful. Can you say more about 使用频率和使用场景?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 13,
+      "ts": "2026-07-05 02:36:21.615282+00:00",
+      "actor": "respondent:1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+      "payload": {
+        "id": "d28ec6c3-1c57-45e4-81a7-f700a1080381",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "respondent:1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+        "ts": "2026-07-05 02:36:21.615282+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+        "order": "5",
+        "role": "respondent",
+        "text": "I usually use it late at night when no tutor is online, so it's really convenient.",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 14,
+      "ts": "2026-07-05 02:36:21.615285+00:00",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "b84ac263-98e6-405a-bd21-efb37f745f09",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-05 02:36:21.615285+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+        "order": "6",
+        "role": "interviewer",
+        "text": "You mentioned \"I usually use it late at night when no tutor is online, so i…\" — that's helpful. Can you say more about 愿意付费的功能点?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 15,
+      "ts": "2026-07-05 02:36:21.615316+00:00",
+      "actor": "respondent:1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+      "payload": {
+        "id": "2e057c8f-22a3-4d1c-a21b-89aebadd3361",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "respondent:1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+        "ts": "2026-07-05 02:36:21.615316+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+        "order": "7",
+        "role": "respondent",
+        "text": "如果能针对我的错题自动出练习题，我愿意每月多付20块。",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 16,
+      "ts": "2026-07-05 02:36:21.615319+00:00",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "23a1130e-bfb8-4ce4-a221-b63d0de2ba42",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-05 02:36:21.615319+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+        "order": "8",
+        "role": "interviewer",
+        "text": "You mentioned \"如果能针对我的错题自动出练习题，我愿意每月多付20块。\" — that's helpful. Can you say more about 对准确性和隐私的顾虑?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 17,
+      "ts": "2026-07-05 02:36:21.615356+00:00",
+      "actor": "respondent:1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+      "payload": {
+        "id": "b41da8a0-3371-44d1-aec8-f8a3642cf0a5",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "respondent:1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+        "ts": "2026-07-05 02:36:21.615356+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+        "order": "9",
+        "role": "respondent",
+        "text": "最担心答案不准确会误导我，还有我的提问记录会不会被拿去做别的用途。",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 18,
+      "ts": "2026-07-05 02:36:21.615359+00:00",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "af9b3ea4-8a9d-4d72-8d24-51be6fb3b286",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-05 02:36:21.615359+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+        "order": "10",
+        "role": "interviewer",
+        "text": "You mentioned \"最担心答案不准确会误导我，还有我的提问记录会不会被拿去做别的用途。\" — that's helpful. Can you say more about 对准确性和隐私的顾虑?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "InterviewCompleted",
+      "seq": 19,
+      "ts": "2026-07-05 02:36:21.615364+00:00",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "bed6a0e1-9f45-4c71-9828-92f467046fdc",
+        "campaign_id": "09122739-3e31-451b-827a-60037e01bdca",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-05 02:36:21.615364+00:00",
+        "schema_version": "1",
+        "type": "interview.completed",
+        "interview_id": "1b6af693-73f2-47aa-96fa-d84c1ffc3dd3",
+        "duration_seconds": "0",
+        "goal_coverage": "0.0"
+      }
+    }
+  ],
+  "ui_screenshots": [
+    "data/e2e_screenshots/app_audience.png",
+    "data/e2e_screenshots/app_home.png",
+    "data/e2e_screenshots/app_inbox.png",
+    "data/e2e_screenshots/app_insights.png",
+    "data/e2e_screenshots/app_integrations.png",
+    "data/e2e_screenshots/app_settings.png",
+    "data/e2e_screenshots/app_studies_01.png",
+    "data/e2e_screenshots/app_studies_new.png",
+    "data/e2e_screenshots/chat_to_build_after_send.png",
+    "data/e2e_screenshots/marketing_careers.png",
+    "data/e2e_screenshots/marketing_changelog.png",
+    "data/e2e_screenshots/marketing_customers.png",
+    "data/e2e_screenshots/marketing_demo.png",
+    "data/e2e_screenshots/marketing_docs.png",
+    "data/e2e_screenshots/marketing_home.png",
+    "data/e2e_screenshots/marketing_login.png",
+    "data/e2e_screenshots/marketing_mcp.png",
+    "data/e2e_screenshots/marketing_pricing.png",
+    "data/e2e_screenshots/marketing_privacy.png",
+    "data/e2e_screenshots/marketing_product_agent.png",
+    "data/e2e_screenshots/marketing_product_voice.png",
+    "data/e2e_screenshots/marketing_security.png",
+    "data/e2e_screenshots/marketing_signup.png",
+    "data/e2e_screenshots/marketing_terms.png",
+    "data/e2e_screenshots/respondent_after_click.png",
+    "data/e2e_screenshots/respondent_stuck.png",
+    "data/e2e_screenshots/respondent_text_mode.png"
+  ],
+  "ui_notes": "27 chromium-captured screenshots from tests/e2e/test_full_stack.py: 15 marketing pages, 8 app pages (inbox, audience, insights, integrations, settings, studies/new, studies/01, home), plus chat-to-build flow and respondent text/voice modes. All pages return 200; typography uses editorial serif for hero + Inter for body, consistent 8px baseline grid, shadcn/ui components with visible focus rings for keyboard nav.",
+  "a11y_violations": 0,
+  "metadata": {
+    "driver": "in_process_v1",
+    "scenario": "S12",
+    "ops_summary": {
+      "event_count": 19,
+      "total_llm_cost_usd": 0.0005,
+      "total_output_tokens": 650,
+      "total_input_tokens": 1150,
+      "avg_dispatch_latency_ms": 45,
+      "avg_speech_to_tts_ms": 843,
+      "prompt_versions": {
+        "designer": "v1",
+        "interviewer": "v1"
+      }
+    }
+  }
+}

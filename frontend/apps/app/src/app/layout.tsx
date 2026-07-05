@@ -1,10 +1,12 @@
 import "@telepace/ui/globals.css";
 import type { Metadata } from "next";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { Inter, Instrument_Serif } from "next/font/google";
 import { siteConfig } from "@telepace/config";
 import { Toaster } from "@telepace/ui";
 
 import { HttpErrorBridge } from "../components/toast/HttpErrorBridge";
+import type { ErrorsCopyTable } from "../lib/errors";
 
 // Self-hosted via next/font: no Google Fonts <link>, no FOUT, and every
 // route group (marketing, app, auth, respondent) inherits the variables.
@@ -36,17 +38,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+  const t = await getTranslations("common");
+  const messages = await getMessages();
+  const errorsCopy = messages.errors as ErrorsCopyTable;
   return (
     <html
-      lang="en"
+      lang={locale}
       suppressHydrationWarning
       className={`${inter.variable} ${serif.variable}`}
     >
       <body>
         {children}
-        <Toaster />
-        <HttpErrorBridge />
+        <Toaster dismissLabel={t("dismiss")} />
+        <HttpErrorBridge copy={errorsCopy} />
       </body>
     </html>
   );

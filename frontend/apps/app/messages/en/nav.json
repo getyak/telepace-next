@@ -1,0 +1,50 @@
+{
+  "app": {
+    "sidebar": {
+      "studies": "Studies",
+      "inbox": "Inbox",
+      "audience": "Audience",
+      "insights": "Insights",
+      "workspaceLabel": "Workspace",
+      "integrations": "Integrations",
+      "settings": "Settings",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu"
+    },
+    "userMenu": {
+      "signIn": "Sign in",
+      "signedInAs": "Signed in as",
+      "workspace": "Workspace",
+      "members": "Members",
+      "billing": "Billing",
+      "apiKeys": "API keys",
+      "signOut": "Sign out"
+    }
+  },
+  "marketing": {
+    "voice": "Voice",
+    "agent": "Agent",
+    "pricing": "Pricing",
+    "docs": "Docs",
+    "mcp": "MCP",
+    "signIn": "Sign in",
+    "startFree": "Start free",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "tagline": "Voice-native user research for the agent era.",
+    "footer": {
+      "product": "Product",
+      "company": "Company",
+      "legal": "Legal",
+      "liveDemo": "Live demo",
+      "customers": "Customers",
+      "changelog": "Changelog",
+      "careers": "Careers",
+      "security": "Security",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "copyright": "© {year} Telepace, Inc. All rights reserved.",
+      "madeInTheOpen": "Made in the open."
+    }
+  }
+}

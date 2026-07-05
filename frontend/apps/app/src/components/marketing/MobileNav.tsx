@@ -6,8 +6,8 @@
  * Locks body scroll while open; closes on Esc and on route change.
  */
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@telepace/ui";
 import { CloseIcon, MenuIcon } from "@telepace/icons";
@@ -15,7 +15,19 @@ import { routes, siteConfig } from "@telepace/config";
 
 export type NavLink = { href: string; label: string };
 
-export function MobileNav({ links }: { links: NavLink[] }) {
+export function MobileNav({
+  links,
+  signInLabel,
+  startFreeLabel,
+  openMenuLabel,
+  closeMenuLabel,
+}: {
+  links: NavLink[];
+  signInLabel: string;
+  startFreeLabel: string;
+  openMenuLabel: string;
+  closeMenuLabel: string;
+}) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -43,7 +55,7 @@ export function MobileNav({ links }: { links: NavLink[] }) {
     <div className="md:hidden">
       <button
         type="button"
-        aria-label={open ? "Close menu" : "Open menu"}
+        aria-label={open ? closeMenuLabel : openMenuLabel}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         className="-m-2 p-2 text-ink"
@@ -59,7 +71,7 @@ export function MobileNav({ links }: { links: NavLink[] }) {
             </Link>
             <button
               type="button"
-              aria-label="Close menu"
+              aria-label={closeMenuLabel}
               onClick={() => setOpen(false)}
               className="-m-2 p-2 text-ink"
             >
@@ -83,11 +95,11 @@ export function MobileNav({ links }: { links: NavLink[] }) {
           <div className="container-content flex items-center gap-3 border-t border-hairline py-6">
             <Link href={routes.login} onClick={() => setOpen(false)} className="flex-1">
               <Button variant="secondary" className="w-full">
-                Sign in
+                {signInLabel}
               </Button>
             </Link>
             <Link href={routes.signup} onClick={() => setOpen(false)} className="flex-1">
-              <Button className="w-full">Start free</Button>
+              <Button className="w-full">{startFreeLabel}</Button>
             </Link>
           </div>
         </div>

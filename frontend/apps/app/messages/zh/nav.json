@@ -1,0 +1,50 @@
+{
+  "app": {
+    "sidebar": {
+      "studies": "问卷",
+      "inbox": "收件箱",
+      "audience": "受众",
+      "insights": "洞察",
+      "workspaceLabel": "工作区",
+      "integrations": "集成",
+      "settings": "设置",
+      "openMenu": "打开菜单",
+      "closeMenu": "关闭菜单"
+    },
+    "userMenu": {
+      "signIn": "登录",
+      "signedInAs": "当前登录账号",
+      "workspace": "工作区",
+      "members": "成员",
+      "billing": "账单",
+      "apiKeys": "API 密钥",
+      "signOut": "退出登录"
+    }
+  },
+  "marketing": {
+    "voice": "语音",
+    "agent": "智能体",
+    "pricing": "定价",
+    "docs": "文档",
+    "mcp": "MCP",
+    "signIn": "登录",
+    "startFree": "免费开始",
+    "openMenu": "打开菜单",
+    "closeMenu": "关闭菜单",
+    "tagline": "为智能体时代打造的语音原生用户研究。",
+    "footer": {
+      "product": "产品",
+      "company": "公司",
+      "legal": "法律",
+      "liveDemo": "在线演示",
+      "customers": "客户案例",
+      "changelog": "更新日志",
+      "careers": "招聘",
+      "security": "安全",
+      "privacy": "隐私政策",
+      "terms": "服务条款",
+      "copyright": "© {year} Telepace, Inc. 保留所有权利。",
+      "madeInTheOpen": "在开放中构建。"
+    }
+  }
+}

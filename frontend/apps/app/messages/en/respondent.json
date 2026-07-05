@@ -1,0 +1,36 @@
+{
+  "consent": {
+    "eyebrow": "a conversation, not a survey",
+    "title": "Thanks for being here.",
+    "body": "A researcher would like to hear from you. It'll take about 15 minutes and your responses shape what gets built next. Choose how you'd like to talk:",
+    "startWithText": "Start with text",
+    "useVoice": "Use voice →",
+    "consentNotice": "By continuing you consent to your responses being recorded and analyzed to improve the product."
+  },
+  "thanks": {
+    "eyebrow": "that's a wrap",
+    "title": "Thank you.",
+    "withAnswers": "Your {count} answers are on their way to the research team — they read every word.",
+    "noAnswers": "You've helped shape what gets built. The team will read every word.",
+    "canClose": "You can close this tab now."
+  },
+  "progress": {
+    "questionOf": "Question {current} of {total}"
+  },
+  "chat": {
+    "typing": "Thinking",
+    "placeholder": "Type your reply…",
+    "waiting": "…",
+    "send": "Send",
+    "voiceIntro": "Let's begin. Take a breath.",
+    "connecting": "connecting…"
+  },
+  "connection": {
+    "lost": "Connection lost — your previous answers are saved.",
+    "reconnect": "Reconnect"
+  },
+  "errors": {
+    "hiccup": "Something hiccuped on our side — please send that again.",
+    "micDenied": "We couldn't access your microphone — you can keep typing instead."
+  }
+}

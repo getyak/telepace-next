@@ -1,0 +1,36 @@
+{
+  "consent": {
+    "eyebrow": "一次对话，而非问卷",
+    "title": "感谢你的到来。",
+    "body": "有一位研究者想听听你的想法。大约需要 15 分钟，你的回答会影响我们接下来要做的事。请选择你想要的交流方式：",
+    "startWithText": "用文字开始",
+    "useVoice": "使用语音 →",
+    "consentNotice": "继续即表示你同意你的回答将被记录并用于分析，以改进产品。"
+  },
+  "thanks": {
+    "eyebrow": "圆满结束",
+    "title": "谢谢你。",
+    "withAnswers": "你的 {count} 条回答正在送往研究团队 —— 每一句话都会被认真阅读。",
+    "noAnswers": "你已经帮助我们规划了产品的方向，团队会认真阅读每一句话。",
+    "canClose": "现在可以关闭此页面了。"
+  },
+  "progress": {
+    "questionOf": "第 {current} / {total} 题"
+  },
+  "chat": {
+    "typing": "正在输入",
+    "placeholder": "输入你的回复…",
+    "waiting": "…",
+    "send": "发送",
+    "voiceIntro": "我们开始吧，先深呼吸一下。",
+    "connecting": "连接中…"
+  },
+  "connection": {
+    "lost": "连接已断开 —— 你之前的回答已保存。",
+    "reconnect": "重新连接"
+  },
+  "errors": {
+    "hiccup": "我们这边出了点小问题，请重新发送一次。",
+    "micDenied": "无法访问你的麦克风 —— 你可以继续用文字输入。"
+  }
+}

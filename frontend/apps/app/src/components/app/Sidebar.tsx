@@ -6,9 +6,10 @@
  * nav uses (deliberately no bottom tab bar — one menu idiom everywhere).
  */
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
 import { useEffect, useState, type ComponentType } from "react";
+import { useTranslations } from "next-intl";
 import { routes, siteConfig } from "@telepace/config";
 import {
   AudienceIcon,
@@ -27,20 +28,21 @@ import { UserMenu } from "../user/UserMenu";
 
 type Item = {
   href: string;
-  label: string;
+  /** Key into the "sidebar" namespace, e.g. t(labelKey). */
+  labelKey: "studies" | "inbox" | "audience" | "insights" | "integrations" | "settings";
   icon: ComponentType<IconProps>;
 };
 
 const PRIMARY: Item[] = [
-  { href: routes.app.studies.root, label: "Studies", icon: StudiesIcon },
-  { href: routes.app.inbox, label: "Inbox", icon: InboxIcon },
-  { href: routes.app.audience, label: "Audience", icon: AudienceIcon },
-  { href: routes.app.insights, label: "Insights", icon: InsightsIcon },
+  { href: routes.app.studies.root, labelKey: "studies", icon: StudiesIcon },
+  { href: routes.app.inbox, labelKey: "inbox", icon: InboxIcon },
+  { href: routes.app.audience, labelKey: "audience", icon: AudienceIcon },
+  { href: routes.app.insights, labelKey: "insights", icon: InsightsIcon },
 ];
 
 const WORKSPACE: Item[] = [
-  { href: routes.app.integrations, label: "Integrations", icon: IntegrationsIcon },
-  { href: routes.app.settings, label: "Settings", icon: SettingsIcon },
+  { href: routes.app.integrations, labelKey: "integrations", icon: IntegrationsIcon },
+  { href: routes.app.settings, labelKey: "settings", icon: SettingsIcon },
 ];
 
 function isActive(pathname: string, href: string): boolean {
@@ -48,6 +50,7 @@ function isActive(pathname: string, href: string): boolean {
 }
 
 export function Sidebar() {
+  const t = useTranslations("nav.app.sidebar");
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -80,11 +83,11 @@ export function Sidebar() {
         </div>
         <nav className="flex-1 space-y-1 px-3 py-4 text-sm">
           {PRIMARY.map((item) => (
-            <SideLink key={item.href} item={item} active={isActive(pathname, item.href)} />
+            <SideLink key={item.href} item={item} label={t(item.labelKey)} active={isActive(pathname, item.href)} />
           ))}
-          <p className="overline px-3 pb-1 pt-6">Workspace</p>
+          <p className="overline px-3 pb-1 pt-6">{t("workspaceLabel")}</p>
           {WORKSPACE.map((item) => (
-            <SideLink key={item.href} item={item} active={isActive(pathname, item.href)} />
+            <SideLink key={item.href} item={item} label={t(item.labelKey)} active={isActive(pathname, item.href)} />
           ))}
         </nav>
         <UserMenu />
@@ -97,7 +100,7 @@ export function Sidebar() {
         </Link>
         <button
           type="button"
-          aria-label={open ? "Close menu" : "Open menu"}
+          aria-label={open ? t("closeMenu") : t("openMenu")}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
           className="-m-2 p-2 text-ink"
@@ -119,7 +122,7 @@ export function Sidebar() {
             </Link>
             <button
               type="button"
-              aria-label="Close menu"
+              aria-label={t("closeMenu")}
               onClick={() => setOpen(false)}
               className="-m-2 p-2 text-ink"
             >
@@ -137,7 +140,7 @@ export function Sidebar() {
                   isActive(pathname, item.href) ? "text-accent" : "text-ink",
                 )}
               >
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             ))}
           </nav>
@@ -150,7 +153,7 @@ export function Sidebar() {
   );
 }
 
-function SideLink({ item, active }: { item: Item; active: boolean }) {
+function SideLink({ item, label, active }: { item: Item; label: string; active: boolean }) {
   const Icon = item.icon;
   return (
     <Link
@@ -170,7 +173,7 @@ function SideLink({ item, active }: { item: Item; active: boolean }) {
         />
       )}
       <Icon size={16} className={active ? "text-accent" : "text-muted"} />
-      {item.label}
+      {label}
     </Link>
   );
 }

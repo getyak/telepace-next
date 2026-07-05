@@ -162,9 +162,9 @@ async def _run_one(seed: dict[str, Any]) -> ScenarioRun:
             ),
             "coordinator": CoordinatorAgent(),
             "dispatch": DispatchHandler(
-                email=MockEmail(),
-                sms=MockSMS(),
-                phone=MockPhone(),
+                email=MockEmail(log_dir=str(RESULTS_DIR / "mock_email")),
+                sms=MockSMS(log_dir=str(RESULTS_DIR / "mock_sms")),
+                phone=MockPhone(log_dir=str(RESULTS_DIR / "mock_phone")),
                 share_url_base="http://eval.local",
             ),
         },
@@ -195,6 +195,7 @@ async def _run_one(seed: dict[str, Any]) -> ScenarioRun:
         target_completions=seed["target_completions"],
         budget_usd=seed["budget_usd"],
         channels=channels,
+        primary_language=seed.get("language"),
     )
     create_resp = await harness.handle(create_cmd)
     if not create_resp.ok:

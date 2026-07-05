@@ -2,11 +2,43 @@
 
 from __future__ import annotations
 
+import json
+from typing import Any
 from uuid import uuid4
 
 from agents.interviewer import InterviewerAgent
-from agents.shared.llm import LLMResponse, MockLLM
+from agents.shared.llm import LLMMessage, LLMResponse, MockLLM
 from core.protocols.commands import ReplyInInterview
+
+
+class RecordingLLM:
+    """MockLLM variant that records the last prompt sent."""
+
+    def __init__(self, canned: list[LLMResponse] | None = None) -> None:
+        self._canned = canned or []
+        self._idx = 0
+        self.last_user_msg: str | None = None
+
+    async def complete(
+        self,
+        *,
+        system: str,
+        messages: list[LLMMessage],
+        tools: Any = None,
+        model: str | None = None,
+        max_tokens: int = 0,
+        temperature: float = 0.0,
+    ) -> LLMResponse:
+        _ = system, tools, model, max_tokens, temperature
+        self.last_user_msg = messages[0].content
+        if not self._canned:
+            return LLMResponse(text="ok")
+        resp = self._canned[min(self._idx, len(self._canned) - 1)]
+        self._idx += 1
+        return resp
+
+    async def stream(self, **kwargs: Any):  # pragma: no cover - unused here
+        raise NotImplementedError
 
 
 def _reply(text: str) -> ReplyInInterview:
@@ -73,3 +105,23 @@ async def test_reply_history_grows_across_context_load() -> None:
     respondent_events = [e for e in r.events if e.type == "interview.turn_recorded"]
     assert respondent_events[0].order == 4
     assert respondent_events[1].order == 5
+
+
+async def test_reply_payload_includes_primary_language_from_spec() -> None:
+    llm = RecordingLLM(canned=[LLMResponse(text="ok")])
+    agent = InterviewerAgent(llm=llm, max_tokens=800, temperature=0.5)
+    await agent.run(
+        _reply("你好"),
+        context={"spec": {"primary_language": "zh", "outline": {"items": []}}},
+        harness=None,  # type: ignore[arg-type]
+    )
+    payload = json.loads(llm.last_user_msg or "{}")
+    assert payload["language"] == "zh"
+
+
+async def test_reply_payload_defaults_language_to_en_when_spec_missing() -> None:
+    llm = RecordingLLM(canned=[LLMResponse(text="ok")])
+    agent = InterviewerAgent(llm=llm, max_tokens=800, temperature=0.5)
+    await agent.run(_reply("hello"), context={}, harness=None)  # type: ignore[arg-type]
+    payload = json.loads(llm.last_user_msg or "{}")
+    assert payload["language"] == "en"

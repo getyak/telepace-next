@@ -1,0 +1,847 @@
+{
+  "home": {
+    "hero": {
+      "eyebrow": "Voice-native, agent-first",
+      "titleLine1": "Understand what people",
+      "titleEmphasis": "actually want, and why.",
+      "subtitle": "telepace runs voice interviews with your users on autopilot — and hands the structured insights back to your agent, so it can act on them.",
+      "ctaPrimary": "Start free",
+      "ctaSecondary": "Try a live 60-sec interview →",
+      "footnote": "Free tier includes 3 studies / month. No credit card."
+    },
+    "trustBar": {
+      "stats": {
+        "channels": { "value": "5 channels", "detail": "one interview" },
+        "launchTime": { "value": "< 60s", "detail": "to launch a study" },
+        "surfaces": { "value": "MCP · Skill · REST", "detail": "wherever your agent lives" }
+      }
+    },
+    "howItWorks": {
+      "eyebrow": "How it works",
+      "title": "From idea to insight in a single conversation.",
+      "steps": {
+        "design": {
+          "title": "Design in chat",
+          "description": "Describe what you want to learn. Our Designer agent proposes an outline in seconds — you refine it in conversation."
+        },
+        "send": {
+          "title": "Send by voice, phone, or link",
+          "description": "Push to email, drop a share URL, or place outbound calls. Same interview, five channels."
+        },
+        "moderate": {
+          "title": "AI moderates the interview",
+          "description": "Every session gets the same careful researcher: warm probing, coverage tracking, escalation when it matters."
+        },
+        "insights": {
+          "title": "Insights, ready to act",
+          "description": "Themes, verbatims, personas — piped back into your agent, Notion, or Linear. No dashboard-scrolling required."
+        }
+      }
+    },
+    "channels": {
+      "eyebrow": "Five channels, one interview",
+      "title": "Meet respondents where they already are.",
+      "items": {
+        "link": { "name": "Shareable link", "meta": "seconds to launch" },
+        "browserVoice": { "name": "Browser voice", "meta": "real-time · low latency" },
+        "phone": { "name": "Outbound phone call", "meta": "Vapi + human warmth" },
+        "hotline": { "name": "Inbound hotline", "meta": "your own number" },
+        "email": { "name": "Email invite", "meta": "async · batch friendly" }
+      }
+    },
+    "agentSurfaces": {
+      "eyebrow": "Agent-first",
+      "title": "Your agent gets a user researcher.",
+      "description": "telepace ships as an MCP server, a Skill, and a REST API. Wherever your agents live — Claude Desktop, Cursor, Codex, a custom orchestrator — they can now design studies, dispatch interviews, and read back structured insights.",
+      "cta": "Browse MCP tools →"
+    },
+    "useCases": {
+      "eyebrow": "Made for",
+      "items": {
+        "pm": { "role": "Product Managers", "description": "Get customer voice into every roadmap review." },
+        "researchers": { "role": "UX Researchers", "description": "Scale 1:1 depth without hiring an army." },
+        "growth": { "role": "Growth", "description": "Interview churned users before they forget why they left." },
+        "founders": { "role": "Founders", "description": "Run 30 interviews the week you're building the MVP." }
+      }
+    },
+    "finalCta": {
+      "titleLine1": "Stop guessing.",
+      "titleEmphasis": "Start listening.",
+      "subtitle": "Every product decision deserves a hundred users behind it.",
+      "ctaPrimary": "Start free",
+      "ctaSecondary": "Try a live 60-sec interview →"
+    }
+  },
+  "pricing": {
+    "hero": {
+      "eyebrow": "Pricing",
+      "titleLine1": "Fair pricing.",
+      "titleLine2": "Real research.",
+      "lede": "Start free. Upgrade when a decision depends on it. Cancel with a click. Every tier includes the full Interviewer agent — we don't paywall quality."
+    },
+    "tiers": {
+      "free": {
+        "name": "Free",
+        "tagline": "For your first three interviews.",
+        "ctaLabel": "Start free"
+      },
+      "pro": {
+        "name": "Pro",
+        "tagline": "For product teams shipping weekly.",
+        "ctaLabel": "Start Pro trial"
+      },
+      "team": {
+        "name": "Team",
+        "tagline": "For research org-charts.",
+        "ctaLabel": "Talk to us"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "tagline": "VPC deploy, SOC 2, procurement-friendly.",
+        "ctaLabel": "Contact sales"
+      }
+    },
+    "features": {
+      "studiesPerMonth": "3 studies / month",
+      "completionsPerStudy": "10 completions per study",
+      "textLinkChannels": "Text + shareable link channels",
+      "communitySupport": "Community support",
+      "watermark": "Telepace watermark",
+      "unlimitedStudies": "Unlimited studies",
+      "completions500": "500 completions / month",
+      "voicePhoneEmailChannels": "Voice + phone + email channels",
+      "mcpRestApi": "MCP + REST API",
+      "notionLinearIntegrations": "Notion & Linear integrations",
+      "prioritySupport": "Priority support",
+      "everythingInPro": "Everything in Pro",
+      "seatsAndSso": "5 seats · SSO",
+      "completions2500": "2,500 completions / month",
+      "sharedInsightLibrary": "Shared insight library",
+      "customSkillPackaging": "Custom Skill packaging",
+      "slaSlackChannel": "SLA + Slack channel",
+      "selfHostedVpc": "Self-hosted VPC option",
+      "soc2Dpa": "SOC 2 Type II & DPA",
+      "fineTunedInterviewer": "Fine-tuned Interviewer",
+      "dedicatedCsm": "Dedicated CSM",
+      "customRetentionResidency": "Custom retention & residency",
+      "volumePricing": "Volume pricing"
+    },
+    "faq": {
+      "eyebrow": "Frequently asked",
+      "title": "Answers before you ask.",
+      "items": {
+        "completionDefinition": {
+          "question": "How is a completion defined?",
+          "answer": "One respondent finishing the interview end-to-end. Abandons and duplicates don't count."
+        },
+        "byoLlmKey": {
+          "question": "Can I bring my own LLM key?",
+          "answer": "Yes. Pro and above support BYO Anthropic, OpenAI, and Azure keys — no markup."
+        },
+        "phoneMinutes": {
+          "question": "Do you charge for phone minutes?",
+          "answer": "Voice minutes on the Pro plan pass through at cost (~$0.09/min). Team gets bundled minutes."
+        },
+        "cancellation": {
+          "question": "How do I cancel?",
+          "answer": "One click. We prorate to the day and email you a CSV export of every insight."
+        },
+        "dataTraining": {
+          "question": "Is my raw data used to train models?",
+          "answer": "Never. Transcripts stay in your workspace. See our Security page for the full attestation."
+        }
+      }
+    },
+    "cta": {
+      "title": "Try before you decide.",
+      "lede": "The free tier is enough to run your first real study. No card required.",
+      "startFree": "Start free",
+      "seeDemo": "See a 60s demo →"
+    }
+  },
+  "docs": {
+    "hero": {
+      "eyebrow": "Documentation",
+      "title": "Everything you need — and nothing you don't.",
+      "lede": "The docs mirror the codebase's discipline: contracts first, then examples, then troubleshooting. Every command, event, and MCP tool is here."
+    },
+    "install": {
+      "eyebrow": "Get running in a minute",
+      "title": "The one-command install."
+    },
+    "sections": {
+      "quickstart": {
+        "title": "Quickstart",
+        "items": {
+          "60seconds": {
+            "h": "In 60 seconds",
+            "body": "Create a study, share the URL, watch the first completion arrive."
+          },
+          "15minutes": {
+            "h": "In 15 minutes",
+            "body": "Wire the MCP server into Claude Code and let your agent do research."
+          },
+          "anHour": {
+            "h": "In an hour",
+            "body": "Full production deploy — event store on Postgres, Redis, Fly.io."
+          }
+        }
+      },
+      "coreConcepts": {
+        "title": "Core concepts",
+        "items": {
+          "campaigns": {
+            "h": "Campaigns",
+            "body": "A study lifecycle: draft → published → closed. Immutable event history."
+          },
+          "interviews": {
+            "h": "Interviews",
+            "body": "One respondent completing the outline. Text, voice, phone, or email."
+          },
+          "insights": {
+            "h": "Insights",
+            "body": "Themes clustered from transcripts with representative verbatims."
+          },
+          "harness": {
+            "h": "Harness",
+            "body": "Policy-gated dispatcher between commands and agents."
+          }
+        }
+      },
+      "integrations": {
+        "title": "Integrations",
+        "items": {
+          "mcp": {
+            "h": "MCP",
+            "body": "5 stateful tools. Compatible with any MCP host."
+          },
+          "restApi": {
+            "h": "REST API",
+            "body": "OpenAPI schema at /openapi.json. Bearer auth."
+          },
+          "notion": {
+            "h": "Notion",
+            "body": "One-way push of insights into a database."
+          },
+          "linear": {
+            "h": "Linear",
+            "body": "Create issues per insight, grouped by theme."
+          },
+          "webhooks": {
+            "h": "Webhooks",
+            "body": "Any of our 20+ event types, HMAC-signed."
+          }
+        }
+      },
+      "reference": {
+        "title": "Reference",
+        "items": {
+          "commandSchemas": {
+            "h": "Command schemas",
+            "body": "CreateCampaign, RefineOutline, StartCampaign …"
+          },
+          "eventSchemas": {
+            "h": "Event schemas",
+            "body": "20+ append-only event types with schema_version."
+          },
+          "mcpToolSchemas": {
+            "h": "MCP tool schemas",
+            "body": "Input/Output Pydantic pairs for every tool."
+          }
+        }
+      }
+    },
+    "support": {
+      "eyebrow": "Still stuck?",
+      "title": "We answer support in hours, not days.",
+      "emailSupport": "Email support",
+      "browseMcpTools": "Browse MCP tools"
+    }
+  },
+  "mcp": {
+    "hero": {
+      "eyebrow": "Model Context Protocol",
+      "title": "Your agent gets a <italic>user researcher.</italic>",
+      "lede": "telepace is a first-class MCP server. Five stateful tools your agent can call the same way a human PM would open a research tab."
+    },
+    "surfaces": {
+      "claudeDesktop": {
+        "name": "Claude Desktop",
+        "note": "Add via Settings → MCP"
+      },
+      "claudeCode": {
+        "name": "Claude Code",
+        "note": "`claude mcp add telepace`"
+      },
+      "cursor": {
+        "name": "Cursor",
+        "note": "cursor.json entry"
+      },
+      "codexCli": {
+        "name": "Codex CLI",
+        "note": "Manifest link"
+      },
+      "custom": {
+        "name": "Custom",
+        "note": "Any MCP-compatible host"
+      }
+    },
+    "tools": {
+      "eyebrow": "Tools",
+      "title": "Every tool returns a <italic>next_actions</italic> field. That is what makes tool-using agents effective.",
+      "badge": "MCP tool",
+      "input": "Input",
+      "output": "Output",
+      "items": {
+        "createCampaign": "Draft a study from a goal + background. Returns a persistent campaign_id.",
+        "getCampaignProgress": "Read the projection: completions so far, coverage per question, spend to date.",
+        "getCampaignInsights": "Return the current cluster of themes with representative verbatims.",
+        "askFollowup": "Mine the transcript corpus with a natural-language question. Non-destructive.",
+        "pushInsights": "Export to Notion, Linear, Slack, or a webhook. Idempotent per destination."
+      }
+    },
+    "tryIt": {
+      "eyebrow": "Try it in 60 seconds",
+      "title": "Wire telepace into Claude Code.",
+      "body": "One command, no config. Your Claude gains an entire research team.",
+      "cta": "Read the docs →"
+    }
+  },
+  "productAgent": {
+    "hero": {
+      "eyebrow": "Product · Agent",
+      "titleLead": "Four agents,",
+      "titleEmphasis": "one accountable system.",
+      "lede": "telepace isn't 'a chatbot doing surveys.' It's a harness of specialized agents, an event-sourced spine, and policy layers that keep them honest — designed to be inspected, replayed, and improved."
+    },
+    "team": {
+      "eyebrow": "The team",
+      "title": "Each agent has one job. That's why the system stays reliable.",
+      "consumes": "Consumes",
+      "emits": "Emits",
+      "agents": {
+        "designer": {
+          "name": "Designer",
+          "role": "Chats with you to turn a goal into an interview outline.",
+          "inputs": "goal · background · constraints",
+          "outputs": "SpecUpdated event stream"
+        },
+        "interviewer": {
+          "name": "Interviewer",
+          "role": "Runs the live conversation. Probes. Tracks coverage. Knows when to stop.",
+          "inputs": "outline + running transcript",
+          "outputs": "TurnRecorded · InterviewCompleted"
+        },
+        "analyst": {
+          "name": "Analyst",
+          "role": "Embeds transcripts, clusters themes, drafts insight reports.",
+          "inputs": "InterviewCompleted stream",
+          "outputs": "TranscriptEmbedded · ThemeClusterUpdated · InsightGenerated"
+        },
+        "coordinator": {
+          "name": "Coordinator",
+          "role": "Watches the campaign as a whole. Nudges, escalates, closes.",
+          "inputs": "every projection",
+          "outputs": "NotificationSent · EscalationTriggered"
+        }
+      }
+    },
+    "harness": {
+      "eyebrow": "The harness",
+      "title": "Not just LLMs in a trenchcoat.",
+      "harnessTerm": "Harness",
+      "paragraph1Lead": "Every command routes through the",
+      "paragraph1Rest": ": a policy-gated dispatcher backed by an append-only event store. Nothing gets to an agent until the budget check, the PII check, and the escalation check say yes.",
+      "paragraph2": "Because state is events, we can replay any campaign, A/B a policy against a corpus, or reconstruct exactly what the Interviewer heard on turn 27 of interview 84.",
+      "paragraph3": "It's the engineering discipline your compliance team asks about — built in from day one.",
+      "docsCta": "Read the architecture docs →",
+      "policiesEyebrow": "Policies enforced by default",
+      "policies": {
+        "budget": {
+          "k": "Budget",
+          "v": "Per-campaign USD ceilings on LLM + voice minutes."
+        },
+        "pii": {
+          "k": "PII",
+          "v": "Presidio + custom patterns. Redact before persistence."
+        },
+        "escalation": {
+          "k": "Escalation",
+          "v": "Distress / self-harm signals stop the run and page a human."
+        },
+        "observability": {
+          "k": "Observability",
+          "v": "Every agent call has trace_id, cost, and eval score attached."
+        }
+      }
+    },
+    "cta": {
+      "title": "Bring your own agent host.",
+      "body": "telepace ships as an MCP server + REST + Skill. Wherever your agents live, they get a research team.",
+      "browseMcp": "Browse MCP tools →",
+      "startFree": "Start free"
+    }
+  },
+  "productVoice": {
+    "hero": {
+      "eyebrow": "Product · Voice",
+      "titlePrefix": "The interviewer that",
+      "titleHighlight": "listens.",
+      "lede": "Voice isn't a bolt-on. It's how the best user researchers work — because words on a screen leave the deepest signal on the floor. telepace ships production-grade voice on day one."
+    },
+    "whyVoice": {
+      "eyebrow": "Why voice",
+      "title": "People say more when they don't have to type it.",
+      "paragraph1": "Traditional research knows this: a 30-minute call yields 3–5× the actionable signal of a written survey. Voice removes the friction of composition, which is where nuance dies.",
+      "paragraph2": "telepace runs the same warmth end-to-end — greeting, probe, silence, follow-up, close — with the consistency only software can offer. Nobody's tired at 4 PM. Nobody's off-script.",
+      "paragraph3": "Because we're stream-based (not turn-based), interviews feel like a real conversation — not the polite waiting game of most voice bots."
+    },
+    "specs": {
+      "latency": {
+        "k": "Latency",
+        "v": "~380 ms round trip",
+        "note": "browser · WSS"
+      },
+      "turnTaking": {
+        "k": "Turn-taking",
+        "v": "Endpointed",
+        "note": "no walkie-talkie clumsiness"
+      },
+      "language": {
+        "k": "Language",
+        "v": "10 out of the box",
+        "note": "EN · ES · FR · DE · JA · ZH · PT · IT · KO · RU"
+      },
+      "pii": {
+        "k": "PII",
+        "v": "Redacted before storage",
+        "note": "SSN · CC · phone · email"
+      },
+      "consent": {
+        "k": "Consent",
+        "v": "Explicit + recoverable",
+        "note": "one-tap withdrawal"
+      }
+    },
+    "channelsSection": {
+      "eyebrow": "Three channels, one interviewer",
+      "title": "Meet respondents where they already are."
+    },
+    "channels": {
+      "browser": {
+        "name": "Browser voice",
+        "tag": "Fastest to launch",
+        "body": "WebRTC + streaming STT. Respondent clicks a link, presses hold-to-talk, done."
+      },
+      "phone": {
+        "name": "Outbound phone call",
+        "tag": "For respondents who won't fill a form",
+        "body": "Vapi integration. telepace dials the number, warms up, runs the outline, hangs up gracefully."
+      },
+      "hotline": {
+        "name": "Inbound hotline",
+        "tag": "Own your number",
+        "body": "Attach a Twilio number to a campaign. Anyone who calls gets your interview."
+      }
+    },
+    "cta": {
+      "title": "Hear it for yourself.",
+      "lede": "A 60-second live interview with an AI researcher who's had a good day.",
+      "tryDemo": "Try the demo →",
+      "seePricing": "See pricing"
+    }
+  },
+  "careers": {
+    "hero": {
+      "eyebrow": "Careers",
+      "titleLead": "Build the research team",
+      "titleHighlight": "every builder deserves.",
+      "lede": "We're early: five people, ten thousand users, one massive market. If your best work is still ahead of you, so is ours."
+    },
+    "howWeWork": {
+      "eyebrow": "How we work",
+      "title": "Four things we won't compromise on."
+    },
+    "principles": {
+      "craft": {
+        "title": "Craft > scale",
+        "description": "We'd rather have 200 users who love us than 20,000 who forget us."
+      },
+      "direct": {
+        "title": "Direct over polite",
+        "description": "Kind. Direct. Specific. Nothing rots faster than unspoken feedback."
+      },
+      "ownOutcome": {
+        "title": "Own the outcome",
+        "description": "Titles are shorthand. You own what you touch until it works."
+      },
+      "sleep": {
+        "title": "Sleep matters",
+        "description": "No hero-mode after 8pm. If it's on fire on Sunday, that's a design flaw."
+      }
+    },
+    "offer": {
+      "eyebrow": "The offer",
+      "compensation": "Salary at the 75th percentile of Series A, with meaningful equity — not the 0.05% kind.",
+      "benefits": "Full health / dental / vision. $2,000 home-office budget. Two offsites a year.",
+      "remote": "Remote-first, async by default, four hours of live overlap.",
+      "trial": "We hire quickly and hire slowly: 90-day trial, then either fully in or generously out."
+    },
+    "openRoles": {
+      "eyebrow": "Open roles",
+      "title": "Roles we're hiring for right now.",
+      "apply": "Apply →",
+      "applySubject": "Applying · {title}"
+    },
+    "roles": {
+      "voiceMlEngineer": {
+        "title": "Founding voice ML engineer",
+        "location": "Remote · UTC ± 6",
+        "type": "Full-time",
+        "summary": "Own the voice pipeline end to end: STT streaming, VAD, endpointing, TTS, phone integration. Ship in weeks, iterate in hours.",
+        "stack": "Go · Python · gRPC · WebRTC"
+      },
+      "designer": {
+        "title": "Founding designer",
+        "location": "Remote · Any timezone",
+        "type": "Full-time",
+        "summary": "Set the visual and interaction language for the whole product. You've shipped work that felt inevitable in retrospect.",
+        "stack": "Figma · Next.js · Tailwind · React"
+      },
+      "appliedResearchEngineer": {
+        "title": "Applied research engineer (LLM)",
+        "location": "SF · NYC · Remote",
+        "type": "Full-time",
+        "summary": "Fine-tune, eval, and deploy the Interviewer. You care about calibration, refusal behavior, and reproducibility more than benchmarks.",
+        "stack": "Python · Anthropic API · pgvector · vLLM"
+      },
+      "gtmSales": {
+        "title": "GTM · founding sales",
+        "location": "SF preferred",
+        "type": "Full-time",
+        "summary": "First non-technical hire. Own the pipeline from cold outbound to closed-won. Sell to PMs and researchers you'd want to be friends with.",
+        "stack": "You've done this at a Series A before."
+      }
+    },
+    "noRole": {
+      "title": "Don't see your role?",
+      "body": "Send a short note to <link>{email}</link> with what you'd want to own."
+    }
+  },
+  "changelog": {
+    "hero": {
+      "eyebrow": "Changelog",
+      "title": "Every ship, every week.",
+      "lede": "Small teams building for small teams. We ship on Wednesdays and share what changed."
+    },
+    "tags": {
+      "release": "release",
+      "improvement": "improvement",
+      "fix": "fix"
+    },
+    "entries": {
+      "mcpAskFollowup": {
+        "title": "MCP v1.2 · ask_followup ships",
+        "body": "Your agents can now mine any transcript corpus with a natural-language question. Non-destructive, includes supporting quotes, and returns a next_actions hint every time.",
+        "items": {
+          "0": "New tool: telepace.ask_followup",
+          "1": "Return signature includes supporting_quotes[]",
+          "2": "Rate limit: 60 req/min per campaign on Pro; 300/min on Team"
+        }
+      },
+      "voiceInterviewsGa": {
+        "title": "Voice interviews leave beta",
+        "body": "Browser voice + outbound phone now general availability. New endpoint metric round trip median dropped from 620ms to 380ms.",
+        "items": {
+          "0": "Sub-400ms turn-taking on all supported regions",
+          "1": "10 languages: EN · ES · FR · DE · JA · ZH · PT · IT · KO · RU",
+          "2": "Phone calls: pass-through pricing (~$0.09/min)"
+        }
+      },
+      "coverageTrackerRewrite": {
+        "title": "Coverage tracker rewrite",
+        "body": "The Interviewer now knows what's still open with 3× the precision. Fewer redundant probes, faster wrap-ups, better completion rates.",
+        "items": {
+          "0": "Median interview length: 14min → 11min",
+          "1": "Completion rate: 71% → 84%"
+        }
+      },
+      "notionLinearIntegrations": {
+        "title": "Notion + Linear integrations",
+        "body": "One-click push of insights straight into your existing tools. Idempotent, HMAC-signed, resumable.",
+        "items": {
+          "0": "Notion database sync",
+          "1": "Linear issue-per-theme with owner assignment"
+        }
+      },
+      "publicLaunch": {
+        "title": "Telepace 1.0 · public launch",
+        "body": "After eight months of private beta, we're open. Voice-native, agent-first user research infrastructure.",
+        "items": {
+          "0": "Free tier: 3 studies / month",
+          "1": "MCP server v1.0",
+          "2": "SOC 2 Type II audit begins"
+        }
+      }
+    },
+    "cta": {
+      "eyebrow": "Feature requests",
+      "title": "Want something we don't have yet?",
+      "body": "Email <email></email> — a founder reads every one."
+    }
+  },
+  "terms": {
+    "hero": {
+      "eyebrow": "Terms of Service",
+      "title": "Terms in plain English.",
+      "lede": "Boring is a feature. Effective 2026-05-05."
+    },
+    "onThisPage": "On this page",
+    "sections": {
+      "acceptance": {
+        "title": "1. Acceptance",
+        "body": "By creating a telepace account or using the service, you agree to these Terms. If you're using it on behalf of a company, you represent you have authority to bind that company."
+      },
+      "service": {
+        "title": "2. The service",
+        "body": "Telepace provides software to design, run, and analyze user-research interviews. We may change features to improve the product; we won't remove features that materially affect paid tiers without 30 days' notice."
+      },
+      "yourContent": {
+        "title": "3. Your content",
+        "body": "You retain all rights to studies you design and transcripts you collect. You grant us a limited license to process this content solely to provide the service. We do not use your content to train models."
+      },
+      "acceptableUse": {
+        "title": "4. Acceptable use",
+        "body": "You may not use telepace to solicit interviews under false pretense, conduct research on minors without appropriate consent, or run studies in violation of applicable law. We reserve the right to suspend accounts violating these rules."
+      },
+      "payment": {
+        "title": "5. Payment",
+        "body": "Paid plans bill monthly or annually in advance. Refunds are prorated to the day if you cancel. Overage charges (voice minutes, completions above tier) bill in arrears within seven days of the billing cycle close."
+      },
+      "termination": {
+        "title": "6. Termination",
+        "body": "Either party may terminate for any reason with 30 days' notice. On termination, you get 30 days to export your data; after that, we delete it permanently."
+      },
+      "warranty": {
+        "title": "7. Warranties & disclaimers",
+        "body": "The service is provided on an 'as is' basis. We warrant we'll use commercially reasonable efforts to keep the service available. We disclaim all other warranties, express or implied, to the maximum extent permitted by law."
+      },
+      "liability": {
+        "title": "8. Limitation of liability",
+        "body": "To the maximum extent permitted by law, our aggregate liability arising from these Terms is limited to the amount you paid us in the 12 months preceding the claim. We are not liable for indirect, incidental, or consequential damages."
+      },
+      "governingLaw": {
+        "title": "9. Governing law",
+        "body": "These Terms are governed by the laws of Delaware, USA. Disputes are resolved in the state and federal courts of Delaware, waiving jury trial where permitted."
+      },
+      "changes": {
+        "title": "10. Changes",
+        "body": "We may update these Terms; material changes trigger email notice 30 days in advance. Continued use after the effective date constitutes acceptance."
+      }
+    },
+    "legalQuestions": "Legal questions? Email <email>{siteConfig.contact.legalEmail}</email>."
+  },
+  "privacy": {
+    "hero": {
+      "eyebrow": "Privacy",
+      "title": "Plain-English privacy policy.",
+      "lede": "Written by humans, in complete sentences, without a single dark pattern. Effective 2026-05-05."
+    },
+    "onThisPage": "On this page",
+    "sections": {
+      "whatWeCollect": {
+        "title": "1. What we collect",
+        "body": [
+          "Account data: your name, email, and workspace metadata.",
+          "Content data: the studies you design and the interviews respondents complete.",
+          "Usage data: pages visited, features used, error traces — used only to improve the product.",
+          "We do not collect your respondents' names or contact info unless you upload them."
+        ]
+      },
+      "howWeUseIt": {
+        "title": "2. How we use it",
+        "body": [
+          "To run the service you signed up for — designing studies, dispatching interviews, generating insights.",
+          "To notify you about product changes and security-relevant updates.",
+          "To improve the product in aggregate — never by reading individual transcripts.",
+          "We do not sell your data. Ever."
+        ]
+      },
+      "sharing": {
+        "title": "3. Who we share it with",
+        "body": [
+          "Sub-processors that make the service possible: our cloud provider, our LLM vendors (only if you use our shared keys), our voice/telephony partner.",
+          "A full sub-processor list is published at telepace.io/subprocessors.",
+          "We notify you 30 days before adding a new sub-processor."
+        ]
+      },
+      "yourRights": {
+        "title": "4. Your rights",
+        "body": [
+          "You can export every event in your workspace at any time (GDPR Article 20).",
+          "You can delete your workspace and have all data purged within 30 days (Article 17).",
+          "You can object to specific processing (Article 21) — email privacy@telepace.io.",
+          "EU residents may lodge a complaint with their local supervisory authority."
+        ]
+      },
+      "retention": {
+        "title": "5. Retention",
+        "body": [
+          "Active workspace data is retained for as long as your account is active.",
+          "After deletion, backups purge within 35 days.",
+          "Anonymized aggregate telemetry may persist indefinitely."
+        ]
+      },
+      "changes": {
+        "title": "6. Changes to this policy",
+        "body": [
+          "Material changes trigger an email 30 days before they take effect.",
+          "Non-material clarifications are announced in the changelog.",
+          "The current version is always at this URL."
+        ]
+      }
+    },
+    "questionsEmail": "Questions? Email <email></email>."
+  },
+  "customers": {
+    "hero": {
+      "eyebrow": "Customers",
+      "title": "Teams that ship <accent>informed decisions.</accent>",
+      "lede": "A few product teams, a few agencies, a few solo founders. What they share: they refused to guess."
+    },
+    "stats": {
+      "interviewsRun": { "label": "Interviews run", "value": "18,412" },
+      "companiesOnboarded": { "label": "Companies onboarded", "value": "127" },
+      "avgTimeToInsight": { "label": "Average time-to-insight", "value": "38 hrs" },
+      "nps": { "label": "NPS", "value": "72" }
+    },
+    "stories": {
+      "northstar": {
+        "company": "Northstar",
+        "role": "Series B fintech",
+        "quote": "We ran 68 interviews in four days before a pricing change. That would have been six weeks with a research agency — and we would have shipped the wrong tier.",
+        "person": "Head of Product",
+        "metric": "$1.2M ARR saved from a pricing mistake"
+      },
+      "radicle": {
+        "company": "Radicle",
+        "role": "Design agency",
+        "quote": "Our clients get insight decks now instead of survey CSVs. Telepace pays for itself on the first project.",
+        "person": "Managing Partner",
+        "metric": "3× faster from brief to insight"
+      },
+      "pentagramLabs": {
+        "company": "Pentagram Labs",
+        "role": "In-house R&D",
+        "quote": "The MCP integration means our team's Claude can actually do research now. It's a different kind of tool — an intern that never sleeps.",
+        "person": "Engineering Lead",
+        "metric": "40 hrs / month of PM time reclaimed"
+      }
+    },
+    "cta": {
+      "title": "Ready to write yours?",
+      "lede": "If you ship a decision this month, we'd like it to be an informed one.",
+      "startFree": "Start free",
+      "talkToFounder": "Talk to a founder →"
+    }
+  },
+  "security": {
+    "eyebrow": "Security",
+    "titlePrefix": "Boring —",
+    "titleEmphasis": "on purpose.",
+    "lede": "Security is easy to talk about and hard to deliver. Here's the truth about what we do, what we don't, and what's next.",
+    "pillars": {
+      "dataIsolation": {
+        "title": "Data isolation",
+        "description": "Every customer's data lives in its own logical tenant, keyed on org_id. Row-level policies enforce isolation at the database layer, not just the app layer."
+      },
+      "encryption": {
+        "title": "Encryption",
+        "description": "TLS 1.3 in transit. AES-256-GCM at rest. Envelope-encrypted secrets via cloud KMS. Zero plaintext credentials on disk."
+      },
+      "piiRedaction": {
+        "title": "PII redaction",
+        "description": "All transcripts pass through a Presidio + custom-pattern redactor before persistence. Names, phone numbers, SSN, CC — never stored raw."
+      },
+      "accessControl": {
+        "title": "Access control",
+        "description": "SSO (Okta, Google Workspace, Azure AD) on Team+. Fine-grained roles: viewer, editor, admin. Every access is audit-logged."
+      },
+      "modelTraining": {
+        "title": "Model training",
+        "description": "Your data is never used to train models — ours or any vendor's. BYO LLM keys route directly, bypassing our proxy entirely."
+      },
+      "incidentResponse": {
+        "title": "Incident response",
+        "description": "24/7 on-call rotation. Notification within 72 hours for any incident affecting customer data. Postmortems public by default."
+      }
+    },
+    "certifications": {
+      "eyebrow": "Certifications & compliance",
+      "title": "Where we are — and where we're headed.",
+      "items": {
+        "soc2": {
+          "name": "SOC 2 Type II",
+          "status": "In audit · report expected Q4 2026"
+        },
+        "gdpr": {
+          "name": "GDPR",
+          "status": "DPA available on request · EU data residency on Team+"
+        },
+        "hipaa": {
+          "name": "HIPAA",
+          "status": "BAA available on Enterprise · roadmap Q1 2027"
+        },
+        "iso27001": {
+          "name": "ISO 27001",
+          "status": "Planned 2027"
+        }
+      }
+    },
+    "disclosure": {
+      "eyebrow": "Responsible disclosure",
+      "title": "Found something? Tell us.",
+      "reportText": "Report vulnerabilities to <link>security@telepace.com</link>. We acknowledge within 24 hours, triage within 72, and pay bounties starting at $500 for confirmed issues (up to $10k for critical).",
+      "pgpText": "PGP key: <code></code> · fingerprint on <link>keys.openpgp.org</link>."
+    }
+  },
+  "demo": {
+    "eyebrow": "60-second live demo",
+    "title": "Pretend you're a user.",
+    "lede": "This is exactly what a respondent sees. The interviewer probes, tracks coverage, and knows when to stop. Type a few replies and get a feel.",
+    "statusLine": "live · demo interview · {status}",
+    "statusWrapped": "wrapped",
+    "statusQuestion": "question {current} of {total}",
+    "script": {
+      "0": "Hi, thanks for taking a minute. What were you hoping to accomplish when you signed up for telepace?",
+      "1": "That's a common thread. What made you stop trying to hire a full-time researcher — was it budget, or something else?",
+      "2": "Interesting. If a magic wand solved the interview-scheduling headache, what would 'solved' look like for you?",
+      "3": "Perfect. Last one — what have you already tried that didn't quite work?",
+      "4": "That's incredibly helpful. Thank you. I've saved this and the team will read every word."
+    },
+    "chat": {
+      "typing": "Typing…",
+      "placeholder": "Type a reply and press Enter…",
+      "send": "Send"
+    },
+    "done": {
+      "title": "That's a full interview.",
+      "body": "In a real study, telepace runs 100 of these in parallel and clusters the answers into themes.",
+      "cta": "Run one for real →"
+    },
+    "hood": {
+      "title": "What's happening under the hood",
+      "items": {
+        "0": "Interviewer chooses each follow-up from your outline + prior turns",
+        "1": "Coverage tracker knows what's still open",
+        "2": "PII policy redacts before storage",
+        "3": "Escalation policy stops the run if it detects distress"
+      }
+    },
+    "voice": {
+      "eyebrow": "Prefer voice?",
+      "body": "The real interviewer is fully voice-capable — browser, outbound phone, inbound hotline.",
+      "cta": "Explore voice →"
+    }
+  }
+}

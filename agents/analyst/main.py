@@ -55,10 +55,12 @@ class AnalystAgent:
         campaign_id: UUID,
         transcripts: list[TranscriptView],
         want_persona: bool = False,
+        language: str = "en",
     ) -> SynthesisResult:
         payload = {
             "campaign_id": str(campaign_id),
             "want_persona": want_persona,
+            "language": language,
             "interviews": [
                 {"id": str(t.interview_id), "turns": t.turns[-ANALYST_TURN_HISTORY_LIMIT:]}
                 for t in transcripts

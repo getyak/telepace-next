@@ -23,7 +23,14 @@ export function TypingDots({ label = "Thinking" }: { label?: string }) {
   );
 }
 
-export function ChatBubble({ message }: { message: ChatMessage }) {
+export function ChatBubble({
+  message,
+  typingLabel,
+}: {
+  message: ChatMessage;
+  /** Screen-reader label for the typing-indicator bubble. */
+  typingLabel?: string;
+}) {
   const isRespondent = message.role === "respondent";
   const isSystem = message.role === "system";
   const showTyping = message.pending && !message.text;
@@ -45,13 +52,21 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
               : "bg-paper-elevated border border-hairline text-ink",
         )}
       >
-        {showTyping ? <TypingDots /> : message.text}
+        {showTyping ? <TypingDots label={typingLabel} /> : message.text}
       </div>
     </div>
   );
 }
 
-export function ChatFeed({ messages }: { messages: ChatMessage[] }) {
+export function ChatFeed({
+  messages,
+  typingLabel,
+}: {
+  messages: ChatMessage[];
+  /** Screen-reader label for the typing-indicator bubble. Localized call
+   * sites should pass a translated string via useTranslations(). */
+  typingLabel?: string;
+}) {
   const endRef = React.useRef<HTMLDivElement>(null);
   const lastText = messages[messages.length - 1]?.text ?? "";
   React.useEffect(() => {
@@ -61,7 +76,7 @@ export function ChatFeed({ messages }: { messages: ChatMessage[] }) {
   return (
     <div className="flex flex-col gap-3 py-4">
       {messages.map((m) => (
-        <ChatBubble key={m.id} message={m} />
+        <ChatBubble key={m.id} message={m} typingLabel={typingLabel} />
       ))}
       <div ref={endRef} />
     </div>
@@ -71,10 +86,14 @@ export function ChatFeed({ messages }: { messages: ChatMessage[] }) {
 export function ChatComposer({
   onSend,
   placeholder = "Type your reply…",
+  sendLabel = "Send",
   disabled,
 }: {
   onSend: (text: string) => void;
   placeholder?: string;
+  /** Submit button text. Localized call sites should pass a translated
+   * string via useTranslations(). */
+  sendLabel?: string;
   disabled?: boolean;
 }) {
   const [value, setValue] = React.useState("");
@@ -108,7 +127,7 @@ export function ChatComposer({
         disabled={disabled || !value.trim()}
         className="h-10 px-4 rounded-btn bg-ink text-paper disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        Send
+        {sendLabel}
       </button>
     </form>
   );

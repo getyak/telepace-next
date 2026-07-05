@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { routes } from "@telepace/config";
 

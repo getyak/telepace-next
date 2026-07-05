@@ -1,0 +1,39 @@
+{
+  "network": {
+    "title": "网络无法连接",
+    "description": "请检查网络后重试。如启用了代理，localhost 需加入直连。"
+  },
+  "auth": {
+    "title": "登录已过期",
+    "description": "请重新登录以继续操作。",
+    "actionLabel": "去登录"
+  },
+  "forbidden": {
+    "title": "无权访问",
+    "description": "当前账号没有执行此操作的权限。"
+  },
+  "not_found": {
+    "title": "内容不存在",
+    "description": "对象可能已被删除，或链接已失效。"
+  },
+  "validation": {
+    "title": "请求内容不符合要求",
+    "description": "请检查输入后再试一次。"
+  },
+  "rate_limit": {
+    "title": "操作过于频繁",
+    "description": "请稍等几秒后重试。"
+  },
+  "server": {
+    "title": "服务暂时不可用",
+    "description": "后端出现异常，已记录问题，请稍后再试。"
+  },
+  "canceled": {
+    "title": "已取消",
+    "description": "该操作已被中止。"
+  },
+  "unknown": {
+    "title": "出错了",
+    "description": "发生了未预期的问题，请稍后再试。"
+  }
+}

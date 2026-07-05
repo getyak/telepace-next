@@ -1,0 +1,30 @@
+{
+  "scenario_id": "S12",
+  "persona": "面向国内用户的在线教育产品经理，显式指定研究语言为中文",
+  "prompt_to_designer": "Help me research whether our online course platform's new AI tutor feature is worth building. Interview 30 users who tried the beta.",
+  "language": "zh",
+  "expected_outline_topics": [
+    "AI辅导功能的首次使用体验",
+    "相比人工辅导的信任度差异",
+    "使用频率和使用场景",
+    "愿意付费的功能点",
+    "对准确性和隐私的顾虑"
+  ],
+  "channels": ["email"],
+  "target_completions": 30,
+  "budget_usd": 60,
+  "sample_answers": [
+    {"question_index": 0, "text": "第一次用的时候有点惊喜，回答比我想的要快很多。"},
+    {"question_index": 1, "text": "遇到简单问题我更信AI，复杂的还是想找真人老师确认一下。"},
+    {"question_index": 2, "text": "I usually use it late at night when no tutor is online, so it's really convenient."},
+    {"question_index": 3, "text": "如果能针对我的错题自动出练习题，我愿意每月多付20块。"},
+    {"question_index": 4, "text": "最担心答案不准确会误导我，还有我的提问记录会不会被拿去做别的用途。"}
+  ],
+  "expected_themes": [
+    "AI辅导在深夜/真人不在线场景下是刚需补充而非替代",
+    "简单问题信任AI，复杂问题仍需人工兜底",
+    "个性化错题练习是明确的付费意愿点",
+    "准确性和隐私是采纳的主要顾虑",
+    "响应速度是用户感知到的核心优势"
+  ]
+}

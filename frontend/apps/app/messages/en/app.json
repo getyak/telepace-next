@@ -1,0 +1,63 @@
+{
+  "audience": {
+    "eyebrow": "Audience",
+    "title": "Who telepace can talk to for you.",
+    "importCsv": "Import CSV",
+    "newSegment": "+ New segment",
+    "segments": "Segments",
+    "delivered": "Delivered",
+    "opened": "Opened",
+    "completed": "Completed",
+    "uploads": "Uploads",
+    "peopleCount": "{count} people · {source}",
+    "rowsCount": "{count} rows"
+  },
+  "inbox": {
+    "eyebrow": "Inbox",
+    "title": "Everything that needs a human.",
+    "markAllRead": "Mark all read",
+    "filter": "Filter"
+  },
+  "insights": {
+    "eyebrow": "Insights",
+    "title": "Themes, across every study.",
+    "filter": "Filter",
+    "pushToNotion": "Push to Notion",
+    "dismiss": "Dismiss",
+    "confidenceLabel": "confidence {value} · {count} supporting quotes"
+  },
+  "integrations": {
+    "eyebrow": "Integrations",
+    "title": "Where telepace connects.",
+    "addIntegration": "+ Add integration",
+    "connect": "Connect",
+    "configure": "Configure"
+  },
+  "settings": {
+    "eyebrow": "Settings",
+    "title": "Workspace preferences.",
+    "sections": {
+      "workspace": "Workspace",
+      "members": "Members",
+      "billing": "Billing",
+      "apiKeys": "API keys",
+      "mcp": "MCP",
+      "danger": "Danger zone"
+    },
+    "workspaceName": "Workspace name",
+    "urlSlug": "URL slug",
+    "saveChanges": "Save changes",
+    "manage": "Manage",
+    "inviteMember": "+ Invite member",
+    "managePlan": "Manage plan",
+    "studiesUsed": "Studies used",
+    "completions": "Completions",
+    "voiceMinutes": "Voice minutes",
+    "rotate": "Rotate",
+    "createKey": "+ Create key",
+    "mcpEndpointIntro": "Your workspace's MCP endpoint:",
+    "mcpAuthHint": "Authenticate with your API key above. Compatible with Claude Desktop, Claude Code, Cursor, and Codex.",
+    "deleteWorkspace": "Delete workspace",
+    "deleteWorkspaceWarning": "All studies, transcripts, and insights will be permanently deleted after a 30-day grace period."
+  }
+}
