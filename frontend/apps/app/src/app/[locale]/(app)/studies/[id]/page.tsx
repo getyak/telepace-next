@@ -566,12 +566,7 @@ function ResponsesSection() {
   return (
     <section className="mt-14">
       <p className="overline mb-4">{t("title")}</p>
-      <ResponseTable
-        rows={MOCK_RESPONSES}
-        t={(key, values) =>
-          values ? t(key, values as Record<string, string>) : t(key)
-        }
-      />
+      <ResponseTable rows={MOCK_RESPONSES} />
     </section>
   );
 }
@@ -608,7 +603,7 @@ function AnalysisSection() {
           </ChartSection>
         </div>
         <div className="rounded-card border border-hairline bg-paper-elevated p-6">
-          <ChartSection baseN={48}>
+          <ChartSection baseN={[24, 14, 10]}>
             <CrossTab
               title="Satisfaction by channel"
               segmentLabel="Satisfaction"

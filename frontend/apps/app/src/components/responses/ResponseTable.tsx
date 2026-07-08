@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Badge, cn } from "@telepace/ui";
+import { useTranslations } from "next-intl";
 import type { ResponseRow } from "@/types/evidence";
 import { ResponseTableHeader } from "./ResponseTableHeader";
 import { exportResponsesCsv } from "./export-csv";
@@ -16,7 +17,6 @@ type SortKey =
 type ResponseTableProps = {
   rows: ResponseRow[];
   className?: string;
-  t: (key: string, values?: Record<string, string | number>) => string;
 };
 
 function formatDuration(seconds: number | undefined): string {
@@ -69,7 +69,8 @@ function compareFn(key: SortKey, dir: "asc" | "desc") {
   };
 }
 
-export function ResponseTable({ rows, className, t }: ResponseTableProps) {
+export function ResponseTable({ rows, className }: ResponseTableProps) {
+  const t = useTranslations("app.responses");
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("completed_at");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
@@ -133,7 +134,6 @@ export function ResponseTable({ rows, className, t }: ResponseTableProps) {
         onExport={handleExport}
         totalCount={rows.length}
         filteredCount={filtered.length}
-        t={t}
       />
 
       <div className="overflow-x-auto">

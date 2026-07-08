@@ -1,6 +1,7 @@
 "use client";
 
 import { Input, cn } from "@telepace/ui";
+import { useTranslations } from "next-intl";
 
 type ResponseTableHeaderProps = {
   search: string;
@@ -14,7 +15,6 @@ type ResponseTableHeaderProps = {
   onExport: () => void;
   totalCount: number;
   filteredCount: number;
-  t: (key: string, values?: Record<string, string | number>) => string;
 };
 
 export function ResponseTableHeader({
@@ -29,8 +29,9 @@ export function ResponseTableHeader({
   onExport,
   totalCount,
   filteredCount,
-  t,
 }: ResponseTableHeaderProps) {
+  const t = useTranslations("app.responses");
+
   return (
     <div className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-1 flex-wrap items-center gap-2">

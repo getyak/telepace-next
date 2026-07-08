@@ -21,7 +21,6 @@ type TpBarChartProps = {
   baseN: number;
   title?: string;
   height?: number;
-  isMultiSelect?: boolean;
   className?: string;
 };
 
