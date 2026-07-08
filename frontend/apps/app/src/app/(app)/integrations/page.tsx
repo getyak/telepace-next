@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button, EmptyState, icons } from "@telepace/ui";
 import { PageHeader } from "@/components/app/PageHeader";
 
@@ -55,6 +56,28 @@ export default function IntegrationsPage() {
         ))}
       </div>
       )}
+
+      {/* MCP Tools */}
+      <div className="mt-10">
+        <p className="overline mb-4">Developer tools</p>
+        <Link
+          href="/integrations/mcp"
+          className="block rounded-card border border-hairline bg-paper-elevated p-6 hover:shadow-hover transition-shadow"
+        >
+          <div className="flex items-start justify-between gap-6">
+            <div>
+              <p className="overline mb-1">Model Context Protocol</p>
+              <p className="font-display text-2xl mb-2">MCP Research Tools</p>
+              <p className="text-sm text-body">
+                Connect Claude Desktop, Claude Code, or Cursor to run studies, query insights, and export evidence via MCP.
+              </p>
+            </div>
+            <span className="inline-block px-2.5 py-0.5 rounded-pill border text-xs bg-accent-soft text-accent border-accent/30">
+              5 tools
+            </span>
+          </div>
+        </Link>
+      </div>
     </div>
   );
 }

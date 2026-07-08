@@ -32,6 +32,7 @@ export const routes = {
     audience: "/audience",
     insights: "/insights",
     integrations: "/integrations",
+    mcpTools: "/integrations/mcp",
     settings: "/settings",
     studies: {
       root: "/studies",
