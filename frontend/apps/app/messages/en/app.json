@@ -59,5 +59,22 @@
     "mcpAuthHint": "Authenticate with your API key above. Compatible with Claude Desktop, Claude Code, Cursor, and Codex.",
     "deleteWorkspace": "Delete workspace",
     "deleteWorkspaceWarning": "All studies, transcripts, and insights will be permanently deleted after a 30-day grace period."
+  },
+  "responses": {
+    "title": "Responses",
+    "searchPlaceholder": "Search respondents…",
+    "exportCsv": "Export CSV",
+    "countLabel": "{filtered} of {total} responses",
+    "allChannels": "All channels",
+    "allSources": "All sources",
+    "colRespondent": "Respondent",
+    "colChannel": "Channel",
+    "colDuration": "Duration",
+    "colQuality": "Quality",
+    "colSegments": "Segments",
+    "colSummary": "Summary",
+    "colExclusion": "Exclusion",
+    "emptyTitle": "No responses yet.",
+    "emptyDescription": "Responses appear here as interviews complete."
   }
 }

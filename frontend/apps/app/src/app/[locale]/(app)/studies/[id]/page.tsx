@@ -4,8 +4,10 @@ import { use, useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Badge, Button, Dialog, Skeleton, toast } from "@telepace/ui";
+import { Badge, Button, Dialog, EmptyState, Skeleton, toast } from "@telepace/ui";
 import { routes } from "@telepace/config";
+import { ResponseTable } from "@/components/responses";
+import type { ResponseRow } from "@/types/evidence";
 
 import {
   closeCampaign,
@@ -310,6 +312,8 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
         </aside>
       </section>
 
+      <ResponsesSection />
+
       <Dialog open={confirmClose} onClose={() => setConfirmClose(false)} title="Close this study?">
         <p className="text-sm leading-relaxed text-body">
           The share link stops accepting new interviews. Completed interviews and
@@ -462,5 +466,108 @@ function PersonaCard({ item }: { item: InsightItem }) {
       <p className="mt-2 font-display text-lg leading-snug text-ink">{item.title}</p>
       {summary && <p className="mt-1.5 text-sm leading-relaxed text-body">{summary}</p>}
     </div>
+  );
+}
+
+const MOCK_RESPONSES: ResponseRow[] = [
+  {
+    respondent_id: "resp-001",
+    external_ref: "P-2847",
+    source: "csv",
+    channel: "web_text",
+    duration_seconds: 847,
+    quality_score: 0.92,
+    segments: { age: "25-34", role: "UX Designer", frequency: "Daily" },
+    bullet_summary:
+      "Strongly values color accuracy for client work. Willing to pay premium for factory-calibrated displays. Currently uses Dell UltraSharp.",
+    completed_at: "2026-07-07T14:23:00Z",
+  },
+  {
+    respondent_id: "resp-002",
+    external_ref: "P-3102",
+    source: "link",
+    channel: "web_voice",
+    duration_seconds: 1234,
+    quality_score: 0.78,
+    segments: { age: "35-44", role: "Product Manager", frequency: "Weekly" },
+    bullet_summary:
+      "Prioritizes multi-monitor setups for dashboard workflows. Finds current market options too expensive for team-wide deployment.",
+    completed_at: "2026-07-07T15:45:00Z",
+  },
+  {
+    respondent_id: "resp-003",
+    external_ref: "P-1590",
+    source: "crm",
+    channel: "phone_outbound",
+    duration_seconds: 602,
+    quality_score: 0.45,
+    segments: { age: "18-24", role: "Student", frequency: "Rarely" },
+    bullet_summary:
+      "Budget-conscious buyer. Uses laptop screen for most tasks. Would consider external monitor only if under $200.",
+    completed_at: "2026-07-06T09:12:00Z",
+  },
+  {
+    respondent_id: "resp-004",
+    source: "api",
+    channel: "email",
+    duration_seconds: 390,
+    quality_score: 0.21,
+    segments: { age: "45-54", role: "CTO" },
+    bullet_summary:
+      "Responses were vague and off-topic. Could not articulate specific display needs beyond general preference for larger screens.",
+    exclusion_reason: "Low engagement — single-word answers",
+    completed_at: "2026-07-05T18:30:00Z",
+  },
+  {
+    respondent_id: "resp-005",
+    external_ref: "P-4421",
+    source: "csv",
+    channel: "web_text",
+    duration_seconds: 1580,
+    quality_score: 0.88,
+    segments: { age: "25-34", role: "Software Engineer", frequency: "Daily" },
+    bullet_summary:
+      "Heavy multitasker who uses tiling window managers. Wants ultrawide curved displays with high refresh rate for coding and gaming.",
+    completed_at: "2026-07-08T11:05:00Z",
+  },
+  {
+    respondent_id: "resp-006",
+    external_ref: "P-5003",
+    source: "link",
+    channel: "sms",
+    duration_seconds: 455,
+    quality_score: 0.65,
+    segments: { age: "55-64", role: "Freelance Writer", frequency: "Monthly" },
+    bullet_summary:
+      "Eye strain is the primary concern. Wants flicker-free, blue-light-filter displays. Not interested in high resolution beyond readability.",
+    completed_at: "2026-07-08T16:40:00Z",
+  },
+];
+
+function ResponsesSection() {
+  const t = useTranslations("app.responses");
+
+  if (MOCK_RESPONSES.length === 0) {
+    return (
+      <section className="mt-14">
+        <p className="overline mb-4">{t("title")}</p>
+        <EmptyState
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
+        />
+      </section>
+    );
+  }
+
+  return (
+    <section className="mt-14">
+      <p className="overline mb-4">{t("title")}</p>
+      <ResponseTable
+        rows={MOCK_RESPONSES}
+        t={(key, values) =>
+          values ? t(key, values as Record<string, string>) : t(key)
+        }
+      />
+    </section>
   );
 }

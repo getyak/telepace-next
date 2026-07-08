@@ -59,5 +59,22 @@
     "mcpAuthHint": "使用上方的 API 密钥进行认证。兼容 Claude Desktop、Claude Code、Cursor 和 Codex。",
     "deleteWorkspace": "删除工作区",
     "deleteWorkspaceWarning": "所有问卷、访谈记录和洞察将在 30 天宽限期后被永久删除。"
+  },
+  "responses": {
+    "title": "受访者数据",
+    "searchPlaceholder": "搜索受访者…",
+    "exportCsv": "导出 CSV",
+    "countLabel": "{total} 条中的 {filtered} 条",
+    "allChannels": "所有渠道",
+    "allSources": "所有来源",
+    "colRespondent": "受访者",
+    "colChannel": "渠道",
+    "colDuration": "时长",
+    "colQuality": "质量",
+    "colSegments": "分群",
+    "colSummary": "摘要",
+    "colExclusion": "排除原因",
+    "emptyTitle": "暂无受访数据。",
+    "emptyDescription": "访谈完成后，受访者数据将在此显示。"
   }
 }
