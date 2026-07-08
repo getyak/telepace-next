@@ -48,8 +48,9 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
   const { id } = use(params);
   const search = useSearchParams();
   const justPublished = search.get("published") === "1";
-  const t = useTranslations("errors");
-  const errorsCopy = t.raw("") as ErrorsCopyTable;
+  const tErrors = useTranslations("errors");
+  const t = useTranslations("app.studyDetail");
+  const errorsCopy = tErrors.raw("") as ErrorsCopyTable;
 
   const [detail, setDetail] = useState<CampaignDetail | null>(null);
   const [insights, setInsights] = useState<CampaignInsights | null>(null);
@@ -81,12 +82,12 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
   const status = detail?.campaign.status;
   useEffect(() => {
     if (status !== "live") return;
-    const t = window.setInterval(() => {
+    const timer = window.setInterval(() => {
       refresh().catch(() => {
-        /* transient poll failure — next tick retries */
+        /* transient poll failure -- next tick retries */
       });
     }, POLL_MS);
-    return () => window.clearInterval(t);
+    return () => window.clearInterval(timer);
   }, [status, refresh]);
 
   async function handleCopy() {
@@ -97,7 +98,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
       if (copiedTimer.current) window.clearTimeout(copiedTimer.current);
       copiedTimer.current = window.setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error({ title: "Couldn't copy", description: "Select the link and copy it manually." });
+      toast.error({ title: t("copyFailTitle"), description: t("copyFailDescription") });
     }
   }
 
@@ -106,7 +107,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
     try {
       await startCampaign(id);
       await refresh();
-      toast.success({ title: "Study is live", description: "Share the link to start collecting interviews." });
+      toast.success({ title: t("publishSuccessTitle"), description: t("publishSuccessDescription") });
     } catch (err) {
       const copy = friendlyMessage(err, errorsCopy);
       toast.error({ title: copy.title, description: copy.description });
@@ -121,7 +122,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
       await closeCampaign(id);
       setConfirmClose(false);
       await refresh();
-      toast.success({ title: "Study closed", description: "The share link no longer accepts new interviews." });
+      toast.success({ title: t("closeSuccessTitle"), description: t("closeSuccessDescription") });
     } catch (err) {
       const copy = friendlyMessage(err, errorsCopy);
       toast.error({ title: copy.title, description: copy.description });
@@ -134,13 +135,13 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
     return (
       <div className="mx-auto max-w-content p-10">
         <Link href={routes.app.root} className="text-sm text-muted transition-colors hover:text-ink">
-          ← All studies
+          {t("allStudies")}
         </Link>
         <div className="mt-16 text-center">
-          <h1 className="font-display text-3xl">Couldn't load this study.</h1>
+          <h1 className="font-display text-3xl">{t("errorTitle")}</h1>
           <p className="mt-3 text-body">{loadError}</p>
           <Button className="mt-6" onClick={() => location.reload()}>
-            Retry
+            {t("retryButton")}
           </Button>
         </div>
       </div>
@@ -176,16 +177,15 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
     <div className="mx-auto max-w-content p-6 md:p-10">
       <div className="mb-6">
         <Link href={routes.app.root} className="text-sm text-muted transition-colors hover:text-ink">
-          ← All studies
+          {t("allStudies")}
         </Link>
       </div>
 
       {justPublished && isLive && (
         <div className="mb-10 rounded-card border border-accent/20 bg-accent-soft p-6">
-          <p className="overline mb-1 text-accent">Your study is live</p>
+          <p className="overline mb-1 text-accent">{t("studyLiveBannerTitle")}</p>
           <p className="text-body">
-            Send this link to the people you want to hear from. Interviews and insights
-            land on this page as they complete.
+            {t("studyLiveBannerBody")}
           </p>
         </div>
       )}
@@ -193,7 +193,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
       <header className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
           <div className="mb-2 flex items-center gap-3">
-            <p className="overline">Study</p>
+            <p className="overline">{t("studyLabel")}</p>
             <Badge variant={statusVariant[campaign.status] ?? "neutral"}>
               {isLive && <span className="tp-pulse-slow inline-block h-1.5 w-1.5 rounded-full bg-accent" />}
               {campaign.status}
@@ -205,12 +205,12 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
         <div className="flex shrink-0 gap-2">
           {canPublish && (
             <Button size="sm" loading={publishing} onClick={handlePublish}>
-              {publishing ? "Publishing…" : "Publish study"}
+              {publishing ? t("publishing") : t("publishStudy")}
             </Button>
           )}
           {isLive && (
             <Button variant="secondary" size="sm" onClick={() => setConfirmClose(true)}>
-              Close study
+              {t("closeStudy")}
             </Button>
           )}
         </div>
@@ -220,18 +220,18 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
         <section className="mb-10 rounded-card border border-hairline bg-paper-elevated p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0 flex-1">
-              <p className="overline mb-2">Share with respondents</p>
+              <p className="overline mb-2">{t("shareLabel")}</p>
               <p className="truncate font-mono text-sm text-ink" title={shareUrl}>
                 {shareUrl}
               </p>
             </div>
             <div className="flex shrink-0 gap-2">
               <Button variant="secondary" size="sm" onClick={handleCopy}>
-                {copied ? "Copied ✓" : "Copy link"}
+                {copied ? t("copiedLink") : t("copyLink")}
               </Button>
               <a href={shareUrl} target="_blank" rel="noreferrer">
                 <Button variant="ghost" size="sm">
-                  Preview ↗
+                  {t("preview")}
                 </Button>
               </a>
             </div>
@@ -240,10 +240,10 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
       )}
 
       <section className="mb-14 grid grid-cols-2 gap-4 md:grid-cols-4">
-        <Metric label="Completed" value={`${progress.completed} / ${target}`} tone="accent" />
-        <Metric label="In progress" value={String(inProgress)} />
-        <Metric label="Median length" value={formatDuration(progress.avg_duration_seconds)} />
-        <Metric label="Insights" value={String(totalInsights)} />
+        <Metric label={t("metricCompleted")} value={t("completedValue", { completed: progress.completed, target })} tone="accent" />
+        <Metric label={t("metricInProgress")} value={String(inProgress)} />
+        <Metric label={t("metricMedianLength")} value={formatDuration(progress.avg_duration_seconds)} />
+        <Metric label={t("metricInsights")} value={String(totalInsights)} />
       </section>
 
       <InsightsSection insights={insights} isLive={isLive} completed={progress.completed} />
@@ -252,10 +252,10 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
 
       <section className="grid gap-10 md:grid-cols-12">
         <div className="md:col-span-7">
-          <p className="overline mb-4">Discussion guide</p>
+          <p className="overline mb-4">{t("discussionGuide")}</p>
           {outline.length === 0 ? (
             <div className="rounded-card border border-dashed border-hairline p-8 text-center text-muted">
-              No questions yet — refine this study in the design chat.
+              {t("noQuestionsYet")}
             </div>
           ) : (
             <ol className="space-y-3">
@@ -267,7 +267,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
                     </div>
                     <div className="flex-1">
                       <p className="text-ink">{q.question}</p>
-                      <p className="mt-1 text-xs text-muted">Goal: {q.goal}</p>
+                      <p className="mt-1 text-xs text-muted">{t("goalPrefix", { goal: q.goal })}</p>
                     </div>
                   </div>
                 </li>
@@ -278,31 +278,31 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
 
         <aside className="space-y-6 md:col-span-5">
           <div className="rounded-card border border-hairline bg-paper-elevated p-6">
-            <p className="overline mb-3">Setup</p>
+            <p className="overline mb-3">{t("setupLabel")}</p>
             <ul className="space-y-2 text-sm text-body">
               <li>
-                · Target <span className="text-ink">{target} completions</span>
+                · {t("targetCompletions")} <span className="text-ink">{t("targetCompletionsValue", { count: target })}</span>
               </li>
               <li>
-                · Estimated <span className="text-ink">~{spec.outline?.estimated_duration_minutes ?? 15} min</span> per interview
+                · {t("estimatedLabel")} <span className="text-ink">{t("estimatedValue", { minutes: spec.outline?.estimated_duration_minutes ?? 15 })}</span>
               </li>
               <li>
-                · Channels{" "}
+                · {t("channelsLabel")}{" "}
                 <span className="text-ink">
-                  {(spec.channels ?? []).map((c) => c.kind.replace("_", " ")).join(", ") || "web text"}
+                  {(spec.channels ?? []).map((c) => c.kind.replace("_", " ")).join(", ") || t("defaultChannel")}
                 </span>
               </li>
             </ul>
           </div>
           {spec.target_persona && (
             <div className="rounded-card border border-hairline bg-paper-elevated p-6">
-              <p className="overline mb-3">Target persona</p>
+              <p className="overline mb-3">{t("targetPersona")}</p>
               <p className="text-sm leading-relaxed text-body">{spec.target_persona}</p>
             </div>
           )}
           {(spec.hypotheses ?? []).length > 0 && (
             <div className="rounded-card border border-hairline bg-paper-elevated p-6">
-              <p className="overline mb-3">Hypotheses</p>
+              <p className="overline mb-3">{t("hypotheses")}</p>
               <ul className="space-y-2 text-sm text-body">
                 {spec.hypotheses!.map((h, i) => (
                   <li key={i} className="flex gap-3">
@@ -318,17 +318,16 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
 
       <ResponsesSection />
 
-      <Dialog open={confirmClose} onClose={() => setConfirmClose(false)} title="Close this study?">
+      <Dialog open={confirmClose} onClose={() => setConfirmClose(false)} title={t("closeDialogTitle")}>
         <p className="text-sm leading-relaxed text-body">
-          The share link stops accepting new interviews. Completed interviews and
-          insights stay available.
+          {t("closeDialogBody")}
         </p>
         <div className="mt-6 flex justify-end gap-2">
           <Button variant="ghost" size="sm" onClick={() => setConfirmClose(false)}>
-            Keep it live
+            {t("keepLive")}
           </Button>
           <Button variant="danger" size="sm" loading={closing} onClick={handleClose}>
-            {closing ? "Closing…" : "Close study"}
+            {closing ? t("closing") : t("closeStudy")}
           </Button>
         </div>
       </Dialog>
@@ -366,15 +365,16 @@ function InsightsSection({
   isLive: boolean;
   completed: number;
 }) {
+  const t = useTranslations("app.studyDetail");
   const hasInsights = (insights?.total ?? 0) > 0;
 
   return (
     <section className="mb-14">
       <div className="mb-4 flex items-baseline justify-between">
-        <p className="overline">Insights</p>
+        <p className="overline">{t("insightsLabel")}</p>
         {hasInsights && insights?.generated_at && (
           <span className="text-xs text-muted">
-            updated {new Date(insights.generated_at).toLocaleTimeString()}
+            {t("insightsUpdated", { time: new Date(insights.generated_at).toLocaleTimeString() })}
           </span>
         )}
       </div>
@@ -382,21 +382,21 @@ function InsightsSection({
       {!hasInsights ? (
         <div className="rounded-card border border-dashed border-hairline p-10 text-center">
           <p className="font-display text-xl text-ink">
-            {completed > 0 ? "Analysis in progress…" : "Waiting for the first interview."}
+            {completed > 0 ? t("insightsAnalyzing") : t("insightsWaiting")}
           </p>
           <p className="mx-auto mt-2 max-w-md text-sm text-body">
             {completed > 0
-              ? "The Analyst agent is reading the transcript. Themes and verbatims land here in under a minute."
+              ? t("insightsAnalyzingBody")
               : isLive
-                ? "Share the link above — themes, verbatims and concerns appear here as interviews complete."
-                : "Publish the study and share the link — insights appear as interviews complete."}
+                ? t("insightsWaitingLive")
+                : t("insightsWaitingDraft")}
           </p>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-3">
-            {insights!.themes.map((t) => (
-              <ThemeCard key={t.id} item={t} />
+            {insights!.themes.map((th) => (
+              <ThemeCard key={th.id} item={th} />
             ))}
             {insights!.concerns.map((c) => (
               <ConcernCard key={c.id} item={c} />
@@ -417,12 +417,13 @@ function InsightsSection({
 }
 
 function ThemeCard({ item }: { item: InsightItem }) {
+  const t = useTranslations("app.studyDetail");
   const summary = str(item.body.summary) ?? str(item.body.description);
   return (
     <div className="rounded-card border border-hairline bg-paper-elevated p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <Badge variant="accent">theme</Badge>
+          <Badge variant="accent">{t("badgeTheme")}</Badge>
           <p className="mt-2 font-display text-lg leading-snug text-ink">{item.title}</p>
           {summary && <p className="mt-1.5 text-sm leading-relaxed text-body">{summary}</p>}
         </div>
@@ -433,12 +434,13 @@ function ThemeCard({ item }: { item: InsightItem }) {
 }
 
 function ConcernCard({ item }: { item: InsightItem }) {
+  const t = useTranslations("app.studyDetail");
   const summary = str(item.body.summary) ?? str(item.body.description);
   return (
     <div className="rounded-card border border-terracotta/20 bg-paper-elevated p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <Badge variant="warning">concern</Badge>
+          <Badge variant="warning">{t("badgeConcern")}</Badge>
           <p className="mt-2 font-display text-lg leading-snug text-ink">{item.title}</p>
           {summary && <p className="mt-1.5 text-sm leading-relaxed text-body">{summary}</p>}
         </div>
@@ -449,24 +451,26 @@ function ConcernCard({ item }: { item: InsightItem }) {
 }
 
 function VerbatimCard({ item }: { item: InsightItem }) {
+  const t = useTranslations("app.studyDetail");
   const quote = str(item.body.quote) ?? item.title;
   const speaker = str(item.body.speaker) ?? str(item.body.attribution);
   return (
     <figure className="rounded-card border border-hairline bg-paper-elevated p-5">
-      <Badge variant="neutral">verbatim</Badge>
+      <Badge variant="neutral">{t("badgeVerbatim")}</Badge>
       <blockquote className="mt-2 border-l-2 border-accent pl-4 text-[15px] leading-relaxed text-ink">
-        "{quote}"
+        &ldquo;{quote}&rdquo;
       </blockquote>
-      {speaker && <figcaption className="mt-2 pl-4 text-xs text-muted">— {speaker}</figcaption>}
+      {speaker && <figcaption className="mt-2 pl-4 text-xs text-muted">&mdash; {speaker}</figcaption>}
     </figure>
   );
 }
 
 function PersonaCard({ item }: { item: InsightItem }) {
+  const t = useTranslations("app.studyDetail");
   const summary = str(item.body.summary) ?? str(item.body.description);
   return (
     <div className="rounded-card border border-hairline bg-paper-elevated p-5">
-      <Badge variant="success">persona</Badge>
+      <Badge variant="success">{t("badgePersona")}</Badge>
       <p className="mt-2 font-display text-lg leading-snug text-ink">{item.title}</p>
       {summary && <p className="mt-1.5 text-sm leading-relaxed text-body">{summary}</p>}
     </div>
@@ -587,26 +591,27 @@ const MOCK_CROSS_TAB_ROWS: CrossTabRow[] = [
 ];
 
 function AnalysisSection() {
-  const t = useTranslations("app.charts");
+  const tCharts = useTranslations("app.charts");
+  const t = useTranslations("app.studyDetail");
 
   return (
     <section className="mb-14">
-      <p className="overline mb-6">{t("analysis")}</p>
+      <p className="overline mb-6">{tCharts("analysis")}</p>
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-card border border-hairline bg-paper-elevated p-6">
           <ChartSection baseN={48} showTop2Box>
             <TpBarChart
               data={MOCK_SENTIMENT}
               baseN={48}
-              title="Overall satisfaction"
+              title={t("chartOverallSatisfaction")}
             />
           </ChartSection>
         </div>
         <div className="rounded-card border border-hairline bg-paper-elevated p-6">
-          <ChartSection baseN={[24, 14, 10]}>
+          <ChartSection baseN={48}>
             <CrossTab
-              title="Satisfaction by channel"
-              segmentLabel="Satisfaction"
+              title={t("chartSatisfactionByChannel")}
+              segmentLabel={t("chartSegmentSatisfaction")}
               bucketLabels={["Web text", "Web voice", "Phone"]}
               rows={MOCK_CROSS_TAB_ROWS}
               baseNPerBucket={[24, 14, 10]}

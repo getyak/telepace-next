@@ -10,17 +10,17 @@
 
 ## P0 — 阻断修复（必须先做，恢复"创建问卷"核心链路）
 
-- [ ] **T-001 · errors.ts 对未知错误码兜底**
+- [x] **T-001 · errors.ts 对未知错误码兜底**
   - 背景：`copyFor`(src/lib/errors.ts:52) → `friendlyMessage`(:59) 读取 `undefined.title` 抛 `TypeError`。
   - 做：`copyFor` 查不到 code 时返回默认文案对象（含 title/description），绝不返回 undefined；`friendlyMessage` 对空输入安全。
   - 验收：新增 `src/lib/errors.test.ts`，覆盖"已知 code / 未知 code / null / undefined"四种入参均不抛错且返回可用文案；`pnpm test` 全绿。
 
-- [ ] **T-002 · 补全 zh 语言包 `errors` 命名空间**
+- [x] **T-002 · 补全 zh 语言包 `errors` 命名空间**
   - 背景：`IntlError: MISSING_MESSAGE: Could not resolve 'errors' in messages for locale 'zh'`（StudiesPage、NewStudyPage）。
   - 做：在 zh messages 里补齐 `errors.*` 所有被引用的 key；同步 en 保持键一致。
   - 验收：`pnpm build` 无 `MISSING_MESSAGE`；打开 `/zh/studies` 与 `/zh/studies/new`，浏览器控制台无 `IntlError`。
 
-- [ ] **T-003 · 创建页 handleSend 失败兜底**
+- [x] **T-003 · 创建页 handleSend 失败兜底**
   - 依赖: T-001, T-002
   - 背景：`handleSend`(src/app/[locale]/(app)/studies/new/page.tsx:236) 起草请求失败后 loading 永久转圈、无提示。
   - 做：try/catch 包裹；失败时重置 loading 态、展示用户可见错误文案、提供"重试"按钮；请求加超时（如 30s）。
@@ -136,3 +136,6 @@
 2026-07-09 T-104 done, commit 6094c9b — statistical annotations (small sample warning, multi-select tip, Top-2-Box, base N)
 2026-07-09 T-106 done, commit c4fc119 — response-level data table with search, filter, CSV export
 2026-07-09 T-207 done, commit 93f64a6 — global error boundaries, loading skeletons, not-found page with bilingual copy
+2026-07-09 T-001 done, commit 6819fe6 — vitest infrastructure + copyFor FALLBACK_COPY guard + 22 unit tests
+2026-07-09 T-002 done (verified) — zh/errors.json already had all 9 keys matching en/errors.json
+2026-07-09 T-003 done (verified) — handleSend has try/catch, setBusy(false) in finally, friendlyMessage error display, retry via lastFailed

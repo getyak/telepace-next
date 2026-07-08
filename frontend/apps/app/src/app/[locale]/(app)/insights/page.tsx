@@ -61,8 +61,8 @@ export default async function InsightsPage() {
       {themes.length === 0 ? (
         <EmptyState
           icon={<icons.InsightsIcon size={28} />}
-          title="No insights yet."
-          description="Themes surface here once your studies start collecting responses."
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
         />
       ) : (
       <div className="grid gap-6">

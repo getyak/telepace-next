@@ -42,6 +42,13 @@ const kindVariant: Record<string, "danger" | "accent" | "neutral"> = {
   system: "neutral",
 };
 
+const kindLabelKey: Record<string, string> = {
+  escalation: "kindEscalation",
+  insight: "kindInsight",
+  progress: "kindProgress",
+  system: "kindSystem",
+};
+
 export default async function InboxPage() {
   const t = await getTranslations("app.inbox");
   return (
@@ -61,7 +68,7 @@ export default async function InboxPage() {
         {items.map((it) => (
           <article key={it.id} className="grid grid-cols-12 items-start gap-4 px-6 py-5 hover:bg-paper transition-colors">
             <div className="col-span-2">
-              <Badge variant={kindVariant[it.kind] ?? "neutral"}>{it.kind}</Badge>
+              <Badge variant={kindVariant[it.kind] ?? "neutral"}>{t(kindLabelKey[it.kind] ?? it.kind)}</Badge>
             </div>
             <div className="col-span-8">
               <p className="text-xs text-muted mb-1">{it.study}</p>
