@@ -50,6 +50,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
   const justPublished = search.get("published") === "1";
   const tErrors = useTranslations("errors");
   const t = useTranslations("app.studyDetail");
+  const tReport = useTranslations("app.report");
   const errorsCopy = tErrors.raw("") as ErrorsCopyTable;
 
   const [detail, setDetail] = useState<CampaignDetail | null>(null);
@@ -203,6 +204,11 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
           {spec.goal && <p className="mt-3 max-w-2xl text-body">{spec.goal}</p>}
         </div>
         <div className="flex shrink-0 gap-2">
+          <Link href={`${routes.app.studies.byId(id)}/report`}>
+            <Button variant="ghost" size="sm">
+              {tReport("title")}
+            </Button>
+          </Link>
           {canPublish && (
             <Button size="sm" loading={publishing} onClick={handlePublish}>
               {publishing ? t("publishing") : t("publishStudy")}

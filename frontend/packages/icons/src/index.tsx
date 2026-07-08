@@ -83,6 +83,16 @@ export function InsightsIcon({ size, ...props }: IconProps) {
   );
 }
 
+/** Copilot — a sparkle: cross-study synthesis / AI assist. */
+export function CopilotIcon({ size, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M8 2.5c.5 2.4 1.6 3.5 4 4-2.4.5-3.5 1.6-4 4-.5-2.4-1.6-3.5-4-4 2.4-.5 3.5-1.6 4-4Z" />
+      <path d="M12.75 9.25c.2.9.6 1.3 1.5 1.5-.9.2-1.3.6-1.5 1.5-.2-.9-.6-1.3-1.5-1.5.9-.2 1.3-.6 1.5-1.5Z" />
+    </svg>
+  );
+}
+
 export function IntegrationsIcon({ size, ...props }: IconProps) {
   return (
     <svg {...base(size, props)}>

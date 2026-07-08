@@ -1,0 +1,86 @@
+"use client";
+
+import { cn } from "@telepace/ui";
+
+export type StudyOption = { id: string; name: string };
+
+export const MOCK_STUDIES: StudyOption[] = [
+  { id: "onboarding-q3", name: "Onboarding drop-off (Q3)" },
+  { id: "pricing-sso", name: "Pricing & SSO objections" },
+  { id: "mcp-expansion", name: "MCP power-user expansion" },
+  { id: "churn-winback", name: "Churn win-back interviews" },
+];
+
+export function StudySelector({
+  studies = MOCK_STUDIES,
+  selectedIds,
+  onChange,
+  allLabel,
+  label,
+}: {
+  studies?: StudyOption[];
+  selectedIds: string[];
+  onChange: (ids: string[]) => void;
+  allLabel: string;
+  label: string;
+}) {
+  const allSelected = selectedIds.length === studies.length;
+
+  function toggle(id: string) {
+    if (selectedIds.includes(id)) {
+      onChange(selectedIds.filter((s) => s !== id));
+    } else {
+      onChange([...selectedIds, id]);
+    }
+  }
+
+  function selectAll() {
+    onChange(allSelected ? [] : studies.map((s) => s.id));
+  }
+
+  return (
+    <div>
+      <p className="overline mb-2">{label}</p>
+      <div className="flex flex-wrap gap-2">
+        <Pill selected={allSelected} onClick={selectAll}>
+          {allLabel}
+        </Pill>
+        {studies.map((study) => (
+          <Pill
+            key={study.id}
+            selected={selectedIds.includes(study.id)}
+            onClick={() => toggle(study.id)}
+          >
+            {study.name}
+          </Pill>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Pill({
+  selected,
+  onClick,
+  children,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onClick}
+      className={cn(
+        "rounded-pill border px-3 py-1.5 text-sm transition-colors",
+        selected
+          ? "border-accent bg-accent text-paper"
+          : "border-hairline bg-paper-elevated text-body hover:border-accent/40 hover:text-ink",
+      )}
+    >
+      {children}
+    </button>
+  );
+}

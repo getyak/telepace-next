@@ -32,6 +32,7 @@ export const routes = {
     inbox: "/inbox",
     audience: "/audience",
     insights: "/insights",
+    copilot: "/copilot",
     integrations: "/integrations",
     settings: "/settings",
     studies: {
