@@ -27,6 +27,7 @@ export const routes = {
   forgot: "/forgot",
 
   app: {
+    // The marketing home owns "/" — the app's landing surface is Studies.
     root: "/studies",
     inbox: "/inbox",
     audience: "/audience",

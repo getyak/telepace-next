@@ -1,0 +1,888 @@
+{
+  "home": {
+    "hero": {
+      "eyebrow": "语音原生，Agent 优先",
+      "titleLine1": "理解用户",
+      "titleEmphasis": "真正想要什么，以及原因。",
+      "subtitle": "telepace 自动为你的用户发起语音访谈，并将结构化的洞察结果回传给你的 Agent，让它能够据此采取行动。",
+      "ctaPrimary": "免费开始",
+      "ctaSecondary": "体验 60 秒实时访谈 →",
+      "footnote": "免费版每月包含 3 项研究，无需信用卡。"
+    },
+    "heroDemo": {
+      "liveLabel": "实时 · 试着回答",
+      "q1": "先问个小问题——当你们需要真实的用户反馈时，团队现在通常怎么做？",
+      "suggestions1": {
+        "a": "发问卷",
+        "b": "自己约用户聊",
+        "c": "说实话，靠猜"
+      },
+      "q2": "明白。那通常是什么让你们没法做更多访谈——时间、预算，还是别的原因？",
+      "suggestions2": {
+        "a": "时间不够",
+        "b": "约人太麻烦",
+        "c": "分析太耗时"
+      },
+      "wrap": "这正是 telepace 擅长深挖的问题——用真实的语音对话，规模化地进行。要不要体验完整的 60 秒访谈？",
+      "inputPlaceholder": "或者输入你自己的回答…",
+      "send": "发送",
+      "ctaFull": "体验完整 60 秒访谈",
+      "restart": "重新开始"
+    },
+    "trustBar": {
+      "stats": {
+        "channels": { "value": "5 种渠道", "detail": "一次访谈" },
+        "launchTime": { "value": "< 60 秒", "detail": "即可发起一项研究" },
+        "surfaces": { "value": "MCP · Skill · REST", "detail": "无论你的 Agent 运行在哪里" }
+      }
+    },
+    "howItWorks": {
+      "eyebrow": "工作原理",
+      "title": "一次对话，从想法到洞察。",
+      "steps": {
+        "design": {
+          "title": "在对话中设计",
+          "description": "描述你想了解的内容，我们的 Designer Agent 会在几秒内给出访谈大纲——你可以在对话中随时调整。"
+        },
+        "send": {
+          "title": "通过语音、电话或链接发送",
+          "description": "推送邮件、分享链接，或直接拨打电话邀约。同一份访谈，五种触达渠道。"
+        },
+        "moderate": {
+          "title": "AI 主持整场访谈",
+          "description": "每一场访谈都由同样细致的“研究员”主持：耐心追问、覆盖度追踪，关键时刻自动升级处理。"
+        },
+        "insights": {
+          "title": "洞察即刻可用",
+          "description": "主题、原声引述、用户画像——自动同步到你的 Agent、Notion 或 Linear，无需在仪表盘里翻找。"
+        }
+      }
+    },
+    "insights": {
+      "eyebrow": "你将得到什么",
+      "title": "读起来像研究员亲笔写的洞察。",
+      "description": "不是让你逐字翻阅的转录稿——而是带置信度的主题排序，每一条都有可溯源的原声引述作为支撑。下面就是一份完成态的研究产出。",
+      "cta": "在演示中亲自体验 →",
+      "panel": {
+        "study": "定价研究 — Q3",
+        "meta": "24 场访谈 · 3 个主题 · 综合分析完成",
+        "themes": {
+          "t1": { "title": "价格被锚定在缺失的企业级功能上", "count": "14 / 24 场访谈" },
+          "t2": { "title": "年付折扣会改变用户的决策逻辑", "count": "11 / 24 场访谈" },
+          "t3": { "title": "按用量计费比两档订阅更有吸引力", "count": "9 / 24 场访谈" }
+        },
+        "quote": {
+          "text": "每月 79 美元本来没问题——直到我发现 SSO 不包含在内，那一刻就开始觉得是在被惩罚。",
+          "attribution": "第 17 场访谈 · B2B SaaS 产品负责人 · 14:32"
+        },
+        "exportHint": "自动同步到你团队工作的地方"
+      }
+    },
+    "channels": {
+      "eyebrow": "五种渠道，一次访谈",
+      "title": "在受访者所在之处与他们相遇。",
+      "items": {
+        "link": { "name": "可分享链接", "meta": "秒级发起" },
+        "browserVoice": { "name": "浏览器语音", "meta": "实时 · 低延迟" },
+        "phone": { "name": "外呼电话", "meta": "Vapi + 真人般的温度" },
+        "hotline": { "name": "呼入热线", "meta": "专属号码" },
+        "email": { "name": "邮件邀约", "meta": "异步 · 适合批量" }
+      }
+    },
+    "agentSurfaces": {
+      "eyebrow": "Agent 优先",
+      "title": "让你的 Agent 拥有一位用户研究员。",
+      "description": "telepace 提供 MCP 服务、Skill 和 REST API 三种接入方式。无论你的 Agent 运行在 Claude Desktop、Cursor、Codex 还是自建编排系统中，现在都能设计研究方案、发起访谈，并读取结构化的洞察结果。",
+      "cta": "浏览 MCP 工具 →",
+      "tabs": { "mcp": "MCP", "rest": "REST API", "skill": "Skill" }
+    },
+    "useCases": {
+      "eyebrow": "适用于",
+      "items": {
+        "pm": { "role": "产品经理", "description": "让用户声音进入每一次路线图评审。" },
+        "researchers": { "role": "用户研究员", "description": "在不扩招团队的前提下，规模化开展深度访谈。" },
+        "growth": { "role": "增长团队", "description": "在流失用户忘记原因之前，及时访谈他们。" },
+        "founders": { "role": "创始人", "description": "在打磨 MVP 的同一周内完成 30 场访谈。" }
+      }
+    },
+    "finalCta": {
+      "titleLine1": "别再靠猜测。",
+      "titleEmphasis": "开始倾听用户。",
+      "subtitle": "每一个产品决策，都值得有上百位用户的声音作为支撑。",
+      "ctaPrimary": "免费开始",
+      "ctaSecondary": "体验 60 秒实时访谈 →"
+    }
+  },
+  "pricing": {
+    "hero": {
+      "eyebrow": "价格方案",
+      "titleLine1": "定价公平透明，",
+      "titleLine2": "研究扎实可信。",
+      "lede": "免费开始，等决策真正依赖数据时再升级，随时一键取消。无论哪个方案，都包含完整的 Interviewer 智能体——好用的功能，我们从不设付费墙。"
+    },
+    "tiers": {
+      "free": {
+        "name": "免费版",
+        "tagline": "适合完成你的前三场访谈。",
+        "ctaLabel": "免费开始"
+      },
+      "pro": {
+        "name": "专业版",
+        "tagline": "适合每周持续交付的产品团队。",
+        "ctaLabel": "开始 Pro 试用"
+      },
+      "team": {
+        "name": "团队版",
+        "tagline": "适合有完整研究组织架构的团队。",
+        "ctaLabel": "联系我们"
+      },
+      "enterprise": {
+        "name": "企业版",
+        "tagline": "支持私有化部署、SOC 2 合规，采购流程友好。",
+        "ctaLabel": "联系销售"
+      }
+    },
+    "features": {
+      "studiesPerMonth": "每月 3 个研究项目",
+      "completionsPerStudy": "每个项目 10 次完成访谈",
+      "textLinkChannels": "文本 + 可分享链接渠道",
+      "communitySupport": "社区支持",
+      "watermark": "带 Telepace 水印",
+      "unlimitedStudies": "不限研究项目数量",
+      "completions500": "每月 500 次完成访谈",
+      "voicePhoneEmailChannels": "语音 + 电话 + 邮件渠道",
+      "mcpRestApi": "MCP + REST API",
+      "notionLinearIntegrations": "Notion 与 Linear 集成",
+      "prioritySupport": "优先支持",
+      "everythingInPro": "包含专业版全部功能",
+      "seatsAndSso": "5 个席位 · 支持 SSO",
+      "completions2500": "每月 2,500 次完成访谈",
+      "sharedInsightLibrary": "共享洞察库",
+      "customSkillPackaging": "自定义 Skill 打包",
+      "slaSlackChannel": "SLA 保障 + 专属 Slack 频道",
+      "selfHostedVpc": "支持自托管 VPC 部署",
+      "soc2Dpa": "SOC 2 Type II 认证与 DPA",
+      "fineTunedInterviewer": "定制化微调 Interviewer",
+      "dedicatedCsm": "专属客户成功经理",
+      "customRetentionResidency": "自定义数据留存与属地策略",
+      "volumePricing": "阶梯定价"
+    },
+    "faq": {
+      "eyebrow": "常见问题",
+      "title": "你想问的，我们都答了。",
+      "items": {
+        "completionDefinition": {
+          "question": "「完成访谈」是如何定义的？",
+          "answer": "指受访者完整走完整场访谈流程。中途放弃或重复提交均不计入统计。"
+        },
+        "byoLlmKey": {
+          "question": "可以使用自己的 LLM API Key 吗？",
+          "answer": "可以。专业版及以上方案支持自带 Anthropic、OpenAI、Azure 密钥，不加价。"
+        },
+        "phoneMinutes": {
+          "question": "电话通话时长是否单独收费？",
+          "answer": "专业版的语音通话按成本价结算（约 0.09 美元/分钟）。团队版则包含通话分钟数额度。"
+        },
+        "cancellation": {
+          "question": "如何取消订阅？",
+          "answer": "一键即可取消。我们会按天折算费用，并通过邮件发送包含全部洞察的 CSV 导出文件。"
+        },
+        "dataTraining": {
+          "question": "我的原始数据会被用于训练模型吗？",
+          "answer": "绝不会。访谈记录始终留存在你的工作空间内。完整说明请参见我们的安全页面。"
+        }
+      }
+    },
+    "cta": {
+      "title": "先试用，再决定。",
+      "lede": "免费版就足以完成你的第一场真实研究，无需信用卡。",
+      "startFree": "免费开始",
+      "seeDemo": "查看 60 秒演示 →"
+    }
+  },
+  "docs": {
+    "hero": {
+      "eyebrow": "文档中心",
+      "title": "你需要的一切，仅此而已。",
+      "lede": "文档延续了代码库一贯的严谨：先讲契约，再看示例，最后是排障指南。每一个命令、事件和 MCP 工具都收录于此。"
+    },
+    "install": {
+      "eyebrow": "一分钟即可跑起来",
+      "title": "一条命令完成安装。"
+    },
+    "sections": {
+      "quickstart": {
+        "title": "快速开始",
+        "items": {
+          "60seconds": {
+            "h": "60 秒内",
+            "body": "创建一项调研，分享链接，静待第一份回复到来。"
+          },
+          "15minutes": {
+            "h": "15 分钟内",
+            "body": "将 MCP 服务接入 Claude Code，让你的智能体自主完成调研工作。"
+          },
+          "anHour": {
+            "h": "一小时内",
+            "body": "完成完整的生产部署——基于 Postgres 的事件存储、Redis 与 Fly.io。"
+          }
+        }
+      },
+      "coreConcepts": {
+        "title": "核心概念",
+        "items": {
+          "campaigns": {
+            "h": "调研项目",
+            "body": "一次调研的完整生命周期：草稿 → 已发布 → 已结束，附带不可篡改的事件历史。"
+          },
+          "interviews": {
+            "h": "访谈",
+            "body": "单个受访者完成大纲的过程，支持文本、语音、电话或邮件形式。"
+          },
+          "insights": {
+            "h": "洞察",
+            "body": "从访谈记录中聚类出的主题，并附有代表性的原文引用。"
+          },
+          "harness": {
+            "h": "执行框架",
+            "body": "在命令与智能体之间进行策略校验的分发器。"
+          }
+        }
+      },
+      "integrations": {
+        "title": "集成",
+        "items": {
+          "mcp": {
+            "h": "MCP",
+            "body": "5 个有状态工具，兼容任意 MCP 宿主。"
+          },
+          "restApi": {
+            "h": "REST API",
+            "body": "OpenAPI 架构文件位于 /openapi.json，采用 Bearer 鉴权。"
+          },
+          "notion": {
+            "h": "Notion",
+            "body": "将洞察单向推送至指定的数据库。"
+          },
+          "linear": {
+            "h": "Linear",
+            "body": "按主题分组，为每条洞察创建对应的问题（issue）。"
+          },
+          "webhooks": {
+            "h": "Webhooks",
+            "body": "覆盖我们 20 余种事件类型，均使用 HMAC 签名。"
+          }
+        }
+      },
+      "reference": {
+        "title": "参考文档",
+        "items": {
+          "commandSchemas": {
+            "h": "命令结构定义",
+            "body": "CreateCampaign、RefineOutline、StartCampaign……"
+          },
+          "eventSchemas": {
+            "h": "事件结构定义",
+            "body": "20 余种仅追加写入的事件类型，均带有 schema_version。"
+          },
+          "mcpToolSchemas": {
+            "h": "MCP 工具结构定义",
+            "body": "每个工具对应的输入 / 输出 Pydantic 模型。"
+          }
+        }
+      }
+    },
+    "support": {
+      "eyebrow": "还没解决？",
+      "title": "我们的支持响应以小时计，而非天。",
+      "emailSupport": "邮件联系支持",
+      "browseMcpTools": "浏览 MCP 工具"
+    }
+  },
+  "mcp": {
+    "hero": {
+      "eyebrow": "模型上下文协议",
+      "title": "让你的智能体拥有一位<italic>专属用户研究员。</italic>",
+      "lede": "telepace 是一个原生的 MCP 服务端。五个有状态的工具，智能体调用它们就像人类产品经理打开一个调研标签页一样自然。"
+    },
+    "surfaces": {
+      "claudeDesktop": {
+        "name": "Claude Desktop",
+        "note": "在设置中添加 → MCP"
+      },
+      "claudeCode": {
+        "name": "Claude Code",
+        "note": "`claude mcp add telepace`"
+      },
+      "cursor": {
+        "name": "Cursor",
+        "note": "cursor.json 配置项"
+      },
+      "codexCli": {
+        "name": "Codex CLI",
+        "note": "清单链接"
+      },
+      "custom": {
+        "name": "自定义",
+        "note": "任何兼容 MCP 的宿主环境"
+      }
+    },
+    "tools": {
+      "eyebrow": "工具",
+      "title": "每个工具都会返回一个 <italic>next_actions</italic> 字段，这正是让使用工具的智能体真正好用的关键。",
+      "badge": "MCP 工具",
+      "input": "输入",
+      "output": "输出",
+      "items": {
+        "createCampaign": "根据目标和背景起草一项调研，返回一个持久化的 campaign_id。",
+        "getCampaignProgress": "读取实时进展：目前完成数、各问题的覆盖率、已产生的花费。",
+        "getCampaignInsights": "返回当前的主题聚类结果，并附带代表性的原话引用。",
+        "askFollowup": "用自然语言问题挖掘访谈语料库，非破坏性操作。",
+        "pushInsights": "导出到 Notion、Linear、Slack 或自定义 Webhook，按目的地幂等执行。"
+      }
+    },
+    "tryIt": {
+      "eyebrow": "60 秒即可体验",
+      "title": "把 telepace 接入 Claude Code。",
+      "body": "一条命令，无需配置，你的 Claude 就拥有了一整个研究团队。",
+      "cta": "阅读文档 →"
+    }
+  },
+  "productAgent": {
+    "hero": {
+      "eyebrow": "产品 · 智能体",
+      "titleLead": "四个智能体，",
+      "titleEmphasis": "一套可问责的系统。",
+      "lede": "telepace 不是「一个做问卷的聊天机器人」。它是一套由专职智能体组成的执行框架，以事件溯源为主干，配合策略层确保每一步都可追溯——一切都可审查、可回放、可持续改进。"
+    },
+    "team": {
+      "eyebrow": "团队",
+      "title": "每个智能体只做一件事，这正是系统保持可靠的原因。",
+      "consumes": "消费",
+      "emits": "产出",
+      "agents": {
+        "designer": {
+          "name": "Designer（设计师）",
+          "role": "与你对话，将一个目标转化为访谈大纲。",
+          "inputs": "目标 · 背景 · 约束条件",
+          "outputs": "SpecUpdated 事件流"
+        },
+        "interviewer": {
+          "name": "Interviewer（访谈员）",
+          "role": "主导实时对话，深入追问，跟踪覆盖进度，知道何时该结束。",
+          "inputs": "大纲 + 实时转录内容",
+          "outputs": "TurnRecorded · InterviewCompleted"
+        },
+        "analyst": {
+          "name": "Analyst（分析师）",
+          "role": "对转录内容做向量化处理，聚类主题，起草洞察报告。",
+          "inputs": "InterviewCompleted 事件流",
+          "outputs": "TranscriptEmbedded · ThemeClusterUpdated · InsightGenerated"
+        },
+        "coordinator": {
+          "name": "Coordinator（协调者）",
+          "role": "统筹整个调研活动，适时提醒、升级问题、推动收尾。",
+          "inputs": "所有投影数据",
+          "outputs": "NotificationSent · EscalationTriggered"
+        }
+      }
+    },
+    "harness": {
+      "eyebrow": "执行框架",
+      "title": "不只是套壳的大模型。",
+      "harnessTerm": "Harness（执行框架）",
+      "paragraph1Lead": "每一条指令都会经过",
+      "paragraph1Rest": "：一个由策略把关的调度器，背后由只追加写入的事件存储支撑。预算检查、隐私信息检查、升级检查全部通过之前，任何智能体都无法执行。",
+      "paragraph2": "因为状态全部以事件形式记录，我们可以回放任意一次调研活动，用真实语料对策略做 A/B 测试，甚至精确还原第 84 场访谈第 27 轮时 Interviewer 听到的内容。",
+      "paragraph3": "这正是你的合规团队会关心的工程严谨性——从第一天起就内置其中。",
+      "docsCta": "阅读架构文档 →",
+      "policiesEyebrow": "默认启用的策略",
+      "policies": {
+        "budget": {
+          "k": "预算",
+          "v": "为每次调研活动设定美元上限，涵盖大模型调用与语音通话时长。"
+        },
+        "pii": {
+          "k": "隐私信息",
+          "v": "基于 Presidio 与自定义规则识别，落库前先做脱敏处理。"
+        },
+        "escalation": {
+          "k": "升级机制",
+          "v": "一旦检测到心理困扰或自伤信号，立即中止流程并通知真人介入。"
+        },
+        "observability": {
+          "k": "可观测性",
+          "v": "每一次智能体调用都会附带 trace_id、成本与评估分数。"
+        }
+      }
+    },
+    "cta": {
+      "title": "接入你自己的智能体宿主环境。",
+      "body": "telepace 以 MCP 服务器 + REST 接口 + Skill 的形式交付。无论你的智能体运行在哪里，都能拥有一支调研团队。",
+      "browseMcp": "浏览 MCP 工具 →",
+      "startFree": "免费开始"
+    }
+  },
+  "productVoice": {
+    "hero": {
+      "eyebrow": "产品 · 语音",
+      "titlePrefix": "会倾听的",
+      "titleHighlight": "访谈官。",
+      "lede": "语音不是附加功能，而是最优秀的用户研究员的工作方式——因为屏幕上的文字，恰恰遗漏了最深层的信号。telepace 从第一天起就提供生产级的语音能力。"
+    },
+    "whyVoice": {
+      "eyebrow": "为什么选择语音",
+      "title": "不用打字，人们才会说得更多。",
+      "paragraph1": "传统调研早已证明这一点：一通 30 分钟的电话，能获得比书面问卷多 3 到 5 倍的有效信号。语音消除了组织文字带来的阻力，而正是这种阻力让细微之处悄然流失。",
+      "paragraph2": "telepace 在全流程中保持同样的亲和力——问候、追问、留白、跟进、收尾——这种一致性只有软件才能做到。它不会在下午四点感到疲惫，也不会偏离脚本。",
+      "paragraph3": "因为我们基于流式处理（而非轮次问答），访谈感觉就像一场真实的对话，而不是大多数语音机器人那种彬彬有礼的等待游戏。"
+    },
+    "specs": {
+      "latency": {
+        "k": "延迟",
+        "v": "约 380 毫秒往返",
+        "note": "浏览器 · WSS"
+      },
+      "turnTaking": {
+        "k": "对话轮转",
+        "v": "自动断点检测",
+        "note": "无对讲机式的生硬感"
+      },
+      "language": {
+        "k": "语言",
+        "v": "开箱支持 10 种语言",
+        "note": "英语 · 西班牙语 · 法语 · 德语 · 日语 · 中文 · 葡萄牙语 · 意大利语 · 韩语 · 俄语"
+      },
+      "pii": {
+        "k": "个人信息",
+        "v": "存储前自动脱敏",
+        "note": "身份证号 · 银行卡 · 电话 · 邮箱"
+      },
+      "consent": {
+        "k": "授权同意",
+        "v": "明确授权，可随时撤回",
+        "note": "一键撤销"
+      }
+    },
+    "channelsSection": {
+      "eyebrow": "三种渠道，一位访谈官",
+      "title": "在受访者所在之处，与他们相遇。"
+    },
+    "channels": {
+      "browser": {
+        "name": "浏览器语音",
+        "tag": "上线最快",
+        "body": "WebRTC 加流式语音识别。受访者点击链接、按住说话，即可完成。"
+      },
+      "phone": {
+        "name": "外呼电话",
+        "tag": "适用于不愿填表的受访者",
+        "body": "集成 Vapi。telepace 自动拨号、开场预热、按提纲推进访谈，并礼貌收尾挂断。"
+      },
+      "hotline": {
+        "name": "呼入热线",
+        "tag": "拥有专属号码",
+        "body": "为活动绑定一个 Twilio 号码。任何拨入的人都会进入你的访谈。"
+      }
+    },
+    "cta": {
+      "title": "亲耳听一听。",
+      "lede": "与一位状态在线的 AI 研究员进行一场 60 秒的实时访谈。",
+      "tryDemo": "体验演示 →",
+      "seePricing": "查看定价"
+    }
+  },
+  "careers": {
+    "hero": {
+      "eyebrow": "招聘",
+      "titleLead": "打造一支",
+      "titleHighlight": "每位创造者都值得拥有的研究团队。",
+      "lede": "我们还处于早期：五个人，一万名用户，一个巨大的市场。如果你最好的作品还没做出来，我们的产品也是。"
+    },
+    "howWeWork": {
+      "eyebrow": "我们的工作方式",
+      "title": "四件我们绝不妥协的事。"
+    },
+    "principles": {
+      "craft": {
+        "title": "匠心 > 规模",
+        "description": "比起两万个转身就忘的用户，我们更想要两百个真正喜欢我们的用户。"
+      },
+      "direct": {
+        "title": "坦诚，而非圆滑",
+        "description": "友善、直接、具体。没有什么比憋着不说的反馈更容易让团队变质。"
+      },
+      "ownOutcome": {
+        "title": "对结果负责",
+        "description": "头衔只是简称。你经手的事，就由你负责到它真正跑通为止。"
+      },
+      "sleep": {
+        "title": "睡眠很重要",
+        "description": "晚上八点后不搞英雄式加班。如果周日还在“救火”，那说明设计本身出了问题。"
+      }
+    },
+    "offer": {
+      "eyebrow": "我们的待遇",
+      "compensation": "薪资对标 A 轮公司的第 75 分位，附带实打实的股权——不是那种 0.05% 的意思意思。",
+      "benefits": "全额医疗 / 牙科 / 视力保险，2000 美元居家办公补贴，每年两次团队线下聚会。",
+      "remote": "远程优先，默认异步协作，每天保留四小时的在线重叠时段。",
+      "trial": "我们招人既快又慢：90 天试用期，之后要么彻底加入，要么体面地说再见。"
+    },
+    "openRoles": {
+      "eyebrow": "在招职位",
+      "title": "我们现在正在招聘的职位。",
+      "apply": "申请 →",
+      "applySubject": "申请职位 · {title}"
+    },
+    "roles": {
+      "voiceMlEngineer": {
+        "title": "创始语音机器学习工程师",
+        "location": "远程 · UTC ± 6",
+        "type": "全职",
+        "summary": "端到端负责语音管线：流式语音识别（STT）、语音活动检测（VAD）、端点检测、语音合成（TTS）与电话集成。以周为单位交付，以小时为单位迭代。",
+        "stack": "Go · Python · gRPC · WebRTC"
+      },
+      "designer": {
+        "title": "创始设计师",
+        "location": "远程 · 任意时区",
+        "type": "全职",
+        "summary": "为整个产品定义视觉与交互语言。你曾交付过让人事后觉得“理所当然如此”的作品。",
+        "stack": "Figma · Next.js · Tailwind · React"
+      },
+      "appliedResearchEngineer": {
+        "title": "应用研究工程师（大语言模型方向）",
+        "location": "旧金山 · 纽约 · 远程",
+        "type": "全职",
+        "summary": "负责 Interviewer 的微调、评估与部署。相比跑分，你更在意校准精度、拒答行为与结果的可复现性。",
+        "stack": "Python · Anthropic API · pgvector · vLLM"
+      },
+      "gtmSales": {
+        "title": "市场拓展 · 创始销售",
+        "location": "优先旧金山",
+        "type": "全职",
+        "summary": "第一位非技术背景的团队成员。全权负责从冷启动获客到成交的整条销售管线，面向你愿意深交的产品经理和研究者去做销售。",
+        "stack": "你在 A 轮公司已经做过这件事。"
+      }
+    },
+    "noRole": {
+      "title": "没看到合适的职位？",
+      "body": "给我们发一封简短的邮件至 <link>{email}</link>，说说你想承担的角色。"
+    }
+  },
+  "changelog": {
+    "hero": {
+      "eyebrow": "更新日志",
+      "title": "每周迭代，从不停歇。",
+      "lede": "小团队服务小团队。我们每周三发布更新，并公开分享每一次变化。"
+    },
+    "tags": {
+      "release": "发布",
+      "improvement": "改进",
+      "fix": "修复"
+    },
+    "entries": {
+      "mcpAskFollowup": {
+        "title": "MCP v1.2 · ask_followup 上线",
+        "body": "你的智能体现在可以用自然语言问题挖掘任意访谈转录语料。该操作无破坏性，会附带支持性引用，并且每次都会返回 next_actions 提示。",
+        "items": {
+          "0": "新增工具：telepace.ask_followup",
+          "1": "返回结构新增 supporting_quotes[] 字段",
+          "2": "限流：Pro 版每个campaign 60 次/分钟；Team 版 300 次/分钟"
+        }
+      },
+      "voiceInterviewsGa": {
+        "title": "语音访谈正式版发布",
+        "body": "浏览器语音与外呼电话现已全面开放。新端点的往返延迟中位数从 620ms 降至 380ms。",
+        "items": {
+          "0": "所有支持地区实现 400ms 以内的对话轮转",
+          "1": "支持 10 种语言：英语、西班牙语、法语、德语、日语、中文、葡萄牙语、意大利语、韩语、俄语",
+          "2": "电话通话按实际成本计费（约 0.09 美元/分钟）"
+        }
+      },
+      "coverageTrackerRewrite": {
+        "title": "覆盖度追踪器重构",
+        "body": "Interviewer 现在能以 3 倍的精度判断哪些问题仍未覆盖，减少了冗余追问，让收尾更快、完成率更高。",
+        "items": {
+          "0": "访谈时长中位数：14 分钟 → 11 分钟",
+          "1": "完成率：71% → 84%"
+        }
+      },
+      "notionLinearIntegrations": {
+        "title": "接入 Notion 与 Linear",
+        "body": "一键将洞察同步到你已有的工具中。同步过程幂等、经 HMAC 签名，且可断点续传。",
+        "items": {
+          "0": "Notion 数据库同步",
+          "1": "按主题创建 Linear issue 并自动指派负责人"
+        }
+      },
+      "publicLaunch": {
+        "title": "Telepace 1.0 · 正式公开发布",
+        "body": "历经八个月的私测，我们正式向所有人开放。这是一套语音原生、智能体优先的用户研究基础设施。",
+        "items": {
+          "0": "免费版：每月 3 项研究",
+          "1": "MCP 服务端 v1.0",
+          "2": "启动 SOC 2 Type II 审计"
+        }
+      }
+    },
+    "cta": {
+      "eyebrow": "功能建议",
+      "title": "还有我们尚未支持的功能？",
+      "body": "发送邮件至 <email></email> —— 我们的创始人会亲自阅读每一封来信。"
+    }
+  },
+  "terms": {
+    "hero": {
+      "eyebrow": "服务条款",
+      "title": "用大白话讲清楚的条款。",
+      "lede": "枯燥也是一种特性。自 2026-05-05 起生效。"
+    },
+    "onThisPage": "本页目录",
+    "sections": {
+      "acceptance": {
+        "title": "一、条款接受",
+        "body": "创建 telepace 账户或使用本服务，即表示您同意本条款。如果您代表某家公司使用本服务，您需确认自己有权代表该公司接受本条款约束。"
+      },
+      "service": {
+        "title": "二、服务内容",
+        "body": "Telepace 提供用于设计、执行和分析用户研究访谈的软件。我们可能会调整功能以持续改进产品；但若变更会对付费版本造成实质性影响，我们会提前 30 天通知。"
+      },
+      "yourContent": {
+        "title": "三、您的内容",
+        "body": "您对自己设计的研究方案及收集的访谈记录保留全部权利。您授予我们有限的许可，仅用于处理这些内容以提供本服务。我们不会使用您的内容训练模型。"
+      },
+      "acceptableUse": {
+        "title": "四、可接受使用范围",
+        "body": "您不得使用 telepace 以虚假理由招募访谈对象、在未获得适当同意的情况下对未成年人开展研究，或以违反适用法律的方式开展调研。我们保留暂停违反上述规定账户的权利。"
+      },
+      "payment": {
+        "title": "五、付费条款",
+        "body": "付费计划按月或按年预先结算。若您取消订阅，退款将按天数比例计算。超额费用（语音分钟数、超出套餐的完成次数）将在账单周期结束后七天内进行后付结算。"
+      },
+      "termination": {
+        "title": "六、终止条款",
+        "body": "任何一方均可提前 30 天通知对方，无需理由终止合作。合作终止后，您有 30 天时间导出数据；此后我们将永久删除相关数据。"
+      },
+      "warranty": {
+        "title": "七、保证与免责声明",
+        "body": "本服务按“现状”提供。我们承诺将尽合理商业努力保持服务可用。在法律允许的最大范围内，我们不承担任何其他明示或暗示的保证责任。"
+      },
+      "liability": {
+        "title": "八、责任限制",
+        "body": "在法律允许的最大范围内，我们因本条款产生的累计责任，以您在索赔前 12 个月内向我们支付的金额为上限。我们不对间接、附带或衍生性损失承担责任。"
+      },
+      "governingLaw": {
+        "title": "九、适用法律",
+        "body": "本条款适用美国特拉华州法律。争议由特拉华州州法院及联邦法院管辖解决，在法律允许的范围内双方放弃陪审团审理的权利。"
+      },
+      "changes": {
+        "title": "十、条款变更",
+        "body": "我们可能会更新本条款；重大变更将提前 30 天通过邮件通知。生效日期后继续使用本服务即视为接受变更后的条款。"
+      }
+    },
+    "legalQuestions": "法律相关问题？请发邮件至 <email>{siteConfig.contact.legalEmail}</email>。"
+  },
+  "privacy": {
+    "hero": {
+      "eyebrow": "隐私政策",
+      "title": "一份说人话的隐私政策。",
+      "lede": "由真人撰写，句句完整，没有任何暗黑模式。生效日期 2026-05-05。"
+    },
+    "onThisPage": "本页内容",
+    "sections": {
+      "whatWeCollect": {
+        "title": "1. 我们收集哪些信息",
+        "body": [
+          "账户数据：你的姓名、邮箱和工作区元数据。",
+          "内容数据：你设计的研究方案，以及受访者完成的访谈内容。",
+          "使用数据：访问的页面、使用的功能、错误记录——仅用于改进产品。",
+          "除非你主动上传，否则我们不会收集受访者的姓名或联系方式。"
+        ]
+      },
+      "howWeUseIt": {
+        "title": "2. 我们如何使用这些信息",
+        "body": [
+          "用于提供你注册使用的服务——设计研究方案、派发访谈、生成洞察。",
+          "用于通知你产品变更和安全相关的更新。",
+          "用于整体层面改进产品——绝不会查看单条访谈记录。",
+          "我们绝不出售你的数据，没有例外。"
+        ]
+      },
+      "sharing": {
+        "title": "3. 我们会与谁共享信息",
+        "body": [
+          "支撑服务运行的分包处理方：我们的云服务提供商、我们的大模型供应商（仅当你使用共享密钥时）、我们的语音/电话合作伙伴。",
+          "完整的分包处理方名单公布在 telepace.io/subprocessors。",
+          "新增分包处理方前，我们会提前 30 天通知你。"
+        ]
+      },
+      "yourRights": {
+        "title": "4. 你的权利",
+        "body": [
+          "你可以随时导出工作区内的每一条事件记录（GDPR 第 20 条）。",
+          "你可以删除工作区，所有数据将在 30 天内彻底清除（第 17 条）。",
+          "你可以反对特定的数据处理行为（第 21 条）——请发邮件至 privacy@telepace.io。",
+          "欧盟居民可向当地监管机构提出投诉。"
+        ]
+      },
+      "retention": {
+        "title": "5. 数据保留",
+        "body": [
+          "只要你的账户处于活跃状态，工作区数据就会持续保留。",
+          "删除后，备份数据将在 35 天内清除。",
+          "匿名化的聚合遥测数据可能会无限期保留。"
+        ]
+      },
+      "changes": {
+        "title": "6. 政策变更",
+        "body": [
+          "重大变更将在生效前 30 天通过邮件通知你。",
+          "非重大的澄清说明会在更新日志中公布。",
+          "最新版本始终发布在此网址。"
+        ]
+      }
+    },
+    "questionsEmail": "有疑问？发邮件至 <email></email>。"
+  },
+  "customers": {
+    "hero": {
+      "eyebrow": "客户案例",
+      "title": "团队之选，<accent>做有依据的决策。</accent>",
+      "lede": "一些产品团队，一些代理机构，一些独立创业者。他们的共同点是：拒绝靠猜测做决定。"
+    },
+    "stats": {
+      "interviewsRun": { "label": "累计访谈次数", "value": "18,412" },
+      "companiesOnboarded": { "label": "入驻企业数", "value": "127" },
+      "avgTimeToInsight": { "label": "平均洞察产出时长", "value": "38 小时" },
+      "nps": { "label": "净推荐值 NPS", "value": "72" }
+    },
+    "stories": {
+      "northstar": {
+        "company": "Northstar",
+        "role": "B 轮金融科技公司",
+        "quote": "在一次定价调整前，我们四天内完成了 68 场访谈。如果交给调研机构，这至少要花六周——而且我们很可能会推出错误的定价档位。",
+        "person": "产品负责人",
+        "metric": "避免了一次损失 120 万美元 ARR 的定价失误"
+      },
+      "radicle": {
+        "company": "Radicle",
+        "role": "设计代理机构",
+        "quote": "现在我们给客户交付的是洞察报告，而不是调研问卷的原始数据。Telepace 在第一个项目上就已经回本。",
+        "person": "执行合伙人",
+        "metric": "从需求简报到洞察产出快 3 倍"
+      },
+      "pentagramLabs": {
+        "company": "Pentagram Labs",
+        "role": "内部研发团队",
+        "quote": "有了 MCP 集成，我们团队的 Claude 现在真的能做研究了。这是一种全新的工具——一个从不休息的实习生。",
+        "person": "工程负责人",
+        "metric": "每月节省 40 小时的产品经理工作时间"
+      }
+    },
+    "cta": {
+      "title": "准备好写下你的故事了吗？",
+      "lede": "如果这个月你要交付一个决策，我们希望它是有据可依的那种。",
+      "startFree": "免费开始",
+      "talkToFounder": "联系创始人 →"
+    }
+  },
+  "security": {
+    "eyebrow": "安全",
+    "titlePrefix": "无聊——",
+    "titleEmphasis": "这是我们刻意为之。",
+    "lede": "谈论安全很容易，真正做到却很难。以下是我们实际在做什么、没做什么，以及接下来要做什么的真实情况。",
+    "pillars": {
+      "dataIsolation": {
+        "title": "数据隔离",
+        "description": "每位客户的数据都存放在以 org_id 为键的独立逻辑租户中。行级策略在数据库层（而不仅仅是应用层）强制实施隔离。"
+      },
+      "encryption": {
+        "title": "加密",
+        "description": "传输中采用 TLS 1.3，静态数据采用 AES-256-GCM 加密。密钥通过云 KMS 进行信封加密，磁盘上不存在任何明文凭证。"
+      },
+      "piiRedaction": {
+        "title": "个人信息脱敏",
+        "description": "所有对话记录在持久化之前都会经过 Presidio 加自定义规则的脱敏处理。姓名、电话号码、身份证号、银行卡号等信息绝不会以明文存储。"
+      },
+      "accessControl": {
+        "title": "访问控制",
+        "description": "Team 及以上套餐支持单点登录（Okta、Google Workspace、Azure AD）。提供细粒度角色：查看者、编辑者、管理员，且每一次访问都会记录审计日志。"
+      },
+      "modelTraining": {
+        "title": "模型训练",
+        "description": "你的数据永远不会被用于训练模型——无论是我们的模型还是任何第三方供应商的模型。使用自有 LLM 密钥时请求将直接路由，完全绕开我们的代理。"
+      },
+      "incidentResponse": {
+        "title": "事件响应",
+        "description": "7x24 小时值班响应。任何影响客户数据的事件都会在 72 小时内通知相关方，事后复盘报告默认公开。"
+      }
+    },
+    "certifications": {
+      "eyebrow": "认证与合规",
+      "title": "我们目前所处的位置，以及未来的方向。",
+      "items": {
+        "soc2": {
+          "name": "SOC 2 Type II",
+          "status": "审计中 · 报告预计于 2026 年第四季度发布"
+        },
+        "gdpr": {
+          "name": "GDPR",
+          "status": "可应要求提供数据处理协议（DPA）· Team 及以上套餐支持欧盟数据驻留"
+        },
+        "hipaa": {
+          "name": "HIPAA",
+          "status": "企业版可提供业务合作协议（BAA）· 计划于 2027 年第一季度支持"
+        },
+        "iso27001": {
+          "name": "ISO 27001",
+          "status": "计划于 2027 年完成认证"
+        }
+      }
+    },
+    "disclosure": {
+      "eyebrow": "负责任的漏洞披露",
+      "title": "发现了安全问题？告诉我们。",
+      "reportText": "请将安全漏洞报告至 <link>security@telepace.com</link>。我们会在 24 小时内确认收到，72 小时内完成分级，并为已确认的问题提供起价 500 美元的漏洞赏金（严重问题最高可达 10,000 美元）。",
+      "pgpText": "PGP 密钥：<code></code> · 指纹信息可在 <link>keys.openpgp.org</link> 上查询。"
+    }
+  },
+  "demo": {
+    "eyebrow": "60 秒实时演示",
+    "title": "来体验一次受访者视角。",
+    "lede": "这正是受访者会看到的界面。访谈官会追问细节、追踪覆盖度，并知道何时该结束。回复几句话，亲自感受一下。",
+    "statusLine": "实时 · 演示访谈 · {status}",
+    "statusWrapped": "已结束",
+    "statusQuestion": "第 {current} 题 / 共 {total} 题",
+    "script": {
+      "0": "你好，感谢抽空。当初注册 telepace 时，你最希望达成什么目标？",
+      "1": "这个想法很常见。是什么让你放弃了招聘全职研究员的想法——是预算问题，还是别的原因？",
+      "2": "有意思。如果有根魔法棒能解决访谈排期的难题，在你看来'解决'是什么样子？",
+      "3": "很好，最后一个问题——你之前尝试过哪些方法，但效果并不理想？",
+      "4": "这些回答非常有帮助，谢谢你。我已经保存好了，团队会仔细阅读每一句话。"
+    },
+    "chat": {
+      "typing": "正在输入…",
+      "placeholder": "输入回复并按下 Enter…",
+      "send": "发送"
+    },
+    "done": {
+      "title": "一次完整的访谈完成了。",
+      "body": "在真实的研究项目中，telepace 会并行运行上百场这样的访谈，并将回答自动归纳为主题。",
+      "cta": "立即开始真实访谈 →"
+    },
+    "hood": {
+      "title": "幕后发生了什么",
+      "items": {
+        "0": "访谈官会结合你的提纲和此前的对话，选择每一个追问",
+        "1": "覆盖度追踪器清楚哪些内容仍待了解",
+        "2": "隐私策略会在存储前完成脱敏处理",
+        "3": "升级策略会在检测到情绪波动时自动终止访谈"
+      }
+    },
+    "voice": {
+      "eyebrow": "更喜欢语音交流？",
+      "body": "真实的访谈官完全支持语音——浏览器、外呼电话、来电热线，样样支持。",
+      "cta": "了解语音功能 →"
+    }
+  }
+}

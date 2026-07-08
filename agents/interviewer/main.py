@@ -20,6 +20,10 @@ if TYPE_CHECKING:
 
 
 _ACTION_BLOCK = re.compile(r"<action>(.*?)</action>", re.DOTALL)
+# Models sometimes emit the action as a ```json fence instead of <action>
+# tags; both must be parsed and stripped so raw JSON never reaches the
+# respondent's chat bubble.
+_JSON_FENCE = re.compile(r"```json\s*(.*?)\s*```", re.DOTALL)
 
 
 class InterviewerAgent:
@@ -30,10 +34,12 @@ class InterviewerAgent:
         max_tokens: int,
         temperature: float,
         prompt_version: str = "v1",
+        model: str | None = None,
     ) -> None:
         self._llm = llm
         self._max_tokens = max_tokens
         self._temperature = temperature
+        self._model = model
         self._system = load_prompt("interviewer", prompt_version)
 
     async def run(
@@ -47,7 +53,14 @@ class InterviewerAgent:
     async def _on_reply(self, cmd: ReplyInInterview, context: dict[str, Any]) -> AgentResult:
         assert cmd.campaign_id is not None
         history: list[dict[str, str]] = list(context.get("interview_history", []))
-        outline: list[dict[str, Any]] = context.get("outline", {}).get("items", [])
+        # The discussion guide lives under the campaign spec in memory; the
+        # bare "outline" key is a legacy shape kept as a fallback.
+        outline_ctx = context.get("outline") or context.get("spec", {}).get("outline") or {}
+        outline: list[dict[str, Any]] = (
+            outline_ctx.get("items", []) if isinstance(outline_ctx, dict) else []
+        )
+        spec_ctx = context.get("spec", {}) if isinstance(context.get("spec"), dict) else {}
+        language = spec_ctx.get("primary_language", "en")
 
         respondent_order = len(history) + 1
         history.append({"role": "respondent", "text": cmd.text})
@@ -58,6 +71,7 @@ class InterviewerAgent:
                 "coverage": context.get("outline_coverage", {}),
                 "history": history[-INTERVIEWER_HISTORY_WINDOW:],
                 "last_respondent_text": cmd.text,
+                "language": language,
             },
             ensure_ascii=False,
         )
@@ -65,12 +79,18 @@ class InterviewerAgent:
         resp = await self._llm.complete(
             system=self._system,
             messages=[LLMMessage(role="user", content=prompt_user)],
+            model=self._model,
             max_tokens=self._max_tokens,
             temperature=self._temperature,
         )
 
         action = self._parse_action(resp.text)
-        prose = _ACTION_BLOCK.sub("", resp.text).strip()
+        prose = _JSON_FENCE.sub("", _ACTION_BLOCK.sub("", resp.text)).strip()
+        # Guard against reasoning-model leakage: if the "prose" is an
+        # implausibly long analysis dump, prefer the action's own text.
+        action_text = str(action.get("text", "") or "")
+        if action_text and len(prose) > INTERVIEWER_ACTION_TEXT_MAX:
+            prose = action_text
 
         events: list[EventBase] = [
             TurnRecorded(
@@ -112,6 +132,18 @@ class InterviewerAgent:
                 )
             )
 
+        # Real progress for the respondent UI: which outline question the
+        # interviewer is on, out of how many. Falls back to None when the
+        # LLM action doesn't reference an outline item (e.g. warm-up turns).
+        question_order: int | None = None
+        action_item_id = action.get("outline_item_id")
+        if action_item_id:
+            for item in outline:
+                if str(item.get("id")) == str(action_item_id):
+                    raw_order = item.get("order")
+                    question_order = int(raw_order) if isinstance(raw_order, int | float) else None
+                    break
+
         return AgentResult(
             events=events,
             state_delta=state_delta,
@@ -119,12 +151,16 @@ class InterviewerAgent:
                 "text": interviewer_text,
                 "kind": action.get("kind", "ask"),
                 "outline_item_id": action.get("outline_item_id"),
+                "progress": {
+                    "question_order": question_order,
+                    "total_questions": len(outline),
+                },
             },
         )
 
     @staticmethod
     def _parse_action(text: str) -> dict[str, Any]:
-        m = _ACTION_BLOCK.search(text)
+        m = _ACTION_BLOCK.search(text) or _JSON_FENCE.search(text)
         if not m:
             return {"kind": "ask", "text": text.strip()[:INTERVIEWER_ACTION_TEXT_MAX]}
         try:

@@ -48,10 +48,11 @@ export const spacing = {
   contentMax: "1120px",
 } as const;
 
+/**
+ * Font stacks lead with the `next/font` CSS variables set in the root
+ * layout; the named families remain as fallbacks for non-Next consumers.
+ */
 export const fonts = {
-  // `var(--font-display)` / `var(--font-body)` are set by `next/font` on
-  // <html> in each app's root layout; the quoted names remain as fallback
-  // for contexts (e.g. emails, OG image generation) that don't load them.
   display: `var(--font-display), "Instrument Serif", "Fraunces", "Tiempos Headline", ui-serif, Georgia, serif`,
   body: `var(--font-body), "Inter", "Söhne", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif`,
   mono: `"JetBrains Mono", "Söhne Mono", ui-monospace, "SF Mono", monospace`,

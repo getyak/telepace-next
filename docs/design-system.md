@@ -48,23 +48,28 @@ Overline Inter Medium        0.75rem uppercase           +0.14em
 
 ## Components (@telepace/ui)
 
-- `Button(variant: primary | secondary | ghost | danger | inverse | inverse-outline, size: sm | md | lg, loading?: boolean)` —
-  `inverse`/`inverse-outline` are for dark sections (e.g. the marketing FinalCTA), replacing one-off
-  `className` color overrides. `loading` renders the built-in `Spinner` and disables the button;
-  don't hand-roll `{submitting ? "…" : "…"}` ternaries for button label + disabled state.
+- `Button(variant: primary | secondary | ghost | danger | inverse | inverse-outline, size: sm | md | lg, loading?)`
+  — `loading` renders a built-in 14px spinner and blocks clicks; never hand-roll
+  `{submitting ? "…" : "…"}`-only states. `inverse` / `inverse-outline` are for
+  dark (`bg-ink`) sections — no more `className` color overrides on buttons.
 - `Card` + `CardHeader` + `CardBody` + `CardFooter`
 - `Input`, `Textarea`, `Label`
 - `ChatBubble`, `ChatFeed`, `ChatComposer`, `VoiceOrb`
-- `Spinner` — single-color `currentColor` arc, ~800ms rotation
-- `Badge(variant: neutral | accent | success | warning | danger)` — soft-fill tags/status chips
-- `Skeleton` — `bg-paper-sunken` with a 1.8s opacity breathe (**not** a shimmer sweep — shimmer reads as generic SaaS, not editorial)
-- `EmptyState(icon?, title, description?, action?)` — centered zero-state block
-- `Dialog` (native `<dialog>`), `DropdownMenu` + `DropdownMenuItem` — shared overlay primitives
-- `Toaster` / `toast.{success,error,warning,info}` — token-colored toast system; apps should not implement their own
-- `icons.*` — hand-drawn stroke-1.5 line icons (`packages/ui/src/icons.tsx`); never pull in an icon library wholesale
+- `Spinner` — single-color arc, ~800ms uniform rotation, `currentColor`
+- `Badge(variant: neutral | accent | success | warning | danger)` — soft fills only
+- `Skeleton` — `paper-sunken` block with a 1.8s opacity breath. **No shimmer
+  sweep** — a scanning highlight clashes with the editorial aesthetic.
+- `EmptyState(icon, title, description, action)` — thin-line icon, display-serif
+  title, one body sentence, one primary action
+- `Dialog` — native `<dialog>`, `shadow-overlay`, 0.98 → 1 scale entry over `base`
+- `DropdownMenu` (+ Trigger/Content/Item/Separator) — used by `UserMenu` and row actions
+- `Toaster` / `toast` — token-styled, colored-dot kind indicator
 
-Every list/table page pairs with an `EmptyState` for the zero-data case and
-`Skeleton` rows (not a blank flash) while loading.
+## Icons (@telepace/icons)
+
+Hand-inlined line icons: 16px viewBox, `stroke-width: 1.5`, round caps,
+`currentColor`. The hamburger is **two** thin lines, not three fat ones. Do not
+add an icon library dependency; add icons one at a time as needed.
 
 ## Motion
 
@@ -76,32 +81,25 @@ Every list/table page pairs with an `EmptyState` for the zero-data case and
 
 Fade + 8–12px upward translate on scroll. No parallax. No gradient blobs.
 
-**Motion budget: at most one *decorative* persistent (looping) animation per screen** — e.g. the
-Hero's waveform bars. Small functional status indicators (a "live" pulse dot, a spinner while
-loading) are exempt — they're communicating state, not decorating. Stacking several *ambient*
-animations on one view reads as busy, not alive. One-shot entrance animations (fade-in on mount,
-accordion expand) don't count against the budget either — the constraint is about things that
-keep moving indefinitely. Everything respects `prefers-reduced-motion` (enforced globally in
-`globals.css`; drop to a static state, don't just disable the easing). Prefer Tailwind's
-`motion-safe:` variant when adding a new animated class.
+**Motion budget: at most one persistent (looping) animation per screen.** The
+homepage spends its budget on the hero waveform; nothing else on that screen
+may loop. One-shot entrances (fade-in-up) don't count against the budget.
+Named loops: live-dot pulse is 2.4s (Tailwind's 1s `animate-pulse` is too
+eager), waveform bars 2.6s, skeleton breath 1.8s, spinner 800ms. Every
+animation must degrade to a static state under `prefers-reduced-motion`.
 
-## Typography rules
+## Copy rules
 
-- Italic + `text-accent` is reserved for a single key phrase per heading (see
-  Hero, FinalCTA) — never a whole sentence, never used twice in one viewport.
-- Numbered steps/indices (`01`, `02`, …) render in `font-display`, not `font-mono`
-  or default sans, so they read as part of the editorial system.
-- Sections alternate `bg-paper` / `bg-paper-elevated` with a `border-hairline`
-  seam between them — never two consecutive sections with the same fill.
-
-## Copy conventions
-
-- **"Sign in"**, never "Log in" — applies to nav links, buttons, login page copy, and any
-  "already have an account?" prompts on signup.
-- Primary CTA: **"Start free"**. Secondary/demo CTA: **"Try a live 60-sec interview →"**. Don't
-  introduce new phrasing for the same actions on new pages ("Try for free", "See a live demo").
-- Inline field/form errors are a single sentence with `role="alert"`, styled `text-danger` — never
-  a bulleted list styled with a raw Tailwind color.
+- Sign-in wording is **"Sign in" / "Sign out"** everywhere. Never "Log in".
+- Primary CTA is **"Start free"**; secondary demo CTA is
+  **"Try a live 60-sec interview →"**. Don't invent variants per page.
+- Italic `text-accent` spans are reserved for the one key phrase of a heading
+  — not for decoration.
+- Step / question numerals use `font-display` (see HowItWorks, outline lists).
+- Marketing sections alternate `bg-paper` / `bg-paper-elevated`, separated by
+  `border-hairline`. No third background color.
+- No fabricated trust signals: no fake customer logos, no compliance claims
+  (SOC 2 etc.) that aren't literally true.
 
 ## Design references (aesthetic anchor)
 
@@ -117,4 +115,7 @@ keep moving indefinitely. Everything respects `prefers-reduced-motion` (enforced
 - Rounded-heavy shapes (`rounded-2xl` bubbles)
 - Multi-color gradients
 - Drop shadows above `y:2 blur:8 opacity:0.04`
-- Any icon set that isn't Radix Icons (or an equivalent geometric set)
+- Any icon set that isn't `@telepace/icons` (hand-inlined, geometric)
+- **Tailwind default palette classes** (`text-red-600`, `bg-blue-500`, …) —
+  every color goes through tokens. CI enforces this via
+  `frontend/scripts/design-guard.sh`.

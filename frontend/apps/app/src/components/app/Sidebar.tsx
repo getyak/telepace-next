@@ -1,48 +1,179 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+/**
+ * App navigation. Desktop: fixed left rail with active indicator + icons.
+ * Mobile: top bar with the same full-screen overlay pattern the marketing
+ * nav uses (deliberately no bottom tab bar — one menu idiom everywhere).
+ */
+
+import { Link } from "@/i18n/navigation";
+import { usePathname } from "@/i18n/navigation";
+import { useEffect, useState, type ComponentType } from "react";
+import { useTranslations } from "next-intl";
 import { routes, siteConfig } from "@telepace/config";
+import {
+  AudienceIcon,
+  CloseIcon,
+  InboxIcon,
+  InsightsIcon,
+  IntegrationsIcon,
+  MenuIcon,
+  SettingsIcon,
+  StudiesIcon,
+  type IconProps,
+} from "@telepace/icons";
+import { cn } from "@telepace/ui";
 
 import { UserMenu } from "../user/UserMenu";
-import { isNavItemActive, primaryNavItems, workspaceNavItems, type NavItem } from "./nav-items";
+
+type Item = {
+  href: string;
+  /** Key into the "sidebar" namespace, e.g. t(labelKey). */
+  labelKey: "studies" | "inbox" | "audience" | "insights" | "integrations" | "settings";
+  icon: ComponentType<IconProps>;
+};
+
+const PRIMARY: Item[] = [
+  { href: routes.app.studies.root, labelKey: "studies", icon: StudiesIcon },
+  { href: routes.app.inbox, labelKey: "inbox", icon: InboxIcon },
+  { href: routes.app.audience, labelKey: "audience", icon: AudienceIcon },
+  { href: routes.app.insights, labelKey: "insights", icon: InsightsIcon },
+];
+
+const WORKSPACE: Item[] = [
+  { href: routes.app.integrations, labelKey: "integrations", icon: IntegrationsIcon },
+  { href: routes.app.settings, labelKey: "settings", icon: SettingsIcon },
+];
+
+function isActive(pathname: string, href: string): boolean {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function Sidebar() {
+  const t = useTranslations("nav.app.sidebar");
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    function onEsc(evt: KeyboardEvent) {
+      if (evt.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("keydown", onEsc);
+    return () => {
+      document.body.style.overflow = previous;
+      document.removeEventListener("keydown", onEsc);
+    };
+  }, [open]);
 
   return (
-    <aside className="w-[240px] shrink-0 border-r border-hairline bg-paper-elevated hidden md:flex flex-col">
-      <div className="px-5 py-5 border-b border-hairline">
-        <Link href={routes.app.root} className="font-display text-xl">
+    <>
+      {/* Desktop rail */}
+      <aside className="hidden w-[240px] shrink-0 flex-col border-r border-hairline bg-paper-elevated md:flex">
+        <div className="border-b border-hairline px-5 py-5">
+          <Link href={routes.app.root} className="font-display text-xl">
+            {siteConfig.brand.name}
+          </Link>
+        </div>
+        <nav className="flex-1 space-y-1 px-3 py-4 text-sm">
+          {PRIMARY.map((item) => (
+            <SideLink key={item.href} item={item} label={t(item.labelKey)} active={isActive(pathname, item.href)} />
+          ))}
+          <p className="overline px-3 pb-1 pt-6">{t("workspaceLabel")}</p>
+          {WORKSPACE.map((item) => (
+            <SideLink key={item.href} item={item} label={t(item.labelKey)} active={isActive(pathname, item.href)} />
+          ))}
+        </nav>
+        <UserMenu />
+      </aside>
+
+      {/* Mobile top bar */}
+      <div className="flex h-14 items-center justify-between border-b border-hairline bg-paper-elevated px-4 md:hidden">
+        <Link href={routes.app.root} className="font-display text-lg">
           {siteConfig.brand.name}
         </Link>
+        <button
+          type="button"
+          aria-label={open ? t("closeMenu") : t("openMenu")}
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+          className="-m-2 p-2 text-ink"
+        >
+          {open ? <CloseIcon size={20} /> : <MenuIcon size={20} />}
+        </button>
       </div>
-      <nav className="flex-1 px-3 py-4 space-y-1 text-sm">
-        {primaryNavItems.map((item) => (
-          <SideLink key={item.href} item={item} active={isNavItemActive(item, pathname)} />
-        ))}
-        <p className="overline mt-6 mb-2 px-3">Workspace</p>
-        {workspaceNavItems.map((item) => (
-          <SideLink key={item.href} item={item} active={isNavItemActive(item, pathname)} />
-        ))}
-      </nav>
-      <UserMenu />
-    </aside>
+
+      {/* Mobile full-screen overlay */}
+      {open && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-paper md:hidden">
+          <div className="flex h-14 items-center justify-between border-b border-hairline px-4">
+            <Link
+              href={routes.app.root}
+              className="font-display text-lg"
+              onClick={() => setOpen(false)}
+            >
+              {siteConfig.brand.name}
+            </Link>
+            <button
+              type="button"
+              aria-label={t("closeMenu")}
+              onClick={() => setOpen(false)}
+              className="-m-2 p-2 text-ink"
+            >
+              <CloseIcon size={20} />
+            </button>
+          </div>
+          <nav className="flex flex-1 flex-col gap-5 overflow-y-auto px-6 py-8">
+            {[...PRIMARY, ...WORKSPACE].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                className={cn(
+                  "font-display text-3xl transition-colors hover:text-accent",
+                  isActive(pathname, item.href) ? "text-accent" : "text-ink",
+                )}
+              >
+                {t(item.labelKey)}
+              </Link>
+            ))}
+          </nav>
+          <div className="border-t border-hairline">
+            <UserMenu />
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
-function SideLink({ item, active }: { item: NavItem; active: boolean }) {
-  const { Icon } = item;
+function SideLink({ item, label, active }: { item: Item; label: string; active: boolean }) {
+  const Icon = item.icon;
   return (
     <Link
       href={item.href}
-      className={`relative flex items-center gap-2.5 rounded-btn px-3 py-2 transition-colors ${
-        active ? "bg-paper text-ink font-medium" : "text-body hover:bg-paper hover:text-ink"
-      }`}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "relative flex items-center gap-2.5 rounded-btn px-3 py-2 transition-colors",
+        active
+          ? "bg-paper font-medium text-ink"
+          : "text-body hover:bg-paper hover:text-ink",
+      )}
     >
-      {active && <span className="absolute left-0 top-1.5 bottom-1.5 w-[2px] rounded-pill bg-accent" />}
+      {active && (
+        <span
+          aria-hidden
+          className="absolute bottom-1.5 left-0 top-1.5 w-0.5 rounded-pill bg-accent"
+        />
+      )}
       <Icon size={16} className={active ? "text-accent" : "text-muted"} />
-      {item.label}
+      {label}
     </Link>
   );
 }

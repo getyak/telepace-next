@@ -1,0 +1,89 @@
+{
+  "audience": {
+    "eyebrow": "受众",
+    "title": "telepace 可以为你联系的人群。",
+    "importCsv": "导入 CSV",
+    "newSegment": "+ 新建分群",
+    "segments": "分群",
+    "delivered": "已送达",
+    "opened": "已打开",
+    "completed": "已完成",
+    "uploads": "上传记录",
+    "peopleCount": "{count} 人 · {source}",
+    "rowsCount": "{count} 行"
+  },
+  "inbox": {
+    "eyebrow": "收件箱",
+    "title": "所有需要人工处理的事项。",
+    "markAllRead": "全部标记为已读",
+    "filter": "筛选"
+  },
+  "insights": {
+    "eyebrow": "洞察",
+    "title": "跨问卷的主题洞察。",
+    "filter": "筛选",
+    "pushToNotion": "推送到 Notion",
+    "dismiss": "忽略",
+    "confidenceLabel": "置信度 {value} · {count} 条支持性引述"
+  },
+  "integrations": {
+    "eyebrow": "集成",
+    "title": "telepace 可以连接的服务。",
+    "addIntegration": "+ 添加集成",
+    "connect": "连接",
+    "configure": "配置"
+  },
+  "settings": {
+    "eyebrow": "设置",
+    "title": "工作区偏好设置。",
+    "sections": {
+      "workspace": "工作区",
+      "members": "成员",
+      "billing": "账单",
+      "apiKeys": "API 密钥",
+      "mcp": "MCP",
+      "danger": "危险操作"
+    },
+    "workspaceName": "工作区名称",
+    "urlSlug": "URL 路径标识",
+    "saveChanges": "保存更改",
+    "manage": "管理",
+    "inviteMember": "+ 邀请成员",
+    "managePlan": "管理套餐",
+    "studiesUsed": "已用问卷数",
+    "completions": "完成数",
+    "voiceMinutes": "语音时长",
+    "rotate": "轮换",
+    "createKey": "+ 创建密钥",
+    "mcpEndpointIntro": "你的工作区 MCP 接入地址：",
+    "mcpAuthHint": "使用上方的 API 密钥进行认证。兼容 Claude Desktop、Claude Code、Cursor 和 Codex。",
+    "deleteWorkspace": "删除工作区",
+    "deleteWorkspaceWarning": "所有问卷、访谈记录和洞察将在 30 天宽限期后被永久删除。"
+  },
+  "responses": {
+    "title": "受访者数据",
+    "searchPlaceholder": "搜索受访者…",
+    "exportCsv": "导出 CSV",
+    "countLabel": "{total} 条中的 {filtered} 条",
+    "allChannels": "所有渠道",
+    "allSources": "所有来源",
+    "colRespondent": "受访者",
+    "colChannel": "渠道",
+    "colDuration": "时长",
+    "colQuality": "质量",
+    "colSegments": "分群",
+    "colSummary": "摘要",
+    "colExclusion": "排除原因",
+    "emptyTitle": "暂无受访数据。",
+    "emptyDescription": "访谈完成后，受访者数据将在此显示。"
+  },
+  "charts": {
+    "analysis": "分析",
+    "baseN": "N = {n}",
+    "smallSampleWarning": "小样本（N = {n}），请谨慎解读。",
+    "multiSelectTip": "百分比可能超过 100%——受访者可多选。",
+    "top2BoxNote": "Top-2-Box：最高两个评价选项的合计。",
+    "noData": "数据不足，暂无图表。",
+    "noDataDescription": "完成三个以上访谈后，图表将自动生成。"
+  }
+}

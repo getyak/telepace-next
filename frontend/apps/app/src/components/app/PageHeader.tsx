@@ -1,19 +1,24 @@
-import * as React from "react";
-
-type PageHeaderProps = {
+/**
+ * App-surface page header (distinct from the marketing PageHeader in
+ * components/marketing/site-chrome.tsx): overline + display title on the
+ * left, primary actions on the right, hairline base.
+ */
+export function PageHeader({
+  eyebrow,
+  title,
+  actions,
+}: {
   eyebrow: string;
   title: React.ReactNode;
-  action?: React.ReactNode;
-};
-
-export function PageHeader({ eyebrow, title, action }: PageHeaderProps) {
+  actions?: React.ReactNode;
+}) {
   return (
-    <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 pb-8 mb-10 border-b border-hairline">
+    <header className="mb-10 flex flex-col gap-4 border-b border-hairline pb-6 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <p className="overline mb-2">{eyebrow}</p>
-        <h1 className="font-display text-4xl">{title}</h1>
+        <h1 className="font-display text-3xl md:text-4xl">{title}</h1>
       </div>
-      {action}
+      {actions && <div className="flex shrink-0 gap-2">{actions}</div>}
     </header>
   );
 }

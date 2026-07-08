@@ -37,7 +37,7 @@ services:
     environment:
       TELEPACE_DATABASE_URL: postgresql://telepace:telepace@postgres:5432/telepace
       TELEPACE_REDIS_URL: redis://redis:6379/0
-      TELEPACE_PUBLIC_BASE_URL: http://localhost:3000
+      TELEPACE_PUBLIC_BASE_URL: http://localhost:3300
       TELEPACE_API_BASE_URL: http://localhost:8010
       TELEPACE_DEFAULT_ORG_ID: 00000000-0000-0000-0000-000000000001
       TELEPACE_DEFAULT_AUTHOR_ID: 00000000-0000-0000-0000-000000000002
@@ -71,7 +71,21 @@ services:
       TELEPACE_OPENROUTER_API_KEY: ${TELEPACE_OPENROUTER_API_KEY:-}
     command: ["python", "-m", "interfaces.rest_api.worker"]
 
-  web:
+  marketing:
+    image: node:20-alpine
+    working_dir: /app
+    depends_on:
+      - api
+    volumes:
+      - ../frontend/apps/marketing:/app
+      - marketing_node_modules:/app/node_modules
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8010
+    ports:
+      - "3300:3300"
+    command: sh -c "npm install --no-fund --no-audit && npm run dev -- -p 3300 -H 0.0.0.0"
+
+  app:
     image: node:20-alpine
     working_dir: /app
     depends_on:

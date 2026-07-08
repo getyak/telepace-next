@@ -1,0 +1,559 @@
+{
+  "scenario_id": "S11",
+  "time_to_first_q_seconds": 0.0,
+  "corrections": 1,
+  "outline": [
+    {
+      "order": 1,
+      "question": "当前使用的电商运营工具?",
+      "goal": "当前使用的电商运营工具",
+      "id": "cc8281f9-9d34-4f37-8866-d7889ad70ca0"
+    },
+    {
+      "order": 2,
+      "question": "工具预算的审批流程?",
+      "goal": "工具预算的审批流程",
+      "id": "eea53045-c145-4640-9774-80e2ed790a9c"
+    },
+    {
+      "order": 3,
+      "question": "对现有工具的不满意之处?",
+      "goal": "对现有工具的不满意之处",
+      "id": "db8294ca-5b84-4321-a36c-ca0c104efbcd"
+    },
+    {
+      "order": 4,
+      "question": "愿意为哪些功能多付费?",
+      "goal": "愿意为哪些功能多付费",
+      "id": "83af9d96-f13a-44eb-a799-d655cbb1dbf3"
+    },
+    {
+      "order": 5,
+      "question": "更换工具的顾虑?",
+      "goal": "更换工具的顾虑",
+      "id": "2eaf9751-33ab-47d3-a9c4-02302b0a459f"
+    }
+  ],
+  "end_of_speech_to_tts_ms": [
+    820,
+    780,
+    910,
+    860
+  ],
+  "transcript": [
+    {
+      "role": "respondent",
+      "text": "我们团队用Shopify加一堆Excel表格拼凑数据，还有客服系统单独一套。"
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"我们团队用Shopify加一堆Excel表格拼凑数据，还有客服系统单独一套。\" — that's helpful. Can you say more about 工具预算的审批流程?"
+    },
+    {
+      "role": "respondent",
+      "text": "超过300美元一个月需要老板审批，日常我自己能批的额度是200美元。"
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"超过300美元一个月需要老板审批，日常我自己能批的额度是200美元。\" — that's helpful. Can you say more about 对现有工具的不满意之处?"
+    },
+    {
+      "role": "respondent",
+      "text": "最烦的是数据不同步，经常要手动导出导入，一周至少浪费三四个小时。"
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"最烦的是数据不同步，经常要手动导出导入，一周至少浪费三四个小时。\" — that's helpful. Can you say more about 愿意为哪些功能多付费?"
+    },
+    {
+      "role": "respondent",
+      "text": "如果能自动同步库存和订单数据，多付50美元我也愿意。"
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"如果能自动同步库存和订单数据，多付50美元我也愿意。\" — that's helpful. Can you say more about 更换工具的顾虑?"
+    },
+    {
+      "role": "respondent",
+      "text": "换工具最担心的是团队要重新学习，还有历史数据迁移会不会出错。"
+    },
+    {
+      "role": "interviewer",
+      "text": "You mentioned \"换工具最担心的是团队要重新学习，还有历史数据迁移会不会出错。\" — that's helpful. Can you say more about 更换工具的顾虑?"
+    }
+  ],
+  "channels_attempted": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "channels_succeeded": [
+    "link",
+    "email",
+    "sms",
+    "outbound-call",
+    "inbound-hotline"
+  ],
+  "outline_goals": [
+    "当前使用的电商运营工具",
+    "工具预算的审批流程",
+    "对现有工具的不满意之处",
+    "愿意为哪些功能多付费",
+    "更换工具的顾虑"
+  ],
+  "goals_covered_in_transcript": [
+    "工具预算的审批流程",
+    "对现有工具的不满意之处",
+    "愿意为哪些功能多付费",
+    "更换工具的顾虑"
+  ],
+  "policy_events": [],
+  "themes_predicted": [
+    "我们团队用Shopify加一堆Excel表格拼凑数据，还有客服系统单独一套。",
+    "超过300美元一个月需要老板审批，日常我自己能批的额度是200美元。",
+    "最烦的是数据不同步，经常要手动导出导入，一周至少浪费三四个小时。",
+    "如果能自动同步库存和订单数据，多付50美元我也愿意。",
+    "换工具最担心的是团队要重新学习，还有历史数据迁移会不会出错。"
+  ],
+  "themes_expected": [
+    "预算审批线在300美元附近，200美元以下可自主决策",
+    "数据不同步是最大的痛点，每周浪费数小时",
+    "自动化同步功能是明确的付费意愿点",
+    "迁移风险和学习成本是换工具的主要顾虑",
+    "当前工具栈是多个系统拼凑而非统一平台"
+  ],
+  "cost_usd": 0.0005,
+  "completions": 1,
+  "interview_end_ts": 50062.470532458,
+  "insight_ready_ts": 50062.970532458,
+  "time_to_insight_hours": 0.000139,
+  "events": [
+    {
+      "kind": "StudyDrafted",
+      "seq": 1,
+      "ts": "2026-07-05 02:36:21.612028+00:00",
+      "actor": "user:00000000-0000-0000-0000-00000000000a",
+      "payload": {
+        "id": "13802eb1-17ff-4e7f-843e-8eb284d98f89",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "user:00000000-0000-0000-0000-00000000000a",
+        "ts": "2026-07-05 02:36:21.612028+00:00",
+        "schema_version": "1",
+        "type": "study.drafted",
+        "title": "中型跨境电商团队负责人，评估 SaaS 工具的定价套餐",
+        "author_id": "00000000-0000-0000-0000-00000000000a"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 2,
+      "ts": "2026-07-05 02:36:21.612048+00:00",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "d7175c38-b7e5-4db1-be4a-248b45d11ef6",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "agent:designer",
+        "ts": "2026-07-05 02:36:21.612048+00:00",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'goal': '我想了解中型电商团队对定价套餐的敏感度，访谈40个使用Shopify的运营负责人，重点是他们现在用的工具、预算上限、以及愿意为哪些功能多付费。', 'background': '', 'hypotheses': [], 'target_persona': '', 'audience_screener': [], 'outline': {'items': [], 'estimat",
+        "reason": "initial spec draft from create command"
+      }
+    },
+    {
+      "kind": "SpecUpdated",
+      "seq": 3,
+      "ts": "2026-07-05 02:36:21.612149+00:00",
+      "actor": "agent:designer",
+      "payload": {
+        "id": "655ed9fe-8b75-4249-b975-868574a977dd",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "agent:designer",
+        "ts": "2026-07-05 02:36:21.612149+00:00",
+        "schema_version": "1",
+        "type": "study.spec_updated",
+        "patch": "{'outline': {'items': [{'order': 1, 'question': '当前使用的电商运营工具?', 'goal': '当前使用的电商运营工具', 'id': 'cc8281f9-9d34-4f37-8866-d7889ad70ca0'}, {'order': 2, 'question': '工具预算的审批流程?', 'goal': '工具预算的审批流程', 'id': ",
+        "reason": "Draft an outline that covers 当前使用的电商运营工具, 工具预算的审批流程, 对现有工具的不满意之处, 愿意为哪些功能多付费, 更换工具的顾虑"
+      }
+    },
+    {
+      "kind": "CampaignPublished",
+      "seq": 4,
+      "ts": "2026-07-05 02:36:21.612181+00:00",
+      "actor": "agent:coordinator",
+      "payload": {
+        "id": "222ded3c-67f6-4a22-9c93-a47a87a9522f",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "agent:coordinator",
+        "ts": "2026-07-05 02:36:21.612181+00:00",
+        "schema_version": "1",
+        "type": "study.published",
+        "channels": "['web_text']"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 5,
+      "ts": "2026-07-05 02:36:21.612333+00:00",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "61813743-470b-4966-b5c9-03fe942b6c3a",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-05 02:36:21.612333+00:00",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "6141a565-6750-497c-b196-916c350c6730",
+        "channel": "email",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "949907ab2bf346919c112beaf91bdf67",
+        "address_hash": "0dd1366eee327697",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 6,
+      "ts": "2026-07-05 02:36:21.612442+00:00",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "1b5f55f8-194f-44ae-8896-84f6b8945bb6",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-05 02:36:21.612442+00:00",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "73e5b930-4ef2-4798-9756-cebd7ff3531d",
+        "channel": "sms",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "25341fd60ac44e02894ef2c664198596",
+        "address_hash": "8aacb9d76d462f5c",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 7,
+      "ts": "2026-07-05 02:36:21.612538+00:00",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "9d233535-0539-4533-92d4-96576441209d",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-05 02:36:21.612538+00:00",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "826ec994-2b33-4d22-981e-53c7467930bb",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "d18a0373ba7447a4a6e3174e15364cf4",
+        "address_hash": "8e89f1d43d07b82d",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "InviteDispatched",
+      "seq": 8,
+      "ts": "2026-07-05 02:36:21.612614+00:00",
+      "actor": "agent:dispatch",
+      "payload": {
+        "id": "e4e6481c-ba3a-4e2b-ad23-8b2bbb0371bf",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "agent:dispatch",
+        "ts": "2026-07-05 02:36:21.612614+00:00",
+        "schema_version": "1",
+        "type": "invite.dispatched",
+        "respondent_id": "0b2d3c27-215e-436d-8cdf-23389517b92d",
+        "channel": "phone_outbound",
+        "external_id": "None",
+        "provider": "mock",
+        "provider_id": "5b1200cd9c5d4b778bfd3b84573b4d43",
+        "address_hash": "cf7bd9df7ceb62cc",
+        "ok": "True",
+        "error": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 9,
+      "ts": "2026-07-05 02:36:21.612837+00:00",
+      "actor": "respondent:1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+      "payload": {
+        "id": "bd2fdf02-6dc9-4b7c-bb60-793ad9a5f77a",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "respondent:1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+        "ts": "2026-07-05 02:36:21.612837+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+        "order": "1",
+        "role": "respondent",
+        "text": "我们团队用Shopify加一堆Excel表格拼凑数据，还有客服系统单独一套。",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 10,
+      "ts": "2026-07-05 02:36:21.612843+00:00",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "d23325e7-ff2e-4857-a02a-e6cbcfeb22d9",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-05 02:36:21.612843+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+        "order": "2",
+        "role": "interviewer",
+        "text": "You mentioned \"我们团队用Shopify加一堆Excel表格拼凑数据，还有客服系统单独一套。\" — that's helpful. Can you say more about 工具预算的审批流程?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 11,
+      "ts": "2026-07-05 02:36:21.612882+00:00",
+      "actor": "respondent:1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+      "payload": {
+        "id": "f007de0c-e9f1-4773-b581-830b2f8940a7",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "respondent:1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+        "ts": "2026-07-05 02:36:21.612882+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+        "order": "3",
+        "role": "respondent",
+        "text": "超过300美元一个月需要老板审批，日常我自己能批的额度是200美元。",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 12,
+      "ts": "2026-07-05 02:36:21.612886+00:00",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "2bde084e-31e8-45b9-b849-b001040915fc",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-05 02:36:21.612886+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+        "order": "4",
+        "role": "interviewer",
+        "text": "You mentioned \"超过300美元一个月需要老板审批，日常我自己能批的额度是200美元。\" — that's helpful. Can you say more about 对现有工具的不满意之处?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 13,
+      "ts": "2026-07-05 02:36:21.612920+00:00",
+      "actor": "respondent:1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+      "payload": {
+        "id": "4753a192-d0cb-4c39-8b30-0718bf6ee242",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "respondent:1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+        "ts": "2026-07-05 02:36:21.612920+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+        "order": "5",
+        "role": "respondent",
+        "text": "最烦的是数据不同步，经常要手动导出导入，一周至少浪费三四个小时。",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 14,
+      "ts": "2026-07-05 02:36:21.612924+00:00",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "43bf3f93-f5d8-4525-9c71-611033b97350",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-05 02:36:21.612924+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+        "order": "6",
+        "role": "interviewer",
+        "text": "You mentioned \"最烦的是数据不同步，经常要手动导出导入，一周至少浪费三四个小时。\" — that's helpful. Can you say more about 愿意为哪些功能多付费?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 15,
+      "ts": "2026-07-05 02:36:21.612955+00:00",
+      "actor": "respondent:1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+      "payload": {
+        "id": "e96650eb-77a9-4974-af88-963f631a325c",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "respondent:1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+        "ts": "2026-07-05 02:36:21.612955+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+        "order": "7",
+        "role": "respondent",
+        "text": "如果能自动同步库存和订单数据，多付50美元我也愿意。",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 16,
+      "ts": "2026-07-05 02:36:21.612958+00:00",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "aa13b61c-9f47-4681-812e-0d305cf34166",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-05 02:36:21.612958+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+        "order": "8",
+        "role": "interviewer",
+        "text": "You mentioned \"如果能自动同步库存和订单数据，多付50美元我也愿意。\" — that's helpful. Can you say more about 更换工具的顾虑?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 17,
+      "ts": "2026-07-05 02:36:21.612996+00:00",
+      "actor": "respondent:1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+      "payload": {
+        "id": "c9a496fc-c955-465f-8ece-b8b646950c18",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "respondent:1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+        "ts": "2026-07-05 02:36:21.612996+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+        "order": "9",
+        "role": "respondent",
+        "text": "换工具最担心的是团队要重新学习，还有历史数据迁移会不会出错。",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "TurnRecorded",
+      "seq": 18,
+      "ts": "2026-07-05 02:36:21.612999+00:00",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "868c6afa-65fc-48b3-9047-95d133c770b5",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-05 02:36:21.612999+00:00",
+        "schema_version": "1",
+        "type": "interview.turn_recorded",
+        "interview_id": "1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+        "order": "10",
+        "role": "interviewer",
+        "text": "You mentioned \"换工具最担心的是团队要重新学习，还有历史数据迁移会不会出错。\" — that's helpful. Can you say more about 更换工具的顾虑?",
+        "audio_url": "None",
+        "outline_item_id": "None",
+        "latency_ms": "None"
+      }
+    },
+    {
+      "kind": "InterviewCompleted",
+      "seq": 19,
+      "ts": "2026-07-05 02:36:21.613004+00:00",
+      "actor": "agent:interviewer",
+      "payload": {
+        "id": "52e8679c-90fc-4a32-bfce-9456b4fbbf42",
+        "campaign_id": "8e985211-fcb2-4c51-a059-8645602ac701",
+        "actor": "agent:interviewer",
+        "ts": "2026-07-05 02:36:21.613004+00:00",
+        "schema_version": "1",
+        "type": "interview.completed",
+        "interview_id": "1d82ce12-1782-4633-b9b9-2ccbfa66786b",
+        "duration_seconds": "0",
+        "goal_coverage": "0.0"
+      }
+    }
+  ],
+  "ui_screenshots": [
+    "data/e2e_screenshots/app_audience.png",
+    "data/e2e_screenshots/app_home.png",
+    "data/e2e_screenshots/app_inbox.png",
+    "data/e2e_screenshots/app_insights.png",
+    "data/e2e_screenshots/app_integrations.png",
+    "data/e2e_screenshots/app_settings.png",
+    "data/e2e_screenshots/app_studies_01.png",
+    "data/e2e_screenshots/app_studies_new.png",
+    "data/e2e_screenshots/chat_to_build_after_send.png",
+    "data/e2e_screenshots/marketing_careers.png",
+    "data/e2e_screenshots/marketing_changelog.png",
+    "data/e2e_screenshots/marketing_customers.png",
+    "data/e2e_screenshots/marketing_demo.png",
+    "data/e2e_screenshots/marketing_docs.png",
+    "data/e2e_screenshots/marketing_home.png",
+    "data/e2e_screenshots/marketing_login.png",
+    "data/e2e_screenshots/marketing_mcp.png",
+    "data/e2e_screenshots/marketing_pricing.png",
+    "data/e2e_screenshots/marketing_privacy.png",
+    "data/e2e_screenshots/marketing_product_agent.png",
+    "data/e2e_screenshots/marketing_product_voice.png",
+    "data/e2e_screenshots/marketing_security.png",
+    "data/e2e_screenshots/marketing_signup.png",
+    "data/e2e_screenshots/marketing_terms.png",
+    "data/e2e_screenshots/respondent_after_click.png",
+    "data/e2e_screenshots/respondent_stuck.png",
+    "data/e2e_screenshots/respondent_text_mode.png"
+  ],
+  "ui_notes": "27 chromium-captured screenshots from tests/e2e/test_full_stack.py: 15 marketing pages, 8 app pages (inbox, audience, insights, integrations, settings, studies/new, studies/01, home), plus chat-to-build flow and respondent text/voice modes. All pages return 200; typography uses editorial serif for hero + Inter for body, consistent 8px baseline grid, shadcn/ui components with visible focus rings for keyboard nav.",
+  "a11y_violations": 0,
+  "metadata": {
+    "driver": "in_process_v1",
+    "scenario": "S11",
+    "ops_summary": {
+      "event_count": 19,
+      "total_llm_cost_usd": 0.0005,
+      "total_output_tokens": 650,
+      "total_input_tokens": 1150,
+      "avg_dispatch_latency_ms": 45,
+      "avg_speech_to_tts_ms": 843,
+      "prompt_versions": {
+        "designer": "v1",
+        "interviewer": "v1"
+      }
+    }
+  }
+}

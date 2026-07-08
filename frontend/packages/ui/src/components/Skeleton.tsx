@@ -1,17 +1,18 @@
 import * as React from "react";
 import { cn } from "../cn";
 
+type SkeletonProps = React.HTMLAttributes<HTMLDivElement>;
+
 /**
- * Opacity-breathing placeholder, not a shimmer sweep — shimmer reads as
- * generic SaaS chrome and clashes with the editorial aesthetic.
+ * Loading placeholder. A slow opacity "breath" — no shimmer sweep, which
+ * would clash with the editorial aesthetic (see docs/design-system.md).
  */
-export const Skeleton = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, style, ...props }, ref) => (
+export const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
+  ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn("rounded-btn bg-paper-sunken animate-skeleton", className)}
-      style={style}
-      aria-hidden="true"
+      aria-hidden
+      className={cn("tp-breathe rounded-btn bg-paper-sunken", className)}
       {...props}
     />
   ),

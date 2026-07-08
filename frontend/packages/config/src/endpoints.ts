@@ -20,8 +20,10 @@ export const apiEndpoints = {
     refine: (id: string) => `/v1/campaigns/${id}/refine`,
     refineStream: (id: string) => `/v1/campaigns/${id}/refine/stream`,
     start: (id: string) => `/v1/campaigns/${id}/start`,
+    close: (id: string) => `/v1/campaigns/${id}/close`,
     dispatch: (id: string) => `/v1/campaigns/${id}/dispatch`,
     simulate: (id: string) => `/v1/campaigns/${id}/simulate`,
+    insights: (id: string) => `/v1/campaigns/${id}/insights`,
   },
   interviews: {
     join: "/v1/interviews/join",

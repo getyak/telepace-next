@@ -1,24 +1,40 @@
 /**
  * Shared HTTP client for the app.
  *
- * Wraps `fetch` with:
- *   - env-driven base URL (no scattered `localhost:xxxx` fallbacks)
- *   - automatic Bearer token attachment (reads from tokenStore)
- *   - 401 → single-flight token refresh → single retry
+ * All requests go same-origin to the Next.js BFF:
+ *   - backend `/auth/*`  →  `/api/auth/*`   (cookie-setting handlers)
+ *   - everything else    →  `/api/proxy/*`  (Bearer attached server-side)
+ *
+ * The session lives in httpOnly cookies, so this layer holds no tokens.
+ * It still provides:
+ *   - 401 → single-flight cookie refresh → single retry
  *   - classified errors (ApiError with `kind`) — see lib/errors.ts
- *   - a lightweight event bus so a global Toaster can react to every
+ *   - a lightweight event bus so a global toast bridge can react to every
  *     failed request without every call site having to opt in
  */
 
-import { env } from "@telepace/config";
+import { apiEndpoints } from "@telepace/config";
 
 import { ApiError, kindFromStatus } from "./errors";
-import { tokenStore } from "./auth/store";
 
 export { ApiError } from "./errors";
 export type { ErrorKind } from "./errors";
 
 type RequestInit_ = RequestInit & { json?: unknown };
+
+// ---------- BFF path mapping ------------------------------------------------
+
+/** Endpoints that must never trigger a refresh-retry (they'd loop). */
+const NO_REFRESH_PATHS = new Set<string>([
+  apiEndpoints.auth.login,
+  apiEndpoints.auth.register,
+  apiEndpoints.auth.refresh,
+  apiEndpoints.auth.logout,
+]);
+
+function toBffPath(path: string): string {
+  return path.startsWith("/auth/") ? `/api${path}` : `/api/proxy${path}`;
+}
 
 // ---------- Event bus (module-local; no framework dep) ---------------------
 
@@ -53,10 +69,14 @@ let refreshInFlight: Promise<boolean> | null = null;
 async function refreshOnce(): Promise<boolean> {
   if (refreshInFlight) return refreshInFlight;
   refreshInFlight = (async () => {
-    // Lazy import to avoid a cycle (auth/client.ts imports http.ts).
-    const { refreshTokens } = await import("./auth/client");
-    const res = await refreshTokens();
-    return res != null;
+    try {
+      const res = await fetch(toBffPath(apiEndpoints.auth.refresh), {
+        method: "POST",
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
   })().finally(() => {
     // Release the lock on next tick so pending 401s don't reuse a stale result.
     setTimeout(() => {
@@ -73,10 +93,6 @@ function buildHeaders(init: RequestInit_): Headers {
   if (init.json !== undefined) {
     headers.set("content-type", "application/json");
   }
-  const token = tokenStore.getAccessToken();
-  if (token && !headers.has("authorization")) {
-    headers.set("authorization", `Bearer ${token}`);
-  }
   return headers;
 }
 
@@ -88,7 +104,7 @@ async function doFetch(path: string, init: RequestInit_): Promise<Response> {
   const { json, headers: _h, ...rest } = init;
   const headers = buildHeaders(init);
   try {
-    return await fetch(`${env.apiBaseUrl}${path}`, {
+    return await fetch(toBffPath(path), {
       ...rest,
       headers,
       body: json !== undefined ? JSON.stringify(json) : rest.body,
@@ -134,18 +150,16 @@ async function requestWithAuthRetry(
   let res = await doFetch(path, init);
   if (res.status !== 401) return res;
 
-  // Never try to refresh the auth endpoints themselves — that would loop.
-  if (path.startsWith("/auth/")) return res;
+  // Never try to refresh the credential endpoints themselves — that would loop.
+  if (NO_REFRESH_PATHS.has(path)) return res;
 
   const ok = await refreshOnce();
   if (!ok) {
-    tokenStore.clear();
     emit({ type: "auth:expired" });
     return res;
   }
   res = await doFetch(path, init);
   if (res.status === 401) {
-    tokenStore.clear();
     emit({ type: "auth:expired" });
   }
   return res;

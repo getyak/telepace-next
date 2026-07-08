@@ -1,41 +1,89 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
+import { Button } from "@telepace/ui";
 import { routes, siteConfig } from "@telepace/config";
 
-export { Nav } from "./nav";
+import { MobileNav, type NavLink } from "./MobileNav";
 
-export function Footer() {
+const NAV_ITEMS: { href: string; labelKey: "voice" | "agent" | "pricing" | "docs" | "mcp" }[] = [
+  { href: routes.product.voice, labelKey: "voice" },
+  { href: routes.product.agent, labelKey: "agent" },
+  { href: routes.pricing, labelKey: "pricing" },
+  { href: routes.docs, labelKey: "docs" },
+  { href: routes.mcp, labelKey: "mcp" },
+];
+
+export async function Nav() {
+  const t = await getTranslations("nav.marketing");
+  const navLinks: NavLink[] = NAV_ITEMS.map((item) => ({ href: item.href, label: t(item.labelKey) }));
+  return (
+    <header className="border-b border-hairline sticky top-0 z-40 bg-paper/85 backdrop-blur">
+      <div className="container-content flex items-center justify-between h-16">
+        <Link href={routes.home} className="font-display text-xl">
+          {siteConfig.brand.name}
+        </Link>
+        <nav className="hidden md:flex items-center gap-8 text-sm text-body">
+          {navLinks.map((l) => (
+            <Link key={l.href} href={l.href} className="hover:text-ink transition-colors">
+              {l.label}
+            </Link>
+          ))}
+        </nav>
+        <div className="hidden md:flex items-center gap-3">
+          <Link href={routes.login} className="text-sm text-body hover:text-ink transition-colors">
+            {t("signIn")}
+          </Link>
+          <Link href={routes.signup}>
+            <Button size="sm">{t("startFree")}</Button>
+          </Link>
+        </div>
+        <MobileNav
+          links={navLinks}
+          signInLabel={t("signIn")}
+          startFreeLabel={t("startFree")}
+          openMenuLabel={t("openMenu")}
+          closeMenuLabel={t("closeMenu")}
+        />
+      </div>
+    </header>
+  );
+}
+
+export async function Footer() {
+  const t = await getTranslations("nav.marketing");
+  const tf = await getTranslations("nav.marketing.footer");
   return (
     <footer className="border-t border-hairline bg-paper py-16">
       <div className="container-content grid gap-10 md:grid-cols-4 text-sm text-muted">
         <div>
           <p className="font-display text-lg text-ink">{siteConfig.brand.name}</p>
-          <p className="mt-2 max-w-xs">Voice-native user research for the agent era.</p>
+          <p className="mt-2 max-w-xs">{t("tagline")}</p>
         </div>
         <div className="flex flex-col gap-2">
-          <span className="overline">Product</span>
-          <Link href={routes.product.voice} className="hover:text-ink transition-colors">Voice</Link>
-          <Link href={routes.product.agent} className="hover:text-ink transition-colors">Agent</Link>
-          <Link href={routes.mcp} className="hover:text-ink transition-colors">MCP</Link>
-          <Link href={routes.pricing} className="hover:text-ink transition-colors">Pricing</Link>
-          <Link href={routes.demo} className="hover:text-ink transition-colors">Live demo</Link>
+          <span className="overline">{tf("product")}</span>
+          <Link href={routes.product.voice} className="hover:text-ink transition-colors">{t("voice")}</Link>
+          <Link href={routes.product.agent} className="hover:text-ink transition-colors">{t("agent")}</Link>
+          <Link href={routes.mcp} className="hover:text-ink transition-colors">{t("mcp")}</Link>
+          <Link href={routes.pricing} className="hover:text-ink transition-colors">{t("pricing")}</Link>
+          <Link href={routes.demo} className="hover:text-ink transition-colors">{tf("liveDemo")}</Link>
         </div>
         <div className="flex flex-col gap-2">
-          <span className="overline">Company</span>
-          <Link href={routes.customers} className="hover:text-ink transition-colors">Customers</Link>
-          <Link href={routes.changelog} className="hover:text-ink transition-colors">Changelog</Link>
-          <Link href={routes.careers} className="hover:text-ink transition-colors">Careers</Link>
-          <Link href={routes.docs} className="hover:text-ink transition-colors">Docs</Link>
+          <span className="overline">{tf("company")}</span>
+          <Link href={routes.customers} className="hover:text-ink transition-colors">{tf("customers")}</Link>
+          <Link href={routes.changelog} className="hover:text-ink transition-colors">{tf("changelog")}</Link>
+          <Link href={routes.careers} className="hover:text-ink transition-colors">{tf("careers")}</Link>
+          <Link href={routes.docs} className="hover:text-ink transition-colors">{t("docs")}</Link>
         </div>
         <div className="flex flex-col gap-2">
-          <span className="overline">Legal</span>
-          <Link href={routes.security} className="hover:text-ink transition-colors">Security</Link>
-          <Link href={routes.privacy} className="hover:text-ink transition-colors">Privacy</Link>
-          <Link href={routes.terms} className="hover:text-ink transition-colors">Terms</Link>
+          <span className="overline">{tf("legal")}</span>
+          <Link href={routes.security} className="hover:text-ink transition-colors">{tf("security")}</Link>
+          <Link href={routes.privacy} className="hover:text-ink transition-colors">{tf("privacy")}</Link>
+          <Link href={routes.terms} className="hover:text-ink transition-colors">{tf("terms")}</Link>
         </div>
       </div>
       <div className="container-content mt-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs text-muted">
-        <p>© {new Date().getFullYear()} Telepace, Inc. All rights reserved.</p>
-        <p>Made in the open.</p>
+        <p>{tf("copyright", { year: new Date().getFullYear() })}</p>
+        <p>{tf("madeInTheOpen")}</p>
       </div>
     </footer>
   );

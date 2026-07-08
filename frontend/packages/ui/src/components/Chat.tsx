@@ -9,11 +9,31 @@ export type ChatMessage = {
   role: ChatRole;
   text: string;
   timestamp?: string;
+  /** True while the agent is still composing this message (renders typing dots until text arrives). */
+  pending?: boolean;
 };
 
-export function ChatBubble({ message }: { message: ChatMessage }) {
+export function TypingDots({ label = "Thinking" }: { label?: string }) {
+  return (
+    <span className="inline-flex items-center gap-1" role="status" aria-label={label}>
+      <span className="tp-typing-dot h-1.5 w-1.5 rounded-full bg-muted" />
+      <span className="tp-typing-dot h-1.5 w-1.5 rounded-full bg-muted" />
+      <span className="tp-typing-dot h-1.5 w-1.5 rounded-full bg-muted" />
+    </span>
+  );
+}
+
+export function ChatBubble({
+  message,
+  typingLabel,
+}: {
+  message: ChatMessage;
+  /** Screen-reader label for the typing-indicator bubble. */
+  typingLabel?: string;
+}) {
   const isRespondent = message.role === "respondent";
   const isSystem = message.role === "system";
+  const showTyping = message.pending && !message.text;
   return (
     <div
       className={cn(
@@ -32,21 +52,31 @@ export function ChatBubble({ message }: { message: ChatMessage }) {
               : "bg-paper-elevated border border-hairline text-ink",
         )}
       >
-        {message.text}
+        {showTyping ? <TypingDots label={typingLabel} /> : message.text}
       </div>
     </div>
   );
 }
 
-export function ChatFeed({ messages }: { messages: ChatMessage[] }) {
+export function ChatFeed({
+  messages,
+  typingLabel,
+}: {
+  messages: ChatMessage[];
+  /** Screen-reader label for the typing-indicator bubble. Localized call
+   * sites should pass a translated string via useTranslations(). */
+  typingLabel?: string;
+}) {
   const endRef = React.useRef<HTMLDivElement>(null);
+  const lastText = messages[messages.length - 1]?.text ?? "";
   React.useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages.length]);
+    // Track streaming text growth too, not just new messages.
+  }, [messages.length, lastText]);
   return (
     <div className="flex flex-col gap-3 py-4">
       {messages.map((m) => (
-        <ChatBubble key={m.id} message={m} />
+        <ChatBubble key={m.id} message={m} typingLabel={typingLabel} />
       ))}
       <div ref={endRef} />
     </div>
@@ -56,10 +86,14 @@ export function ChatFeed({ messages }: { messages: ChatMessage[] }) {
 export function ChatComposer({
   onSend,
   placeholder = "Type your reply…",
+  sendLabel = "Send",
   disabled,
 }: {
   onSend: (text: string) => void;
   placeholder?: string;
+  /** Submit button text. Localized call sites should pass a translated
+   * string via useTranslations(). */
+  sendLabel?: string;
   disabled?: boolean;
 }) {
   const [value, setValue] = React.useState("");
@@ -93,7 +127,7 @@ export function ChatComposer({
         disabled={disabled || !value.trim()}
         className="h-10 px-4 rounded-btn bg-ink text-paper disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        Send
+        {sendLabel}
       </button>
     </form>
   );

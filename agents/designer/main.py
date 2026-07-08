@@ -27,6 +27,35 @@ _SPEC_PATCH_CLOSE = "</spec_patch>"
 _JSON_BLOCK = re.compile(r"```json\s*(.*?)\s*```", re.DOTALL)
 
 
+def _sanitize_patch(patch: dict[str, Any]) -> dict[str, Any]:
+    """Sanitize an LLM-produced spec patch before it is persisted.
+
+    The model routinely invents outline item ids that merely *look* like
+    UUIDs (e.g. "1a2b3c4d-5e6f-7g8h-…"); persisting them corrupts the
+    projection because CampaignSpec requires real UUIDs. Replace anything
+    unparsable with a fresh uuid4 and drop malformed items.
+    """
+    from uuid import UUID
+
+    outline = patch.get("outline")
+    if not isinstance(outline, dict):
+        return patch
+    items = outline.get("items")
+    if not isinstance(items, list):
+        return patch
+    clean_items: list[dict[str, Any]] = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        raw_id = item.get("id")
+        try:
+            UUID(str(raw_id))
+        except (ValueError, TypeError):
+            item = {**item, "id": str(uuid4())}
+        clean_items.append(item)
+    return {**patch, "outline": {**outline, "items": clean_items}}
+
+
 def _extract_json(text: str) -> dict[str, Any] | None:
     """Best-effort JSON extraction: try ```json ... ``` fence first, then raw."""
     if not text:
@@ -40,11 +69,16 @@ def _extract_json(text: str) -> dict[str, Any] | None:
     return val if isinstance(val, dict) else None
 
 
-def _apply_seed_to_spec(base: CampaignSpec, seed: dict[str, Any]) -> CampaignSpec:
+def _apply_seed_to_spec(
+    base: CampaignSpec, seed: dict[str, Any], *, forced_language: str | None = None
+) -> CampaignSpec:
     """Merge LLM-generated seed fields into the baseline spec.
 
     Only trusts keys/values that pass shape checks. Anything malformed is
     dropped silently so a partial seed still contributes what it can.
+
+    `forced_language`, when set, overrides whatever the LLM inferred for
+    `primary_language` — an explicit caller-supplied language always wins.
     """
     patch: dict[str, Any] = {}
     hyps = seed.get("hypotheses")
@@ -82,10 +116,19 @@ def _apply_seed_to_spec(base: CampaignSpec, seed: dict[str, Any]) -> CampaignSpe
                 continue
 
     languages = seed.get("languages")
+    inferred_primary: str | None = None
     if isinstance(languages, list):
         langs = [str(x).strip() for x in languages if isinstance(x, str) and x.strip()]
         if langs:
             patch["languages"] = langs
+            inferred_primary = langs[0]
+    if forced_language is not None:
+        # Explicit caller intent always wins over whatever the LLM inferred.
+        patch["primary_language"] = forced_language
+    elif inferred_primary is not None:
+        # One-time bootstrap: establish primary_language from the LLM's own
+        # language detection so subsequent refines have something to read back.
+        patch["primary_language"] = inferred_primary
     recs = seed.get("recommendations")
     if isinstance(recs, list):
         clean_recs = [str(r).strip() for r in recs if isinstance(r, str) and r.strip()]
@@ -116,6 +159,21 @@ def _apply_seed_to_spec(base: CampaignSpec, seed: dict[str, Any]) -> CampaignSpe
             update={k: v for k, v in outline_kwargs.items() if k != "items"}
         )
     return base.model_copy(update=patch)
+
+def _refine_language_constraint(current_spec: dict[str, Any]) -> str:
+    """Build the hard language-constraint line injected into refine prompts.
+
+    Reads the already-decided `primary_language` back from the persisted
+    spec so refine stops re-inferring language from free text on every turn.
+    Carries an explicit escape hatch for instructions that intentionally ask
+    to add/switch language.
+    """
+    lang = current_spec.get("primary_language", "en") if isinstance(current_spec, dict) else "en"
+    return (
+        f"LANGUAGE (already decided, do not change unless the instruction "
+        f"explicitly asks to add/switch language): {lang}\n\n"
+    )
+
 
 logger = logging.getLogger(__name__)
 
@@ -248,6 +306,18 @@ class DesignerAgent:
         return `base` unchanged so create still succeeds — mirrors the historic
         deterministic behavior for test-time MockLLM('ok').
         """
+        if cmd.primary_language is not None:
+            # Apply immediately so an explicit language survives even if the
+            # LLM call fails or returns no parseable seed below.
+            base = base.model_copy(update={"primary_language": cmd.primary_language})
+        language_directive = ""
+        if cmd.primary_language is not None:
+            language_directive = (
+                f"\n\nLANGUAGE IS ALREADY DECIDED: {cmd.primary_language}. Do not "
+                "infer or override it — write the ENTIRE seed (hypotheses, "
+                "persona, screener, outline, recommendations) in this language "
+                f"and set languages=['{cmd.primary_language}']."
+            )
         user_msg = (
             f"Title: {cmd.title}\n"
             f"Goal: {cmd.goal}\n"
@@ -255,6 +325,7 @@ class DesignerAgent:
             f"Target completions: {cmd.target_completions}\n"
             f"Channels: {[ch.value for ch in cmd.channels]}\n\n"
             f"{_SEED_INSTRUCTION}"
+            f"{language_directive}"
         )
         try:
             resp = await self._llm.complete(
@@ -271,7 +342,7 @@ class DesignerAgent:
             logger.info("designer seed: no valid JSON in llm response; using empty spec")
             return base
         try:
-            return _apply_seed_to_spec(base, seed)
+            return _apply_seed_to_spec(base, seed, forced_language=cmd.primary_language)
         except Exception as exc:  # pydantic validation etc.
             logger.warning("designer seed apply failed: %s", exc)
             return base
@@ -281,6 +352,7 @@ class DesignerAgent:
         current_spec = context.get("spec", {})
         user_msg = (
             f"Current spec JSON:\n```json\n{json.dumps(current_spec, ensure_ascii=False, indent=2)}\n```\n\n"
+            f"{_refine_language_constraint(current_spec)}"
             f"Instruction: {cmd.instruction}\n\n"
             "Reply with a short natural summary AND a <spec_patch>{...}</spec_patch> JSON block "
             "containing ONLY the fields that changed."
@@ -295,7 +367,7 @@ class DesignerAgent:
         m = _SPEC_PATCH.search(resp.text)
         if m:
             try:
-                patch = json.loads(m.group(1))
+                patch = _sanitize_patch(json.loads(m.group(1)))
             except json.JSONDecodeError:
                 patch = {}
         events: list[EventBase] = [
@@ -306,9 +378,14 @@ class DesignerAgent:
                 reason=cmd.instruction[:SPEC_UPDATE_REASON_MAX],
             )
         ]
+        # Keep the in-memory spec in sync with the projection: the patch is a
+        # shallow top-level merge, mirroring the projector's `spec || patch`.
+        # Without this the Interviewer keeps moderating with the pre-refine
+        # outline while the researcher sees the refined one.
+        merged_spec = {**current_spec, **patch} if patch else current_spec
         return AgentResult(
             events=events,
-            state_delta={"last_designer_reply": resp.text},
+            state_delta={"last_designer_reply": resp.text, "spec": merged_spec},
             response={"summary": resp.text, "patch": patch},
         )
 
@@ -330,6 +407,7 @@ class DesignerAgent:
         """
         user_msg = (
             f"Current spec JSON:\n```json\n{json.dumps(current_spec, ensure_ascii=False, indent=2)}\n```\n\n"
+            f"{_refine_language_constraint(current_spec)}"
             f"Instruction: {instruction}\n\n"
             "Reply with a short natural summary AND a <spec_patch>{...}</spec_patch> JSON block "
             "containing ONLY the fields that changed."
@@ -354,7 +432,7 @@ class DesignerAgent:
                 if open_idx != -1 and close_idx != -1 and close_idx > open_idx:
                     raw = buf[open_idx + len(_SPEC_PATCH_OPEN) : close_idx].strip()
                     try:
-                        patch = json.loads(raw)
+                        patch = _sanitize_patch(json.loads(raw))
                         yield {"type": "spec_patch", "patch": patch}
                     except json.JSONDecodeError:
                         yield {"type": "spec_patch", "patch": {}, "raw": raw}

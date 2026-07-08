@@ -16,13 +16,14 @@ telepace is a **voice-native, agent-first user research infrastructure** built a
 ## Layered diagram
 
 ```
-┌────────── Ingress ────────┐
-│   Next.js (single app)    │
-│ marketing · auth · app ·  │
-│      respondent (3000)    │
-└─────────────┬─────────────┘
-              │
-              ▼
+┌───────── Ingress ─────────┐
+│  Next.js app (3300)       │
+│  (marketing)/(app)/(auth) │
+│  /(public) route groups   │
+│  + /api BFF (auth cookies)│
+└─────────┬─────────────────┘
+          │
+          ▼
 ┌───────────────────────────┐
 │  Edge: FastAPI + WS       │
 │  (interfaces/rest_api)    │

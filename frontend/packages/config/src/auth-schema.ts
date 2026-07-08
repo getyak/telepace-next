@@ -5,6 +5,10 @@
  * we mirror that value here so the UI can give immediate feedback instead
  * of round-tripping. Both sides must agree — if you change the server
  * default, update `PASSWORD_MIN_LENGTH` too.
+ *
+ * Returns stable error codes rather than message strings so this package
+ * stays free of any i18n library dependency — the app layer maps
+ * `{field, code}` to a translated string via `useTranslations`.
  */
 
 export const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
@@ -13,30 +17,26 @@ export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 256;
 export const DISPLAY_NAME_MAX_LENGTH = 256;
 
-export type ValidationError = { field: string; message: string };
+export type ValidationErrorCode = "required" | "invalid_email" | "too_short" | "too_long";
+
+export type ValidationError = { field: string; code: ValidationErrorCode };
 
 export function validateEmail(value: string): ValidationError | null {
   const trimmed = value.trim();
-  if (!trimmed) return { field: "email", message: "Email is required" };
+  if (!trimmed) return { field: "email", code: "required" };
   if (!EMAIL_PATTERN.test(trimmed)) {
-    return { field: "email", message: "Enter a valid email address" };
+    return { field: "email", code: "invalid_email" };
   }
   return null;
 }
 
 export function validatePassword(value: string): ValidationError | null {
-  if (!value) return { field: "password", message: "Password is required" };
+  if (!value) return { field: "password", code: "required" };
   if (value.length < PASSWORD_MIN_LENGTH) {
-    return {
-      field: "password",
-      message: `Password must be at least ${PASSWORD_MIN_LENGTH} characters`,
-    };
+    return { field: "password", code: "too_short" };
   }
   if (value.length > PASSWORD_MAX_LENGTH) {
-    return {
-      field: "password",
-      message: `Password must be at most ${PASSWORD_MAX_LENGTH} characters`,
-    };
+    return { field: "password", code: "too_long" };
   }
   return null;
 }
@@ -46,10 +46,7 @@ export function validateDisplayName(
 ): ValidationError | null {
   if (!value) return null;
   if (value.length > DISPLAY_NAME_MAX_LENGTH) {
-    return {
-      field: "display_name",
-      message: `Name must be at most ${DISPLAY_NAME_MAX_LENGTH} characters`,
-    };
+    return { field: "display_name", code: "too_long" };
   }
   return null;
 }

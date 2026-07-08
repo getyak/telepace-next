@@ -29,6 +29,10 @@ class CreateCampaign(CommandBase):
     target_completions: int = _consts.DEFAULT_TARGET_COMPLETIONS
     budget_usd: float = _consts.DEFAULT_BUDGET_USD
     channels: list[ChannelKind] = Field(default_factory=lambda: [ChannelKind.WEB_TEXT])
+    # Explicit language override from the caller. None means "infer from
+    # goal/background text" — the Designer agent's existing behavior.
+    # When set, it takes priority over LLM inference.
+    primary_language: str | None = None
 
 
 class RefineOutline(CommandBase):

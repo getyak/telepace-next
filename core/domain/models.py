@@ -6,9 +6,23 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from core import constants as _consts
+
+_LANGUAGE_ALIASES = {
+    "chinese": "zh",
+    "mandarin": "zh",
+    "english": "en",
+}
+
+
+def _normalize_language(value: str) -> str:
+    """Best-effort BCP-47 normalization. Never raises — falls back to "en"."""
+    candidate = value.strip().lower()
+    if not candidate:
+        return "en"
+    return _LANGUAGE_ALIASES.get(candidate, value.strip())
 
 
 class _Base(BaseModel):
@@ -106,6 +120,18 @@ class CampaignSpec(_Base):
     target_completions: int = _consts.DEFAULT_TARGET_COMPLETIONS
     budget_usd: float = _consts.DEFAULT_BUDGET_USD
     languages: list[str] = Field(default_factory=lambda: ["en"])
+    # The single language every agent-generated artifact (outline, interviewer
+    # turns, analyst report, coordinator copy) must use. Distinct from
+    # `languages`, which is the list of languages respondents may answer in
+    # (used only by the /simulate endpoint today).
+    primary_language: str = "en"
+
+    @field_validator("primary_language", mode="before")
+    @classmethod
+    def _validate_primary_language(cls, value: object) -> str:
+        if not isinstance(value, str):
+            return "en"
+        return _normalize_language(value)
 
 
 class Campaign(_Base):

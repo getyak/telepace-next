@@ -5,6 +5,7 @@ export {
   ChatBubble,
   ChatComposer,
   ChatFeed,
+  TypingDots,
   VoiceOrb,
   type ChatMessage,
   type ChatRole,
@@ -14,7 +15,13 @@ export { Badge } from "./components/Badge";
 export { Skeleton } from "./components/Skeleton";
 export { EmptyState } from "./components/EmptyState";
 export { Dialog } from "./components/Dialog";
-export { DropdownMenu, DropdownMenuItem } from "./components/DropdownMenu";
+export {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "./components/DropdownMenu";
 export { Toaster, toast, type ToastItem } from "./components/Toast";
 export { cn } from "./cn";
 export * as tokens from "./tokens";

@@ -1,18 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { routes } from "@telepace/config";
 
 import { onHttpEvent } from "../http";
-import { fetchMe, login as loginApi, logout as logoutApi, registerUser } from "./client";
-import { tokenStore, type StoredUser } from "./store";
+import { fetchMe, login as loginApi, logout as logoutApi, registerUser, type AuthUser } from "./client";
 
 type AuthStatus = "loading" | "authenticated" | "guest";
 
 type AuthContextValue = {
   status: AuthStatus;
-  user: StoredUser | null;
+  user: AuthUser | null;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, displayName?: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -23,17 +22,12 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [user, setUser] = useState<StoredUser | null>(() => tokenStore.getUser());
-  const [status, setStatus] = useState<AuthStatus>(() =>
-    tokenStore.getAccessToken() ? "loading" : "guest",
-  );
+  const [user, setUser] = useState<AuthUser | null>(null);
+  // The session lives in an httpOnly cookie, so the client can't know its
+  // auth state synchronously — always start in "loading" and resolve via /me.
+  const [status, setStatus] = useState<AuthStatus>("loading");
 
   const refresh = useCallback(async () => {
-    if (!tokenStore.getAccessToken()) {
-      setUser(null);
-      setStatus("guest");
-      return;
-    }
     try {
       const me = await fetchMe();
       setUser({
@@ -44,7 +38,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       setStatus("authenticated");
     } catch {
-      tokenStore.clear();
       setUser(null);
       setStatus("guest");
     }

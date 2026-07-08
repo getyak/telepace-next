@@ -1,0 +1,66 @@
+{
+  "marketing": {
+    "home": {
+      "title": "telepace — 语音原生、Agent 优先的用户研究基础设施",
+      "description": "telepace 自动为你的用户发起语音访谈，并将结构化的洞察结果回传给你的 Agent，让它能够据此采取行动。"
+    },
+    "pricing": {
+      "title": "价格方案",
+      "description": "简单透明的定价，随你的研究规模灵活扩展——免费版、专业版、团队版，免费开始无需信用卡。"
+    },
+    "docs": {
+      "title": "文档中心",
+      "description": "telepace 的快速上手指南、核心概念与集成文档。"
+    },
+    "mcp": {
+      "title": "MCP",
+      "description": "telepace MCP 服务端：为任意兼容 MCP 的智能体提供有状态的研究工具。"
+    },
+    "productAgent": {
+      "title": "智能体",
+      "description": "Designer、Interviewer、Analyst、Coordinator——四个智能体端到端完成整个研究流程。"
+    },
+    "productVoice": {
+      "title": "语音",
+      "description": "浏览器、电话或热线均可发起语音访谈——自然的对话轮转，支持十种语言。"
+    },
+    "careers": {
+      "title": "招聘",
+      "description": "加入我们，为智能体时代打造语音原生的用户研究产品。"
+    },
+    "changelog": {
+      "title": "更新日志",
+      "description": "公开透明的产品发布与改进记录。"
+    },
+    "terms": {
+      "title": "服务条款",
+      "description": "规范您使用 telepace 的服务条款。"
+    },
+    "privacy": {
+      "title": "隐私政策",
+      "description": "我们收集哪些信息、如何使用，以及你保留的权利。"
+    },
+    "customers": {
+      "title": "客户案例",
+      "description": "产品团队如何借助 telepace，让每一个决策都有客户声音作为依据。"
+    },
+    "security": {
+      "title": "安全",
+      "description": "telepace 如何保护你的数据：租户隔离、加密与个人信息脱敏。"
+    },
+    "demo": {
+      "title": "实时演示",
+      "description": "体验一次与 telepace AI 研究员的 60 秒实时访谈——无需注册。"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "登录",
+      "description": "登录 telepace。"
+    },
+    "signup": {
+      "title": "创建账户",
+      "description": "创建一个 telepace 账户——免费版每月包含 3 项研究，无需信用卡。"
+    }
+  }
+}

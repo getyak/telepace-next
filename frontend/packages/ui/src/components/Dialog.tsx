@@ -6,41 +6,43 @@ import { cn } from "../cn";
 type DialogProps = {
   open: boolean;
   onClose: () => void;
+  title?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
-  "aria-label"?: string;
 };
 
 /**
- * Thin wrapper over the native <dialog> element — gets us focus trapping,
- * Esc-to-close, and top-layer stacking for free.
+ * Modal dialog built on the native `<dialog>` element: focus trap, Esc,
+ * and top-layer stacking come for free. Entry scales 0.98 → 1 over
+ * `motion.base`; backdrop styling lives in globals.css.
  */
-export function Dialog({ open, onClose, children, className, ...rest }: DialogProps) {
-  const ref = React.useRef<HTMLDialogElement>(null);
+export function Dialog({ open, onClose, title, children, className }: DialogProps) {
+  const ref = React.useRef<HTMLDialogElement | null>(null);
 
   React.useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-    if (open && !node.open) node.showModal();
-    if (!open && node.open) node.close();
+    const el = ref.current;
+    if (!el) return;
+    if (open && !el.open) el.showModal();
+    if (!open && el.open) el.close();
   }, [open]);
 
   return (
     <dialog
       ref={ref}
       onClose={onClose}
-      onCancel={onClose}
-      onClick={(e) => {
-        if (e.target === ref.current) onClose();
+      onClick={(evt) => {
+        // Click on the backdrop (the dialog element itself) dismisses.
+        if (evt.target === ref.current) onClose();
       }}
       className={cn(
-        "m-auto rounded-card border border-hairline bg-paper-elevated p-0 shadow-overlay backdrop:bg-ink/40",
-        "open:animate-dialog-in",
+        "tp-dialog m-auto w-full max-w-md rounded-card border border-hairline bg-paper-elevated p-0 text-ink shadow-overlay",
         className,
       )}
-      {...rest}
     >
-      {children}
+      <div className="p-6">
+        {title && <h2 className="font-display text-2xl">{title}</h2>}
+        <div className={title ? "mt-4" : undefined}>{children}</div>
+      </div>
     </dialog>
   );
 }

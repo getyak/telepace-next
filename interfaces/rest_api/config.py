@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     api_version_prefix: str = "/v1"
 
     # --- Public-facing URLs
-    public_base_url: str = "http://localhost:3000"
+    public_base_url: str = "http://localhost:3300"
     api_base_url: str = "http://localhost:8010"
 
     # --- CORS (comma-separated in env, list at runtime)
@@ -34,7 +34,9 @@ class Settings(BaseSettings):
     # marketing, auth, dashboard, and the respondent gateway all share one origin.
     cors_allow_origins: list[str] = Field(
         default_factory=lambda: [
-            "http://localhost:3000",
+            "http://localhost:3300",
+            "http://localhost:3301",
+            "http://localhost:3302",
         ]
     )
     cors_allow_credentials: bool = True
@@ -169,11 +171,15 @@ class Settings(BaseSettings):
     budget_warn_ratio: float = 0.8
     budget_hard_stop_ratio: float = 1.0
     event_store_maintenance_interval_s: int = 60 * 60
+    # Run the projection/analysis tail loop inside the API process. Set to
+    # false when the standalone `telepace-worker` process handles it instead
+    # (e.g. docker-compose), so completions are not analyzed twice.
+    embedded_worker: bool = True
 
     # --- Agent LLM tuning (max_tokens / temperature per agent)
     designer_max_tokens: int = 4000
     designer_temperature: float = 0.3
-    interviewer_max_tokens: int = 800
+    interviewer_max_tokens: int = 1600
     interviewer_temperature: float = 0.5
     analyst_max_tokens: int = 3000
     analyst_temperature: float = 0.3

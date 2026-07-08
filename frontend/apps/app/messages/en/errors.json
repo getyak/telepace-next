@@ -1,0 +1,39 @@
+{
+  "network": {
+    "title": "Can't reach the network",
+    "description": "Check your connection and try again. If you're on a proxy, make sure localhost is excluded."
+  },
+  "auth": {
+    "title": "Your session has expired",
+    "description": "Please sign in again to continue.",
+    "actionLabel": "Sign in"
+  },
+  "forbidden": {
+    "title": "Access denied",
+    "description": "Your account doesn't have permission to do this."
+  },
+  "not_found": {
+    "title": "Not found",
+    "description": "This may have been deleted, or the link is no longer valid."
+  },
+  "validation": {
+    "title": "That request wasn't valid",
+    "description": "Please check your input and try again."
+  },
+  "rate_limit": {
+    "title": "Too many requests",
+    "description": "Please wait a few seconds and try again."
+  },
+  "server": {
+    "title": "Service temporarily unavailable",
+    "description": "Something went wrong on our end — we've logged it. Please try again shortly."
+  },
+  "canceled": {
+    "title": "Canceled",
+    "description": "That operation was aborted."
+  },
+  "unknown": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Please try again shortly."
+  }
+}

@@ -55,10 +55,12 @@ class AnalystAgent:
         campaign_id: UUID,
         transcripts: list[TranscriptView],
         want_persona: bool = False,
+        language: str = "en",
     ) -> SynthesisResult:
         payload = {
             "campaign_id": str(campaign_id),
             "want_persona": want_persona,
+            "language": language,
             "interviews": [
                 {"id": str(t.interview_id), "turns": t.turns[-ANALYST_TURN_HISTORY_LIMIT:]}
                 for t in transcripts
@@ -91,6 +93,7 @@ class AnalystAgent:
                     kind=InsightKind.THEME.value,
                     title=str(th.get("label", ""))[:INSIGHT_TITLE_MAX_CHARS],
                     confidence=float(th.get("confidence", 0.0)),
+                    body=dict(th),
                 )
             )
         for vb in verbatims:
@@ -102,6 +105,7 @@ class AnalystAgent:
                     kind=InsightKind.VERBATIM.value,
                     title=str(vb.get("quote", ""))[:INSIGHT_TITLE_MAX_CHARS],
                     confidence=float(vb.get("confidence", 0.0)),
+                    body=dict(vb),
                 )
             )
         for co in concerns:
@@ -113,6 +117,7 @@ class AnalystAgent:
                     kind=InsightKind.CONCERN.value,
                     title=str(co.get("label", ""))[:INSIGHT_TITLE_MAX_CHARS],
                     confidence=float(co.get("confidence", 0.0)),
+                    body=dict(co),
                 )
             )
         if persona:
@@ -124,6 +129,7 @@ class AnalystAgent:
                     kind=InsightKind.PERSONA.value,
                     title=str(persona.get("name", "persona"))[:INSIGHT_TITLE_MAX_CHARS],
                     confidence=float(persona.get("confidence", DEFAULT_PERSONA_CONFIDENCE)),
+                    body=dict(persona),
                 )
             )
 

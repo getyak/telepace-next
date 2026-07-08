@@ -198,8 +198,8 @@ REDACTION_TOKEN_ID: str = "[id]"
 # --- Product / brand
 PRODUCT_NAME: str = "telepace"
 
-# --- Dispatch invite copy (English default; move to per-locale templates
-# under `agents/*/prompts/` when i18n is added).
+# --- Dispatch invite copy. Deprecated: kept only as the "en" entry alias for
+# one release; new code should read the _I18N dicts below via `language`.
 DISPATCH_EMAIL_SUBJECT_TPL: str = "You're invited: {spec_title}"
 DISPATCH_EMAIL_GREETING_NAMED_TPL: str = "Hi {name},"
 DISPATCH_EMAIL_GREETING_ANON: str = "Hi there,"
@@ -224,3 +224,71 @@ DISPATCH_PHONE_OPENING_TPL: str = (
 )
 DISPATCH_SPEC_TITLE_FALLBACK: str = "our study"
 DISPATCH_SPEC_GOAL_FALLBACK: str = "understand your experience"
+
+# --- Dispatch invite copy, per-language templates. Keyed by 2-letter BCP-47
+# primary subtag (e.g. "zh" covers zh-CN/zh-TW). Unknown languages fall back
+# to DISPATCH_LANGUAGE_FALLBACK.
+DISPATCH_LANGUAGE_FALLBACK: str = "en"
+
+DISPATCH_EMAIL_SUBJECT_TPL_I18N: dict[str, str] = {
+    "en": "You're invited: {spec_title}",
+    "zh": "邀请您参与：{spec_title}",
+}
+DISPATCH_EMAIL_GREETING_NAMED_TPL_I18N: dict[str, str] = {
+    "en": "Hi {name},",
+    "zh": "{name}，你好，",
+}
+DISPATCH_EMAIL_GREETING_ANON_I18N: dict[str, str] = {
+    "en": "Hi there,",
+    "zh": "你好，",
+}
+DISPATCH_EMAIL_INTRO_FALLBACK_TPL_I18N: dict[str, str] = {
+    "en": "We're running a short study: {spec_goal}",
+    "zh": "我们正在进行一项简短的调研：{spec_goal}",
+}
+DISPATCH_EMAIL_BODY_TEXT_TPL_I18N: dict[str, str] = {
+    "en": (
+        "{greeting}\n\n"
+        "{intro}\n\n"
+        "It takes ~{duration_min} minutes. Start here: {share_url}\n\n"
+        "Thanks,\n{brand_signature}"
+    ),
+    "zh": (
+        "{greeting}\n\n"
+        "{intro}\n\n"
+        "大约需要 {duration_min} 分钟，点击开始：{share_url}\n\n"
+        "谢谢，\n{brand_signature}"
+    ),
+}
+DISPATCH_EMAIL_BODY_HTML_TPL_I18N: dict[str, str] = {
+    "en": (
+        "<p>{greeting}</p>"
+        "<p>{intro}</p>"
+        '<p>It takes ~{duration_min} minutes. <a href="{share_url}">Start the interview</a>.</p>'
+        "<p>Thanks,<br/>{brand_signature}</p>"
+    ),
+    "zh": (
+        "<p>{greeting}</p>"
+        "<p>{intro}</p>"
+        '<p>大约需要 {duration_min} 分钟。<a href="{share_url}">点击开始访谈</a>。</p>'
+        "<p>谢谢，<br/>{brand_signature}</p>"
+    ),
+}
+DISPATCH_SMS_INTRO_FALLBACK_TPL_I18N: dict[str, str] = {
+    "en": "Quick research on {spec_title}",
+    "zh": "关于「{spec_title}」的简短调研",
+}
+DISPATCH_SMS_BODY_TPL_I18N: dict[str, str] = {
+    "en": "{intro} Join in ~{duration_min} min: {share_url}",
+    "zh": "{intro} 大约需要 {duration_min} 分钟：{share_url}",
+}
+DISPATCH_PHONE_OPENING_TPL_I18N: dict[str, str] = {
+    "en": (
+        "Hi{name_suffix}, this is {brand} calling about {spec_title}. "
+        "Do you have a few minutes?"
+    ),
+    "zh": (
+        "您好{name_suffix}，我是{brand}，就「{spec_title}」联系您。"
+        "现在方便占用您几分钟时间吗？"
+    ),
+}

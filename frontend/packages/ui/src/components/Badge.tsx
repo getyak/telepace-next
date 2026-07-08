@@ -1,12 +1,14 @@
 import * as React from "react";
 import { cn } from "../cn";
 
+type BadgeVariant = "neutral" | "accent" | "success" | "warning" | "danger";
+
 type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
-  variant?: "neutral" | "accent" | "success" | "warning" | "danger";
+  variant?: BadgeVariant;
 };
 
-const variants = {
-  neutral: "bg-paper-sunken text-muted border-hairline",
+const variants: Record<BadgeVariant, string> = {
+  neutral: "bg-paper-sunken text-body border-hairline",
   accent: "bg-accent-soft text-accent border-accent/20",
   success: "bg-success/10 text-success border-success/20",
   warning: "bg-warning/10 text-warning border-warning/20",
@@ -18,7 +20,7 @@ export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
     <span
       ref={ref}
       className={cn(
-        "inline-flex items-center rounded-pill border px-2.5 py-0.5 text-xs",
+        "inline-flex items-center gap-1.5 rounded-pill border px-2.5 py-0.5 text-xs",
         variants[variant],
         className,
       )}

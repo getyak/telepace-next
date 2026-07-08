@@ -3,8 +3,15 @@ import { cn } from "../cn";
 import { Spinner } from "./Spinner";
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "primary" | "secondary" | "ghost" | "danger" | "inverse" | "inverse-outline";
+  variant?:
+    | "primary"
+    | "secondary"
+    | "ghost"
+    | "danger"
+    | "inverse"
+    | "inverse-outline";
   size?: "sm" | "md" | "lg";
+  /** Shows a spinner and blocks clicks while an async action runs. */
   loading?: boolean;
 };
 
@@ -18,6 +25,7 @@ const variants = {
   secondary: "bg-transparent text-ink border border-hairline hover:bg-paper-elevated",
   ghost: "bg-transparent text-body hover:text-ink",
   danger: "bg-danger text-paper hover:bg-danger/90",
+  // For dark (bg-ink) sections — replaces ad-hoc className overrides.
   inverse: "bg-paper text-ink hover:bg-paper-elevated",
   "inverse-outline": "bg-transparent text-paper border border-paper/30 hover:bg-paper/10",
 };
@@ -46,7 +54,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       className={cn(base, variants[variant], sizes[size], className)}
       {...props}
     >
-      {loading && <Spinner size={spinnerSize[size]} />}
+      {loading && <Spinner size={14} />}
       {children}
     </button>
   ),

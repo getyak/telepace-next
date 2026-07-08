@@ -4,8 +4,10 @@
  * The HTTP layer wraps every non-2xx response and every network failure
  * into an ApiError with a stable `kind`. UI code should never inspect
  * `err.message` (that's raw backend detail — English, JSON, or stack).
- * Instead, feed the error through `friendlyMessage()` to get a Chinese
- * copy suitable for a toast / inline banner.
+ * Instead, feed the error through `friendlyMessage()` to get a localized
+ * copy suitable for a toast / inline banner. Copy itself lives in the
+ * `errors` messages namespace, not in this file — this file stays free of
+ * any i18n library dependency so it can be called from any client component.
  */
 
 export type ErrorKind =
@@ -56,49 +58,38 @@ export type FriendlyCopy = {
   actionLabel?: string; // when set, UI can render a follow-up button
 };
 
-const COPY: Record<ErrorKind, FriendlyCopy> = {
-  NETWORK: {
-    title: "网络无法连接",
-    description: "请检查网络后重试。如启用了代理,localhost 需加入直连。",
-  },
-  AUTH: {
-    title: "登录已过期",
-    description: "请重新登录以继续操作。",
-    actionLabel: "去登录",
-  },
-  FORBIDDEN: {
-    title: "无权访问",
-    description: "当前账号没有执行此操作的权限。",
-  },
-  NOT_FOUND: {
-    title: "内容不存在",
-    description: "对象可能已被删除,或链接已失效。",
-  },
-  VALIDATION: {
-    title: "请求内容不符合要求",
-    description: "请检查输入后再试一次。",
-  },
-  RATE_LIMIT: {
-    title: "操作过于频繁",
-    description: "请稍等几秒后重试。",
-  },
-  SERVER: {
-    title: "服务暂时不可用",
-    description: "后端出现异常,已记录问题,请稍后再试。",
-  },
-  CANCELED: {
-    title: "已取消",
-    description: "该操作已被中止。",
-  },
-  UNKNOWN: {
-    title: "出错了",
-    description: "发生了未预期的问题,请稍后再试。",
-  },
+/** Maps an ErrorKind to its key in the `errors` messages namespace. */
+const KIND_TO_MESSAGE_KEY: Record<ErrorKind, string> = {
+  NETWORK: "network",
+  AUTH: "auth",
+  FORBIDDEN: "forbidden",
+  NOT_FOUND: "not_found",
+  VALIDATION: "validation",
+  RATE_LIMIT: "rate_limit",
+  SERVER: "server",
+  CANCELED: "canceled",
+  UNKNOWN: "unknown",
 };
 
-export function friendlyMessage(err: unknown): FriendlyCopy {
+/**
+ * A resolved copy table, one entry per `errors.json` message key (e.g.
+ * "network", "not_found"). This is plain serializable data — not a
+ * translator function — so it can be built server-side via getTranslations
+ * and passed as a prop across the server/client boundary, or built
+ * client-side from useTranslations("errors") in components that render
+ * inside the NextIntlClientProvider tree.
+ */
+export type ErrorsCopyTable = Record<string, { title: string; description: string; actionLabel?: string }>;
+
+function copyFor(table: ErrorsCopyTable, kind: ErrorKind): FriendlyCopy {
+  const key = KIND_TO_MESSAGE_KEY[kind];
+  const entry = table[key] ?? table.unknown;
+  return { title: entry.title, description: entry.description, actionLabel: entry.actionLabel };
+}
+
+export function friendlyMessage(err: unknown, table: ErrorsCopyTable): FriendlyCopy {
   if (err instanceof ApiError) {
-    const base = COPY[err.kind];
+    const base = copyFor(table, err.kind);
     // For VALIDATION we try to surface a short server hint if it looks safe.
     if (err.kind === "VALIDATION") {
       const hint = shortHint(err.detail);
@@ -106,7 +97,7 @@ export function friendlyMessage(err: unknown): FriendlyCopy {
     }
     return base;
   }
-  return COPY.UNKNOWN;
+  return copyFor(table, "UNKNOWN");
 }
 
 /**

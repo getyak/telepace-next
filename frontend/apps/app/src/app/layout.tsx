@@ -1,56 +1,66 @@
 import "@telepace/ui/globals.css";
 import type { Metadata } from "next";
-import { Inter, Instrument_Serif } from "next/font/google";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
+import { Inter, Instrument_Serif, Noto_Serif_SC } from "next/font/google";
 import { siteConfig } from "@telepace/config";
+import { Toaster } from "@telepace/ui";
 
-import { AuthProvider } from "@/lib/auth/AuthProvider";
-import { ToastBridge } from "@/components/toast/ToastBridge";
+import { HttpErrorBridge } from "../components/toast/HttpErrorBridge";
+import type { ErrorsCopyTable } from "../lib/errors";
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-body",
-  display: "swap",
-});
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
+// Self-hosted via next/font: no Google Fonts <link>, no FOUT, and every
+// route group (marketing, app, auth, respondent) inherits the variables.
+const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
+const serif = Instrument_Serif({
   weight: "400",
+  subsets: ["latin"],
   variable: "--font-display",
-  display: "swap",
 });
-
-const description =
-  "Your Claude, Cursor, and Codex can interview 100 users while you sleep — and wake up to structured insights they can act on.";
+// CJK display serif for zh headings (globals.css html:lang(zh) rules).
+// preload:false — the browser fetches only the unicode-range slices a page
+// actually uses, so latin visitors pay nothing.
+const serifZh = Noto_Serif_SC({
+  weight: "400",
+  variable: "--font-display-zh",
+  preload: false,
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.urls.home),
   title: {
-    default: "telepace — the voice-native user research infrastructure",
-    template: "%s · telepace",
+    default: `${siteConfig.brand.name} — ${siteConfig.brand.tagline}`,
+    template: `%s · ${siteConfig.brand.name}`,
   },
-  description,
+  description: siteConfig.brand.tagline,
   openGraph: {
     type: "website",
     siteName: siteConfig.brand.name,
-    title: "telepace — the voice-native user research infrastructure",
-    description,
+    title: `${siteConfig.brand.name} — ${siteConfig.brand.tagline}`,
+    description: siteConfig.brand.tagline,
     url: siteConfig.urls.home,
   },
   twitter: {
     card: "summary_large_image",
-    title: "telepace — the voice-native user research infrastructure",
-    description,
+    title: `${siteConfig.brand.name} — ${siteConfig.brand.tagline}`,
+    description: siteConfig.brand.tagline,
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+  const t = await getTranslations("common");
+  const messages = await getMessages();
+  const errorsCopy = messages.errors as ErrorsCopyTable;
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${instrumentSerif.variable}`}>
+    <html
+      lang={locale}
+      suppressHydrationWarning
+      className={`${inter.variable} ${serif.variable} ${serifZh.variable}`}
+    >
       <body>
-        <AuthProvider>
-          {children}
-          <ToastBridge />
-        </AuthProvider>
+        {children}
+        <Toaster dismissLabel={t("dismiss")} />
+        <HttpErrorBridge copy={errorsCopy} />
       </body>
     </html>
   );
