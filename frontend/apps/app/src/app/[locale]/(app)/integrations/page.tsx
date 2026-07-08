@@ -30,6 +30,14 @@ export default async function IntegrationsPage() {
         actions={<Button size="sm">{t("addIntegration")}</Button>}
       />
 
+      {integrations.length === 0 ? (
+        <EmptyState
+          icon={<icons.IntegrationsIcon size={28} />}
+          title="No integrations yet."
+          description="Connect Notion, Linear, Slack, or a webhook to send insights where your team already works."
+          action={<Button size="sm">+ Add integration</Button>}
+        />
+      ) : (
       <div className="grid md:grid-cols-2 gap-4">
         {integrations.map((it) => (
           <div key={it.name} className="rounded-card border border-hairline bg-paper-elevated p-6 flex items-start justify-between gap-6">
@@ -47,6 +55,7 @@ export default async function IntegrationsPage() {
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }

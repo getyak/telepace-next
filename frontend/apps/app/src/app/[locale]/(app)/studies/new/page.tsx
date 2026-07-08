@@ -282,7 +282,7 @@ export default function NewStudyPage() {
         {
           id: crypto.randomUUID(),
           role: "system",
-          text: `发布失败 — ${copy.title}:${copy.description}`,
+          text: `Publish failed — ${copy.title}: ${copy.description}`,
         },
       ]);
       setPublishing(false);
@@ -356,7 +356,7 @@ export default function NewStudyPage() {
               disabled={!campaignId || spec.outline.length === 0}
               onClick={() => handleSimulate()}
             >
-              {simLoading ? "Simulating…" : "Simulate respondent"}
+              Simulate respondent
             </Button>
             <Button
               size="sm"
@@ -364,7 +364,7 @@ export default function NewStudyPage() {
               disabled={!campaignId || spec.outline.length === 0}
               onClick={handlePublish}
             >
-              {publishing ? "Publishing…" : "Publish study"}
+              Publish study
             </Button>
           </div>
         </header>
@@ -508,10 +508,10 @@ export default function NewStudyPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                disabled={simLoading}
+                loading={simLoading}
                 onClick={() => handleSimulate(simSeed + 1)}
               >
-                {simLoading ? "Loading…" : "Another persona"}
+                Another persona
               </Button>
               <Button
                 variant="ghost"

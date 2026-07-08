@@ -2,7 +2,7 @@ name: ci
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
 
 jobs:
@@ -63,4 +63,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: bash scripts/design-guard.sh
       - run: pnpm typecheck
+      - run: pnpm check:tokens
       - run: pnpm build

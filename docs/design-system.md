@@ -26,6 +26,15 @@ Source of truth: `frontend/packages/ui/src/tokens.ts`.
 | `accent` | `#4A5D3B` | Primary CTA / links / active state |
 | `accent-soft` | `#DCE4D2` | Pills, active fills |
 | `terracotta` | `#B45A3C` | Optional warm emphasis |
+| `success` | `#3C7A5C` | Positive status / success badges & toasts (soft: `success/10`) |
+| `warning` | `#B8862B` | Caution status / warning badges & toasts (soft: `warning/10`) |
+| `danger` | `#A83A2F` | Errors, destructive actions — the **only** acceptable "red", never Tailwind's `red-*` (soft: `danger/10`) |
+
+Radii also include a `pill` token (`999px`, `rounded-pill`) for tags and status chips, alongside `input` (4px), `button`/`btn` (8px), and `card` (12px).
+
+Never reach for Tailwind's default palette (`text-red-600`, `bg-blue-500`, `text-green-600`, `bg-gray-100`, …)
+anywhere in `apps/**` — every color must resolve to one of the tokens above. This is enforced by
+`pnpm check:colors` and `pnpm check:tokens` in CI.
 
 ## Typography
 

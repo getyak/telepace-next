@@ -57,6 +57,7 @@ export default async function AudiencePage() {
             </div>
           ))}
         </div>
+        )}
       </section>
 
       <section>
@@ -68,13 +69,12 @@ export default async function AudiencePage() {
               <div className="col-span-2 text-muted">{t("rowsCount", { count: u.rows.toLocaleString() })}</div>
               <div className="col-span-2 text-muted font-mono">{u.date}</div>
               <div className="col-span-2 text-right">
-                <span className="inline-block px-2.5 py-0.5 rounded-pill border border-accent/30 bg-accent-soft text-accent text-xs">
-                  {u.status}
-                </span>
+                <Badge variant="accent">{u.status}</Badge>
               </div>
             </div>
           ))}
         </div>
+        )}
       </section>
     </div>
   );

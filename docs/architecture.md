@@ -105,7 +105,7 @@ The MCP tool `create_campaign` is a thin wrapper: parse the JSON input with the 
 |---|---|---|
 | Realtime voice | Go (voiceflow) | Existing; low-latency multi-provider STT/TTS pipeline |
 | Harness + agents + API | Python 3.12 | LLM SDK ecosystem; Pydantic; FastAPI async |
-| All three web apps | TypeScript + Next.js 15 (RSC) | React ecosystem; SSG for marketing; RSC for app |
+| Web (single Next.js app) | TypeScript + Next.js 15 (RSC) | React ecosystem; static marketing routes + RSC dashboard in one deploy |
 | Design system | TypeScript + Tailwind | Colocated with apps; token-driven |
 
 ## What's intentionally not here

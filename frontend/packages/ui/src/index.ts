@@ -25,3 +25,4 @@ export {
 export { Toaster, toast, type ToastItem } from "./components/Toast";
 export { cn } from "./cn";
 export * as tokens from "./tokens";
+export * as icons from "./icons";

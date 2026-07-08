@@ -9,6 +9,39 @@
 > 产品应有的"声音感"视觉语言。**不要**引入 shadcn 默认风格、渐变紫、玻璃拟态等
 > 与现有 token 冲突的元素。
 
+## 执行状态（持续更新）
+
+- **Phase 1.1 应用合并** ✅ 已完成：`apps/marketing` / `apps/app` / `apps/respondent` 已合并为单一
+  `apps/app`（`(marketing)/(auth)/(app)/(public)` route groups），`routes.app.root` 改为 `/studies`，
+  dev/build 端口统一 3000，`pnpm build`/`pnpm typecheck` 通过。URL hash 跨应用传 token（A1）随之消失
+  （合并后登录页直接调用 `useAuth().login()`，无需跨源跳转）。
+- **Phase 1.2 httpOnly cookie 认证** ⏳ 未完成：`tokenStore` 仍用 localStorage（A3 仍在）。这一步需要
+  新增 BFF route handlers 代理全部后端调用（不只是 auth），依赖后端 CORS/cookie 域名配置，**必须先与
+  后端联调验证**才能安全上线，本轮未改动，避免在无法端到端测试的情况下破坏登录能力。
+- **Phase 2.1/2.3 统一登录/注册页** ✅ 已完成：共享 `AuthCard` 组件（`components/auth/AuthCard.tsx`），
+  两页视觉与错误处理同源。
+- **Phase 2.2 Google OAuth** ✅ UI 占位已完成：`components/auth/OAuthButtons.tsx`，
+  由 `NEXT_PUBLIC_OAUTH_GOOGLE`（默认 false）控制显隐；后端 `/auth/oauth/google` 流程未实现。
+- **Phase 3 / 4 / 5**：绝大部分已在此前的 PR 中完成（移动端导航、Hero voice 效果、next/font、
+  SEO/metadata、Button 变体、Sidebar active 态、UI 组件补全、CI token 守护脚本、design-system.md 补充）。
+  剩余已知小项：营销/安全页上的 "SOC 2" 相关文案是真实的路线图声明（非虚构背书），未改动。
+- **持续打磨 Pass**（本轮）：修复了与计划漂移的若干细节——sidebar/nav 图标与 hamburger/close
+  SVG 去重到 `@telepace/ui` 的 icons 集合；`studies/new` 剩余的 loading 三元表达式换成 `Button`
+  的 `loading` prop；`integrations` 页接入共享 `PageHeader`/`EmptyState`；受访者页（`/r/[id]`）
+  的麦克风权限/语音 WS 报错从静默 `console.error` 改为 `toast.error` 提示，并换用共享 `Button`；
+  `/demo` 拆分出 server component 以获得独立 metadata（原为纯 client 组件，无 metadata）；
+  修正首页与 `/customers` 相邻同底色分区、统一两处 final-CTA 文案、careers mailto 主题做
+  `encodeURIComponent`。四项检查（typecheck / check:colors / check:tokens / build）均通过。
+- **已知遗留，留待下一轮决策**（非 bug，需要产品/视觉决策或无法离线验证）：
+  1. `packages/ui` 的 `Card`/`CardHeader`/`CardBody`/`CardFooter` 在 `apps/app` 中零使用，
+     18+ 处手写了等价的 `rounded-card border border-hairline bg-paper-elevated p-…`；
+  2. `UserMenu` 自实现了开合/点击外部关闭/Esc 逻辑，未复用 `DropdownMenu`——因为 `UserMenu`
+     需要向上展开、占满侧栏宽度，而共享组件目前只支持向下展开 + 固定 `min-w-[180px]`；
+  3. `apps/app/src/lib/errors.ts` 与 `ToastBridge` 的错误文案是中文，与站点其余英文 UI 不一致，
+     但注释表明是有意为之的本地化模块，需要产品决策而非顺手改掉；
+  4. Phase 5.3 的 Playwright 截图基线（`docs/design/baselines/`）仍未建立，需要一个可运行的
+     dev server 环境。
+
 ---
 
 ## 0. 现状审计摘要（改动依据）

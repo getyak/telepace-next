@@ -58,6 +58,13 @@ export default async function InsightsPage() {
         }
       />
 
+      {themes.length === 0 ? (
+        <EmptyState
+          icon={<icons.InsightsIcon size={28} />}
+          title="No insights yet."
+          description="Themes surface here once your studies start collecting responses."
+        />
+      ) : (
       <div className="grid gap-6">
         {themes.map((theme) => (
           <article key={theme.title} className="rounded-card border border-hairline bg-paper-elevated p-8">
@@ -87,6 +94,7 @@ export default async function InsightsPage() {
           </article>
         ))}
       </div>
+      )}
     </div>
   );
 }

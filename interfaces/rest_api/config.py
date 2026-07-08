@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     api_base_url: str = "http://localhost:8010"
 
     # --- CORS (comma-separated in env, list at runtime)
+    # The frontend is a single Next.js app (frontend/apps/app) on port 3000 —
+    # marketing, auth, dashboard, and the respondent gateway all share one origin.
     cors_allow_origins: list[str] = Field(
         default_factory=lambda: [
             "http://localhost:3300",
