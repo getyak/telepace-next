@@ -14,6 +14,8 @@ import {
 } from "@/lib/api";
 import { friendlyMessage, type ErrorsCopyTable } from "@/lib/errors";
 import { useRouter } from "@/i18n/navigation";
+import { FollowUpConfig } from "@/components/wizard/FollowUpConfig";
+import { WelcomeEndConfig } from "@/components/wizard/WelcomeEndConfig";
 
 type OutlineItem = {
   order: number;
@@ -38,6 +40,11 @@ type Spec = {
   target_completions: number;
   estimated_minutes: number;
   success_criteria: string[];
+  welcome_message?: string;
+  consent_text?: string;
+  end_message?: string;
+  reward_description?: string;
+  redirect_url?: string;
 };
 
 const INITIAL_MESSAGES: ChatMessage[] = [
@@ -125,7 +132,9 @@ export default function NewStudyPage() {
   const [sim, setSim] = useState<SimulateResponse | null>(null);
   const [simError, setSimError] = useState<string | null>(null);
   const [lastFailed, setLastFailed] = useState<string | null>(null);
+  const [expandedFollowUp, setExpandedFollowUp] = useState<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const tf = useTranslations("app.followups");
 
   async function handleSimulate(nextSeed?: number) {
     if (!campaignId || spec.outline.length === 0) return;
@@ -435,8 +444,40 @@ export default function NewStudyPage() {
                           {String(q.order).padStart(2, "0")}
                         </div>
                         <div className="flex-1">
-                          <p className="text-ink">{q.question}</p>
-                          <p className="text-xs text-muted mt-1">Goal: {q.goal}</p>
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <p className="text-ink">{q.question}</p>
+                              <p className="text-xs text-muted mt-1">Goal: {q.goal}</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setExpandedFollowUp((prev) =>
+                                  prev === q.order ? null : q.order,
+                                )
+                              }
+                              className="shrink-0 p-1 rounded text-muted hover:text-ink hover:bg-paper-elevated transition-colors"
+                              title={tf("configureTitle")}
+                            >
+                              <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <path d="M6.5 1.5h3l.5 2 1.5.7 1.8-1 2.1 2.1-1 1.8.7 1.5 2 .5v3l-2 .5-0.7 1.5 1 1.8-2.1 2.1-1.8-1-1.5.7-.5 2h-3l-.5-2-1.5-.7-1.8 1-2.1-2.1 1-1.8-.7-1.5-2-.5v-3l2-.5.7-1.5-1-1.8 2.1-2.1 1.8 1 1.5-.7z" />
+                                <circle cx="8" cy="8" r="2" />
+                              </svg>
+                            </button>
+                          </div>
+                          {expandedFollowUp === q.order && (
+                            <FollowUpConfig
+                              item={q}
+                              onChange={(updated) =>
+                                setSpec((s) => ({
+                                  ...s,
+                                  outline: s.outline.map((item) =>
+                                    item.order === q.order ? updated : item,
+                                  ),
+                                }))
+                              }
+                            />
+                          )}
                         </div>
                       </div>
                     </li>
@@ -482,6 +523,16 @@ export default function NewStudyPage() {
                     {ch.replace("_", " ")}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            <div className="mt-10">
+              <p className="overline mb-4">{tf("studySettingsTitle")}</p>
+              <div className="rounded-card border border-hairline bg-paper p-6">
+                <WelcomeEndConfig
+                  spec={spec}
+                  onChange={(patch) => setSpec((s) => ({ ...s, ...patch }))}
+                />
               </div>
             </div>
           </div>

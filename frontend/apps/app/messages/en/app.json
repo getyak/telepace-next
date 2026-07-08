@@ -85,5 +85,23 @@
     "top2BoxNote": "Top-2-Box: sum of the two most favorable responses.",
     "noData": "Not enough data for charts yet.",
     "noDataDescription": "Charts appear once three or more interviews have been analyzed."
+  },
+  "followups": {
+    "configureTitle": "Follow-up settings",
+    "maxFollowups": "Max follow-ups",
+    "branchPositive": "If positive response",
+    "branchNegative": "If negative response",
+    "branchPlaceholder": "Custom follow-up prompt...",
+    "welcomeTitle": "Welcome message",
+    "welcomePlaceholder": "Welcome to this research study...",
+    "consentTitle": "Consent text",
+    "consentPlaceholder": "By participating, you agree to...",
+    "endTitle": "Thank you message",
+    "endPlaceholder": "Thank you for your participation!",
+    "rewardTitle": "Reward description",
+    "rewardPlaceholder": "e.g., $25 gift card",
+    "redirectTitle": "Completion redirect URL",
+    "redirectPlaceholder": "https://...",
+    "studySettingsTitle": "Study settings"
   }
 }

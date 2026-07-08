@@ -85,5 +85,23 @@
     "top2BoxNote": "Top-2-Box：最高两个评价选项的合计。",
     "noData": "数据不足，暂无图表。",
     "noDataDescription": "完成三个以上访谈后，图表将自动生成。"
+  },
+  "followups": {
+    "configureTitle": "追问设置",
+    "maxFollowups": "最大追问次数",
+    "branchPositive": "如果回答积极",
+    "branchNegative": "如果回答消极",
+    "branchPlaceholder": "自定义追问提示...",
+    "welcomeTitle": "欢迎语",
+    "welcomePlaceholder": "欢迎参加本次研究...",
+    "consentTitle": "知情同意文本",
+    "consentPlaceholder": "参与本研究即表示您同意...",
+    "endTitle": "感谢语",
+    "endPlaceholder": "感谢您的参与！",
+    "rewardTitle": "奖励说明",
+    "rewardPlaceholder": "例如：25 美元礼品卡",
+    "redirectTitle": "完成后跳转链接",
+    "redirectPlaceholder": "https://...",
+    "studySettingsTitle": "研究设置"
   }
 }
