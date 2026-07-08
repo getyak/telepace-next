@@ -1,0 +1,15 @@
+{
+  "voice": {
+    "title": "Voice Analysis",
+    "play": "Play",
+    "pause": "Pause",
+    "speed": "Speed",
+    "sentiment": "Sentiment",
+    "pace": "Speaking pace",
+    "pauses": "Pauses",
+    "longestPause": "Longest pause",
+    "emotions": "Emotion distribution",
+    "normalRange": "Normal range: {min}-{max} wpm",
+    "transcript": "Transcript"
+  }
+}

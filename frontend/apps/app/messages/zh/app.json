@@ -1,0 +1,15 @@
+{
+  "voice": {
+    "title": "语音分析",
+    "play": "播放",
+    "pause": "暂停",
+    "speed": "速度",
+    "sentiment": "情感",
+    "pace": "语速",
+    "pauses": "停顿",
+    "longestPause": "最长停顿",
+    "emotions": "情感分布",
+    "normalRange": "正常范围：{min}-{max} 词/分钟",
+    "transcript": "文字稿"
+  }
+}
