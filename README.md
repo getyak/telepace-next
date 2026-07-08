@@ -54,19 +54,30 @@ docs/              architecture, agents, protocols, roadmap
 
 ## Quickstart
 
+One command (starts docker services → backend :8010 → frontend :3300):
+
+```bash
+scripts/up.sh          # bring the whole dev stack up
+scripts/doctor.sh      # check the environment first (toolchain, ports, services)
+```
+
+Or step by step:
+
 ```bash
 # Backend
 uv sync
-docker compose -f deploy/docker-compose.dev.yml up -d   # postgres + redis
-alembic upgrade head
-uvicorn interfaces.rest_api.main:app --reload
+docker compose -f deploy/docker-compose.dev.yml up -d postgres redis
+uvicorn interfaces.rest_api.main:app --reload --host 127.0.0.1 --port 8010
 
 # MCP server
 python -m interfaces.mcp_server.server
 
 # Frontend
-cd frontend && pnpm install && pnpm dev
+cd frontend && pnpm install && pnpm dev   # → http://localhost:3300
 ```
+
+> No migration step: the database schema is created automatically on backend
+> startup (`CREATE TABLE IF NOT EXISTS`), so there is no `alembic` to run.
 
 ## License
 

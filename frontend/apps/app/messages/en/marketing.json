@@ -9,6 +9,26 @@
       "ctaSecondary": "Try a live 60-sec interview →",
       "footnote": "Free tier includes 3 studies / month. No credit card."
     },
+    "heroDemo": {
+      "liveLabel": "live · try answering",
+      "q1": "Quick one — what does your team do today when you need real user feedback?",
+      "suggestions1": {
+        "a": "We send surveys",
+        "b": "We book calls ourselves",
+        "c": "Honestly? We guess"
+      },
+      "q2": "Got it. And what usually stops you from doing more of it — time, budget, or something else?",
+      "suggestions2": {
+        "a": "Not enough time",
+        "b": "Scheduling is painful",
+        "c": "Analysis takes forever"
+      },
+      "wrap": "That's exactly what telepace digs into — in a real voice conversation, at scale. Want the full 60-second experience?",
+      "inputPlaceholder": "Or type your own answer…",
+      "send": "Send",
+      "ctaFull": "Try the full 60-sec interview",
+      "restart": "Restart"
+    },
     "trustBar": {
       "stats": {
         "channels": { "value": "5 channels", "detail": "one interview" },
@@ -38,6 +58,26 @@
         }
       }
     },
+    "insights": {
+      "eyebrow": "What you get back",
+      "title": "Insights that read like a researcher wrote them.",
+      "description": "Not transcripts to wade through — ranked themes with confidence scores, each backed by verbatim quotes you can trace to the source. This is what a finished study looks like.",
+      "cta": "See it live in the demo →",
+      "panel": {
+        "study": "Pricing study — Q3",
+        "meta": "24 interviews · 3 themes · synthesis complete",
+        "themes": {
+          "t1": { "title": "Price anchors to missing enterprise features", "count": "14 / 24 interviews" },
+          "t2": { "title": "Annual discount changes the calculus", "count": "11 / 24 interviews" },
+          "t3": { "title": "Usage-based pricing would beat both tiers", "count": "9 / 24 interviews" }
+        },
+        "quote": {
+          "text": "Seventy-nine a month is fine — until I realized SSO wasn't included. That's when it started feeling punitive.",
+          "attribution": "Interview #17 · Head of Product, B2B SaaS · 14:32"
+        },
+        "exportHint": "Piped automatically to wherever your team works"
+      }
+    },
     "channels": {
       "eyebrow": "Five channels, one interview",
       "title": "Meet respondents where they already are.",
@@ -53,7 +93,8 @@
       "eyebrow": "Agent-first",
       "title": "Your agent gets a user researcher.",
       "description": "telepace ships as an MCP server, a Skill, and a REST API. Wherever your agents live — Claude Desktop, Cursor, Codex, a custom orchestrator — they can now design studies, dispatch interviews, and read back structured insights.",
-      "cta": "Browse MCP tools →"
+      "cta": "Browse MCP tools →",
+      "tabs": { "mcp": "MCP", "rest": "REST API", "skill": "Skill" }
     },
     "useCases": {
       "eyebrow": "Made for",

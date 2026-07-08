@@ -128,6 +128,60 @@ export function WaveformIcon({ size, ...props }: IconProps) {
   );
 }
 
+/** Shareable link — two chain segments. */
+export function LinkIcon({ size, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M7 4.75 8.5 3.25a2.65 2.65 0 0 1 3.75 3.75L10.75 8.5" />
+      <path d="M9 11.25 7.5 12.75a2.65 2.65 0 0 1-3.75-3.75L5.25 7.5" />
+      <path d="M6.25 9.75l3.5-3.5" />
+    </svg>
+  );
+}
+
+/** Browser voice — a microphone capsule. */
+export function MicIcon({ size, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <path d="M8 2.5a2 2 0 0 1 2 2V8a2 2 0 0 1-4 0V4.5a2 2 0 0 1 2-2Z" />
+      <path d="M4.5 8a3.5 3.5 0 0 0 7 0M8 11.5v2" />
+    </svg>
+  );
+}
+
+const HANDSET_PATH =
+  "M5.35 2.75c.3 0 .55.2.63.48l.6 2.1a.65.65 0 0 1-.17.64L5.35 7.03a8.6 8.6 0 0 0 3.62 3.62l1.06-1.06a.65.65 0 0 1 .64-.17l2.1.6c.28.08.48.34.48.63v1.7c0 .36-.29.65-.65.65C7.55 13 3 8.45 3 3.4c0-.36.29-.65.65-.65h1.7Z";
+
+/** Outbound phone call — handset with an outgoing arrow. */
+export function PhoneOutIcon({ size, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <path d={HANDSET_PATH} />
+      <path d="M10.25 5.75 13.5 2.5M13.5 5.25V2.5h-2.75" />
+    </svg>
+  );
+}
+
+/** Inbound hotline — handset with an incoming arrow. */
+export function PhoneInIcon({ size, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <path d={HANDSET_PATH} />
+      <path d="M13.5 2.5 10.25 5.75M10.25 3v2.75H13" />
+    </svg>
+  );
+}
+
+/** Email invite — envelope. */
+export function MailIcon({ size, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <rect x="2" y="3.75" width="12" height="8.5" rx="1" />
+      <path d="m2.5 5.25 5.5 3.5 5.5-3.5" />
+    </svg>
+  );
+}
+
 /** Google "G" mark for the OAuth button. Brand colors, no stroke. */
 export function GoogleIcon({ size, ...rest }: IconProps) {
   return (

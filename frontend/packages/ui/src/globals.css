@@ -24,6 +24,24 @@
     font-weight: 400;
   }
 
+  /* Chinese typography — the latin display serif can't cover CJK, so give
+     zh a proper serif fallback chain (self-hosted Noto Serif SC via
+     next/font, then system serifs). Negative tracking is a latin-only
+     convention: CJK glyphs are full-width and need none. */
+  html:lang(zh) body {
+    letter-spacing: 0;
+    line-height: 1.7;
+  }
+  html:lang(zh) h1,
+  html:lang(zh) h2,
+  html:lang(zh) h3,
+  html:lang(zh) .font-display {
+    font-family: var(--font-display), var(--font-display-zh, "Songti SC"), "Songti SC",
+      "Noto Serif CJK SC", "Source Han Serif SC", serif;
+    letter-spacing: 0;
+    line-height: 1.2;
+  }
+
   ::selection {
     background: #DCE4D2;
     color: #141414;
@@ -97,6 +115,21 @@
 .tp-typing-dot:nth-child(2) { animation-delay: 0.2s; }
 .tp-typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
+/* Scroll reveal — content eases in the FIRST time it enters the viewport,
+   then rests forever (Reveal.tsx adds .is-visible via IntersectionObserver).
+   Same fade-in-once philosophy as tp-fade-in-up, just scroll-triggered. */
+.tp-reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.tp-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
 /* Dialog — scale 0.98 → 1 on entry; dimmed paper backdrop. */
 @keyframes tp-dialog-in {
   from { opacity: 0; transform: scale(0.98); }
@@ -119,5 +152,10 @@ dialog.tp-dialog::backdrop {
   .tp-typing-dot,
   dialog.tp-dialog[open] {
     animation: none;
+  }
+  .tp-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

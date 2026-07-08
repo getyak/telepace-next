@@ -1,7 +1,7 @@
 import "@telepace/ui/globals.css";
 import type { Metadata } from "next";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
-import { Inter, Instrument_Serif } from "next/font/google";
+import { Inter, Instrument_Serif, Noto_Serif_SC } from "next/font/google";
 import { siteConfig } from "@telepace/config";
 import { Toaster } from "@telepace/ui";
 
@@ -15,6 +15,14 @@ const serif = Instrument_Serif({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-display",
+});
+// CJK display serif for zh headings (globals.css html:lang(zh) rules).
+// preload:false — the browser fetches only the unicode-range slices a page
+// actually uses, so latin visitors pay nothing.
+const serifZh = Noto_Serif_SC({
+  weight: "400",
+  variable: "--font-display-zh",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -47,7 +55,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html
       lang={locale}
       suppressHydrationWarning
-      className={`${inter.variable} ${serif.variable}`}
+      className={`${inter.variable} ${serif.variable} ${serifZh.variable}`}
     >
       <body>
         {children}

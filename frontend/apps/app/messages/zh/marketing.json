@@ -9,6 +9,26 @@
       "ctaSecondary": "体验 60 秒实时访谈 →",
       "footnote": "免费版每月包含 3 项研究，无需信用卡。"
     },
+    "heroDemo": {
+      "liveLabel": "实时 · 试着回答",
+      "q1": "先问个小问题——当你们需要真实的用户反馈时，团队现在通常怎么做？",
+      "suggestions1": {
+        "a": "发问卷",
+        "b": "自己约用户聊",
+        "c": "说实话，靠猜"
+      },
+      "q2": "明白。那通常是什么让你们没法做更多访谈——时间、预算，还是别的原因？",
+      "suggestions2": {
+        "a": "时间不够",
+        "b": "约人太麻烦",
+        "c": "分析太耗时"
+      },
+      "wrap": "这正是 telepace 擅长深挖的问题——用真实的语音对话，规模化地进行。要不要体验完整的 60 秒访谈？",
+      "inputPlaceholder": "或者输入你自己的回答…",
+      "send": "发送",
+      "ctaFull": "体验完整 60 秒访谈",
+      "restart": "重新开始"
+    },
     "trustBar": {
       "stats": {
         "channels": { "value": "5 种渠道", "detail": "一次访谈" },
@@ -38,6 +58,26 @@
         }
       }
     },
+    "insights": {
+      "eyebrow": "你将得到什么",
+      "title": "读起来像研究员亲笔写的洞察。",
+      "description": "不是让你逐字翻阅的转录稿——而是带置信度的主题排序，每一条都有可溯源的原声引述作为支撑。下面就是一份完成态的研究产出。",
+      "cta": "在演示中亲自体验 →",
+      "panel": {
+        "study": "定价研究 — Q3",
+        "meta": "24 场访谈 · 3 个主题 · 综合分析完成",
+        "themes": {
+          "t1": { "title": "价格被锚定在缺失的企业级功能上", "count": "14 / 24 场访谈" },
+          "t2": { "title": "年付折扣会改变用户的决策逻辑", "count": "11 / 24 场访谈" },
+          "t3": { "title": "按用量计费比两档订阅更有吸引力", "count": "9 / 24 场访谈" }
+        },
+        "quote": {
+          "text": "每月 79 美元本来没问题——直到我发现 SSO 不包含在内，那一刻就开始觉得是在被惩罚。",
+          "attribution": "第 17 场访谈 · B2B SaaS 产品负责人 · 14:32"
+        },
+        "exportHint": "自动同步到你团队工作的地方"
+      }
+    },
     "channels": {
       "eyebrow": "五种渠道，一次访谈",
       "title": "在受访者所在之处与他们相遇。",
@@ -53,7 +93,8 @@
       "eyebrow": "Agent 优先",
       "title": "让你的 Agent 拥有一位用户研究员。",
       "description": "telepace 提供 MCP 服务、Skill 和 REST API 三种接入方式。无论你的 Agent 运行在 Claude Desktop、Cursor、Codex 还是自建编排系统中，现在都能设计研究方案、发起访谈，并读取结构化的洞察结果。",
-      "cta": "浏览 MCP 工具 →"
+      "cta": "浏览 MCP 工具 →",
+      "tabs": { "mcp": "MCP", "rest": "REST API", "skill": "Skill" }
     },
     "useCases": {
       "eyebrow": "适用于",
