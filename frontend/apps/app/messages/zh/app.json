@@ -76,5 +76,14 @@
     "colExclusion": "排除原因",
     "emptyTitle": "暂无受访数据。",
     "emptyDescription": "访谈完成后，受访者数据将在此显示。"
+  },
+  "charts": {
+    "analysis": "分析",
+    "baseN": "N = {n}",
+    "smallSampleWarning": "小样本（N = {n}），请谨慎解读。",
+    "multiSelectTip": "百分比可能超过 100%——受访者可多选。",
+    "top2BoxNote": "Top-2-Box：最高两个评价选项的合计。",
+    "noData": "数据不足，暂无图表。",
+    "noDataDescription": "完成三个以上访谈后，图表将自动生成。"
   }
 }

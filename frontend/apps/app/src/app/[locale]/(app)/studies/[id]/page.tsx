@@ -18,6 +18,8 @@ import {
   type CampaignInsights,
   type InsightItem,
 } from "@/lib/api";
+import { TpBarChart, CrossTab, ChartSection } from "@/components/charts";
+import type { CrossTabRow } from "@/types/evidence";
 import { friendlyMessage, type ErrorsCopyTable } from "@/lib/errors";
 
 type Params = { id: string; locale: string };
@@ -245,6 +247,8 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
       </section>
 
       <InsightsSection insights={insights} isLive={isLive} completed={progress.completed} />
+
+      <AnalysisSection />
 
       <section className="grid gap-10 md:grid-cols-12">
         <div className="md:col-span-7">
@@ -568,6 +572,53 @@ function ResponsesSection() {
           values ? t(key, values as Record<string, string>) : t(key)
         }
       />
+    </section>
+  );
+}
+
+const MOCK_SENTIMENT: Array<{ label: string; value: number }> = [
+  { label: "Very satisfied", value: 42 },
+  { label: "Satisfied", value: 31 },
+  { label: "Neutral", value: 15 },
+  { label: "Dissatisfied", value: 8 },
+  { label: "Very dissatisfied", value: 4 },
+];
+
+const MOCK_CROSS_TAB_ROWS: CrossTabRow[] = [
+  { metric: "Very satisfied", values: [50, 36, 30], counts: [12, 5, 3] },
+  { metric: "Satisfied",      values: [29, 36, 30], counts: [7, 5, 3] },
+  { metric: "Neutral",        values: [13, 14, 20], counts: [3, 2, 2] },
+  { metric: "Dissatisfied",   values: [8, 14, 20],  counts: [2, 2, 2] },
+];
+
+function AnalysisSection() {
+  const t = useTranslations("app.charts");
+
+  return (
+    <section className="mb-14">
+      <p className="overline mb-6">{t("analysis")}</p>
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="rounded-card border border-hairline bg-paper-elevated p-6">
+          <ChartSection baseN={48} showTop2Box>
+            <TpBarChart
+              data={MOCK_SENTIMENT}
+              baseN={48}
+              title="Overall satisfaction"
+            />
+          </ChartSection>
+        </div>
+        <div className="rounded-card border border-hairline bg-paper-elevated p-6">
+          <ChartSection baseN={48}>
+            <CrossTab
+              title="Satisfaction by channel"
+              segmentLabel="Satisfaction"
+              bucketLabels={["Web text", "Web voice", "Phone"]}
+              rows={MOCK_CROSS_TAB_ROWS}
+              baseNPerBucket={[24, 14, 10]}
+            />
+          </ChartSection>
+        </div>
+      </div>
     </section>
   );
 }
