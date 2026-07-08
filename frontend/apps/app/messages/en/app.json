@@ -59,5 +59,14 @@
     "mcpAuthHint": "Authenticate with your API key above. Compatible with Claude Desktop, Claude Code, Cursor, and Codex.",
     "deleteWorkspace": "Delete workspace",
     "deleteWorkspaceWarning": "All studies, transcripts, and insights will be permanently deleted after a 30-day grace period."
+  },
+  "charts": {
+    "analysis": "Analysis",
+    "baseN": "N = {n}",
+    "smallSampleWarning": "Small sample (N = {n}). Interpret with caution.",
+    "multiSelectTip": "Percentages may exceed 100% — respondents could select multiple options.",
+    "top2BoxNote": "Top-2-Box: sum of the two most favorable responses.",
+    "noData": "Not enough data for charts yet.",
+    "noDataDescription": "Charts appear once three or more interviews have been analyzed."
   }
 }
