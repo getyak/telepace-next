@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Button } from "@telepace/ui";
+import { Button, EmptyState, icons } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
 

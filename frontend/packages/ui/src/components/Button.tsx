@@ -52,8 +52,6 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={cn(base, variants[variant], sizes[size], className)}
-      disabled={disabled || loading}
-      aria-busy={loading || undefined}
       {...props}
     >
       {loading && <Spinner size={14} />}

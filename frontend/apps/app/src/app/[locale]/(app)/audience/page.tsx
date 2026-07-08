@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Button } from "@telepace/ui";
+import { Badge, Button } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
 
@@ -57,7 +57,6 @@ export default async function AudiencePage() {
             </div>
           ))}
         </div>
-        )}
       </section>
 
       <section>
@@ -74,7 +73,6 @@ export default async function AudiencePage() {
             </div>
           ))}
         </div>
-        )}
       </section>
     </div>
   );

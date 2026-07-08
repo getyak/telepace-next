@@ -5,7 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { routes } from "@telepace/config";
 
 import { onHttpEvent } from "../http";
-import { fetchMe, login as loginApi, logout as logoutApi, type AuthUser } from "./client";
+import { fetchMe, login as loginApi, logout as logoutApi, registerUser, type AuthUser } from "./client";
 
 type AuthStatus = "loading" | "authenticated" | "guest";
 
