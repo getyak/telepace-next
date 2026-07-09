@@ -102,3 +102,4 @@ services:
 volumes:
   pg_data:
   web_node_modules:
+  marketing_node_modules:
