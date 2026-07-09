@@ -11,6 +11,7 @@ import {
 
 import { Link } from "@/i18n/navigation";
 import { AgentSurfacesTabs } from "@/components/marketing/AgentSurfacesTabs";
+import { HeroBackdrop } from "@/components/marketing/HeroBackdrop";
 import { HeroInterview } from "@/components/marketing/HeroInterview";
 import { InsightsShowcase } from "@/components/marketing/InsightsShowcase";
 import { Reveal } from "@/components/marketing/Reveal";
@@ -43,7 +44,8 @@ export default function Home() {
 async function Hero() {
   const t = await getTranslations("marketing.home.hero");
   return (
-    <section className="section-padding">
+    <section className="section-padding relative isolate overflow-hidden">
+      <HeroBackdrop />
       <div className="container-content grid md:grid-cols-12 gap-10 items-center">
         <div className="md:col-span-7 tp-fade-in-up">
           <p className="overline mb-6">{t("eyebrow")}</p>

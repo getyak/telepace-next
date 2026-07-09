@@ -20,7 +20,19 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({
+  children,
+  redirectOnExpiry = true,
+}: {
+  children: React.ReactNode;
+  /**
+   * When a session expires (or /me 401s), redirect to the login page. Correct
+   * for the protected app shell, but the public marketing pages mount this
+   * provider too — there a guest must NOT be bounced to /login, so they pass
+   * `redirectOnExpiry={false}`.
+   */
+  redirectOnExpiry?: boolean;
+}) {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   // The session lives in an httpOnly cookie, so the client can't know its
@@ -52,10 +64,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (evt.type === "auth:expired") {
         setUser(null);
         setStatus("guest");
-        router.push(routes.login);
+        // On public pages we just fall back to the guest UI in place; only the
+        // protected shell bounces to /login.
+        if (redirectOnExpiry) {
+          router.push(routes.login);
+        }
       }
     });
-  }, [router]);
+  }, [router, redirectOnExpiry]);
 
   const login = useCallback(
     async (email: string, password: string) => {

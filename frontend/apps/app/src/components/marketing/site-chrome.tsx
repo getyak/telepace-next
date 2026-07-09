@@ -1,9 +1,9 @@
 import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
-import { Button } from "@telepace/ui";
 import { routes, siteConfig } from "@telepace/config";
 
 import { MobileNav, type NavLink } from "./MobileNav";
+import { MarketingUserMenu, type MarketingUserMenuLabels } from "./MarketingUserMenu";
 
 const NAV_ITEMS: { href: string; labelKey: "voice" | "agent" | "pricing" | "docs" | "mcp" }[] = [
   { href: routes.product.voice, labelKey: "voice" },
@@ -13,9 +13,22 @@ const NAV_ITEMS: { href: string; labelKey: "voice" | "agent" | "pricing" | "docs
   { href: routes.mcp, labelKey: "mcp" },
 ];
 
-export async function Nav() {
+// `hasSession` is read from the httpOnly session cookie by the (server)
+// marketing layout and passed down, so the client menu can render the right
+// first paint without a flash of the guest buttons for returning users.
+export async function Nav({ hasSession = false }: { hasSession?: boolean }) {
   const t = await getTranslations("nav.marketing");
   const navLinks: NavLink[] = NAV_ITEMS.map((item) => ({ href: item.href, label: t(item.labelKey) }));
+
+  const userMenuLabels: MarketingUserMenuLabels = {
+    signIn: t("signIn"),
+    startFree: t("startFree"),
+    dashboard: t("dashboard"),
+    settings: t("settings"),
+    signOut: t("signOut"),
+    signedInAs: t("signedInAs"),
+  };
+
   return (
     <header className="border-b border-hairline sticky top-0 z-40 bg-paper/85 backdrop-blur">
       <div className="container-content flex items-center justify-between h-16">
@@ -30,17 +43,15 @@ export async function Nav() {
           ))}
         </nav>
         <div className="hidden md:flex items-center gap-3">
-          <Link href={routes.login} className="text-sm text-body hover:text-ink transition-colors">
-            {t("signIn")}
-          </Link>
-          <Link href={routes.signup}>
-            <Button size="sm">{t("startFree")}</Button>
-          </Link>
+          <MarketingUserMenu initialHasSession={hasSession} labels={userMenuLabels} />
         </div>
         <MobileNav
           links={navLinks}
+          initialHasSession={hasSession}
           signInLabel={t("signIn")}
           startFreeLabel={t("startFree")}
+          dashboardLabel={t("dashboard")}
+          signOutLabel={t("signOut")}
           openMenuLabel={t("openMenu")}
           closeMenuLabel={t("closeMenu")}
         />
