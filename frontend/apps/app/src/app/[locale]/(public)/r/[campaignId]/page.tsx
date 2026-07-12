@@ -1,8 +1,14 @@
 "use client";
 
-import { use, useEffect, useRef, useState } from "react";
+import { use, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ChatFeed, ChatComposer, VoiceOrb, type ChatMessage } from "@telepace/ui";
+import {
+  TextStage,
+  VoiceStage,
+  cn,
+  type ChatMessage,
+  type VoicePhase,
+} from "@telepace/ui";
 import {
   env,
   OPUS_CHUNK_MS,
@@ -33,6 +39,10 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
   const [speaking, setSpeaking] = useState(false);
   const [progress, setProgress] = useState<Progress>({ current: null, total: 0 });
   const [awaiting, setAwaiting] = useState(false);
+  // Voice-mode UI: the respondent taps the orb to start/stop capture, and can
+  // silence or replay the interviewer's read-aloud.
+  const [voicePhase, setVoicePhase] = useState<VoicePhase>("idle");
+  const [readAloud, setReadAloud] = useState(true);
   const answeredRef = useRef(0);
   const wsRef = useRef<WebSocket | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -40,6 +50,21 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
   const audioElRef = useRef<HTMLAudioElement | null>(null);
   const audioQueueRef = useRef<Blob[]>([]);
   const audioBusyRef = useRef(false);
+  // The last interviewer TTS clip, kept so "replay" can play it again without a
+  // round-trip. readAloudRef mirrors the toggle for use inside the WS closure
+  // (which captures state once at mount).
+  const lastClipRef = useRef<Blob | null>(null);
+  const readAloudRef = useRef(true);
+  const voicePhaseRef = useRef<VoicePhase>("idle");
+  // The active WS's playNextAudio, published by the voice effect so the replay
+  // control can drive playback from outside the effect closure.
+  const playNextAudioRef = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    readAloudRef.current = readAloud;
+  }, [readAloud]);
+  useEffect(() => {
+    voicePhaseRef.current = voicePhase;
+  }, [voicePhase]);
 
   // --- Text-mode WS ---
   useEffect(() => {
@@ -160,6 +185,12 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
     wsRef.current = ws;
 
     const enqueueAudio = (blob: Blob) => {
+      // Always keep the latest clip so "replay" works even when read-aloud is
+      // off — the respondent can choose to hear it on demand.
+      lastClipRef.current = blob;
+      // Respect the read-aloud toggle: when muted, we keep the clip for replay
+      // but don't auto-play it.
+      if (!readAloudRef.current) return;
       audioQueueRef.current.push(blob);
       void playNextAudio();
     };
@@ -184,6 +215,8 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
         void playNextAudio();
       };
     };
+    // Exposed to the tap handler so "replay" can re-queue the last clip.
+    playNextAudioRef.current = playNextAudio;
 
     ws.onopen = async () => {
       setConnected(true);
@@ -201,7 +234,9 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
             ev.data.arrayBuffer().then((buf) => ws.send(buf));
           }
         };
-        recorder.start(OPUS_CHUNK_MS);
+        // Capture is now tap-driven (see onOrbTap), not auto-started on open —
+        // the respondent controls exactly when they're on the record, mirroring
+        // the Listen Labs "tap to speak" affordance.
       } catch (err) {
         console.error("mic permission denied", err);
         setMessages((prev) => [
@@ -251,6 +286,8 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
               ...prev,
               { id: crypto.randomUUID(), role: "respondent", text: msg.text! },
             ]);
+            // Transcript landed — the send round-trip is done, release the orb.
+            setVoicePhase("idle");
           }
           break;
         case VoiceEventType.TtsStart:
@@ -297,6 +334,39 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
     }
   }
 
+  // Tap the orb: idle → start capturing; recording → stop + flush + await the
+  // transcript. A guarded no-op if the recorder isn't ready yet.
+  const onOrbTap = useCallback(() => {
+    const recorder = mediaRecorderRef.current;
+    if (!recorder) return;
+    if (voicePhaseRef.current === "idle") {
+      try {
+        recorder.start(OPUS_CHUNK_MS);
+        setVoicePhase("recording");
+      } catch {
+        /* already recording — ignore */
+      }
+    } else if (voicePhaseRef.current === "recording") {
+      try {
+        recorder.stop();
+      } catch {
+        /* not recording — ignore */
+      }
+      answeredRef.current += 1;
+      // Wait for the STT transcript to flip us back to idle (see SttDelta).
+      setVoicePhase("sending");
+    }
+  }, []);
+
+  // Replay the interviewer's last question: re-queue the saved clip and play,
+  // even when read-aloud is toggled off (an explicit, on-demand listen).
+  const replayQuestion = useCallback(() => {
+    const clip = lastClipRef.current;
+    if (!clip) return;
+    audioQueueRef.current.push(clip);
+    playNextAudioRef.current?.();
+  }, []);
+
   if (phase === "consent") {
     return (
       <Consent
@@ -310,66 +380,136 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
   if (phase === "done") return <Thanks answered={answeredRef.current} />;
 
   if (mode === "voice") {
+    // The question is the interviewer's most recent line; before any line
+    // arrives, show the gentle intro. Respondent transcripts never become the
+    // question — the stage always reflects what's being asked.
+    const lastQuestion =
+      [...messages].reverse().find((m) => m.role === "interviewer")?.text ??
+      t("chat.voiceIntro");
+    const hasQuestion = messages.some((m) => m.role === "interviewer");
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="flex min-h-screen flex-col">
         <ProgressBar progress={progress} />
-        <div className="flex-1 flex flex-col items-center justify-center gap-8 px-6">
-          <VoiceOrb
-            speaking={speaking}
-            speakingLabel={t("chat.speaking")}
-            listeningLabel={t("chat.listening")}
-          />
-          {/* Re-key on the message id so each new interviewer line fades in
-              rather than hard-swapping — keeps the voice UI feeling composed. */}
-          <p
-            key={messages[messages.length - 1]?.id ?? "intro"}
-            className="tp-fade-in-up text-body max-w-md text-center text-lg leading-relaxed"
-          >
-            {messages[messages.length - 1]?.text ?? t("chat.voiceIntro")}
-          </p>
-          {!connected && (
-            <p className="text-sm text-muted tp-pulse-slow">{t("chat.connecting")}</p>
-          )}
-        </div>
-        <div className="p-4 border-t border-hairline">
-          <ChatComposer
-            onSend={sendReply}
-            placeholder={t("chat.placeholder")}
-            sendLabel={t("chat.send")}
-            disabled={!connected}
-          />
-        </div>
+        <VoiceStage
+          question={lastQuestion}
+          phase={voicePhase}
+          speaking={speaking}
+          connected={connected}
+          onOrbTap={onOrbTap}
+          labels={{
+            idle: t("voice.tapToSpeak"),
+            recording: t("voice.tapToSend"),
+            sending: t("voice.sending"),
+            speaking: t("chat.speaking"),
+            connecting: t("chat.connecting"),
+            orbSpeaking: t("chat.speaking"),
+            orbListening: t("voice.tapToSpeak"),
+            orbRecording: t("voice.tapToSend"),
+          }}
+          readAloud={readAloud}
+          onToggleReadAloud={() => setReadAloud((v) => !v)}
+          readAloudLabel={t("voice.readAloud")}
+          onReplay={hasQuestion ? replayQuestion : undefined}
+          replayLabel={t("voice.replay")}
+        />
       </div>
     );
   }
 
+  // Derive the stage's three inputs from the message log:
+  // - the current question (last non-pending interviewer line),
+  // - whether the interviewer is still composing (a trailing pending line),
+  // - the respondent's most recent reply (the fading echo above the question).
+  let currentQuestion = "";
+  let questionPending = false;
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].role === "interviewer") {
+      if (messages[i].pending) questionPending = true;
+      else {
+        currentQuestion = messages[i].text;
+        break;
+      }
+    }
+  }
+  const lastReply = [...messages].reverse().find((m) => m.role === "respondent")?.text ?? null;
+  const stagePending = questionPending || (messages.length === 0 && connected);
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <ProgressBar progress={progress} />
+    // The full viewport IS the stage: warm paper, one hero question centered in
+    // a sea of whitespace, a bare writing line — Listen Labs' single-question
+    // focus, rebuilt in serif-on-paper with a sage rail and a warm receipt the
+    // cold-blue reference never offers. No card, no chrome: nothing frames the
+    // question, so it reads as the only thing in the room. A whisper of grain
+    // gives the paper material presence across a wide desktop.
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-paper">
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 opacity-[0.35] mix-blend-multiply tp-paper-grain"
+      />
+      {/* A hairline progress rule pinned to the very top edge — the only chrome.
+          It says "there's a path and you're on it" without a bar taking space. */}
+      <TopProgressRule progress={progress} />
+
+      {/* Brand mark, top-left, whisper-quiet — presence without a masthead bar. */}
+      <div className="pointer-events-none absolute left-6 top-5 z-10 flex items-center gap-2 sm:left-9 sm:top-7">
+        <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
+        <span className="font-display text-[15px] text-ink">{t("masthead.title")}</span>
+      </div>
+
       {dropped && (
-        <div className="mx-auto w-full max-w-2xl px-6">
-          <div className="mb-2 flex items-center justify-between rounded-card border border-hairline bg-paper-sunken px-4 py-2.5">
-            <p className="text-sm text-body">{t("connection.lost")}</p>
+        <div className="absolute left-1/2 top-16 z-20 w-[min(90vw,28rem)] -translate-x-1/2">
+          <div
+            role="alert"
+            className="flex items-center justify-between rounded-card border border-hairline bg-paper-elevated px-4 py-2.5 shadow-overlay"
+          >
+            <span className="flex items-center gap-2.5">
+              <span
+                aria-hidden
+                className="h-1.5 w-1.5 shrink-0 rounded-full bg-ink tp-pulse-slow"
+              />
+              <p className="text-sm text-body">{t("connection.lost")}</p>
+            </span>
             <button
               onClick={() => setRetryKey((k) => k + 1)}
-              className="text-sm text-accent hover:underline"
+              className="rounded-btn text-sm text-accent hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
             >
               {t("connection.reconnect")}
             </button>
           </div>
         </div>
       )}
-      <div className="flex-1 overflow-y-auto max-w-2xl mx-auto w-full px-6">
-        <ChatFeed messages={messages} typingLabel={t("chat.typing")} />
-      </div>
-      <div className="w-full max-w-2xl mx-auto">
-        <ChatComposer
+
+      <div className="relative flex flex-1 flex-col">
+        <TextStage
+          question={currentQuestion}
+          lastReply={lastReply}
+          pending={stagePending}
+          connected={connected}
           onSend={sendReply}
           disabled={!connected || awaiting}
           placeholder={awaiting ? t("chat.waiting") : t("chat.placeholder")}
           sendLabel={t("chat.send")}
+          hintLabel={t("chat.enterHint")}
+          textareaLabel={t("chat.inputLabel")}
+          bylineLabel={t("chat.researcher")}
+          receiptLabel={t("chat.captured")}
+          connectingLabel={t("chat.connecting")}
+          typingLabel={t("chat.typing")}
         />
       </div>
+
+      {/* Bottom-right: a quiet "where am I" counter — the linear-interview answer
+          to Listen Labs' page arrows. Muted, tabular, never pulls focus. */}
+      {progress.total > 0 && (
+        <div className="pointer-events-none absolute bottom-6 right-6 z-10 sm:bottom-8 sm:right-9">
+          <span className="font-mono text-[11px] tabular-nums text-faint">
+            {t("progress.questionOf", {
+              current: Math.min(progress.current ?? 1, progress.total),
+              total: progress.total,
+            })}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -377,32 +517,51 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
 function Consent({ onStart }: { onStart: (mode: "text" | "voice") => void }) {
   const t = useTranslations("respondent.consent");
   return (
-    <div className="min-h-screen flex items-center justify-center px-6">
-      <div className="max-w-lg text-center">
+    <div className="flex min-h-screen items-center justify-center px-6">
+      <div className="tp-fade-in-up max-w-lg text-center">
         <p className="overline mb-4">{t("eyebrow")}</p>
-        <h1 className="font-display text-5xl mb-6 leading-tight">
-          {t("title")}
-        </h1>
-        <p className="text-body text-lg leading-relaxed">
-          {t("body")}
-        </p>
-        <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+        <h1 className="mb-6 font-display text-5xl leading-tight">{t("title")}</h1>
+        <p className="text-lg leading-relaxed text-body">{t("body")}</p>
+        <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
           <button
             onClick={() => onStart("text")}
-            className="h-12 px-6 rounded-btn bg-ink text-paper hover:bg-ink-soft"
+            className="group inline-flex h-12 items-center justify-center gap-2 rounded-btn bg-ink px-6 text-paper transition-colors hover:bg-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
           >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path
+                d="M4 6h16M4 12h16M4 18h10"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+            </svg>
             {t("startWithText")}
           </button>
           <button
             onClick={() => onStart("voice")}
-            className="h-12 px-6 rounded-btn border border-hairline text-ink hover:bg-paper-elevated"
+            className="group inline-flex h-12 items-center justify-center gap-2 rounded-btn border border-hairline px-6 text-ink transition-colors hover:border-ink hover:bg-paper-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
           >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <rect
+                x="9"
+                y="3"
+                width="6"
+                height="11"
+                rx="3"
+                stroke="currentColor"
+                strokeWidth="1.6"
+              />
+              <path
+                d="M6 11a6 6 0 0 0 12 0M12 17v3"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+            </svg>
             {t("useVoice")}
           </button>
         </div>
-        <p className="text-xs text-muted mt-6 max-w-sm mx-auto">
-          {t("consentNotice")}
-        </p>
+        <p className="mx-auto mt-6 max-w-sm text-xs text-muted">{t("consentNotice")}</p>
       </div>
     </div>
   );
@@ -429,26 +588,93 @@ function Thanks({ answered }: { answered: number }) {
   );
 }
 
-function ProgressBar({ progress }: { progress: Progress }) {
+/**
+ * A single hairline progress rule pinned to the very top edge of the stage — the
+ * only chrome in the full-viewport text interview. It fills left-to-right in
+ * sage as questions are answered, saying "there is a path, and you're on it"
+ * without spending any vertical space or ink on a labelled bar. Accessible as a
+ * real progressbar; degrades to nothing before the total is known.
+ */
+function TopProgressRule({ progress }: { progress: Progress }) {
   const t = useTranslations("respondent.progress");
-  if (!progress.total) {
-    return <div className="py-6" />;
-  }
+  if (!progress.total) return null;
   const current = Math.min(progress.current ?? 1, progress.total);
   const pct = Math.round((current / progress.total) * 100);
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 py-6">
-      <div className="mb-2 flex items-baseline justify-between">
-        <p className="overline">
-          {t("questionOf", { current, total: progress.total })}
-        </p>
-        <span className="font-mono text-[11px] text-muted">{pct}%</span>
-      </div>
-      <div className="h-0.5 w-full overflow-hidden rounded-pill bg-hairline">
-        <div
-          className="h-full rounded-pill bg-accent transition-[width] duration-500 ease-out"
-          style={{ width: `${pct}%` }}
-        />
+    <div
+      role="progressbar"
+      aria-valuenow={current}
+      aria-valuemin={1}
+      aria-valuemax={progress.total}
+      aria-valuetext={t("questionOf", { current, total: progress.total })}
+      className="fixed inset-x-0 top-0 z-30 h-[3px] bg-transparent"
+    >
+      <div
+        className="h-full bg-accent transition-[width] duration-700 ease-out"
+        style={{ width: `${pct}%` }}
+      />
+    </div>
+  );
+}
+
+function ProgressBar({ progress, embedded }: { progress: Progress; embedded?: boolean }) {
+  const t = useTranslations("respondent.progress");
+  if (!progress.total) {
+    return embedded ? null : <div className="py-6" />;
+  }
+  const current = Math.min(progress.current ?? 1, progress.total);
+  const pct = Math.round((current / progress.total) * 100);
+  // A segmented spine — one pip per question — reads as a journey with a known
+  // length, not just a bar filling up. Capped so a long study stays a bar.
+  const useSegments = progress.total <= 12;
+  return (
+    <div
+      role="progressbar"
+      aria-valuenow={current}
+      aria-valuemin={1}
+      aria-valuemax={progress.total}
+      aria-valuetext={t("questionOf", { current, total: progress.total })}
+      className={cn(
+        // Standalone (voice mode): a sticky translucent bar over the page with
+        // a rule. Embedded (stage card): NO bottom rule — the progress dissolves
+        // into whitespace so the card reads as one continuous sheet, not a stack
+        // of ruled drawers.
+        embedded
+          ? "bg-transparent"
+          : "sticky top-0 z-20 border-b border-hairline/60 bg-paper/85 backdrop-blur-md",
+      )}
+    >
+      <div className={cn("w-full py-3.5", embedded ? "px-6 sm:px-8" : "mx-auto max-w-xl px-6")}>
+        <div className="mb-2 flex items-baseline justify-between">
+          <p className="overline">{t("questionOf", { current, total: progress.total })}</p>
+          <span className="font-mono text-[11px] tabular-nums text-muted">{pct}%</span>
+        </div>
+        {useSegments ? (
+          <div className="flex gap-1.5">
+            {Array.from({ length: progress.total }).map((_, i) => {
+              const done = i < current - 1;
+              const active = i === current - 1;
+              return (
+                <span
+                  key={i}
+                  className={cn(
+                    "h-1 flex-1 rounded-pill transition-colors duration-500",
+                    done && "bg-accent",
+                    active && "bg-accent/60",
+                    !done && !active && "bg-hairline",
+                  )}
+                />
+              );
+            })}
+          </div>
+        ) : (
+          <div className="h-1 w-full overflow-hidden rounded-pill bg-hairline">
+            <div
+              className="h-full rounded-pill bg-accent transition-[width] duration-500 ease-out"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

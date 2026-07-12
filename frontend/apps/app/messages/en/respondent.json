@@ -4,8 +4,12 @@
     "title": "Thanks for being here.",
     "body": "A researcher would like to hear from you. It'll take about 15 minutes and your responses shape what gets built next. Choose how you'd like to talk:",
     "startWithText": "Start with text",
-    "useVoice": "Use voice →",
+    "useVoice": "Use voice",
     "consentNotice": "By continuing you consent to your responses being recorded and analyzed to improve the product."
+  },
+  "masthead": {
+    "title": "telepace · User Research",
+    "subtitle": "Text or voice · About 15 min"
   },
   "thanks": {
     "eyebrow": "that's a wrap",
@@ -19,13 +23,24 @@
   },
   "chat": {
     "typing": "Thinking",
-    "placeholder": "Type your reply…",
+    "researcher": "Researcher",
+    "enterHint": "Enter to send · Shift + Enter for a new line",
+    "inputLabel": "Your reply",
+    "captured": "Captured",
+    "placeholder": "Write your answer — whatever comes to mind…",
     "waiting": "…",
     "send": "Send",
     "voiceIntro": "Let's begin. Take a breath.",
     "connecting": "connecting…",
     "speaking": "Interviewer is speaking",
     "listening": "Listening"
+  },
+  "voice": {
+    "tapToSpeak": "Tap to speak",
+    "tapToSend": "Listening · tap to send",
+    "sending": "Working on your answer…",
+    "readAloud": "Read aloud",
+    "replay": "Replay question"
   },
   "connection": {
     "lost": "Connection lost — your previous answers are saved.",

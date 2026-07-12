@@ -9,16 +9,29 @@ export const colors = {
   paper: "#F8F6F1",
   paperElevated: "#FAF8F3",
   paperSunken: "#EFEBE2",
+  // A deeper warm tone for the "desk" behind a lit stage card — pushed to ~8%
+  // below paperElevated so the card is felt to rest ON something, not float in
+  // a faint wash. The whole letter-on-a-desk metaphor lives on this contrast.
+  desk: "#E4DDCE",
 
+  // A four-step ink ladder — each rung is visibly separated (≥1.6:1 vs its
+  // neighbour) so type hierarchy rests on real tone, not just size/opacity.
+  // ink (headings) → body (prose, ~8:1) → muted (labels, ~4.6:1 AA) →
+  // faint (decorative only, sub-AA by design, never load-bearing).
   ink: "#141414",
   inkSoft: "#2A2622",
-  body: "#6B6660",
-  muted: "#8A857F",
+  body: "#4A4640",
+  muted: "#7A746C",
+  faint: "#9A948C",
   hairline: "#E8E4DB",
 
   accent: "#4A5D3B",
   accentHover: "#3D4E30",
   accentSoft: "#DCE4D2",
+  // A visible-but-quiet wash for the current-question highlight band — a hair
+  // of sage on paper (~1.1:1) that actually reads, unlike accent-soft at low
+  // opacity which vanished into the paper.
+  questionWash: "#EDF1E4",
 
   terracotta: "#B45A3C",
 

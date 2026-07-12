@@ -7,8 +7,12 @@ export {
   ChatFeed,
   ClarifyChips,
   ReadinessSpine,
+  StageComposer,
+  TextStage,
   TypingDots,
   VoiceOrb,
+  VoiceControls,
+  VoiceStage,
   type ChatMessage,
   type ChatRole,
   type ClarifyLabels,
@@ -16,6 +20,8 @@ export {
   type ClarifyPrompt,
   type PipStatus,
   type ReadinessPip,
+  type VoicePhase,
+  type VoiceStageLabels,
 } from "./components/Chat";
 export { renderInlineMarkdown } from "./components/inlineMarkdown";
 export { Spinner } from "./components/Spinner";

@@ -211,6 +211,26 @@ dialog.tp-dialog::backdrop {
   animation: tp-chip-in-kf 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Chat message — each bubble eases up into place once as it arrives, so the
+   conversation feels composed and alive rather than snapping in. Fires once
+   per message (keyed remount in the feed). */
+@keyframes tp-msg-in-kf {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tp-msg-in {
+  animation: tp-msg-in-kf 440ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Paper grain — a fine fractal-noise texture (inline SVG data URI, so it never
+   hits the network / CSP) laid over the desk so a large expanse of warm paper
+   reads as an actual sheet rather than a flat fill. Kept very subtle; pairs
+   with mix-blend-multiply + low opacity at the call site. */
+.tp-paper-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
 /* Accessibility — every animation degrades to a static state. */
 @media (prefers-reduced-motion: reduce) {
   .tp-spin,
@@ -223,6 +243,7 @@ dialog.tp-dialog::backdrop {
   .tp-diff-flash,
   .tp-guide-grow,
   .tp-chip-in,
+  .tp-msg-in,
   dialog.tp-dialog[open] {
     animation: none;
   }
