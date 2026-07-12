@@ -137,19 +137,19 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
   // Watchdog: never leave the respondent stuck on a silent interviewer.
   useEffect(() => {
     if (!awaiting) return;
-    const t = window.setTimeout(() => {
+    const timer = window.setTimeout(() => {
       setAwaiting(false);
       setMessages((prev) => [
         ...prev.filter((m) => !m.pending),
         {
           id: crypto.randomUUID(),
           role: "system",
-          text: "This is taking longer than usual — feel free to send your answer again.",
+          text: t("errors.watchdog"),
         },
       ]);
     }, REPLY_WATCHDOG_MS);
-    return () => window.clearTimeout(t);
-  }, [awaiting]);
+    return () => window.clearTimeout(timer);
+  }, [awaiting, t]);
 
   // --- Voice-mode WS (unchanged transport; progress not available here) ---
   useEffect(() => {
@@ -313,12 +313,23 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
     return (
       <div className="min-h-screen flex flex-col">
         <ProgressBar progress={progress} />
-        <div className="flex-1 flex flex-col items-center justify-center gap-6 px-6">
-          <VoiceOrb speaking={speaking} />
-          <p className="text-body max-w-md text-center text-lg">
+        <div className="flex-1 flex flex-col items-center justify-center gap-8 px-6">
+          <VoiceOrb
+            speaking={speaking}
+            speakingLabel={t("chat.speaking")}
+            listeningLabel={t("chat.listening")}
+          />
+          {/* Re-key on the message id so each new interviewer line fades in
+              rather than hard-swapping — keeps the voice UI feeling composed. */}
+          <p
+            key={messages[messages.length - 1]?.id ?? "intro"}
+            className="tp-fade-in-up text-body max-w-md text-center text-lg leading-relaxed"
+          >
             {messages[messages.length - 1]?.text ?? t("chat.voiceIntro")}
           </p>
-          {!connected && <p className="text-sm text-muted">{t("chat.connecting")}</p>}
+          {!connected && (
+            <p className="text-sm text-muted tp-pulse-slow">{t("chat.connecting")}</p>
+          )}
         </div>
         <div className="p-4 border-t border-hairline">
           <ChatComposer
@@ -401,7 +412,7 @@ function Thanks({ answered }: { answered: number }) {
   const t = useTranslations("respondent.thanks");
   return (
     <div className="min-h-screen flex items-center justify-center px-6">
-      <div className="max-w-lg text-center">
+      <div className="max-w-lg text-center tp-fade-in-up">
         <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-accent-soft text-accent">
           <svg width="20" height="20" viewBox="0 0 16 16" fill="none" aria-hidden>
             <path d="M3 8.5 6.5 12 13 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

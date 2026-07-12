@@ -5,10 +5,14 @@ export {
   ChatBubble,
   ChatComposer,
   ChatFeed,
+  ClarifyChips,
   TypingDots,
   VoiceOrb,
   type ChatMessage,
   type ChatRole,
+  type ClarifyLabels,
+  type ClarifyOption,
+  type ClarifyPrompt,
 } from "./components/Chat";
 export { Spinner } from "./components/Spinner";
 export { Badge } from "./components/Badge";

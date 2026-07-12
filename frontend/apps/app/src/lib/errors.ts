@@ -81,15 +81,23 @@ const KIND_TO_MESSAGE_KEY: Record<ErrorKind, string> = {
  */
 export type ErrorsCopyTable = Record<string, { title: string; description: string; actionLabel?: string }>;
 
-const FALLBACK_COPY: FriendlyCopy = {
+const FALLBACK_EN: FriendlyCopy = {
   title: "Something went wrong",
   description: "Please try again later.",
+};
+
+const FALLBACK_ZH: FriendlyCopy = {
+  title: "出错了",
+  description: "请稍后再试。",
 };
 
 function copyFor(table: ErrorsCopyTable, kind: ErrorKind): FriendlyCopy {
   const key = KIND_TO_MESSAGE_KEY[kind];
   const entry = table[key] ?? table.unknown;
-  if (!entry) return FALLBACK_COPY;
+  if (!entry) {
+    const isZh = table.network?.title?.match?.(/[一-鿿]/);
+    return isZh ? FALLBACK_ZH : FALLBACK_EN;
+  }
   return { title: entry.title, description: entry.description, actionLabel: entry.actionLabel };
 }
 

@@ -3,45 +3,41 @@ import { Button, EmptyState, icons } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
 
-const themes = [
+type ThemeDef = {
+  titleKey: string;
+  confidence: number;
+  quoteCount: number;
+  tagKey: string;
+  tagStyle: string;
+  quoteKeys: string[];
+};
+
+const themes: ThemeDef[] = [
   {
-    title: "$79 feels punitive without SSO",
+    titleKey: "theme1Title",
     confidence: 0.82,
     quoteCount: 11,
-    tag: "pricing",
-    quotes: [
-      "If SSO were included I wouldn't even blink at the price. Right now it feels like I'm paying to be inconvenienced.",
-      "Every other tool at this price gives you Okta. It's table stakes.",
-      "$79 with SSO = fine. $79 without = starting to look at competitors.",
-    ],
+    tagKey: "tagPricing",
+    tagStyle: "bg-terracotta/10 text-terracotta border-terracotta/20",
+    quoteKeys: ["theme1Quote1", "theme1Quote2", "theme1Quote3"],
   },
   {
-    title: "Onboarding stops mid-flow after email confirmation",
+    titleKey: "theme2Title",
     confidence: 0.74,
     quoteCount: 8,
-    tag: "onboarding",
-    quotes: [
-      "I confirmed my email and… nothing. I forgot about it for two days.",
-      "The email said 'you're in' but the app didn't seem to know that.",
-    ],
+    tagKey: "tagOnboarding",
+    tagStyle: "bg-paper-sunken text-body border-hairline",
+    quoteKeys: ["theme2Quote1", "theme2Quote2"],
   },
   {
-    title: "The MCP hook is the reason for the upgrade",
+    titleKey: "theme3Title",
     confidence: 0.91,
     quoteCount: 14,
-    tag: "expansion",
-    quotes: [
-      "The MCP integration is what made me pull out the card. Everything else is table stakes.",
-      "My Claude does research now. That's magic. Ten times worth $79.",
-    ],
+    tagKey: "tagExpansion",
+    tagStyle: "bg-accent-soft text-accent border-accent/30",
+    quoteKeys: ["theme3Quote1", "theme3Quote2"],
   },
 ];
-
-const tagStyle: Record<string, string> = {
-  pricing: "bg-terracotta/10 text-terracotta border-terracotta/20",
-  onboarding: "bg-paper-sunken text-body border-hairline",
-  expansion: "bg-accent-soft text-accent border-accent/30",
-};
 
 export default async function InsightsPage() {
   const t = await getTranslations("app.insights");
@@ -67,27 +63,27 @@ export default async function InsightsPage() {
       ) : (
       <div className="grid gap-6">
         {themes.map((theme) => (
-          <article key={theme.title} className="rounded-card border border-hairline bg-paper-elevated p-8">
+          <article key={theme.titleKey} className="rounded-card border border-hairline bg-paper-elevated p-8">
             <div className="flex items-start justify-between gap-6 mb-6">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-3">
-                  <span className={`inline-block px-2.5 py-0.5 rounded-pill border text-xs ${tagStyle[theme.tag]}`}>
-                    {theme.tag}
+                  <span className={`inline-block px-2.5 py-0.5 rounded-pill border text-xs ${theme.tagStyle}`}>
+                    {t(theme.tagKey)}
                   </span>
                   <span className="text-xs text-muted">
                     {t("confidenceLabel", { value: theme.confidence.toFixed(2), count: theme.quoteCount })}
                   </span>
                 </div>
-                <h2 className="font-display text-3xl leading-tight">{theme.title}</h2>
+                <h2 className="font-display text-3xl leading-tight">{t(theme.titleKey)}</h2>
               </div>
               <div>
                 <Button variant="ghost" size="sm">{t("dismiss")}</Button>
               </div>
             </div>
             <div className="space-y-3 border-l-2 border-accent pl-6">
-              {theme.quotes.map((q, i) => (
+              {theme.quoteKeys.map((qk, i) => (
                 <blockquote key={i} className="text-body italic leading-relaxed">
-                  “{q}”
+                  {`“${t(qk)}”`}
                 </blockquote>
               ))}
             </div>

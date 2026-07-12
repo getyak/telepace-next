@@ -23,7 +23,9 @@
     "waiting": "…",
     "send": "发送",
     "voiceIntro": "我们开始吧，先深呼吸一下。",
-    "connecting": "连接中…"
+    "connecting": "连接中…",
+    "speaking": "面试官正在讲话",
+    "listening": "正在聆听"
   },
   "connection": {
     "lost": "连接已断开 —— 你之前的回答已保存。",
@@ -31,6 +33,7 @@
   },
   "errors": {
     "hiccup": "我们这边出了点小问题，请重新发送一次。",
-    "micDenied": "无法访问你的麦克风 —— 你可以继续用文字输入。"
+    "micDenied": "无法访问你的麦克风 —— 你可以继续用文字输入。",
+    "watchdog": "这次回复有点慢——你可以再发一次你的回答。"
   }
 }

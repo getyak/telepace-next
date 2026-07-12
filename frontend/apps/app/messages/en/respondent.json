@@ -23,7 +23,9 @@
     "waiting": "…",
     "send": "Send",
     "voiceIntro": "Let's begin. Take a breath.",
-    "connecting": "connecting…"
+    "connecting": "connecting…",
+    "speaking": "Interviewer is speaking",
+    "listening": "Listening"
   },
   "connection": {
     "lost": "Connection lost — your previous answers are saved.",
@@ -31,6 +33,7 @@
   },
   "errors": {
     "hiccup": "Something hiccuped on our side — please send that again.",
-    "micDenied": "We couldn't access your microphone — you can keep typing instead."
+    "micDenied": "We couldn't access your microphone — you can keep typing instead.",
+    "watchdog": "This is taking longer than usual — feel free to send your answer again."
   }
 }

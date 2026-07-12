@@ -3,15 +3,31 @@ import { Badge, Button } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
 
-const segments = [
-  { name: "Pro trial (last 30 days)", count: 1240, source: "Stripe · auto-sync", delivered: 380, opened: 220, completed: 68 },
-  { name: "Churned in Q2", count: 542, source: "CSV · uploaded 2026-06-01", delivered: 120, opened: 84, completed: 34 },
-  { name: "Beta researchers", count: 84, source: "Manual · vetted", delivered: 60, opened: 55, completed: 41 },
+type SegmentDef = {
+  nameKey: string;
+  count: number;
+  sourceKey: string;
+  delivered: number;
+  opened: number;
+  completed: number;
+};
+
+const segments: SegmentDef[] = [
+  { nameKey: "segProTrial",     count: 1240, sourceKey: "srcStripeSync",  delivered: 380, opened: 220, completed: 68 },
+  { nameKey: "segChurnedQ2",    count: 542,  sourceKey: "srcCsvUploaded", delivered: 120, opened: 84,  completed: 34 },
+  { nameKey: "segBetaResearch", count: 84,   sourceKey: "srcManualVetted",delivered: 60,  opened: 55,  completed: 41 },
 ];
 
-const uploads = [
-  { name: "pro_trial_2026-06.csv", rows: 1240, date: "2026-06-30", status: "synced" },
-  { name: "churned_q2.csv", rows: 542, date: "2026-06-01", status: "synced" },
+type UploadDef = {
+  name: string;
+  rows: number;
+  date: string;
+  statusKey: string;
+};
+
+const uploads: UploadDef[] = [
+  { name: "pro_trial_2026-06.csv", rows: 1240, date: "2026-06-30", statusKey: "statusSynced" },
+  { name: "churned_q2.csv", rows: 542, date: "2026-06-01", statusKey: "statusSynced" },
 ];
 
 export default async function AudiencePage() {
@@ -33,11 +49,11 @@ export default async function AudiencePage() {
         <p className="overline mb-4">{t("segments")}</p>
         <div className="grid gap-4">
           {segments.map((s) => (
-            <div key={s.name} className="rounded-card border border-hairline bg-paper-elevated p-6">
+            <div key={s.nameKey} className="rounded-card border border-hairline bg-paper-elevated p-6">
               <div className="flex items-start justify-between gap-6">
                 <div>
-                  <p className="font-display text-2xl mb-1">{s.name}</p>
-                  <p className="text-sm text-muted">{t("peopleCount", { count: s.count.toLocaleString(), source: s.source })}</p>
+                  <p className="font-display text-2xl mb-1">{t(s.nameKey)}</p>
+                  <p className="text-sm text-muted">{t("peopleCount", { count: s.count.toLocaleString(), source: t(s.sourceKey) })}</p>
                 </div>
                 <div className="flex gap-6 text-right">
                   <div>
@@ -68,7 +84,7 @@ export default async function AudiencePage() {
               <div className="col-span-2 text-muted">{t("rowsCount", { count: u.rows.toLocaleString() })}</div>
               <div className="col-span-2 text-muted font-mono">{u.date}</div>
               <div className="col-span-2 text-right">
-                <Badge variant="accent">{u.status}</Badge>
+                <Badge variant="accent">{t(u.statusKey)}</Badge>
               </div>
             </div>
           ))}

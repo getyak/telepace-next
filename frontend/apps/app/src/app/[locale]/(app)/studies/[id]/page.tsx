@@ -20,7 +20,8 @@ import {
 } from "@/lib/api";
 import { TpBarChart, CrossTab, ChartSection } from "@/components/charts";
 import type { CrossTabRow } from "@/types/evidence";
-import { friendlyMessage, type ErrorsCopyTable } from "@/lib/errors";
+import { friendlyMessage } from "@/lib/errors";
+import { useErrorsCopy } from "@/components/app/ErrorsCopyContext";
 
 type Params = { id: string; locale: string };
 
@@ -48,10 +49,9 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
   const { id } = use(params);
   const search = useSearchParams();
   const justPublished = search.get("published") === "1";
-  const tErrors = useTranslations("errors");
   const t = useTranslations("app.studyDetail");
   const tReport = useTranslations("app.report");
-  const errorsCopy = tErrors.raw("") as ErrorsCopyTable;
+  const errorsCopy = useErrorsCopy();
 
   const [detail, setDetail] = useState<CampaignDetail | null>(null);
   const [insights, setInsights] = useState<CampaignInsights | null>(null);

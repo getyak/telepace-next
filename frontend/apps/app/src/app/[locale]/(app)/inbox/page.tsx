@@ -3,36 +3,20 @@ import { Badge, Button } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
 
-const items = [
-  {
-    id: "e1",
-    kind: "escalation",
-    study: "Pricing sensitivity for pro tier",
-    body: "Interview 048 flagged distress signals — auto-closed. Review the transcript before dismissing.",
-    time: "12m ago",
-    urgent: true,
-  },
-  {
-    id: "e2",
-    kind: "insight",
-    study: "Pricing sensitivity for pro tier",
-    body: "New theme surfaced: '$79 feels punitive without SSO' (confidence 0.82, 11 supporting quotes).",
-    time: "1h ago",
-  },
-  {
-    id: "e3",
-    kind: "progress",
-    study: "New onboarding walkthrough — first reactions",
-    body: "Reached 24 / 24 completions. Study auto-closes tomorrow unless you extend it.",
-    time: "3h ago",
-  },
-  {
-    id: "e4",
-    kind: "system",
-    study: "Workspace",
-    body: "Weekly digest is ready — 3 studies progressed and 2 new themes surfaced.",
-    time: "yesterday",
-  },
+type InboxItemDef = {
+  id: string;
+  kind: string;
+  studyKey: string;
+  bodyKey: string;
+  timeKey: string;
+  urgent?: boolean;
+};
+
+const items: InboxItemDef[] = [
+  { id: "e1", kind: "escalation", studyKey: "itemStudy1",  bodyKey: "itemBody1", timeKey: "itemTime1", urgent: true },
+  { id: "e2", kind: "insight",    studyKey: "itemStudy1",  bodyKey: "itemBody2", timeKey: "itemTime2" },
+  { id: "e3", kind: "progress",   studyKey: "itemStudy2",  bodyKey: "itemBody3", timeKey: "itemTime3" },
+  { id: "e4", kind: "system",     studyKey: "itemStudy3",  bodyKey: "itemBody4", timeKey: "itemTime4" },
 ];
 
 const kindVariant: Record<string, "danger" | "accent" | "neutral"> = {
@@ -71,10 +55,10 @@ export default async function InboxPage() {
               <Badge variant={kindVariant[it.kind] ?? "neutral"}>{t(kindLabelKey[it.kind] ?? it.kind)}</Badge>
             </div>
             <div className="col-span-8">
-              <p className="text-xs text-muted mb-1">{it.study}</p>
-              <p className={it.urgent ? "text-ink font-medium" : "text-body"}>{it.body}</p>
+              <p className="text-xs text-muted mb-1">{t(it.studyKey)}</p>
+              <p className={it.urgent ? "text-ink font-medium" : "text-body"}>{t(it.bodyKey)}</p>
             </div>
-            <div className="col-span-2 text-right text-sm text-muted">{it.time}</div>
+            <div className="col-span-2 text-right text-sm text-muted">{t(it.timeKey)}</div>
           </article>
         ))}
       </div>

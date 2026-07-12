@@ -8,8 +8,9 @@ import { routes } from "@telepace/config";
 import { StudiesIcon } from "@telepace/icons";
 
 import { PageHeader } from "@/components/app/PageHeader";
+import { useErrorsCopy } from "@/components/app/ErrorsCopyContext";
 import { getCampaigns, type CampaignListItem } from "@/lib/api";
-import { friendlyMessage, type ErrorsCopyTable } from "@/lib/errors";
+import { friendlyMessage } from "@/lib/errors";
 
 const statusVariant: Record<string, "accent" | "neutral" | "success" | "warning"> = {
   live: "accent",
@@ -33,9 +34,8 @@ function useRelativeTime() {
 }
 
 export default function StudiesPage() {
-  const tErrors = useTranslations("errors");
   const t = useTranslations("app.studies");
-  const errorsCopy = tErrors.raw("") as ErrorsCopyTable;
+  const errorsCopy = useErrorsCopy();
   const relativeTime = useRelativeTime();
   const [studies, setStudies] = useState<CampaignListItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
