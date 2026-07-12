@@ -154,3 +154,4 @@
 2026-07-09 T-204 done, commit 4b8b732 — MCP tools page with config snippet and tool documentation
 2026-07-09 T-205 done, commit 4b8b732 — cross-study copilot (CopilotChat, StudySelector, MemoExport)
 2026-07-09 T-206 done, commit d78cc11 — i18n consistency (all hardcoded strings extracted to en/zh app.json)
+2026-07-12 T-208 done, commit 890b6a5 — pre-creation task assessment gate (/assess endpoint, research_task first-class field, hard-gated clarify loop, editable Research Task card)
