@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Button } from "@telepace/ui";
+import { Button, Card } from "@telepace/ui";
 import { routes } from "@telepace/config";
 
 import { PageHeader } from "@/components/marketing/site-chrome";
@@ -61,7 +61,7 @@ export default async function VoicePage() {
             </div>
           </div>
           <aside className="md:col-span-5">
-            <div className="rounded-card border border-hairline bg-paper-elevated overflow-hidden">
+            <Card className="overflow-hidden">
               <div className="border-b border-hairline px-5 py-3 text-xs text-muted font-mono">
                 voiceflow · production-grade Go audio pipeline
               </div>
@@ -73,7 +73,7 @@ export default async function VoicePage() {
                 <p><span className="text-muted">◦</span>                       ↓</p>
                 <p><span className="text-muted">◦</span> speaker ◀─ TTS stream ◀╯</p>
               </div>
-            </div>
+            </Card>
             <dl className="mt-6 space-y-2 text-sm">
               {specs.map((s) => (
                 <div key={s.k} className="flex justify-between border-b border-hairline py-2">

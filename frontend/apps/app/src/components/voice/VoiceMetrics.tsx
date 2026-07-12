@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { cn } from "@telepace/ui";
+import { Card, cn } from "@telepace/ui";
 import type { VoiceMetricsData } from "./mock-voice-data";
 
 type VoiceMetricsProps = {
@@ -47,7 +47,7 @@ export function VoiceMetrics({ metrics }: VoiceMetricsProps) {
       {/* Metric cards grid */}
       <div className="grid grid-cols-2 gap-4">
         {/* Sentiment */}
-        <div className="rounded-card border border-hairline bg-paper-elevated p-5">
+        <Card className="p-5">
           <p className="overline mb-2">{t("sentiment")}</p>
           <div className="flex items-center gap-2">
             <span
@@ -68,10 +68,10 @@ export function VoiceMetrics({ metrics }: VoiceMetricsProps) {
           <p className="mt-1 text-xs text-muted font-mono">
             score: {metrics.avg_sentiment.toFixed(2)}
           </p>
-        </div>
+        </Card>
 
         {/* Pace */}
-        <div className="rounded-card border border-hairline bg-paper-elevated p-5">
+        <Card className="p-5">
           <p className="overline mb-2">{t("pace")}</p>
           <p
             className={cn(
@@ -85,19 +85,19 @@ export function VoiceMetrics({ metrics }: VoiceMetricsProps) {
           <p className="mt-1 text-xs text-muted">
             Normal range: 120&ndash;150 wpm
           </p>
-        </div>
+        </Card>
 
         {/* Pauses */}
-        <div className="rounded-card border border-hairline bg-paper-elevated p-5">
+        <Card className="p-5">
           <p className="overline mb-2">{t("pauses")}</p>
           <p className="font-display text-2xl text-ink">
             {metrics.pause_count}
           </p>
           <p className="mt-1 text-xs text-muted">total pauses detected</p>
-        </div>
+        </Card>
 
         {/* Longest pause */}
-        <div className="rounded-card border border-hairline bg-paper-elevated p-5">
+        <Card className="p-5">
           <p className="overline mb-2">Longest pause</p>
           <p className="font-display text-2xl text-ink">
             {formatMs(metrics.longest_pause_ms)}
@@ -105,11 +105,11 @@ export function VoiceMetrics({ metrics }: VoiceMetricsProps) {
           <p className="mt-1 text-xs text-muted">
             {metrics.longest_pause_ms}ms
           </p>
-        </div>
+        </Card>
       </div>
 
       {/* Emotion distribution */}
-      <div className="rounded-card border border-hairline bg-paper-elevated p-5">
+      <Card className="p-5">
         <p className="overline mb-4">{t("emotion")}</p>
         <div className="space-y-3">
           {metrics.emotion_distribution.map((emotion, index) => (
@@ -132,7 +132,7 @@ export function VoiceMetrics({ metrics }: VoiceMetricsProps) {
             </div>
           ))}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

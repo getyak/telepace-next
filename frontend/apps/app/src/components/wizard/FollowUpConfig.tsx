@@ -38,7 +38,7 @@ export function FollowUpConfig({ item, onChange }: FollowUpConfigProps) {
             onChange={(e) =>
               onChange({ ...item, max_followups: Number(e.target.value) })
             }
-            className="flex-1 accent-[#4A5D3B]"
+            className="flex-1 accent-accent"
           />
           <span className="font-mono text-sm text-muted w-4 text-center">
             {item.max_followups ?? 0}

@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Badge, Button } from "@telepace/ui";
+import { Badge, Button, Card } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
 
@@ -49,7 +49,7 @@ export default async function AudiencePage() {
         <p className="overline mb-4">{t("segments")}</p>
         <div className="grid gap-4">
           {segments.map((s) => (
-            <div key={s.nameKey} className="rounded-card border border-hairline bg-paper-elevated p-6">
+            <Card key={s.nameKey} className="p-6">
               <div className="flex items-start justify-between gap-6">
                 <div>
                   <p className="font-display text-2xl mb-1">{t(s.nameKey)}</p>
@@ -70,14 +70,14 @@ export default async function AudiencePage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       </section>
 
       <section>
         <p className="overline mb-4">{t("uploads")}</p>
-        <div className="border border-hairline rounded-card divide-y divide-hairline bg-paper-elevated">
+        <Card className="divide-y divide-hairline">
           {uploads.map((u) => (
             <div key={u.name} className="grid grid-cols-12 items-center px-6 py-4 text-sm">
               <div className="col-span-6 font-mono text-body">{u.name}</div>
@@ -88,7 +88,7 @@ export default async function AudiencePage() {
               </div>
             </div>
           ))}
-        </div>
+        </Card>
       </section>
     </div>
   );

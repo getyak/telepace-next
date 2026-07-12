@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { routes } from "@telepace/config";
+import { colors } from "@telepace/ui/tokens";
 
 import { redirect } from "@/i18n/navigation";
 import { ACCESS_COOKIE } from "@/lib/auth/cookies";
@@ -27,8 +28,7 @@ export default async function AuthLayout({
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-40"
         style={{
-          background:
-            "radial-gradient(90% 55% at 50% 0%, #EFEBE2 0%, transparent 70%)",
+          background: `radial-gradient(90% 55% at 50% 0%, ${colors.paperSunken} 0%, transparent 70%)`,
         }}
       />
       <div className="relative w-full max-w-[400px]">{children}</div>

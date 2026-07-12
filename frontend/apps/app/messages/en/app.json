@@ -160,6 +160,9 @@
     "chartOverallSatisfaction": "Overall satisfaction",
     "chartSatisfactionByChannel": "Satisfaction by channel",
     "chartSegmentSatisfaction": "Satisfaction",
+    "channelWebText": "Web text",
+    "channelWebVoice": "Web voice",
+    "channelPhone": "Phone",
     "errorTitle": "Couldn't load this study.",
     "retryButton": "Retry"
   },
@@ -295,6 +298,7 @@
     "suggestQuotes": "Most impactful quotes?"
   },
   "newStudy": {
+    "untitledStudy": "Untitled study",
     "systemGreeting": "Tell me what you'd like to learn. I'll draft the interview for you.",
     "suggestion1": "Why did trial users churn before upgrading last quarter?",
     "suggestion2": "How do freelancers decide which invoicing tool to pay for?",

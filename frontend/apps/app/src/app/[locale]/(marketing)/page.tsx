@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Button } from "@telepace/ui";
+import { Button, Card } from "@telepace/ui";
 import { routes } from "@telepace/config";
 import {
   LinkIcon,
@@ -171,13 +171,13 @@ async function Channels() {
         <div className="mt-14 grid sm:grid-cols-2 md:grid-cols-5 gap-4">
           {chs.map((c, i) => (
             <Reveal key={c.id} delay={i * 60} className="h-full">
-              <div className="group h-full rounded-card border border-hairline bg-paper-elevated px-5 py-8 flex flex-col justify-between min-h-[190px] transition-all duration-200 hover:-translate-y-1 hover:shadow-hover">
+              <Card className="group h-full px-5 py-8 flex flex-col justify-between min-h-[190px] transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-hover motion-reduce:transform-none motion-reduce:transition-none">
                 <div>
                   <c.Icon size={22} className="text-accent" />
                   <p className="font-display text-xl mt-4">{c.name}</p>
                 </div>
                 <p className="text-sm text-muted mt-4">{c.meta}</p>
-              </div>
+              </Card>
             </Reveal>
           ))}
         </div>

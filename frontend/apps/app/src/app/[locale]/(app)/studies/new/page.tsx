@@ -4,6 +4,7 @@ import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Button,
+  Card,
   ChatFeed,
   ChatComposer,
   ReadinessSpine,
@@ -145,7 +146,10 @@ export default function NewStudyPage() {
   const suggestions = [tc("suggestion1"), tc("suggestion2"), tc("suggestion3")];
 
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
-  const [spec, setSpec] = useState<Spec>(INITIAL_SPEC);
+  // The default title is shown in the header before the agent derives one, so
+  // it must be localized — a bare "New study" was the one bit of English that
+  // leaked into the zh create flow.
+  const [spec, setSpec] = useState<Spec>(() => ({ ...INITIAL_SPEC, title: tc("untitledStudy") }));
   const [campaignId, setCampaignId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [publishing, setPublishing] = useState(false);
@@ -1154,7 +1158,7 @@ export default function NewStudyPage() {
 
       {simOpen && (
         <div
-          className="fixed inset-x-0 bottom-0 z-50 border-t border-hairline bg-paper shadow-2xl"
+          className="tp-chrome fixed inset-x-0 bottom-0 z-50 border-t border-hairline shadow-overlay"
           style={{ maxHeight: "60vh" }}
           role="dialog"
           aria-label={tc("simDialogLabel")}
@@ -1189,9 +1193,9 @@ export default function NewStudyPage() {
           <div className="overflow-y-auto p-6" style={{ maxHeight: "calc(60vh - 3.5rem)" }}>
             <div className="max-w-3xl mx-auto space-y-4">
               {simError && (
-                <div className="rounded-card border border-hairline bg-paper-elevated p-4 text-sm text-muted">
+                <Card className="p-4 text-sm text-muted">
                   {simError}
-                </div>
+                </Card>
               )}
               {simLoading && !sim && (
                 <div className="rounded-card border border-dashed border-hairline p-8 text-center text-muted">
@@ -1199,10 +1203,10 @@ export default function NewStudyPage() {
                 </div>
               )}
               {sim?.persona_summary && (
-                <div className="rounded-card border border-hairline bg-paper-elevated p-4">
+                <Card className="p-4">
                   <p className="overline mb-1">{tc("personaSummary")}</p>
                   <p className="text-body">{sim.persona_summary}</p>
-                </div>
+                </Card>
               )}
               {sim?.turns.map((t, i) => (
                 <div key={i} className="rounded-card border border-hairline bg-paper p-4">

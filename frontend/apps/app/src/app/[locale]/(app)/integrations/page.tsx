@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Badge, Button, EmptyState, icons } from "@telepace/ui";
+import { Badge, Button, Card, EmptyState, icons } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
 
@@ -45,7 +45,7 @@ export default async function IntegrationsPage() {
         {integrations.map((it) => {
           const isDisconnected = disconnectedStatuses.has(it.statusKey);
           return (
-            <div key={it.name} className="rounded-card border border-hairline bg-paper-elevated p-6 flex items-start justify-between gap-6">
+            <Card key={it.name} className="p-6 flex items-start justify-between gap-6">
               <div>
                 <p className="overline mb-1">{t(it.categoryKey)}</p>
                 <p className="font-display text-2xl mb-2">{it.name}</p>
@@ -57,7 +57,7 @@ export default async function IntegrationsPage() {
                   {isDisconnected ? t("connect") : t("configure")}
                 </Button>
               </div>
-            </div>
+            </Card>
           );
         })}
       </div>

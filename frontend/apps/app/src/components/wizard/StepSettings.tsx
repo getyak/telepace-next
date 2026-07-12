@@ -67,7 +67,7 @@ export function StepSettings({
             max={100}
             value={targetCompletions}
             onChange={(e) => onTargetChange(Number(e.target.value))}
-            className="flex-1 accent-[#4A5D3B]"
+            className="flex-1 accent-accent"
           />
           <span className="font-mono text-sm text-muted w-8 text-center">
             {targetCompletions}

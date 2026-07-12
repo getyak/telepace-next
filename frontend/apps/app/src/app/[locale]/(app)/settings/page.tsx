@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Button, Input, Label } from "@telepace/ui";
+import { Button, Card, Input, Label } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
 
@@ -38,7 +38,7 @@ export default async function SettingsPage() {
         <div className="md:col-span-9 space-y-14">
           <section id="workspace">
             <p className="overline mb-4">{t("sections.workspace")}</p>
-            <div className="rounded-card border border-hairline bg-paper-elevated p-6 space-y-4">
+            <Card className="p-6 space-y-4">
               <div>
                 <Label htmlFor="ws-name">{t("workspaceName")}</Label>
                 <Input id="ws-name" defaultValue="Acme Research" />
@@ -50,12 +50,12 @@ export default async function SettingsPage() {
               <div className="pt-2 flex justify-end">
                 <Button>{t("saveChanges")}</Button>
               </div>
-            </div>
+            </Card>
           </section>
 
           <section id="members">
             <p className="overline mb-4">{t("sections.members")}</p>
-            <div className="border border-hairline rounded-card divide-y divide-hairline bg-paper-elevated">
+            <Card className="divide-y divide-hairline">
               {members.map((m) => (
                 <div key={m.email} className="grid grid-cols-12 items-center px-6 py-4">
                   <div className="col-span-5">
@@ -71,12 +71,12 @@ export default async function SettingsPage() {
               <div className="px-6 py-4 flex justify-end">
                 <Button variant="secondary" size="sm">{t("inviteMember")}</Button>
               </div>
-            </div>
+            </Card>
           </section>
 
           <section id="billing">
             <p className="overline mb-4">{t("sections.billing")}</p>
-            <div className="rounded-card border border-hairline bg-paper-elevated p-6">
+            <Card className="p-6">
               <div className="flex items-baseline justify-between mb-6">
                 <div>
                   <p className="font-display text-2xl">Pro</p>
@@ -89,12 +89,12 @@ export default async function SettingsPage() {
                 <div><p className="overline mb-1">{t("completions")}</p><p className="font-display text-2xl">312 / 500</p></div>
                 <div><p className="overline mb-1">{t("voiceMinutes")}</p><p className="font-display text-2xl">48 min</p></div>
               </div>
-            </div>
+            </Card>
           </section>
 
           <section id="api-keys">
             <p className="overline mb-4">{t("sections.apiKeys")}</p>
-            <div className="rounded-card border border-hairline bg-paper-elevated p-6 space-y-3">
+            <Card className="p-6 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-mono text-sm text-ink">tp_live_a1b2•••7f9</p>
@@ -105,16 +105,16 @@ export default async function SettingsPage() {
               <div className="pt-2 flex justify-end">
                 <Button variant="secondary" size="sm">{t("createKey")}</Button>
               </div>
-            </div>
+            </Card>
           </section>
 
           <section id="mcp">
             <p className="overline mb-4">{t("sections.mcp")}</p>
-            <div className="rounded-card border border-hairline bg-paper-elevated p-6">
+            <Card className="p-6">
               <p className="text-body mb-3">{t("mcpEndpointIntro")}</p>
               <pre className="font-mono text-sm rounded-btn bg-paper-sunken p-3 text-ink">https://mcp.telepace.io/w/acme</pre>
               <p className="text-xs text-muted mt-3">{t("mcpAuthHint")}</p>
-            </div>
+            </Card>
           </section>
 
           <section id="danger">

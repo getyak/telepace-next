@@ -48,9 +48,9 @@ export function DiffView({ before, after }: DiffViewProps) {
   const changes = computeDiff(before, after);
 
   const kindStyles: Record<FieldChange["kind"], string> = {
-    added: "bg-green-500/10 text-green-700 border-green-500/30",
-    removed: "bg-red-500/10 text-red-700 border-red-500/30",
-    modified: "bg-yellow-500/10 text-yellow-700 border-yellow-500/30",
+    added: "bg-success/10 text-success border-success/30",
+    removed: "bg-danger/10 text-danger border-danger/30",
+    modified: "bg-warning/10 text-warning border-warning/30",
   };
 
   const kindLabels: Record<FieldChange["kind"], string> = {

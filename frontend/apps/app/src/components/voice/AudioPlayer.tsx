@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { cn } from "@telepace/ui";
+import { Card, cn } from "@telepace/ui";
 
 type AudioPlayerProps = {
   src: string;
@@ -93,8 +93,8 @@ export function AudioPlayer({ src, onTimeUpdate }: AudioPlayerProps) {
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div
-      className="rounded-card border border-hairline bg-paper-elevated p-5"
+    <Card
+      className="p-5"
       role="group"
       aria-label={t("audioPlayer")}
     >
@@ -187,6 +187,6 @@ export function AudioPlayer({ src, onTimeUpdate }: AudioPlayerProps) {
           />
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

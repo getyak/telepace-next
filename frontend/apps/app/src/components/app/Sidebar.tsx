@@ -76,8 +76,11 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Desktop rail */}
-      <aside className="hidden w-[240px] shrink-0 flex-col border-r border-hairline bg-paper-elevated md:flex">
+      {/* Desktop rail — a translucent material pinned to the viewport so it
+          stays put while the page scrolls beneath it (Apple: floating chrome,
+          not a panel that scrolls away). tp-chrome frosts to solid under
+          prefers-reduced-transparency / no-backdrop-filter. */}
+      <aside className="tp-chrome hidden w-[240px] shrink-0 flex-col border-r border-hairline md:sticky md:top-0 md:flex md:h-screen">
         <div className="border-b border-hairline px-5 py-5">
           <Link href={routes.app.root} className="font-display text-xl">
             {siteConfig.brand.name}
@@ -95,8 +98,9 @@ export function Sidebar() {
         <UserMenu />
       </aside>
 
-      {/* Mobile top bar */}
-      <div className="flex h-14 items-center justify-between border-b border-hairline bg-paper-elevated px-4 md:hidden">
+      {/* Mobile top bar — sticky translucent chrome so the page content
+          scrolls *under* it (where the material actually reads). */}
+      <div className="tp-chrome sticky top-0 z-30 flex h-14 items-center justify-between border-b border-hairline px-4 md:hidden">
         <Link href={routes.app.root} className="font-display text-lg">
           {siteConfig.brand.name}
         </Link>

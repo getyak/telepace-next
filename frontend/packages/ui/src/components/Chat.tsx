@@ -263,47 +263,65 @@ export function ReadinessSpine({
   label?: string;
 }) {
   return (
-    <div className="flex items-center gap-3" role="group" aria-label={label}>
-      {pips.map((pip) => {
+    <div className="flex items-center" role="group" aria-label={label}>
+      {pips.map((pip, idx) => {
         const satisfied = pip.status === "satisfied";
         const na = pip.status === "na";
+        // The connecting spine: the segment leading into this pip reads as
+        // "traversed" (accent) once the previous checkpoint is satisfied, so the
+        // row resolves into one progress backbone rather than five loose dots —
+        // giving the create loop's soul-state the visual weight it was missing.
+        const prevSatisfied = idx > 0 && pips[idx - 1].status === "satisfied";
         return (
-          <span
-            key={pip.key}
-            className={cn(
-              "inline-flex items-center gap-1.5 whitespace-nowrap text-xs transition-colors",
-              satisfied ? "font-medium text-body" : "text-muted",
+          <React.Fragment key={pip.key}>
+            {idx > 0 && (
+              <span
+                aria-hidden
+                className={cn(
+                  "h-px w-5 shrink-0 transition-colors duration-300",
+                  prevSatisfied ? "bg-accent" : "bg-hairline",
+                )}
+              />
             )}
-          >
             <span
-              // The mark carries meaning three ways so it never relies on colour:
-              // filled dot + ✓ (satisfied), hollow ring (pending), em-dash (n/a).
-              aria-hidden
               className={cn(
-                "flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[8px] leading-none",
-                satisfied && "bg-accent text-paper",
-                !satisfied && !na && "border border-hairline",
-                // The one-shot ping is gated by the caller (null under
-                // reduced-motion) AND by the CSS reduced-motion query.
-                satisfied && pip.key === justSatisfied && "tp-ping-once",
+                "inline-flex items-center gap-1.5 whitespace-nowrap px-1 text-xs transition-colors",
+                satisfied ? "font-medium text-ink" : "text-muted",
               )}
             >
-              {satisfied ? (
-                <svg width="8" height="8" viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M3 8.5 6.5 12 13 4.5"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              ) : na ? (
-                <span className="text-muted">—</span>
-              ) : null}
+              <span
+                // The mark carries meaning three ways so it never relies on colour:
+                // filled dot + ✓ (satisfied), hollow ring (pending), em-dash (n/a).
+                aria-hidden
+                className={cn(
+                  "flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] leading-none transition-colors",
+                  satisfied && "bg-accent text-paper",
+                  // A visible pending ring — the old hairline ring all but
+                  // vanished; muted@50% reads as "waiting" without shouting.
+                  !satisfied && !na && "border border-muted/50",
+                  na && "border border-hairline",
+                  // The one-shot ping is gated by the caller (null under
+                  // reduced-motion) AND by the CSS reduced-motion query.
+                  satisfied && pip.key === justSatisfied && "tp-ping-once",
+                )}
+              >
+                {satisfied ? (
+                  <svg width="9" height="9" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M3 8.5 6.5 12 13 4.5"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                ) : na ? (
+                  <span className="text-muted">—</span>
+                ) : null}
+              </span>
+              {pip.label}
             </span>
-            {pip.label}
-          </span>
+          </React.Fragment>
         );
       })}
     </div>

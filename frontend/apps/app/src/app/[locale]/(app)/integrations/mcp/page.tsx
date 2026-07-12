@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { Badge, Button } from "@telepace/ui";
+import { Badge, Button, Card } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
 import { CodeBlock } from "@/components/integrations/CodeBlock";
@@ -73,9 +73,9 @@ export default function McpPage() {
         <h2 className="font-display text-2xl mb-4">{t("toolsTitle")}</h2>
         <div className="grid md:grid-cols-2 gap-4">
           {TOOLS.map((tool) => (
-            <div
+            <Card
               key={tool.nameKey}
-              className="rounded-card border border-hairline bg-paper-elevated p-6"
+              className="p-6"
             >
               <div className="mb-2 flex items-center gap-3">
                 <Badge variant="accent">
@@ -83,7 +83,7 @@ export default function McpPage() {
                 </Badge>
               </div>
               <p className="text-sm text-body">{t(tool.descKey)}</p>
-            </div>
+            </Card>
           ))}
         </div>
       </section>

@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@telepace/ui";
+import { Card, cn } from "@telepace/ui";
 
 import type { CrossTabRow } from "@/types/evidence";
 
@@ -26,7 +26,7 @@ export function CrossTab({
       {title && (
         <p className="overline mb-4">{title}</p>
       )}
-      <div className="overflow-x-auto rounded-card border border-hairline bg-paper-elevated">
+      <Card className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="divide-x divide-hairline border-b border-hairline">
@@ -67,7 +67,7 @@ export function CrossTab({
             </tr>
           </tbody>
         </table>
-      </div>
+      </Card>
     </div>
   );
 }

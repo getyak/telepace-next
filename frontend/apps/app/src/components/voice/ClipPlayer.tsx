@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { cn } from "@telepace/ui";
+import { Card, cn } from "@telepace/ui";
 import type { AudioClip } from "./mock-voice-data";
 
 type ClipPlayerProps = {
@@ -50,7 +50,7 @@ export function ClipPlayer({ clip }: ClipPlayerProps) {
   const progress = clip.duration > 0 ? (currentTime / clip.duration) * 100 : 0;
 
   return (
-    <div className="rounded-card border border-hairline bg-paper-elevated p-4">
+    <Card className="p-4">
       <audio ref={audioRef} src={clip.audioSrc} preload="metadata" />
 
       <div className="flex items-center justify-between gap-3">
@@ -99,6 +99,6 @@ export function ClipPlayer({ clip }: ClipPlayerProps) {
           />
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

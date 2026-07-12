@@ -3,6 +3,7 @@
 import { use, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
+  Card,
   TextStage,
   VoiceStage,
   cn,
@@ -458,9 +459,9 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
 
       {dropped && (
         <div className="absolute left-1/2 top-16 z-20 w-[min(90vw,28rem)] -translate-x-1/2">
-          <div
+          <Card
             role="alert"
-            className="flex items-center justify-between rounded-card border border-hairline bg-paper-elevated px-4 py-2.5 shadow-overlay"
+            className="flex items-center justify-between px-4 py-2.5 shadow-overlay"
           >
             <span className="flex items-center gap-2.5">
               <span
@@ -475,7 +476,7 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
             >
               {t("connection.reconnect")}
             </button>
-          </div>
+          </Card>
         </div>
       )}
 

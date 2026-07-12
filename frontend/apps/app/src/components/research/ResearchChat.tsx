@@ -102,7 +102,7 @@ function AgentAnswerCard({ answer }: { answer: AgentAnswer }) {
 
   return (
     <div className="flex w-full justify-start">
-      <div className="max-w-[85%] rounded-card border border-hairline bg-paper-elevated px-4 py-3 text-[15px] leading-[1.5] text-ink">
+      <Card className="max-w-[85%] px-4 py-3 text-[15px] leading-[1.5] text-ink">
         <CitedAnswer text={answer.answer} citations={answer.sources} />
 
         <ReasoningBlock text={answer.reasoning} />
@@ -129,7 +129,7 @@ function AgentAnswerCard({ answer }: { answer: AgentAnswer }) {
             </ol>
           )}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

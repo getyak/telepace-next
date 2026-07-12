@@ -30,7 +30,7 @@ export async function Nav({ hasSession = false }: { hasSession?: boolean }) {
   };
 
   return (
-    <header className="border-b border-hairline sticky top-0 z-40 bg-paper/85 backdrop-blur">
+    <header className="tp-chrome border-b border-hairline sticky top-0 z-40">
       <div className="container-content flex items-center justify-between h-16">
         <Link href={routes.home} className="font-display text-xl">
           {siteConfig.brand.name}
