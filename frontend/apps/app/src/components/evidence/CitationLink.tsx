@@ -42,7 +42,7 @@ export function CitationLink({ citationId, index, className }: CitationLinkProps
       aria-label={`${t("viewSource")} ${label}`}
       className={cn(
         "relative -top-1 mx-0.5 inline-flex min-w-[1.25rem] items-center justify-center",
-        "rounded px-1 align-super text-[0.65rem] font-medium leading-none",
+        "rounded-input px-1 align-super text-[0.65rem] font-medium leading-none",
         "text-accent transition-colors hover:bg-accent-soft hover:text-accent",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40",
         className,

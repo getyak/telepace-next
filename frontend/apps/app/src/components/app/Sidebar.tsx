@@ -166,7 +166,8 @@ function SideLink({ item, label, active }: { item: Item; label: string; active: 
       href={item.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "relative flex items-center gap-2.5 rounded-btn px-3 py-2 transition-colors",
+        "relative flex items-center gap-2.5 rounded-btn px-3 py-2 transition-colors " +
+          "active:bg-paper-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
         active
           ? "bg-paper font-medium text-ink"
           : "text-body hover:bg-paper hover:text-ink",

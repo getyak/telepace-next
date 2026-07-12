@@ -135,7 +135,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
   if (loadError) {
     return (
       <div className="mx-auto max-w-content p-10">
-        <Link href={routes.app.root} className="text-sm text-muted transition-colors hover:text-ink">
+        <Link href={routes.app.root} className="rounded-input text-sm text-muted transition-colors hover:text-ink active:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">
           {t("allStudies")}
         </Link>
         <div className="mt-16 text-center">
@@ -177,7 +177,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
   return (
     <div className="mx-auto max-w-content p-6 md:p-10">
       <div className="mb-6">
-        <Link href={routes.app.root} className="text-sm text-muted transition-colors hover:text-ink">
+        <Link href={routes.app.root} className="rounded-input text-sm text-muted transition-colors hover:text-ink active:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">
           {t("allStudies")}
         </Link>
       </div>

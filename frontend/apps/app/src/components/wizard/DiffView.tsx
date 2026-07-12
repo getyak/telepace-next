@@ -65,7 +65,7 @@ export function DiffView({ before, after }: DiffViewProps) {
         <li
           key={`${change.kind}-${change.key}`}
           className={cn(
-            "rounded-md border px-3 py-2 text-sm",
+            "rounded-btn border px-3 py-2 text-sm",
             kindStyles[change.kind],
           )}
         >

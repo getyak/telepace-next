@@ -705,7 +705,7 @@ export function ChatComposer({
           tactile surface that lifts on focus, rather than a box + a button. */}
       <div
         className={cn(
-          "flex items-end gap-2 rounded-[20px] border bg-paper-elevated px-3 py-2 transition-all duration-200",
+          "flex items-end gap-2 rounded-[20px] border bg-paper-elevated px-3 py-2 transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none",
           focused
             ? "border-ink/25 shadow-hover ring-4 ring-accent-soft/40"
             : "border-hairline hover:border-ink/20",
@@ -736,7 +736,7 @@ export function ChatComposer({
           disabled={!canSend}
           aria-label={sendLabel}
           className={cn(
-            "mb-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all duration-200",
+            "mb-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-[transform,background-color,color] duration-200 motion-reduce:transition-none",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
             canSend
               ? "bg-accent text-paper hover:scale-105 active:scale-95"
@@ -1015,7 +1015,7 @@ export function StageComposer({
           disabled={!canSend}
           aria-label={sendLabel}
           className={cn(
-            "mb-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all duration-200",
+            "mb-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-[transform,color] duration-200 motion-reduce:transition-none",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
             canSend
               ? "text-accent hover:scale-110 active:scale-95"
@@ -1126,7 +1126,7 @@ export function VoiceOrb({
       {/* Inner halo — offset breath for depth; swells when speaking/recording. */}
       <div
         className={cn(
-          "absolute rounded-full transition-all duration-700 ease-out",
+          "absolute rounded-full transition-[transform,opacity,background-color] duration-700 ease-out motion-reduce:transition-none",
           size === "lg" ? "inset-4" : "inset-3",
           recording ? "bg-ink/15" : "bg-accent-soft",
           speaking || recording ? "scale-110 opacity-80" : "scale-100 opacity-60",
@@ -1163,7 +1163,7 @@ export function VoiceOrb({
           without motion or colour (WCAG 1.4.1). */}
       <div
         className={cn(
-          "relative z-10 flex items-center justify-center rounded-full transition-all duration-500 ease-out",
+          "relative z-10 flex items-center justify-center rounded-full transition-[transform,background-color] duration-500 ease-out motion-reduce:transition-none",
           core,
           recording ? "bg-ink" : "bg-accent",
           speaking || recording ? "scale-105" : "scale-100",

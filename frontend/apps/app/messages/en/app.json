@@ -88,7 +88,9 @@
     "detailAnthropic": "Bearer • sk-***-9c1",
     "detailOpenAI": "Add a key to enable",
     "detailVapi": "Outbound number: +1 415 555 0134",
-    "detailResend": "Domain: mail.telepace.io"
+    "detailResend": "Domain: mail.telepace.io",
+    "copy": "Copy",
+    "copied": "Copied!"
   },
   "studies": {
     "eyebrow": "Your studies",

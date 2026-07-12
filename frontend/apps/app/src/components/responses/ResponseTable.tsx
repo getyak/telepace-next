@@ -141,16 +141,22 @@ export function ResponseTable({ rows, className }: ResponseTableProps) {
           <thead>
             <tr className="border-t border-hairline">
               {columns.map((col) => (
-                <th
-                  key={col.label}
-                  className={cn(
-                    "overline px-4 py-2.5 text-left font-normal",
-                    col.key && "cursor-pointer select-none hover:text-ink",
+                <th key={col.label} className="overline px-4 py-2.5 text-left font-normal">
+                  {col.key ? (
+                    // A real <button> so the sort control is keyboard-operable
+                    // (Enter/Space) and shows a focus ring + pointer-down press —
+                    // an onClick <th> alone was mouse-only.
+                    <button
+                      type="button"
+                      onClick={() => handleSort(col.key!)}
+                      className="-mx-1 inline-flex cursor-pointer select-none items-center gap-1 rounded-input px-1 transition-colors hover:text-ink active:text-ink/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+                    >
+                      {col.label}
+                      {sortArrow(col.key)}
+                    </button>
+                  ) : (
+                    col.label
                   )}
-                  onClick={col.key ? () => handleSort(col.key!) : undefined}
-                >
-                  {col.label}
-                  {col.key && sortArrow(col.key)}
                 </th>
               ))}
             </tr>
