@@ -68,6 +68,49 @@ const DOMAIN_LENSES: Array<{ test: RegExp; keys: Array<keyof ClarifyCopy["generi
   },
 ];
 
+/* -------------------------------------------------------------------------- *
+ * Local readiness gate (the offline fallback for the /assess endpoint)
+ *
+ * The authority on "is this intent clear enough to create a study?" is the
+ * backend /assess endpoint — an LLM that distills the researcher's goal into a
+ * task (decision + objective + audience). This local function is the *seam*:
+ * when the network is down or the endpoint errors, the create flow must still
+ * gate (never silently fall back to "fire-first"). It mirrors the server's
+ * deterministic `_assess_fallback` so behavior is consistent either way.
+ * -------------------------------------------------------------------------- */
+
+/** Keyword signal that the text is a genuine research need — mirrors the
+ * backend `_RESEARCH_SIGNAL`. Not NLP; just enough to tell a research goal from
+ * a greeting or a pasted speech script. */
+const RESEARCH_SIGNAL =
+  /understand|learn|why|research|study|interview|feedback|user|customer|survey|explore|discover|reaction|decide|了解|调研|研究|访谈|反馈|用户|客户|为什么|流失|留存|偏好|体验|决策|洞察/i;
+
+/** The local mirror of the server AssessResult — only the fields the create
+ * loop reads when the backend is unreachable. */
+export type LocalAssess = {
+  looksLikeResearch: boolean;
+  ready: boolean;
+  objective: string;
+};
+
+/**
+ * Deterministic, offline readiness verdict. Used ONLY when the /assess call
+ * fails — the server's LLM verdict always wins when reachable. A substantive,
+ * research-shaped goal is ready; a greeting or too-short line is not, so the
+ * gate still holds without a network round-trip.
+ */
+export function assessReadinessLocal(goal: string, priorContext = ""): LocalAssess {
+  const combined = `${goal} ${priorContext}`.trim();
+  const looksLikeResearch = RESEARCH_SIGNAL.test(combined);
+  const longEnough = combined.length >= 8;
+  const ready = looksLikeResearch && longEnough;
+  return {
+    looksLikeResearch,
+    ready,
+    objective: ready ? goal.trim() : "",
+  };
+}
+
 /**
  * Given the researcher's opening goal, produce the first domain-aware
  * clarification: "what decision should this research support?" with options

@@ -109,9 +109,32 @@ class Channel(_Base):
     config: dict[str, str] = Field(default_factory=dict)
 
 
+class ResearchTask(_Base):
+    """The distilled research task — the *why* a study exists.
+
+    Produced by the pre-creation assessment loop (the `/assess` endpoint):
+    before a study is ever created, the agent clarifies the researcher's intent
+    until three things are known. This is the study's north star — the outline,
+    persona, and screener all serve it, and the researcher can edit it directly
+    to re-steer the whole spec.
+
+    - decision  — the concrete decision this research is meant to inform
+    - objective — the one-sentence research goal
+    - audience  — who we listen to
+    """
+
+    decision: str = ""
+    objective: str = ""
+    audience: str = ""
+
+
 class CampaignSpec(_Base):
     goal: str
     background: str = ""
+    # The distilled research task (why this study exists). Empty on legacy specs
+    # created before the assessment loop; populated once the researcher's intent
+    # is clarified. Optional so existing persisted specs deserialize unchanged.
+    research_task: ResearchTask | None = None
     hypotheses: list[str] = Field(default_factory=list)
     target_persona: str = ""
     audience_screener: list[str] = Field(default_factory=list)

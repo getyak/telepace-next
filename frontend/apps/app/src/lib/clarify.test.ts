@@ -5,6 +5,7 @@ import {
   deriveReadiness,
   readinessDelta,
   pendingCount,
+  assessReadinessLocal,
   READINESS_ORDER,
   type ClarifyCopy,
   type ReadinessSpecInput,
@@ -185,5 +186,45 @@ describe("pendingCount", () => {
 
   it("READINESS_ORDER has the five pips in spine order", () => {
     expect(READINESS_ORDER).toEqual(["decision", "audience", "whopays", "depth", "questions"]);
+  });
+});
+
+describe("assessReadinessLocal (offline gate fallback)", () => {
+  it("is ready for a substantive, research-shaped goal", () => {
+    const r = assessReadinessLocal("understand why trial users churn before upgrading");
+    expect(r.looksLikeResearch).toBe(true);
+    expect(r.ready).toBe(true);
+    expect(r.objective).toBe("understand why trial users churn before upgrading");
+  });
+
+  it("is ready for a Chinese research goal", () => {
+    const r = assessReadinessLocal("了解用户为什么在升级前流失");
+    expect(r.looksLikeResearch).toBe(true);
+    expect(r.ready).toBe(true);
+  });
+
+  it("is NOT research for a greeting", () => {
+    const r = assessReadinessLocal("hi there");
+    expect(r.looksLikeResearch).toBe(false);
+    expect(r.ready).toBe(false);
+    expect(r.objective).toBe("");
+  });
+
+  it("is NOT research for a pasted speech script (the fire-first trap)", () => {
+    const r = assessReadinessLocal("南疆留诗韵八桂风华中华优秀传统文化海外推介交流活动");
+    expect(r.looksLikeResearch).toBe(false);
+    expect(r.ready).toBe(false);
+  });
+
+  it("gates a too-short research word (needs substance, not just a keyword)", () => {
+    const r = assessReadinessLocal("user");
+    expect(r.ready).toBe(false);
+  });
+
+  it("threads prior clarification context into the readiness judgment", () => {
+    // A bare topic alone is not research-shaped; the clarification answer tips it.
+    const r = assessReadinessLocal("monitors", "understand buyer decisions");
+    expect(r.looksLikeResearch).toBe(true);
+    expect(r.ready).toBe(true);
   });
 });

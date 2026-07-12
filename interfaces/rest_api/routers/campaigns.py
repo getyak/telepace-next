@@ -24,7 +24,7 @@ from core.constants import (
     RESPONDENT_PATH_PREFIX,
     SSE_HEADERS,
 )
-from core.domain.models import ChannelKind
+from core.domain.models import ChannelKind, ResearchTask
 from core.protocols.commands import (
     CreateCampaign,
     DispatchInvites,
@@ -46,6 +46,49 @@ from interfaces.rest_api.errors import ErrorMessages
 from storage.projections import CampaignProjector
 
 _SIM_JSON_RE = re.compile(r"```json\s*(.*?)\s*```", re.DOTALL)
+
+# The readiness bar. A study is "ready to create" only above this clarity and
+# only when it actually looks like research. Below it, the agent must clarify
+# rather than create — the hard gate that stops "fire-first-then-clarify".
+_ASSESS_READY_CLARITY = 60
+
+
+_ASSESS_SYSTEM = (
+    "You are the intake analyst for a user-research platform. A researcher "
+    "types an opening line. Your ONLY job is to decide whether their intent is "
+    "clear enough to draft a study, and if not, what single most useful "
+    "question to ask next. You NEVER draft the study itself.\n\n"
+    "A study is ready to create only when three things are known:\n"
+    "  - decision:  the concrete decision this research will inform\n"
+    "  - objective: the one-sentence research goal\n"
+    "  - audience:  who we listen to\n\n"
+    "Judge honestly:\n"
+    "  - If the text is not a research need at all (a speech script, marketing "
+    "copy, a random paste, a greeting), set looks_like_research=false.\n"
+    "  - If it is research but vague, extract whatever you can and ask for the "
+    "MOST decision-relevant missing piece. Prefer decision, then audience.\n"
+    "  - Only set ready=true when decision AND objective are known and "
+    "clarity_score >= 60.\n\n"
+    "clarifying_questions: at most 2, each with 3-4 concrete options DRAWN FROM "
+    "THE TOPIC (never generic 'tell me more'), plus allow_freeform=true. Write "
+    "them in the SAME LANGUAGE as the researcher's input.\n\n"
+    "Reply with ONLY a single ```json ... ``` block of this exact shape:\n"
+    "{\n"
+    '  "looks_like_research": bool,\n'
+    '  "clarity_score": int,           // 0-100\n'
+    '  "decision": string,             // "" if unknown\n'
+    '  "objective": string,            // "" if unknown\n'
+    '  "audience": string,             // "" if unknown\n'
+    '  "missing": [string, ...],       // slot names still unknown\n'
+    '  "suggested_title": string,      // short study title, in input language\n'
+    '  "clarifying_questions": [\n'
+    '    { "id": string, "prompt": string, "multi": bool,\n'
+    '      "options": [{"id": string, "label": string}, ...],\n'
+    '      "allow_freeform": true }\n'
+    "  ]\n"
+    "}\n"
+    "No prose outside the JSON block."
+)
 
 
 _SIMULATE_SYSTEM = (
@@ -75,6 +118,14 @@ def _actor_ref(settings: Settings, user: AuthUser) -> str:
 router = APIRouter(prefix=f"{API_VERSION_PREFIX}/campaigns", tags=["campaigns"])
 
 
+class ResearchTaskBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    decision: str = ""
+    objective: str = ""
+    audience: str = ""
+
+
 class CreateCampaignBody(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -90,11 +141,25 @@ class CreateCampaignBody(BaseModel):
     channels: list[ChannelKind] = Field(default_factory=lambda: [ChannelKind.WEB_TEXT])
     # BCP-47 language code (e.g. "zh", "en"). None = infer from goal/background.
     language: str | None = None
+    # The distilled research task from the pre-creation assessment loop. None on
+    # the legacy "create straight from goal" path.
+    research_task: ResearchTaskBody | None = None
 
 
 class RefineBody(BaseModel):
     model_config = ConfigDict(extra="forbid")
     instruction: str
+
+
+class AssessBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    goal: str
+    background: str = ""
+    # Prior clarification answers, newest last. Threaded back so each assess
+    # round sees the accumulated context and can converge toward ready.
+    prior_context: str = ""
+    language: str | None = None
 
 
 @router.post("")
@@ -105,6 +170,15 @@ async def create_campaign(
     settings: Settings = Depends(get_settings_dep),
     user: AuthUser = Depends(require_current_user),
 ) -> dict:
+    research_task = (
+        ResearchTask(
+            decision=body.research_task.decision,
+            objective=body.research_task.objective,
+            audience=body.research_task.audience,
+        )
+        if body.research_task is not None
+        else None
+    )
     cmd = CreateCampaign(
         actor=_actor_ref(settings, user),
         org_id=user.org_id,
@@ -116,6 +190,7 @@ async def create_campaign(
         budget_usd=body.budget_usd,
         channels=body.channels,
         primary_language=body.language,
+        research_task=research_task,
     )
     resp = await harness.handle(cmd)
     if not resp.ok:
@@ -567,3 +642,191 @@ async def simulate_interview(
         "turns": parsed["turns"],
         "parse_ok": True,
     }
+
+
+# --------------------------------------------------------------------------- #
+# Task assessment — the pre-creation readiness gate.
+#
+# The single most important behavior change: a study is NOT created from the
+# researcher's first sentence. Instead the agent assesses whether their intent
+# is clear (decision + objective + audience), and if not, clarifies first. This
+# endpoint is a thin, stateless LLM call — no campaign_id, no event sourcing —
+# mirroring /simulate. The frontend loops on it until `ready`, then creates.
+# --------------------------------------------------------------------------- #
+
+# Words that signal genuine research intent — used only by the deterministic
+# fallback (when the LLM is a mock or unreachable), never as the primary judge.
+_RESEARCH_SIGNAL = re.compile(
+    r"understand|learn|why|research|study|interview|feedback|user|customer|"
+    r"survey|explore|discover|reaction|decide|了解|调研|研究|访谈|反馈|用户|"
+    r"客户|为什么|流失|留存|偏好|体验|决策|洞察",
+    re.IGNORECASE,
+)
+
+
+def _assess_fallback(goal: str, prior_context: str) -> dict[str, Any]:
+    """Deterministic assessment when no real LLM is available.
+
+    Keeps dev/test/mock environments moving: a substantive research-shaped goal
+    is treated as ready (so creation isn't blocked), while a too-short or
+    non-research goal asks one generic clarifying question. This mirrors the
+    designer seed's "degrade gracefully, never hard-fail" philosophy.
+    """
+    combined = f"{goal} {prior_context}".strip()
+    looks_like_research = bool(_RESEARCH_SIGNAL.search(combined))
+    long_enough = len(combined) >= 8
+    ready = looks_like_research and long_enough
+    return {
+        "looks_like_research": looks_like_research,
+        "clarity_score": 70 if ready else 30,
+        "decision": "",
+        "objective": goal.strip() if ready else "",
+        "audience": "",
+        "missing": [] if ready else ["decision", "audience"],
+        "suggested_title": goal.strip()[:60],
+        "clarifying_questions": [],
+        "ready": ready,
+    }
+
+
+def _clean_clarify_questions(raw: Any) -> list[dict[str, Any]]:
+    """Validate and normalize the LLM's clarifying_questions array."""
+    if not isinstance(raw, list):
+        return []
+    out: list[dict[str, Any]] = []
+    for i, q in enumerate(raw[:2]):  # at most 2 per round
+        if not isinstance(q, dict):
+            continue
+        prompt = q.get("prompt")
+        if not isinstance(prompt, str) or not prompt.strip():
+            continue
+        opts_raw = q.get("options")
+        options: list[dict[str, str]] = []
+        if isinstance(opts_raw, list):
+            for j, o in enumerate(opts_raw[:4]):
+                if not isinstance(o, dict):
+                    continue
+                label = o.get("label")
+                if not isinstance(label, str) or not label.strip():
+                    continue
+                oid = o.get("id")
+                options.append(
+                    {"id": str(oid) if oid else f"opt-{i}-{j}", "label": label.strip()}
+                )
+        out.append(
+            {
+                "id": str(q.get("id") or f"q-{i}"),
+                "prompt": prompt.strip(),
+                "multi": bool(q.get("multi", False)),
+                "options": options,
+                "allow_freeform": True,
+            }
+        )
+    return out
+
+
+def _parse_assessment(text: str, *, goal: str, prior_context: str) -> dict[str, Any]:
+    """Parse the LLM assessment; fall back to deterministic on any failure."""
+    if not text:
+        return _assess_fallback(goal, prior_context)
+    m = _SIM_JSON_RE.search(text)
+    candidate = m.group(1).strip() if m else text.strip()
+    try:
+        val = json.loads(candidate)
+    except json.JSONDecodeError:
+        return _assess_fallback(goal, prior_context)
+    if not isinstance(val, dict):
+        return _assess_fallback(goal, prior_context)
+
+    def _str(key: str) -> str:
+        v = val.get(key)
+        return v.strip() if isinstance(v, str) else ""
+
+    decision = _str("decision")
+    objective = _str("objective")
+    try:
+        clarity = int(val.get("clarity_score", 0))
+    except (ValueError, TypeError):
+        clarity = 0
+    clarity = max(0, min(100, clarity))
+    looks_like_research = bool(val.get("looks_like_research", True))
+    missing = [str(x) for x in val.get("missing", []) if isinstance(x, str)]
+    questions = _clean_clarify_questions(val.get("clarifying_questions"))
+    # Authoritative ready rule (server-side, not the LLM's own boolean): needs a
+    # decision + objective, real research, and clarity above the bar.
+    ready = (
+        looks_like_research
+        and clarity >= _ASSESS_READY_CLARITY
+        and bool(decision)
+        and bool(objective)
+    )
+    return {
+        "looks_like_research": looks_like_research,
+        "clarity_score": clarity,
+        "decision": decision,
+        "objective": objective,
+        "audience": _str("audience"),
+        "missing": missing,
+        "suggested_title": _str("suggested_title") or goal.strip()[:60],
+        "clarifying_questions": [] if ready else questions,
+        "ready": ready,
+    }
+
+
+@router.post("/assess")
+async def assess_task(
+    body: AssessBody,
+    request: Request,
+    _user: AuthUser = Depends(require_current_user),
+) -> dict:
+    """Assess whether a researcher's intent is clear enough to draft a study.
+
+    Returns a readiness verdict + the distilled task (decision/objective/
+    audience) + clarifying questions when not ready. The frontend loops on this
+    before ever calling POST /campaigns — no study exists until `ready`.
+    """
+    goal = body.goal.strip()
+    if not goal:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="goal is required"
+        )
+
+    state = get_state(request)
+    llm = state.llm
+    if llm is None:
+        # No LLM configured at all — degrade to the deterministic gate rather
+        # than 503, so the create flow still works in minimal deployments.
+        return _assess_fallback(goal, body.prior_context)
+
+    language_hint = (
+        f"The study language is {body.language}. Write clarifying questions in it.\n"
+        if body.language
+        else ""
+    )
+    user_msg = (
+        f"{language_hint}"
+        f"Researcher's opening line:\n{goal}\n\n"
+        + (
+            f"Background: {body.background}\n\n"
+            if body.background.strip()
+            else ""
+        )
+        + (
+            f"Clarification so far (their answers to earlier questions):\n"
+            f"{body.prior_context}\n\n"
+            if body.prior_context.strip()
+            else ""
+        )
+    )
+    try:
+        resp = await llm.complete(  # type: ignore[attr-defined]
+            system=_ASSESS_SYSTEM,
+            messages=[LLMMessage(role="user", content=user_msg)],
+            max_tokens=state.settings.designer_max_tokens,
+            temperature=0.2,
+        )
+    except Exception as exc:
+        logger.warning("assess llm call failed: %s — using fallback", exc)
+        return _assess_fallback(goal, body.prior_context)
+
+    return _parse_assessment(resp.text, goal=goal, prior_context=body.prior_context)

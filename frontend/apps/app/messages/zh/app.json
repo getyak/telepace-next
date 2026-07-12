@@ -362,7 +362,20 @@
     "pipDepth": "深度",
     "pipQuestions": "问题",
     "readinessCaptured": "已捕获{label} — {remaining, plural, =0 {可以发布了} other {还差 # 步}}",
-    "readinessOpenHint": "{remaining, plural, other {还有 # 项待完成}}"
+    "readinessOpenHint": "{remaining, plural, other {还有 # 项待完成}}",
+    "gateStartNow": "直接帮我起草",
+    "gateReady": "明白了，正在为你起草提纲…",
+    "gateNotResearch": "这看起来不太像一个研究需求。你确实想开展一项用户研究吗？还是想做点别的？",
+    "researchTask": "研究任务",
+    "taskField_decision": "决策",
+    "taskField_objective": "目标",
+    "taskField_audience": "受众",
+    "taskRefineInstruction": "把研究任务的「{facet}」更新为：{value}。请据此调整提纲、画像与筛选题。",
+    "taskSave": "保存",
+    "taskCancel": "取消",
+    "taskEmpty": "（待补充）",
+    "taskEditHint": "点击编辑",
+    "taskEditAria": "编辑{facet}"
   },
   "wizard": {
     "stepGoal": "目标",

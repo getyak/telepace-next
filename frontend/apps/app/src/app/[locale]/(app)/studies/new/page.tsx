@@ -8,6 +8,7 @@ import {
   ChatComposer,
   ReadinessSpine,
   type ChatMessage,
+  type ClarifyPrompt,
   type ReadinessPip,
 } from "@telepace/ui";
 import { ALL_CHANNELS, CHANNELS } from "@telepace/config";
@@ -17,16 +18,21 @@ import {
   deriveReadiness,
   readinessDelta,
   pendingCount,
+  assessReadinessLocal,
   READINESS_ORDER,
   type ClarifyCopy,
   type Readiness,
 } from "@/lib/clarify";
 import {
+  assessTask,
   createCampaign,
   getCampaign,
   refineOutlineStream,
   simulateInterview,
   startCampaign,
+  type AssessResult,
+  type AssessClarifyQuestion,
+  type ResearchTaskInput,
   type SimulateResponse,
 } from "@/lib/api";
 import { friendlyMessage } from "@/lib/errors";
@@ -44,10 +50,22 @@ type OutlineItem = {
 
 type ChannelEntry = { kind: string; config?: Record<string, string> };
 
+// The synthetic option id for "skip the gate and start drafting now", appended
+// to every gate clarify prompt. Recognized in handleClarifySelect to bypass the
+// assessment loop and create with the best-effort task distilled so far.
+const GATE_SKIP_ID = "__gate_skip__";
+
+type ResearchTask = {
+  decision: string;
+  objective: string;
+  audience: string;
+};
+
 type Spec = {
   title: string;
   goal: string;
   background: string;
+  research_task: ResearchTask | null;
   hypotheses: string[];
   target_persona: string;
   audience_screener: string[];
@@ -62,6 +80,7 @@ const INITIAL_SPEC: Spec = {
   title: "New study",
   goal: "",
   background: "",
+  research_task: null,
   hypotheses: [],
   target_persona: "",
   audience_screener: [],
@@ -75,6 +94,7 @@ const INITIAL_SPEC: Spec = {
 type ServerSpec = {
   goal?: string;
   background?: string;
+  research_task?: ResearchTask | null;
   hypotheses?: string[];
   target_persona?: string;
   audience_screener?: string[];
@@ -95,6 +115,7 @@ function mergeServerSpec(prev: Spec, patch: ServerSpec, title?: string): Spec {
   if (title !== undefined) next.title = title;
   if (typeof patch.goal === "string" && patch.goal) next.goal = patch.goal;
   if (typeof patch.background === "string") next.background = patch.background;
+  if (patch.research_task !== undefined) next.research_task = patch.research_task;
   if (Array.isArray(patch.hypotheses)) next.hypotheses = patch.hypotheses.filter(Boolean);
   if (typeof patch.target_persona === "string") next.target_persona = patch.target_persona;
   if (Array.isArray(patch.audience_screener))
@@ -155,6 +176,37 @@ export default function NewStudyPage() {
   // ready-to-publish note. Consumed and cleared in the refine onDone.
   const nextStageRef = useRef<"audience" | "closure" | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  // ── The pre-creation assessment gate ──────────────────────────────────────
+  // Until intent is clear, NO campaign is created. These refs carry the loop's
+  // accumulated state across turns without re-rendering:
+  //  - taskDraftRef  : the distilled task so far (decision/objective/audience),
+  //                    fed into createCampaign once ready.
+  //  - priorContextRef: the researcher's clarification answers, newest last,
+  //                    threaded back into each /assess call so it converges.
+  //  - clarifyRoundsRef: how many clarify rounds we've run — a hard ceiling so
+  //                    the loop can't trap the researcher (auto-creates after).
+  //  - originalGoalRef: the very first opening line, the stable seed goal.
+  const taskDraftRef = useRef<ResearchTask>({ decision: "", objective: "", audience: "" });
+  const priorContextRef = useRef<string>("");
+  const clarifyRoundsRef = useRef<number>(0);
+  const originalGoalRef = useRef<string>("");
+  // After how many clarify rounds we stop gating and create with best-effort
+  // task — respects the researcher's time (never an infinite interrogation).
+  // Two keeps parity with Listen Labs' typical decision→audience rhythm; a
+  // stubbornly vague opener still lands a study rather than looping forever.
+  const MAX_CLARIFY_ROUNDS = 2;
+  // When a clarify prompt is on screen during the gate, this reply should feed
+  // the assessment loop (not the post-create refine stream). Set when we render
+  // a gate clarify, cleared when consumed.
+  const inGateRef = useRef<boolean>(false);
+
+  // Which research-task field is being edited inline (null = none), plus its
+  // draft text. Editing a task field re-steers the whole study: on save we send
+  // a refine instruction so the outline/persona/screener regenerate to serve
+  // the changed task — the "edit the task, everything follows" loop.
+  const [editingTaskField, setEditingTaskField] = useState<keyof ResearchTask | null>(null);
+  const [taskFieldDraft, setTaskFieldDraft] = useState("");
   const prevSpecRef = useRef<Spec>(INITIAL_SPEC);
 
   // Readiness spine state. `readiness` is derived from `spec` each render (pure,
@@ -322,6 +374,137 @@ export default function NewStudyPage() {
     abortRef.current?.abort();
   }
 
+  // Turn a server clarifying-question into the ClarifyPrompt the chip UI reads.
+  // Always appends the localized "start drafting now" escape hatch as the last
+  // option, so the researcher can override the gate at any point (respects the
+  // expert who already knows what they want).
+  function clarifyFromAssess(q: AssessClarifyQuestion): ClarifyPrompt {
+    return {
+      multi: q.multi,
+      options: [
+        ...q.options.map((o) => ({ id: o.id, label: o.label })),
+        { id: GATE_SKIP_ID, label: tc("gateStartNow") },
+      ],
+      submitLabel: clarifyCopy.submitLabel,
+      freeformLabel: clarifyCopy.freeformLabel,
+    };
+  }
+
+  // Create the campaign once intent is clear, threading the distilled task in so
+  // the seeded draft (persona, screener, outline) serves that exact decision.
+  // Shared by the "assessment says ready" and "researcher skipped the gate"
+  // paths, so both produce a task-anchored study.
+  async function createFromTask(agentId: string, goal: string, task: ResearchTask) {
+    const derivedTitle = deriveTitle(goal);
+    const taskPayload: ResearchTaskInput | undefined =
+      task.decision || task.objective || task.audience
+        ? { decision: task.decision, objective: task.objective, audience: task.audience }
+        : undefined;
+    const created = await createCampaign({
+      title: derivedTitle,
+      goal,
+      research_task: taskPayload,
+    });
+    setCampaignId(created.campaign_id);
+    setSpec((s) => ({
+      ...s,
+      title: derivedTitle,
+      goal,
+      research_task: taskPayload ?? null,
+    }));
+    const fetched = await loadSpecWithRetry(created.campaign_id);
+    if (fetched) {
+      setSpec((s) => {
+        const next = mergeServerSpec(s, fetched, derivedTitle);
+        // The server seed doesn't echo research_task back yet — keep the one we
+        // just distilled so the Task card renders immediately.
+        if (taskPayload && !next.research_task) next.research_task = taskPayload;
+        applySpecWithDiff(next);
+        return next;
+      });
+      patchMessage(agentId, {
+        text: describeSeed(fetched, seedCopy),
+        pending: false,
+      });
+    } else {
+      patchMessage(agentId, { text: tc("draftedFallback"), pending: false });
+    }
+    // The gate is closed — reset its accumulators for the next study.
+    inGateRef.current = false;
+    priorContextRef.current = "";
+    clarifyRoundsRef.current = 0;
+  }
+
+  // Run one round of the pre-creation assessment gate. `text` is the
+  // researcher's latest input (opening line on round 0, a clarification answer
+  // afterwards). Either asks the next clarifying question, or — when intent is
+  // clear (or the round ceiling is hit) — creates the study.
+  async function runAssessGate(agentId: string, text: string) {
+    // Round 0 establishes the seed goal; later rounds accumulate answers.
+    if (!inGateRef.current) {
+      originalGoalRef.current = text;
+      priorContextRef.current = "";
+      clarifyRoundsRef.current = 0;
+      taskDraftRef.current = { decision: "", objective: "", audience: "" };
+    } else {
+      priorContextRef.current = `${priorContextRef.current}\n${text}`.trim();
+      clarifyRoundsRef.current += 1;
+    }
+    inGateRef.current = true;
+
+    const goal = originalGoalRef.current;
+
+    // Ask the backend to assess; on any failure fall back to the local gate so
+    // creation still gates without a network round-trip.
+    let assess: AssessResult | null = null;
+    try {
+      assess = await assessTask({
+        goal,
+        prior_context: priorContextRef.current,
+      });
+    } catch {
+      const local = assessReadinessLocal(goal, priorContextRef.current);
+      assess = {
+        looks_like_research: local.looksLikeResearch,
+        clarity_score: local.ready ? 70 : 30,
+        decision: "",
+        objective: local.objective,
+        audience: "",
+        missing: [],
+        suggested_title: goal.slice(0, 60),
+        clarifying_questions: [],
+        ready: local.ready,
+      };
+    }
+
+    // Accumulate whatever the assessment could distill so far.
+    taskDraftRef.current = {
+      decision: assess.decision || taskDraftRef.current.decision,
+      objective: assess.objective || taskDraftRef.current.objective,
+      audience: assess.audience || taskDraftRef.current.audience,
+    };
+
+    const hitCeiling = clarifyRoundsRef.current >= MAX_CLARIFY_ROUNDS;
+    const nextQuestion = assess.clarifying_questions[0];
+
+    if (assess.ready || hitCeiling || !nextQuestion) {
+      // Intent is clear enough — create. Prepend a brief "got it" note when we
+      // have a decision to state back, so the transition never feels abrupt.
+      patchMessage(agentId, { text: tc("gateReady"), pending: true });
+      await createFromTask(agentId, goal, taskDraftRef.current);
+      return;
+    }
+
+    // Not ready — surface the next clarifying question as chips. The researcher
+    // steers (or types, or skips) without a study existing yet.
+    const notResearch = !assess.looks_like_research;
+    patchMessage(agentId, {
+      text: notResearch ? tc("gateNotResearch") : nextQuestion.prompt,
+      pending: false,
+      clarify: clarifyFromAssess(nextQuestion),
+    });
+  }
+
   async function handleSend(text: string) {
     setLastFailed(null);
     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "respondent", text }]);
@@ -332,36 +515,9 @@ export default function NewStudyPage() {
     setMessages((prev) => [...prev, { id: agentId, role: "interviewer", text: "", pending: true }]);
     try {
       if (!campaignId) {
-        const derivedTitle = deriveTitle(text);
-        const created = await createCampaign({
-          title: derivedTitle,
-          goal: text,
-        });
-        setCampaignId(created.campaign_id);
-        setSpec((s) => ({ ...s, title: derivedTitle, goal: text }));
-        const fetched = await loadSpecWithRetry(created.campaign_id);
-        if (fetched) {
-          setSpec((s) => {
-            const next = mergeServerSpec(s, fetched, derivedTitle);
-            applySpecWithDiff(next);
-            return next;
-          });
-          // The seed landed — now offer the domain-aware first follow-up as
-          // chips, so the researcher can steer without composing a sentence.
-          const decision = deriveDecisionClarify(text, clarifyCopy);
-          patchMessage(agentId, {
-            text: decision ? tc("clarifyLeadDecision") : describeSeed(fetched, seedCopy),
-            pending: false,
-            clarify: decision ?? undefined,
-          });
-        } else {
-          const decision = deriveDecisionClarify(text, clarifyCopy);
-          patchMessage(agentId, {
-            text: decision ? tc("clarifyLeadDecision") : tc("draftedFallback"),
-            pending: false,
-            clarify: decision ?? undefined,
-          });
-        }
+        // The pre-creation gate: assess intent, clarify until clear, and only
+        // THEN create. No study exists from a vague first sentence anymore.
+        await runAssessGate(agentId, text);
       } else {
         const controller = new AbortController();
         abortRef.current = controller;
@@ -454,11 +610,40 @@ export default function NewStudyPage() {
     }
   }
 
+  // Skip the pre-creation gate: the researcher chose "start drafting now". Drop
+  // the chips and create immediately with whatever task we've distilled so far,
+  // honoring the expert who already knows what they want.
+  async function handleGateSkip(promptId: string) {
+    setMessages((prev) => prev.map((m) => (m.id === promptId ? { ...m, clarify: undefined } : m)));
+    if (busy) return;
+    setBusy(true);
+    const agentId = crypto.randomUUID();
+    setMessages((prev) => [...prev, { id: agentId, role: "interviewer", text: "", pending: true }]);
+    try {
+      patchMessage(agentId, { text: tc("gateReady"), pending: true });
+      await createFromTask(agentId, originalGoalRef.current, taskDraftRef.current);
+    } catch (err) {
+      const copy = friendlyMessage(err, errorsCopy);
+      patchMessage(agentId, {
+        role: "system",
+        text: `${copy.title} — ${copy.description}`,
+        pending: false,
+      });
+    } finally {
+      setBusy(false);
+    }
+  }
+
   // A clarify chip resolved to reply text. We strip the chips off the prompt
-  // bubble (so it can't be answered twice), then send it — and, when the first
-  // (multi-select decision) prompt is answered, chain the second-beat audience
-  // clarification so the conversation keeps its guided momentum.
-  function handleClarifySelect(text: string, promptId: string) {
+  // bubble (so it can't be answered twice), then send it. During the
+  // pre-creation gate the reply feeds the assessment loop; after creation it
+  // chains the guided second-beat (audience) as before.
+  function handleClarifySelect(text: string, promptId: string, optionId?: string) {
+    // The gate's "start drafting now" escape hatch — bypass assessment entirely.
+    if (optionId === GATE_SKIP_ID || text === tc("gateStartNow")) {
+      void handleGateSkip(promptId);
+      return;
+    }
     let wasDecision = false;
     setMessages((prev) =>
       prev.map((m) => {
@@ -508,6 +693,38 @@ export default function NewStudyPage() {
     );
     if (wasDecision) nextStageRef.current = "audience";
     setComposerFocusKey((k) => k + 1);
+  }
+
+  // Begin inline-editing one research-task field.
+  function startEditTask(field: keyof ResearchTask) {
+    if (busy || !spec.research_task) return;
+    setEditingTaskField(field);
+    setTaskFieldDraft(spec.research_task[field] ?? "");
+  }
+
+  // Save an edited task field. Beyond updating the visible task, this re-steers
+  // the study: we optimistically patch local state, then send a refine so the
+  // agent regenerates the outline/persona/screener to serve the changed task.
+  function saveTaskField() {
+    const field = editingTaskField;
+    if (!field || !spec.research_task) {
+      setEditingTaskField(null);
+      return;
+    }
+    const value = taskFieldDraft.trim();
+    const prevValue = spec.research_task[field] ?? "";
+    setEditingTaskField(null);
+    if (value === prevValue) return;
+
+    const nextTask: ResearchTask = { ...spec.research_task, [field]: value };
+    setSpec((s) => ({ ...s, research_task: nextTask }));
+
+    if (!campaignId) return; // no study to refine yet (shouldn't happen)
+    // Ask the designer to re-align the draft with the edited task. The label
+    // names which facet moved so the instruction is specific, not generic.
+    const facet = tc(`taskField_${field}` as Parameters<typeof tc>[0]);
+    const instruction = tc("taskRefineInstruction", { facet, value });
+    void handleSend(instruction);
   }
 
   function handleRetry() {
@@ -712,6 +929,83 @@ export default function NewStudyPage() {
             {spec.goal && (
               <p className="text-body mt-3 text-lg leading-relaxed max-w-2xl">{spec.goal}</p>
             )}
+
+            {/* Research Task — the study's north star, a first-class editable
+                object. Distilled by the pre-creation gate; editing any facet
+                re-steers the whole draft (saveTaskField → refine). */}
+            {spec.research_task &&
+              (spec.research_task.decision ||
+                spec.research_task.objective ||
+                spec.research_task.audience) && (
+                <div className="mt-6 rounded-card border border-accent/40 bg-accent-soft/40 p-5">
+                  <p className="overline mb-3 flex items-center gap-2 text-accent before:h-px before:w-4 before:bg-accent/40 before:content-['']">
+                    {tc("researchTask")}
+                  </p>
+                  <dl className="space-y-2.5">
+                    {(["decision", "objective", "audience"] as const).map((field) => {
+                      const value = spec.research_task?.[field] ?? "";
+                      const isEditing = editingTaskField === field;
+                      return (
+                        <div
+                          key={field}
+                          className="grid grid-cols-[4.5rem_1fr] gap-3 items-start"
+                        >
+                          <dt className="text-xs text-muted pt-1.5 tabular-nums">
+                            {tc(`taskField_${field}` as Parameters<typeof tc>[0])}
+                          </dt>
+                          <dd className="min-w-0">
+                            {isEditing ? (
+                              <div className="flex flex-col gap-2">
+                                <textarea
+                                  value={taskFieldDraft}
+                                  rows={2}
+                                  autoFocus
+                                  onChange={(e) => setTaskFieldDraft(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                                      e.preventDefault();
+                                      saveTaskField();
+                                    }
+                                    if (e.key === "Escape") setEditingTaskField(null);
+                                  }}
+                                  className="w-full resize-none rounded-input border border-hairline bg-paper px-3 py-1.5 text-sm text-ink outline-none focus:border-accent"
+                                />
+                                <div className="flex gap-2">
+                                  <Button size="sm" onClick={saveTaskField} loading={busy}>
+                                    {tc("taskSave")}
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setEditingTaskField(null)}
+                                  >
+                                    {tc("taskCancel")}
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                disabled={busy}
+                                onClick={() => startEditTask(field)}
+                                className="group w-full text-left text-body leading-relaxed rounded-input px-1.5 py-1 -mx-1.5 transition-colors hover:bg-paper disabled:cursor-not-allowed"
+                                aria-label={tc("taskEditAria", {
+                                  facet: tc(`taskField_${field}` as Parameters<typeof tc>[0]),
+                                })}
+                              >
+                                {value || <span className="text-muted">{tc("taskEmpty")}</span>}
+                                <span className="ml-2 text-xs text-muted opacity-0 transition-opacity group-hover:opacity-100">
+                                  {tc("taskEditHint")}
+                                </span>
+                              </button>
+                            )}
+                          </dd>
+                        </div>
+                      );
+                    })}
+                  </dl>
+                </div>
+              )}
 
             {spec.target_persona && (() => {
               const d = diffMark("persona");

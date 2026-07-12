@@ -362,7 +362,20 @@
     "pipDepth": "Depth",
     "pipQuestions": "Questions",
     "readinessCaptured": "{label} captured — {remaining, plural, =0 {ready to publish} =1 {1 step still open} other {# steps still open}}",
-    "readinessOpenHint": "{remaining, plural, =1 {1 thing still open} other {# things still open}}"
+    "readinessOpenHint": "{remaining, plural, =1 {1 thing still open} other {# things still open}}",
+    "gateStartNow": "Just start drafting",
+    "gateReady": "Got it — drafting your outline now…",
+    "gateNotResearch": "This doesn't quite read like a research need. Do you want to run a user study, or something else?",
+    "researchTask": "Research task",
+    "taskField_decision": "Decision",
+    "taskField_objective": "Objective",
+    "taskField_audience": "Audience",
+    "taskRefineInstruction": "Update the research task's \"{facet}\" to: {value}. Realign the outline, persona, and screener accordingly.",
+    "taskSave": "Save",
+    "taskCancel": "Cancel",
+    "taskEmpty": "(to be defined)",
+    "taskEditHint": "click to edit",
+    "taskEditAria": "Edit {facet}"
   },
   "wizard": {
     "stepGoal": "Goal",

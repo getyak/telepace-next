@@ -16,6 +16,12 @@ export type CampaignSummary = {
   status: string;
 };
 
+export type ResearchTaskInput = {
+  decision: string;
+  objective: string;
+  audience: string;
+};
+
 export async function createCampaign(body: {
   title: string;
   goal: string;
@@ -23,8 +29,50 @@ export async function createCampaign(body: {
   target_completions?: number;
   budget_usd?: number;
   channels?: string[];
+  language?: string;
+  research_task?: ResearchTaskInput;
 }): Promise<CampaignSummary> {
   return apiFetch<CampaignSummary>(apiEndpoints.campaigns.root, {
+    method: "POST",
+    json: body,
+  });
+}
+
+/** A clarifying question the assessment agent asks when intent is unclear. */
+export type AssessClarifyQuestion = {
+  id: string;
+  prompt: string;
+  multi: boolean;
+  options: { id: string; label: string }[];
+  allow_freeform: boolean;
+};
+
+/** The readiness verdict from the pre-creation task assessment. */
+export type AssessResult = {
+  looks_like_research: boolean;
+  clarity_score: number;
+  decision: string;
+  objective: string;
+  audience: string;
+  missing: string[];
+  suggested_title: string;
+  clarifying_questions: AssessClarifyQuestion[];
+  ready: boolean;
+};
+
+/**
+ * Assess whether a researcher's opening intent is clear enough to draft a
+ * study. This is the pre-creation gate: the caller loops on it (threading each
+ * clarification answer back through `prior_context`) until `ready` is true, and
+ * only THEN creates the campaign. No study exists until intent is clear.
+ */
+export async function assessTask(body: {
+  goal: string;
+  background?: string;
+  prior_context?: string;
+  language?: string;
+}): Promise<AssessResult> {
+  return apiFetch<AssessResult>(apiEndpoints.campaigns.assess, {
     method: "POST",
     json: body,
   });
