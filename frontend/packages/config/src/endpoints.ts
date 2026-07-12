@@ -16,6 +16,7 @@ export const apiEndpoints = {
   },
   campaigns: {
     root: "/v1/campaigns",
+    assess: "/v1/campaigns/assess",
     byId: (id: string) => `/v1/campaigns/${id}`,
     refine: (id: string) => `/v1/campaigns/${id}/refine`,
     refineStream: (id: string) => `/v1/campaigns/${id}/refine/stream`,

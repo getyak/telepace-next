@@ -1,7 +1,5 @@
 import { getLocale } from "next-intl/server";
-import { Button } from "@telepace/ui";
-
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 
 const copy = {
   en: {
@@ -30,8 +28,11 @@ export default async function NotFound() {
       <p className="mt-3 max-w-sm text-sm leading-relaxed text-body">
         {c.description}
       </p>
-      <Link href="/" className="mt-8">
-        <Button>{c.home}</Button>
+      <Link
+        href={`/${locale}`}
+        className="mt-8 inline-flex items-center justify-center rounded-btn bg-accent px-5 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent/90"
+      >
+        {c.home}
       </Link>
     </div>
   );

@@ -4,8 +4,12 @@
     "title": "感谢你的到来。",
     "body": "有一位研究者想听听你的想法。大约需要 15 分钟，你的回答会影响我们接下来要做的事。请选择你想要的交流方式：",
     "startWithText": "用文字开始",
-    "useVoice": "使用语音 →",
+    "useVoice": "使用语音",
     "consentNotice": "继续即表示你同意你的回答将被记录并用于分析，以改进产品。"
+  },
+  "masthead": {
+    "title": "telepace · 用户研究",
+    "subtitle": "文字或语音皆可 · 约 15 分钟"
   },
   "thanks": {
     "eyebrow": "圆满结束",
@@ -19,11 +23,24 @@
   },
   "chat": {
     "typing": "正在输入",
-    "placeholder": "输入你的回复…",
+    "researcher": "研究者",
+    "enterHint": "回车发送 · Shift + 回车换行",
+    "inputLabel": "你的回复",
+    "captured": "已记录",
+    "placeholder": "写下你的回答，想到什么都可以…",
     "waiting": "…",
     "send": "发送",
     "voiceIntro": "我们开始吧，先深呼吸一下。",
-    "connecting": "连接中…"
+    "connecting": "连接中…",
+    "speaking": "面试官正在讲话",
+    "listening": "正在聆听"
+  },
+  "voice": {
+    "tapToSpeak": "点击开始说话",
+    "tapToSend": "正在聆听 · 点击发送",
+    "sending": "正在处理你的回答…",
+    "readAloud": "语音朗读",
+    "replay": "重听问题"
   },
   "connection": {
     "lost": "连接已断开 —— 你之前的回答已保存。",
@@ -31,6 +48,7 @@
   },
   "errors": {
     "hiccup": "我们这边出了点小问题，请重新发送一次。",
-    "micDenied": "无法访问你的麦克风 —— 你可以继续用文字输入。"
+    "micDenied": "无法访问你的麦克风 —— 你可以继续用文字输入。",
+    "watchdog": "这次回复有点慢——你可以再发一次你的回答。"
   }
 }

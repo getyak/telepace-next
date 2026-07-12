@@ -3,22 +3,25 @@ import { Badge, Button, EmptyState, icons } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
 
-const integrations = [
-  { name: "Notion",   category: "Insight destination", status: "connected",   detail: "Sync into 'Research' database" },
-  { name: "Linear",   category: "Issue tracker",       status: "connected",   detail: "One issue per theme" },
-  { name: "Slack",    category: "Notifications",       status: "connected",   detail: "#user-research channel" },
-  { name: "Webhooks", category: "Custom",              status: "1 active",    detail: "https://ops.acme.com/hooks/telepace" },
-  { name: "Anthropic",category: "LLM key (BYO)",       status: "connected",   detail: "Bearer • sk-***-9c1" },
-  { name: "OpenAI",   category: "LLM key (BYO)",       status: "disconnected",detail: "Add a key to enable" },
-  { name: "Vapi",     category: "Voice / phone",       status: "connected",   detail: "Outbound number: +1 415 555 0134" },
-  { name: "Resend",   category: "Email delivery",      status: "connected",   detail: "Domain: mail.telepace.io" },
+type IntegrationDef = {
+  name: string;
+  categoryKey: string;
+  statusKey: string;
+  detailKey: string;
+};
+
+const integrations: IntegrationDef[] = [
+  { name: "Notion",    categoryKey: "catInsightDest",   statusKey: "statusConnected",    detailKey: "detailNotion" },
+  { name: "Linear",    categoryKey: "catIssueTracker",  statusKey: "statusConnected",    detailKey: "detailLinear" },
+  { name: "Slack",     categoryKey: "catNotifications", statusKey: "statusConnected",    detailKey: "detailSlack" },
+  { name: "Webhooks",  categoryKey: "catCustom",        statusKey: "status1Active",      detailKey: "detailWebhooks" },
+  { name: "Anthropic", categoryKey: "catLlmKey",        statusKey: "statusConnected",    detailKey: "detailAnthropic" },
+  { name: "OpenAI",    categoryKey: "catLlmKey",        statusKey: "statusDisconnected", detailKey: "detailOpenAI" },
+  { name: "Vapi",      categoryKey: "catVoicePhone",    statusKey: "statusConnected",    detailKey: "detailVapi" },
+  { name: "Resend",    categoryKey: "catEmailDelivery", statusKey: "statusConnected",    detailKey: "detailResend" },
 ];
 
-const statusVariant: Record<string, "accent" | "neutral"> = {
-  connected: "accent",
-  disconnected: "neutral",
-  "1 active": "neutral",
-};
+const disconnectedStatuses = new Set(["statusDisconnected"]);
 
 export default async function IntegrationsPage() {
   const t = await getTranslations("app.integrations");
@@ -33,27 +36,30 @@ export default async function IntegrationsPage() {
       {integrations.length === 0 ? (
         <EmptyState
           icon={<icons.IntegrationsIcon size={28} />}
-          title="No integrations yet."
-          description="Connect Notion, Linear, Slack, or a webhook to send insights where your team already works."
-          action={<Button size="sm">+ Add integration</Button>}
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
+          action={<Button size="sm">{t("addIntegration")}</Button>}
         />
       ) : (
       <div className="grid md:grid-cols-2 gap-4">
-        {integrations.map((it) => (
-          <div key={it.name} className="rounded-card border border-hairline bg-paper-elevated p-6 flex items-start justify-between gap-6">
-            <div>
-              <p className="overline mb-1">{it.category}</p>
-              <p className="font-display text-2xl mb-2">{it.name}</p>
-              <p className="text-sm text-body">{it.detail}</p>
+        {integrations.map((it) => {
+          const isDisconnected = disconnectedStatuses.has(it.statusKey);
+          return (
+            <div key={it.name} className="rounded-card border border-hairline bg-paper-elevated p-6 flex items-start justify-between gap-6">
+              <div>
+                <p className="overline mb-1">{t(it.categoryKey)}</p>
+                <p className="font-display text-2xl mb-2">{it.name}</p>
+                <p className="text-sm text-body">{t(it.detailKey)}</p>
+              </div>
+              <div className="flex flex-col items-end gap-3">
+                <Badge variant={isDisconnected ? "neutral" : "accent"}>{t(it.statusKey)}</Badge>
+                <Button variant={isDisconnected ? "primary" : "secondary"} size="sm">
+                  {isDisconnected ? t("connect") : t("configure")}
+                </Button>
+              </div>
             </div>
-            <div className="flex flex-col items-end gap-3">
-              <Badge variant={statusVariant[it.status] ?? "neutral"}>{it.status}</Badge>
-              <Button variant={it.status === "disconnected" ? "primary" : "secondary"} size="sm">
-                {it.status === "disconnected" ? t("connect") : t("configure")}
-              </Button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       )}
     </div>

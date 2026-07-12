@@ -5,11 +5,25 @@ export {
   ChatBubble,
   ChatComposer,
   ChatFeed,
+  ClarifyChips,
+  ReadinessSpine,
+  StageComposer,
+  TextStage,
   TypingDots,
   VoiceOrb,
+  VoiceControls,
+  VoiceStage,
   type ChatMessage,
   type ChatRole,
+  type ClarifyLabels,
+  type ClarifyOption,
+  type ClarifyPrompt,
+  type PipStatus,
+  type ReadinessPip,
+  type VoicePhase,
+  type VoiceStageLabels,
 } from "./components/Chat";
+export { renderInlineMarkdown } from "./components/inlineMarkdown";
 export { Spinner } from "./components/Spinner";
 export { Badge } from "./components/Badge";
 export { Skeleton } from "./components/Skeleton";

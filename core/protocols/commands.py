@@ -8,7 +8,7 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel, ConfigDict, Field
 
 from core import constants as _consts
-from core.domain.models import CampaignSpec, ChannelKind
+from core.domain.models import CampaignSpec, ChannelKind, ResearchTask
 
 
 class CommandBase(BaseModel):
@@ -33,6 +33,11 @@ class CreateCampaign(CommandBase):
     # goal/background text" — the Designer agent's existing behavior.
     # When set, it takes priority over LLM inference.
     primary_language: str | None = None
+    # The distilled research task from the pre-creation assessment loop. When
+    # present, the caller has already clarified the researcher's intent
+    # (decision + objective + audience); it seeds the spec and sharpens the
+    # Designer's draft. None on the legacy "create straight from goal" path.
+    research_task: ResearchTask | None = None
 
 
 class RefineOutline(CommandBase):
@@ -93,12 +98,19 @@ Command = Annotated[
 ]
 
 
+# `research_task: ResearchTask | None` is a forward-ref under
+# `from __future__ import annotations`; rebuild so pydantic resolves it against
+# this module's namespace (ResearchTask is imported at the top).
+CreateCampaign.model_rebuild()
+
+
 def spec_from_create(cmd: CreateCampaign) -> CampaignSpec:
     from core.domain.models import Channel, Outline
 
     return CampaignSpec(
         goal=cmd.goal,
         background=cmd.background,
+        research_task=cmd.research_task,
         target_completions=cmd.target_completions,
         budget_usd=cmd.budget_usd,
         channels=[Channel(kind=ch) for ch in cmd.channels],

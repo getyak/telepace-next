@@ -318,12 +318,32 @@ class DesignerAgent:
                 "persona, screener, outline, recommendations) in this language "
                 f"and set languages=['{cmd.primary_language}']."
             )
+        # When the researcher's intent was clarified up-front (the assessment
+        # loop), feed the distilled task in as the study's north star so every
+        # seeded artifact — persona, screener, outline — serves that exact
+        # decision instead of re-deriving intent from the bare goal string.
+        task_directive = ""
+        task = cmd.research_task
+        if task is not None and (task.decision or task.objective or task.audience):
+            lines = []
+            if task.decision:
+                lines.append(f"- Decision to inform: {task.decision}")
+            if task.objective:
+                lines.append(f"- Research objective: {task.objective}")
+            if task.audience:
+                lines.append(f"- Audience to listen to: {task.audience}")
+            task_directive = (
+                "\n\nRESEARCH TASK (already clarified — the study's north star; "
+                "every hypothesis, the persona, the screener, and each outline "
+                "question MUST serve it):\n" + "\n".join(lines)
+            )
         user_msg = (
             f"Title: {cmd.title}\n"
             f"Goal: {cmd.goal}\n"
             f"Background: {cmd.background or '(none)'}\n"
             f"Target completions: {cmd.target_completions}\n"
-            f"Channels: {[ch.value for ch in cmd.channels]}\n\n"
+            f"Channels: {[ch.value for ch in cmd.channels]}\n"
+            f"{task_directive}\n\n"
             f"{_SEED_INSTRUCTION}"
             f"{language_directive}"
         )

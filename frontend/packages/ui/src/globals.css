@@ -99,7 +99,12 @@
 }
 .tp-wave-bar {
   transform-origin: center;
-  animation: tp-wave-kf 2.6s ease-in-out infinite;
+  /* Two animations: a one-shot rise (fade-up when the ring mounts, delay 0)
+     and the perpetual staggered pulse (delay = --wave-delay, set inline). */
+  animation:
+    tp-wave-rise-kf 200ms ease-out both,
+    tp-wave-kf 2.6s ease-in-out infinite;
+  animation-delay: 0ms, var(--wave-delay, 0s);
 }
 
 /* Typing indicator — three dots breathing in sequence while an agent
@@ -142,6 +147,90 @@ dialog.tp-dialog::backdrop {
   background: rgba(20, 20, 20, 0.32);
 }
 
+/* Guide diff flash — when a spec_patch lands, the changed block warms to
+   accent-soft then settles back to paper. A one-shot highlight, not a loop:
+   it says "this just changed" and then gets out of the way. Warm sage, never
+   a jarring blue/yellow — stays inside the editorial palette. */
+@keyframes tp-diff-flash-kf {
+  0% { background-color: transparent; }
+  12% { background-color: #DCE4D2; }
+  100% { background-color: transparent; }
+}
+.tp-diff-flash {
+  animation: tp-diff-flash-kf 1200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Persistent "just changed" rail — a 2px sage bar on the leading edge that does
+   NOT depend on colour-flash or motion. It is the reduced-motion / colour-blind
+   safe half of the diff signal (WCAG 1.4.1): the flash fades, this stays for the
+   render, and pairs with an sr-only "updated" label for assistive tech. */
+.tp-diff-rail {
+  box-shadow: inset 3px 0 0 0 #4A5D3B;
+}
+
+/* Badge ping — the "N changes" dot pings once when the count changes, then
+   rests, instead of a perpetual loop that keeps pulling the eye (quiet-luxury:
+   still things stay still). Keyed remount re-fires it per patch. */
+@keyframes tp-ping-once-kf {
+  0% { transform: scale(0.6); opacity: 0.4; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.tp-ping-once {
+  animation: tp-ping-once-kf 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Waveform rise — the ring of bars grows out when speaking begins (opacity
+   0 → 1, 200ms) so the wave swells up like a tide rather than popping in. Runs
+   ONCE alongside the perpetual pulse; both live on .tp-wave-bar's comma-joined
+   animation list (see below) so neither clobbers the other. */
+@keyframes tp-wave-rise-kf {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Guide block growth — a new section eases down into place the first time it
+   appears (fade + slight rise), so the document reads as *growing* under the
+   conversation rather than snapping in. Transient, fires once per block. */
+@keyframes tp-guide-grow-kf {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tp-guide-grow {
+  animation: tp-guide-grow-kf 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Clarify chips — the row of context-aware answer chips eases in together,
+   each staggered a beat after the last (inline animation-delay), so they land
+   like a considered suggestion rather than a form. */
+@keyframes tp-chip-in-kf {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tp-chip-in {
+  animation: tp-chip-in-kf 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Chat message — each bubble eases up into place once as it arrives, so the
+   conversation feels composed and alive rather than snapping in. Fires once
+   per message (keyed remount in the feed). */
+@keyframes tp-msg-in-kf {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tp-msg-in {
+  animation: tp-msg-in-kf 440ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Paper grain — a fine fractal-noise texture (inline SVG data URI, so it never
+   hits the network / CSP) laid over the desk so a large expanse of warm paper
+   reads as an actual sheet rather than a flat fill. Kept very subtle; pairs
+   with mix-blend-multiply + low opacity at the call site. */
+.tp-paper-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
 /* Accessibility — every animation degrades to a static state. */
 @media (prefers-reduced-motion: reduce) {
   .tp-spin,
@@ -149,7 +238,12 @@ dialog.tp-dialog::backdrop {
   .tp-fade-in-up,
   .tp-pulse-slow,
   .tp-wave-bar,
+  .tp-ping-once,
   .tp-typing-dot,
+  .tp-diff-flash,
+  .tp-guide-grow,
+  .tp-chip-in,
+  .tp-msg-in,
   dialog.tp-dialog[open] {
     animation: none;
   }
@@ -157,5 +251,11 @@ dialog.tp-dialog::backdrop {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+  /* When the flash is disabled, a changed block keeps a static sage wash + the
+     rail, so "this just changed" survives with zero motion (WCAG 1.4.1/2.3.3):
+     the signal must never depend on animation alone. */
+  .tp-diff-flash {
+    background-color: rgba(220, 228, 210, 0.5);
   }
 }

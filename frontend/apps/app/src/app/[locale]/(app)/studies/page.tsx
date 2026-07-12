@@ -8,8 +8,9 @@ import { routes } from "@telepace/config";
 import { StudiesIcon } from "@telepace/icons";
 
 import { PageHeader } from "@/components/app/PageHeader";
+import { useErrorsCopy } from "@/components/app/ErrorsCopyContext";
 import { getCampaigns, type CampaignListItem } from "@/lib/api";
-import { friendlyMessage, type ErrorsCopyTable } from "@/lib/errors";
+import { friendlyMessage } from "@/lib/errors";
 
 const statusVariant: Record<string, "accent" | "neutral" | "success" | "warning"> = {
   live: "accent",
@@ -18,20 +19,24 @@ const statusVariant: Record<string, "accent" | "neutral" | "success" | "warning"
   closed: "neutral",
 };
 
-function relativeTime(iso: string): string {
-  const then = new Date(iso).getTime();
-  const mins = Math.max(0, Math.round((Date.now() - then) / 60000));
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.round(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.round(hours / 24);
-  return `${days}d ago`;
+function useRelativeTime() {
+  const t = useTranslations("app.studies");
+  return (iso: string): string => {
+    const then = new Date(iso).getTime();
+    const mins = Math.max(0, Math.round((Date.now() - then) / 60000));
+    if (mins < 1) return t("relativeJustNow");
+    if (mins < 60) return t("relativeMinutes", { count: mins });
+    const hours = Math.round(mins / 60);
+    if (hours < 24) return t("relativeHours", { count: hours });
+    const days = Math.round(hours / 24);
+    return t("relativeDays", { count: days });
+  };
 }
 
 export default function StudiesPage() {
-  const t = useTranslations("errors");
-  const errorsCopy = t.raw("") as ErrorsCopyTable;
+  const t = useTranslations("app.studies");
+  const errorsCopy = useErrorsCopy();
+  const relativeTime = useRelativeTime();
   const [studies, setStudies] = useState<CampaignListItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,11 +58,11 @@ export default function StudiesPage() {
   return (
     <div className="mx-auto max-w-content p-6 md:p-10">
       <PageHeader
-        eyebrow="Your studies"
-        title="What are we learning today?"
+        eyebrow={t("eyebrow")}
+        title={t("title")}
         actions={
           <Link href={routes.app.studies.new}>
-            <Button>+ New study</Button>
+            <Button>{t("newStudy")}</Button>
           </Link>
         }
       />
@@ -65,9 +70,9 @@ export default function StudiesPage() {
       {error ? (
         <EmptyState
           icon={<StudiesIcon size={24} />}
-          title="Couldn't load your studies."
+          title={t("errorTitle")}
           description={error}
-          action={<Button onClick={() => location.reload()}>Retry</Button>}
+          action={<Button onClick={() => location.reload()}>{t("retry")}</Button>}
         />
       ) : studies === null ? (
         <div className="space-y-3">
@@ -78,11 +83,11 @@ export default function StudiesPage() {
       ) : studies.length === 0 ? (
         <EmptyState
           icon={<StudiesIcon size={24} />}
-          title="No studies yet."
-          description="Describe what you want to learn — the Designer agent drafts the interview for you."
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
           action={
             <Link href={routes.app.studies.new}>
-              <Button>New study</Button>
+              <Button>{t("newStudyShort")}</Button>
             </Link>
           }
         />
@@ -97,19 +102,19 @@ export default function StudiesPage() {
               <div className="col-span-12 sm:col-span-6">
                 <p className="font-display text-lg leading-snug">{s.title}</p>
                 <p className="mt-0.5 text-xs text-muted">
-                  {s.question_count} questions · updated {relativeTime(s.updated_at)}
+                  {t("questionsUpdated", { count: s.question_count, time: relativeTime(s.updated_at) })}
                 </p>
               </div>
               <div className="col-span-4 sm:col-span-2">
                 <Badge variant={statusVariant[s.status] ?? "neutral"}>{s.status}</Badge>
               </div>
               <div className="col-span-6 text-sm text-body sm:col-span-3">
-                {s.progress.completed} / {s.target_completions} completed
+                {t("completedCount", { completed: s.progress.completed, target: s.target_completions })}
                 {s.progress.started > s.progress.completed && (
-                  <span className="text-muted"> · {s.progress.started - s.progress.completed} in progress</span>
+                  <span className="text-muted"> · {t("inProgressCount", { count: s.progress.started - s.progress.completed })}</span>
                 )}
               </div>
-              <div className="col-span-2 text-right text-muted sm:col-span-1">→</div>
+              <div className="col-span-2 text-right text-muted sm:col-span-1">&rarr;</div>
             </Link>
           ))}
         </div>

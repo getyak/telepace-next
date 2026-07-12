@@ -13,23 +13,35 @@ import { Button } from "@telepace/ui";
 import { CloseIcon, MenuIcon } from "@telepace/icons";
 import { routes, siteConfig } from "@telepace/config";
 
+import { useAuth } from "@/lib/auth/AuthProvider";
+
 export type NavLink = { href: string; label: string };
 
 export function MobileNav({
   links,
+  initialHasSession,
   signInLabel,
   startFreeLabel,
+  dashboardLabel,
+  signOutLabel,
   openMenuLabel,
   closeMenuLabel,
 }: {
   links: NavLink[];
+  initialHasSession: boolean;
   signInLabel: string;
   startFreeLabel: string;
+  dashboardLabel: string;
+  signOutLabel: string;
   openMenuLabel: string;
   closeMenuLabel: string;
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const { status, logout } = useAuth();
+  // Treat the server's cookie hint as authenticated until /me resolves, so the
+  // overlay doesn't flash guest actions for a logged-in user.
+  const authed = status === "authenticated" || (status === "loading" && initialHasSession);
 
   // Route change closes the menu.
   useEffect(() => {
@@ -93,14 +105,34 @@ export function MobileNav({
           </nav>
 
           <div className="container-content flex items-center gap-3 border-t border-hairline py-6">
-            <Link href={routes.login} onClick={() => setOpen(false)} className="flex-1">
-              <Button variant="secondary" className="w-full">
-                {signInLabel}
-              </Button>
-            </Link>
-            <Link href={routes.signup} onClick={() => setOpen(false)} className="flex-1">
-              <Button className="w-full">{startFreeLabel}</Button>
-            </Link>
+            {authed ? (
+              <>
+                <Link href={routes.app.root} onClick={() => setOpen(false)} className="flex-1">
+                  <Button className="w-full">{dashboardLabel}</Button>
+                </Link>
+                <Button
+                  variant="secondary"
+                  className="flex-1"
+                  onClick={() => {
+                    setOpen(false);
+                    void logout();
+                  }}
+                >
+                  {signOutLabel}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href={routes.login} onClick={() => setOpen(false)} className="flex-1">
+                  <Button variant="secondary" className="w-full">
+                    {signInLabel}
+                  </Button>
+                </Link>
+                <Link href={routes.signup} onClick={() => setOpen(false)} className="flex-1">
+                  <Button className="w-full">{startFreeLabel}</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -14,6 +14,7 @@ import { routes, siteConfig } from "@telepace/config";
 import {
   AudienceIcon,
   CloseIcon,
+  CopilotIcon,
   InboxIcon,
   InsightsIcon,
   IntegrationsIcon,
@@ -29,7 +30,7 @@ import { UserMenu } from "../user/UserMenu";
 type Item = {
   href: string;
   /** Key into the "sidebar" namespace, e.g. t(labelKey). */
-  labelKey: "studies" | "inbox" | "audience" | "insights" | "integrations" | "settings";
+  labelKey: "studies" | "inbox" | "audience" | "insights" | "copilot" | "integrations" | "settings";
   icon: ComponentType<IconProps>;
 };
 
@@ -38,6 +39,7 @@ const PRIMARY: Item[] = [
   { href: routes.app.inbox, labelKey: "inbox", icon: InboxIcon },
   { href: routes.app.audience, labelKey: "audience", icon: AudienceIcon },
   { href: routes.app.insights, labelKey: "insights", icon: InsightsIcon },
+  { href: routes.app.copilot, labelKey: "copilot", icon: CopilotIcon },
 ];
 
 const WORKSPACE: Item[] = [
