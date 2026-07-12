@@ -13,7 +13,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button } from "@telepace/ui";
+import { Button, Card } from "@telepace/ui";
 import { routes } from "@telepace/config";
 
 import { Link } from "@/i18n/navigation";
@@ -77,7 +77,7 @@ export function HeroInterview() {
         : [];
 
   return (
-    <div className="overflow-hidden rounded-card border border-hairline bg-paper-elevated shadow-hairline">
+    <Card className="overflow-hidden shadow-hairline">
       <div className="flex items-center gap-2 border-b border-hairline px-4 py-2 text-xs text-muted">
         <div className="tp-pulse-slow h-2 w-2 rounded-pill bg-accent" aria-hidden />
         {t("liveLabel")}
@@ -176,6 +176,6 @@ export function HeroInterview() {
           </form>
         </div>
       )}
-    </div>
+    </Card>
   );
 }

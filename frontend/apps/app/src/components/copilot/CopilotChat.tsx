@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ChatComposer, ChatFeed, type ChatMessage } from "@telepace/ui";
+import { Card, ChatComposer, ChatFeed, type ChatMessage } from "@telepace/ui";
 
 import { MOCK_STUDIES } from "./StudySelector";
 
@@ -68,7 +68,7 @@ export function CopilotChat({
   }
 
   return (
-    <div className="flex min-h-[420px] flex-col overflow-hidden rounded-card border border-hairline bg-paper-elevated">
+    <Card className="flex min-h-[420px] flex-col overflow-hidden">
       <div className="flex-1 overflow-y-auto px-5">
         <ChatFeed messages={messages} typingLabel={thinkingLabel} />
       </div>
@@ -78,6 +78,6 @@ export function CopilotChat({
         sendLabel={sendLabel}
         disabled={busy}
       />
-    </div>
+    </Card>
   );
 }

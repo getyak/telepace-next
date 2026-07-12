@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { Button } from "@telepace/ui";
+import { Button, Card } from "@telepace/ui";
 import { routes, siteConfig } from "@telepace/config";
 import { PageHeader } from "@/components/marketing/site-chrome";
 
@@ -92,17 +92,17 @@ export default async function DocsPage() {
 
             {sections.map((s) => (
               <div key={s.id} className="space-y-6">
-                <p className="overline">{s.title}</p>
+                <h2 className="font-display text-2xl">{s.title}</h2>
                 <div className="grid md:grid-cols-2 gap-4">
                   {s.items.map((it) => (
-                    <div
+                    <Card
                       key={it.id}
                       id={slug(it.h)}
-                      className="rounded-card border border-hairline bg-paper-elevated p-6"
+                      className="p-6"
                     >
                       <p className="font-display text-xl mb-2">{it.h}</p>
                       <p className="text-body text-sm">{it.body}</p>
-                    </div>
+                    </Card>
                   ))}
                 </div>
               </div>

@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { Card } from "@telepace/ui";
 import { siteConfig } from "@telepace/config";
 
 import { Link } from "@/i18n/navigation";
@@ -51,10 +52,10 @@ export default async function SecurityPage() {
       <section className="section-padding">
         <div className="container-content grid md:grid-cols-2 gap-6">
           {pillars.map((p) => (
-            <div key={p.id} className="rounded-card border border-hairline bg-paper-elevated p-6">
+            <Card key={p.id} className="p-6">
               <p className="font-display text-2xl mb-3">{p.k}</p>
               <p className="text-body">{p.v}</p>
-            </div>
+            </Card>
           ))}
         </div>
       </section>

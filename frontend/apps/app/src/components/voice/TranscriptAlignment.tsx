@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { cn } from "@telepace/ui";
+import { Card, cn } from "@telepace/ui";
 import type { TranscriptTurn } from "./mock-voice-data";
 
 type TranscriptAlignmentProps = {
@@ -37,7 +37,7 @@ export function TranscriptAlignment({
   }, [currentTime]);
 
   return (
-    <div className="rounded-card border border-hairline bg-paper-elevated">
+    <Card>
       <div className="border-b border-hairline px-5 py-3">
         <p className="overline">{t("transcript")}</p>
       </div>
@@ -97,6 +97,6 @@ export function TranscriptAlignment({
           );
         })}
       </div>
-    </div>
+    </Card>
   );
 }

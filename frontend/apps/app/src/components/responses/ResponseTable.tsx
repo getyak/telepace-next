@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Badge, cn } from "@telepace/ui";
+import { Badge, Card, cn } from "@telepace/ui";
 import { useTranslations } from "next-intl";
 import type { ResponseRow } from "@/types/evidence";
 import { ResponseTableHeader } from "./ResponseTableHeader";
@@ -121,7 +121,7 @@ export function ResponseTable({ rows, className }: ResponseTableProps) {
   ];
 
   return (
-    <div className={cn("rounded-card border border-hairline bg-paper-elevated", className)}>
+    <Card className={cn(className)}>
       <ResponseTableHeader
         search={search}
         onSearchChange={setSearch}
@@ -205,6 +205,6 @@ export function ResponseTable({ rows, className }: ResponseTableProps) {
           </tbody>
         </table>
       </div>
-    </div>
+    </Card>
   );
 }

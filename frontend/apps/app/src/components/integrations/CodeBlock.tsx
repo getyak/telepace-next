@@ -59,7 +59,7 @@ export function CodeBlock({ code, language, title }: CodeBlockProps) {
           <button
             onClick={handleCopy}
             className={cn(
-              "absolute top-3 right-3 text-xs font-medium px-2 py-1 rounded-btn transition-all",
+              "absolute top-3 right-3 text-xs font-medium px-2 py-1 rounded-btn transition-[color,background-color,opacity] duration-150",
               copied
                 ? "text-success bg-success/10 opacity-100"
                 : "text-[#999] hover:text-[#ccc] hover:bg-[#333] opacity-0 group-hover:opacity-100",

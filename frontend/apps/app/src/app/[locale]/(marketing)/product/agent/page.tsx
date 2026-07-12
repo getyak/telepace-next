@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
-import { Button } from "@telepace/ui";
+import { Button, Card } from "@telepace/ui";
 import { routes } from "@telepace/config";
 import { PageHeader } from "@/components/marketing/site-chrome";
 
@@ -52,7 +52,7 @@ export default async function AgentPage() {
           </h2>
           <div className="grid md:grid-cols-2 gap-4">
             {agents.map((a) => (
-              <div key={a.id} className="rounded-card border border-hairline bg-paper-elevated p-6">
+              <Card key={a.id} className="p-6">
                 <p className="font-display text-2xl mb-3">{a.name}</p>
                 <p className="text-body text-sm mb-5">{a.role}</p>
                 <div className="grid grid-cols-2 gap-3 text-xs font-mono">
@@ -65,7 +65,7 @@ export default async function AgentPage() {
                     <p className="text-body">{a.outputs}</p>
                   </div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>

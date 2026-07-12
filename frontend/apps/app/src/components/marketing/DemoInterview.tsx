@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Button, ChatFeed, ChatComposer, type ChatMessage } from "@telepace/ui";
+import { Button, Card, ChatFeed, ChatComposer, type ChatMessage } from "@telepace/ui";
 import { routes } from "@telepace/config";
 
 const SCRIPT: Array<{ prompt: string }> = [
@@ -40,7 +40,7 @@ export function DemoInterview() {
     <section className="section-padding">
       <div className="container-content grid md:grid-cols-12 gap-10">
         <div className="md:col-span-8">
-          <div className="rounded-card border border-hairline bg-paper-elevated overflow-hidden flex flex-col h-[560px]">
+          <Card className="overflow-hidden flex flex-col h-[560px]">
             <div className="flex items-center gap-2 border-b border-hairline px-5 py-3 text-xs text-muted">
               <div className="w-2 h-2 rounded-full bg-accent" />
               live · demo interview · {done ? "wrapped" : `question ${step + 1} of ${SCRIPT.length}`}
@@ -59,7 +59,7 @@ export function DemoInterview() {
             ) : (
               <ChatComposer onSend={handleSend} placeholder="Type a reply and press Enter…" />
             )}
-          </div>
+          </Card>
         </div>
         <aside className="md:col-span-4 space-y-6">
           <div className="rounded-card border border-hairline bg-paper p-6">

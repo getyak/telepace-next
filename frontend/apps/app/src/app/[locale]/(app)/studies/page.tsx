@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Badge, Button, EmptyState, Skeleton } from "@telepace/ui";
+import { Badge, Button, Card, EmptyState, Skeleton } from "@telepace/ui";
 import { routes } from "@telepace/config";
 import { StudiesIcon } from "@telepace/icons";
 
@@ -92,12 +92,16 @@ export default function StudiesPage() {
           }
         />
       ) : (
-        <div className="divide-y divide-hairline rounded-card border border-hairline bg-paper-elevated">
+        <Card className="divide-y divide-hairline overflow-hidden">
           {studies.map((s) => (
             <Link
               key={s.id}
               href={routes.app.studies.byId(s.id)}
-              className="grid grid-cols-12 items-center gap-2 px-6 py-5 transition-colors hover:bg-paper"
+              // Apple: acknowledge the touch the instant the pointer goes down —
+              // hover tints on approach, `active` presses a shade deeper the
+              // moment it's held, and the press settles ~3× faster than it
+              // releases so the row feels answered, not laggy.
+              className="grid grid-cols-12 items-center gap-2 px-6 py-5 transition-colors duration-200 hover:bg-paper active:bg-paper-sunken active:duration-75"
             >
               <div className="col-span-12 sm:col-span-6">
                 <p className="font-display text-lg leading-snug">{s.title}</p>
@@ -117,7 +121,7 @@ export default function StudiesPage() {
               <div className="col-span-2 text-right text-muted sm:col-span-1">&rarr;</div>
             </Link>
           ))}
-        </div>
+        </Card>
       )}
     </div>
   );

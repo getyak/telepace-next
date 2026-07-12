@@ -4,7 +4,7 @@ import { use, useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Badge, Button, Dialog, EmptyState, Skeleton, toast } from "@telepace/ui";
+import { Badge, Button, Card, Dialog, EmptyState, Skeleton, toast } from "@telepace/ui";
 import { routes } from "@telepace/config";
 import { ResponseTable } from "@/components/responses";
 import type { ResponseRow } from "@/types/evidence";
@@ -283,7 +283,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
         </div>
 
         <aside className="space-y-6 md:col-span-5">
-          <div className="rounded-card border border-hairline bg-paper-elevated p-6">
+          <Card className="p-6">
             <p className="overline mb-3">{t("setupLabel")}</p>
             <ul className="space-y-2 text-sm text-body">
               <li>
@@ -299,15 +299,15 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
                 </span>
               </li>
             </ul>
-          </div>
+          </Card>
           {spec.target_persona && (
-            <div className="rounded-card border border-hairline bg-paper-elevated p-6">
+            <Card className="p-6">
               <p className="overline mb-3">{t("targetPersona")}</p>
               <p className="text-sm leading-relaxed text-body">{spec.target_persona}</p>
-            </div>
+            </Card>
           )}
           {(spec.hypotheses ?? []).length > 0 && (
-            <div className="rounded-card border border-hairline bg-paper-elevated p-6">
+            <Card className="p-6">
               <p className="overline mb-3">{t("hypotheses")}</p>
               <ul className="space-y-2 text-sm text-body">
                 {spec.hypotheses!.map((h, i) => (
@@ -317,7 +317,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
                   </li>
                 ))}
               </ul>
-            </div>
+            </Card>
           )}
         </aside>
       </section>
@@ -343,10 +343,10 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
 
 function Metric({ label, value, tone }: { label: string; value: string; tone?: "accent" }) {
   return (
-    <div className="rounded-card border border-hairline bg-paper-elevated p-5">
+    <Card className="p-5">
       <p className="overline mb-2">{label}</p>
       <p className={`font-display text-3xl ${tone === "accent" ? "text-accent" : "text-ink"}`}>{value}</p>
-    </div>
+    </Card>
   );
 }
 
@@ -426,7 +426,7 @@ function ThemeCard({ item }: { item: InsightItem }) {
   const t = useTranslations("app.studyDetail");
   const summary = str(item.body.summary) ?? str(item.body.description);
   return (
-    <div className="rounded-card border border-hairline bg-paper-elevated p-5">
+    <Card className="p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <Badge variant="accent">{t("badgeTheme")}</Badge>
@@ -435,7 +435,7 @@ function ThemeCard({ item }: { item: InsightItem }) {
         </div>
         <ConfidenceBar value={item.confidence} />
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -475,11 +475,11 @@ function PersonaCard({ item }: { item: InsightItem }) {
   const t = useTranslations("app.studyDetail");
   const summary = str(item.body.summary) ?? str(item.body.description);
   return (
-    <div className="rounded-card border border-hairline bg-paper-elevated p-5">
+    <Card className="p-5">
       <Badge variant="success">{t("badgePersona")}</Badge>
       <p className="mt-2 font-display text-lg leading-snug text-ink">{item.title}</p>
       {summary && <p className="mt-1.5 text-sm leading-relaxed text-body">{summary}</p>}
-    </div>
+    </Card>
   );
 }
 
@@ -604,7 +604,7 @@ function AnalysisSection() {
     <section className="mb-14">
       <p className="overline mb-6">{tCharts("analysis")}</p>
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-card border border-hairline bg-paper-elevated p-6">
+        <Card className="p-6">
           <ChartSection baseN={48} showTop2Box>
             <TpBarChart
               data={MOCK_SENTIMENT}
@@ -612,18 +612,18 @@ function AnalysisSection() {
               title={t("chartOverallSatisfaction")}
             />
           </ChartSection>
-        </div>
-        <div className="rounded-card border border-hairline bg-paper-elevated p-6">
+        </Card>
+        <Card className="p-6">
           <ChartSection baseN={48}>
             <CrossTab
               title={t("chartSatisfactionByChannel")}
               segmentLabel={t("chartSegmentSatisfaction")}
-              bucketLabels={["Web text", "Web voice", "Phone"]}
+              bucketLabels={[t("channelWebText"), t("channelWebVoice"), t("channelPhone")]}
               rows={MOCK_CROSS_TAB_ROWS}
               baseNPerBucket={[24, 14, 10]}
             />
           </ChartSection>
-        </div>
+        </Card>
       </div>
     </section>
   );

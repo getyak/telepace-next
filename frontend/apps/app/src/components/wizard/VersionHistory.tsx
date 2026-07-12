@@ -51,7 +51,7 @@ export function VersionHistory<T>({
                   className={cn(
                     "w-full text-left rounded-md px-3 py-2 text-sm transition-colors",
                     isCurrent
-                      ? "bg-[#4A5D3B]/10 text-[#4A5D3B] cursor-default"
+                      ? "bg-accent/10 text-accent cursor-default"
                       : "text-body hover:bg-ink/5",
                   )}
                 >
@@ -62,7 +62,7 @@ export function VersionHistory<T>({
                     </span>
                   </div>
                   {isCurrent && (
-                    <span className="text-xs text-[#4A5D3B]">
+                    <span className="text-xs text-accent">
                       {t("current")}
                     </span>
                   )}

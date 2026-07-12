@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
-import { Button, ChatFeed, ChatComposer, type ChatMessage } from "@telepace/ui";
+import { Button, Card, ChatFeed, ChatComposer, type ChatMessage } from "@telepace/ui";
 import { routes } from "@telepace/config";
 import { PageHeader } from "@/components/marketing/site-chrome";
 import { Link } from "@/i18n/navigation";
@@ -49,7 +49,7 @@ export default function DemoPage() {
       <section className="section-padding">
         <div className="container-content grid md:grid-cols-12 gap-10">
           <div className="md:col-span-8">
-            <div className="rounded-card border border-hairline bg-paper-elevated overflow-hidden flex flex-col h-[560px]">
+            <Card className="overflow-hidden flex flex-col h-[560px]">
               <div className="flex items-center gap-2 border-b border-hairline px-5 py-3 text-xs text-muted">
                 <div className="w-2 h-2 rounded-full bg-accent" />
                 {t("statusLine", {
@@ -74,7 +74,7 @@ export default function DemoPage() {
                   sendLabel={t("chat.send")}
                 />
               )}
-            </div>
+            </Card>
           </div>
           <aside className="md:col-span-4 space-y-6">
             <div className="rounded-card border border-hairline bg-paper p-6">

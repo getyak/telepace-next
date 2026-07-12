@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { routes, siteConfig } from "@telepace/config";
+import { Card } from "@telepace/ui";
 
 /**
  * Shared shell for /login and /signup — single centered column, Linear-style.
@@ -22,10 +23,10 @@ export function AuthCard({
         </Link>
       </div>
 
-      <div className="rounded-card border border-hairline bg-paper-elevated p-8">
+      <Card className="p-8">
         <h1 className="font-display text-3xl">{title}</h1>
         <div className="mt-6">{children}</div>
-      </div>
+      </Card>
 
       {footer && <div className="mt-6 text-center text-sm text-muted">{footer}</div>}
     </div>

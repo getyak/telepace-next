@@ -61,6 +61,38 @@
   .overline { @apply text-xs font-medium uppercase tracking-[0.14em] text-muted; }
 }
 
+/* ---------- Materials (translucent chrome) ------------------------------- */
+
+/* Floating chrome — nav rails, top bars and the creation composer read as a
+   thin translucent material with content scrolling *under* them, rather than a
+   solid panel butted against the page. paper-elevated (#FAF8F3) held at ~72%
+   over a blur+saturate so the warmth of whatever scrolls beneath tints through.
+   Two accessibility fallbacks below keep it legible when the platform can't (or
+   the user asked it not to) render translucency. */
+.tp-chrome {
+  background-color: rgba(250, 248, 243, 0.72);
+  backdrop-filter: saturate(160%) blur(20px);
+  -webkit-backdrop-filter: saturate(160%) blur(20px);
+}
+
+/* No backdrop-filter support → fall back to the solid surface (never leave a
+   see-through panel with no blur, which would let text collide underneath). */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .tp-chrome {
+    background-color: #FAF8F3;
+  }
+}
+
+/* Respect the OS "reduce transparency" setting — frost to a near-solid surface
+   and drop the blur (WCAG-adjacent; matches Apple's own Increase Contrast). */
+@media (prefers-reduced-transparency: reduce) {
+  .tp-chrome {
+    background-color: #FAF8F3;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
 /* ---------- Motion vocabulary (the only animations in the product) ------- */
 
 /* Spinner — ~800ms uniform rotation. */

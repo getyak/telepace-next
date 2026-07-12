@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, cn, EmptyState } from "@telepace/ui";
+import { Button, Card, cn, EmptyState } from "@telepace/ui";
 import { getMockClips } from "./mock-voice-data";
 
 type ClipReelProps = {
@@ -35,7 +35,7 @@ export function ClipReel({ studyId }: ClipReelProps) {
   };
 
   return (
-    <div className="rounded-card border border-hairline bg-paper-elevated">
+    <Card>
       <div className="flex flex-col gap-4 border-b border-hairline p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <p className="overline">{t("reel")}</p>
@@ -91,6 +91,6 @@ export function ClipReel({ studyId }: ClipReelProps) {
           {formatDuration(totalDuration)}
         </span>
       </div>
-    </div>
+    </Card>
   );
 }

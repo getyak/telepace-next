@@ -160,6 +160,9 @@
     "chartOverallSatisfaction": "整体满意度",
     "chartSatisfactionByChannel": "按渠道划分的满意度",
     "chartSegmentSatisfaction": "满意度",
+    "channelWebText": "网页文字",
+    "channelWebVoice": "网页语音",
+    "channelPhone": "电话",
     "errorTitle": "无法加载此问卷。",
     "retryButton": "重试"
   },
@@ -295,6 +298,7 @@
     "suggestQuotes": "最具影响力的引述？"
   },
   "newStudy": {
+    "untitledStudy": "未命名问卷",
     "systemGreeting": "告诉我你想了解什么，我来帮你起草访谈提纲。",
     "suggestion1": "上个季度试用用户为什么在升级前流失了？",
     "suggestion2": "自由职业者如何决定使用哪款开票工具？",

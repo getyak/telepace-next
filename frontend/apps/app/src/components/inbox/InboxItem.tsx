@@ -69,7 +69,7 @@ export function InboxItem({ item, onAction }: InboxItemProps) {
     <article
       className={cn(
         "px-6 py-5 transition-colors",
-        item.kind === "escalation" && "border-l-[3px] border-l-[#B45A3C]",
+        item.kind === "escalation" && "border-l-[3px] border-l-terracotta",
         !item.read && "bg-paper-elevated",
         item.read && "bg-paper",
       )}
