@@ -6,6 +6,7 @@ export {
   ChatComposer,
   ChatFeed,
   ClarifyChips,
+  ReadinessSpine,
   TypingDots,
   VoiceOrb,
   type ChatMessage,
@@ -13,7 +14,10 @@ export {
   type ClarifyLabels,
   type ClarifyOption,
   type ClarifyPrompt,
+  type PipStatus,
+  type ReadinessPip,
 } from "./components/Chat";
+export { renderInlineMarkdown } from "./components/inlineMarkdown";
 export { Spinner } from "./components/Spinner";
 export { Badge } from "./components/Badge";
 export { Skeleton } from "./components/Skeleton";

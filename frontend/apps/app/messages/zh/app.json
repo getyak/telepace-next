@@ -354,7 +354,15 @@
     "blockUpdated": "已更新",
     "seedSeparator": "、",
     "clarifyGroupLabel": "回答选项",
-    "clarifyCount": "继续，已选 {count} 项"
+    "clarifyCount": "继续，已选 {count} 项",
+    "readinessLabel": "问卷就绪度",
+    "pipDecision": "决策",
+    "pipAudience": "受众",
+    "pipWhoPays": "谁付费",
+    "pipDepth": "深度",
+    "pipQuestions": "问题",
+    "readinessCaptured": "已捕获{label} — {remaining, plural, =0 {可以发布了} other {还差 # 步}}",
+    "readinessOpenHint": "{remaining, plural, other {还有 # 项待完成}}"
   },
   "wizard": {
     "stepGoal": "目标",

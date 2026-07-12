@@ -354,7 +354,15 @@
     "blockUpdated": "Updated",
     "seedSeparator": ", ",
     "clarifyGroupLabel": "Answer options",
-    "clarifyCount": "Continue, {count} selected"
+    "clarifyCount": "Continue, {count} selected",
+    "readinessLabel": "Study readiness",
+    "pipDecision": "Decision",
+    "pipAudience": "Audience",
+    "pipWhoPays": "Who pays",
+    "pipDepth": "Depth",
+    "pipQuestions": "Questions",
+    "readinessCaptured": "{label} captured — {remaining, plural, =0 {ready to publish} =1 {1 step still open} other {# steps still open}}",
+    "readinessOpenHint": "{remaining, plural, =1 {1 thing still open} other {# things still open}}"
   },
   "wizard": {
     "stepGoal": "Goal",

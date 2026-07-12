@@ -1,13 +1,25 @@
 "use client";
 
-import { type ReactNode, useMemo, useRef, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, ChatFeed, ChatComposer, type ChatMessage } from "@telepace/ui";
+import {
+  Button,
+  ChatFeed,
+  ChatComposer,
+  ReadinessSpine,
+  type ChatMessage,
+  type ReadinessPip,
+} from "@telepace/ui";
 import { ALL_CHANNELS, CHANNELS } from "@telepace/config";
 import {
   deriveDecisionClarify,
   deriveAudienceClarify,
+  deriveReadiness,
+  readinessDelta,
+  pendingCount,
+  READINESS_ORDER,
   type ClarifyCopy,
+  type Readiness,
 } from "@/lib/clarify";
 import {
   createCampaign,
@@ -145,6 +157,25 @@ export default function NewStudyPage() {
   const abortRef = useRef<AbortController | null>(null);
   const prevSpecRef = useRef<Spec>(INITIAL_SPEC);
 
+  // Readiness spine state. `readiness` is derived from `spec` each render (pure,
+  // no persisted copy — mirrors the clarify seam). Only the *previous* snapshot
+  // is stored, so a patch can tell which pips newly flipped (readinessDelta).
+  const prevReadinessRef = useRef<Readiness>(deriveReadiness(INITIAL_SPEC));
+  // The pip that just flipped to satisfied on the latest patch — pings once,
+  // then clears. Null on the steady state and under reduced-motion.
+  const [justSatisfied, setJustSatisfied] = useState<keyof Readiness | null>(null);
+  // A single accessible utterance for the latest readiness transition. Keyed by
+  // a monotonic seq so an identical sentence still re-announces (WCAG 4.1.3).
+  const [readinessLive, setReadinessLive] = useState<string>("");
+  const [readinessLiveSeq, setReadinessLiveSeq] = useState(0);
+  // When a pip transitions, the pip IS the change notification — so we suppress
+  // the redundant changes-badge ping for that one patch (one patch → one flash).
+  const [suppressBadgePing, setSuppressBadgePing] = useState(false);
+
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  const readiness = deriveReadiness(spec);
+
   // Localized copy for the domain-aware clarification chips. Memoized so the
   // object identity is stable across renders (it feeds pure derive fns).
   const clarifyCopy = useMemo<ClarifyCopy>(
@@ -167,6 +198,35 @@ export default function NewStudyPage() {
     }),
     [tc],
   );
+
+  // Localized pip labels for the readiness spine, in spine order. Memoized so
+  // the array identity is stable across renders.
+  const readinessLabels = useMemo<Record<keyof Readiness, string>>(
+    () => ({
+      decision: tc("pipDecision"),
+      audience: tc("pipAudience"),
+      whopays: tc("pipWhoPays"),
+      depth: tc("pipDepth"),
+      questions: tc("pipQuestions"),
+    }),
+    [tc],
+  );
+
+  // The pips array the presentational spine renders — labels + live status,
+  // built from the derived readiness in stable spine order.
+  const readinessPips = useMemo<ReadinessPip[]>(
+    () =>
+      READINESS_ORDER.map((k) => ({
+        key: k,
+        label: readinessLabels[k],
+        status: readiness[k],
+      })),
+    [readiness, readinessLabels],
+  );
+
+  // How many applicable pips are still pending — feeds the publish soft-gate
+  // hint. `na` pips never count (pendingCount ignores them).
+  const readinessOpen = pendingCount(readiness);
 
   // Localized copy for the seed-summary pure function (describeSeed). Uses ICU
   // plural rules so counts read naturally in both languages.
@@ -196,12 +256,41 @@ export default function NewStudyPage() {
     if (JSON.stringify(next.success_criteria) !== JSON.stringify(prev.success_criteria))
       moved.add("criteria");
     prevSpecRef.current = next;
+
+    // Readiness spine: did any pip newly flip to satisfied on this patch?
+    const nextReadiness = deriveReadiness(next);
+    const flipped = readinessDelta(prevReadinessRef.current, nextReadiness);
+    prevReadinessRef.current = nextReadiness;
+
     if (moved.size > 0) {
       setChanged(moved);
       setChangeCount(moved.size);
       // Bump the sequence so consecutive edits to the same block still remount
       // and replay their highlight.
       setPatchSeq((n) => n + 1);
+    }
+
+    // Coordinated header cue: when a pip transitions, the pip IS the change
+    // notification, so suppress the redundant changes-badge ping for this one
+    // patch — one patch → one flash → one utterance (the whole "calm" of the
+    // spine depends on not firing two competing pings 8px apart).
+    if (flipped.length > 0) {
+      setSuppressBadgePing(true);
+      // Arm the one-shot pip ping only when motion is welcome; the CSS query is
+      // a second gate. Ping the last-flipped pip (questions wins on a full jump).
+      setJustSatisfied(prefersReducedMotion ? null : flipped[flipped.length - 1]);
+      // One accessible utterance: which pip landed + how many steps remain.
+      const landedKey = flipped[flipped.length - 1];
+      setReadinessLive(
+        tc("readinessCaptured", {
+          label: readinessLabels[landedKey],
+          remaining: pendingCount(nextReadiness),
+        }),
+      );
+      setReadinessLiveSeq((n) => n + 1);
+    } else {
+      setSuppressBadgePing(false);
+      setJustSatisfied(null);
     }
   }
 
@@ -459,8 +548,8 @@ export default function NewStudyPage() {
 
   return (
     <div className="h-screen grid grid-cols-12">
-      {/* Left: chat pane */}
-      <section className="col-span-5 border-r border-hairline flex flex-col bg-paper">
+      {/* Left: chat pane — a calm one-third rail; the document is the star. */}
+      <section className="col-span-4 border-r border-hairline flex flex-col bg-paper">
         <header className="px-6 h-14 flex items-center justify-between border-b border-hairline">
           <p className="overline">{tc("designChat")}</p>
           {busy && campaignId && (
@@ -519,33 +608,55 @@ export default function NewStudyPage() {
         />
       </section>
 
-      {/* Right: canvas pane */}
-      <section className="col-span-7 flex flex-col overflow-hidden">
-        <header className="px-8 h-14 flex items-center justify-between border-b border-hairline">
-          <div className="flex items-center gap-3">
-            <p className="overline">{tc("discussionGuide")}</p>
-            <span className="text-xs text-muted">
-              ~{spec.estimated_minutes} min · {spec.target_completions} completions
-            </span>
-            {changeCount > 0 && (
-              <span
-                key={changeCount + Array.from(changed).join()}
-                aria-hidden
-                className="tp-chip-in inline-flex items-center gap-1.5 rounded-pill bg-accent-soft px-2.5 py-1 text-xs text-accent"
-              >
-                <span className="tp-ping-once h-1.5 w-1.5 rounded-full bg-accent" />
-                {tc("changesTracked", { count: changeCount })}
+      {/* Right: canvas pane — the wide, elevated-paper research manuscript. */}
+      <section className="col-span-8 flex flex-col overflow-hidden">
+        <header className="px-8 min-h-14 py-2.5 flex items-center justify-between gap-6 border-b border-hairline">
+          <div className="min-w-0 flex flex-col gap-1.5">
+            <div className="flex items-center gap-3">
+              <p className="overline">{tc("discussionGuide")}</p>
+              <span className="text-xs text-muted">
+                ~{spec.estimated_minutes} min · {spec.target_completions} completions
               </span>
-            )}
-            {/* The visual badge + diff-flash are silent to assistive tech: the
-                guide updates asynchronously (SSE) without moving focus. This
-                polite live region gives SR users the equivalent notification
-                (WCAG 4.1.3). Keyed so an identical count still re-announces. */}
-            <span key={`live-${changeCount}-${Array.from(changed).join()}`} className="sr-only" role="status" aria-live="polite">
-              {changeCount > 0 ? tc("guideUpdated", { count: changeCount }) : ""}
+              {changeCount > 0 && (
+                <span
+                  key={changeCount + Array.from(changed).join()}
+                  aria-hidden
+                  className="tp-chip-in inline-flex items-center gap-1.5 rounded-pill bg-accent-soft px-2.5 py-1 text-xs text-accent"
+                >
+                  {/* Suppress the badge ping on any patch where a readiness pip
+                      transitions — the pip's own ping IS the change notification
+                      (one patch → one flash). Only the badge dot is suppressed;
+                      the badge itself still shows. */}
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full bg-accent ${
+                      suppressBadgePing ? "" : "tp-ping-once"
+                    }`}
+                  />
+                  {tc("changesTracked", { count: changeCount })}
+                </span>
+              )}
+            </div>
+            {/* The readiness spine — wizard-grade certainty without a wizard. */}
+            <ReadinessSpine
+              pips={readinessPips}
+              justSatisfied={justSatisfied}
+              label={tc("readinessLabel")}
+            />
+            {/* One polite live region carries BOTH the guide-change count and the
+                readiness transition — SSE updates move no focus, so assistive
+                tech needs the spoken equivalent (WCAG 4.1.3). Keyed by a seq so an
+                identical utterance still re-announces; readiness wins when it
+                just fired (it's the more meaningful event). */}
+            <span
+              key={`live-${readinessLiveSeq}-${changeCount}-${Array.from(changed).join()}`}
+              className="sr-only"
+              role="status"
+              aria-live="polite"
+            >
+              {readinessLive || (changeCount > 0 ? tc("guideUpdated", { count: changeCount }) : "")}
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
@@ -555,6 +666,15 @@ export default function NewStudyPage() {
             >
               {tc("simulateRespondent")}
             </Button>
+            {/* Publish soft-gate: enabled once there's a goal + at least a started
+                outline (never trapped). If audience/depth remain open, a muted
+                factual hint sits beside publish — never a red error, because
+                publishing an incomplete study is a legitimate choice. */}
+            {readinessOpen > 0 && campaignId && spec.outline.length > 0 && (
+              <span className="text-xs text-muted whitespace-nowrap">
+                {tc("readinessOpenHint", { remaining: readinessOpen })}
+              </span>
+            )}
             <Button
               size="sm"
               loading={publishing}
@@ -567,14 +687,30 @@ export default function NewStudyPage() {
         </header>
 
         <div className="flex-1 overflow-y-auto p-8 bg-paper-elevated">
-          <div className="max-w-2xl mx-auto">
-            <input
+          <div className="max-w-3xl mx-auto">
+            {/* Auto-growing title: a long zh goal-turned-title must wrap onto a
+                second line, never clip off the right edge (a single-line <input>
+                truncated it). rows=1 + height sync keeps it flush. */}
+            <textarea
               value={spec.title}
+              rows={1}
               onChange={(e) => setSpec((s) => ({ ...s, title: e.target.value }))}
-              className="font-display text-4xl bg-transparent w-full outline-none border-b border-transparent focus:border-hairline pb-2"
+              onInput={(e) => {
+                const el = e.currentTarget;
+                el.style.height = "auto";
+                el.style.height = `${el.scrollHeight}px`;
+              }}
+              ref={(el) => {
+                // Sync height on mount and whenever the seed sets a long title.
+                if (el) {
+                  el.style.height = "auto";
+                  el.style.height = `${el.scrollHeight}px`;
+                }
+              }}
+              className="font-display text-4xl leading-tight bg-transparent w-full resize-none overflow-hidden outline-none border-b border-transparent focus:border-hairline pb-2"
             />
             {spec.goal && (
-              <p className="text-body mt-3 text-lg leading-relaxed max-w-xl">{spec.goal}</p>
+              <p className="text-body mt-3 text-lg leading-relaxed max-w-2xl">{spec.goal}</p>
             )}
 
             {spec.target_persona && (() => {
@@ -585,7 +721,7 @@ export default function NewStudyPage() {
                   className={`mt-6 rounded-card border border-hairline bg-paper p-4 ${d.className}`}
                 >
                   {d.badge}
-                  <p className="overline mb-1">{tc("targetPersona")}</p>
+                  <p className="overline mb-2 flex items-center gap-2 before:h-px before:w-4 before:bg-hairline before:content-['']">{tc("targetPersona")}</p>
                   <p className="text-body">{spec.target_persona}</p>
                 </div>
               );
@@ -594,14 +730,21 @@ export default function NewStudyPage() {
             {spec.hypotheses.length > 0 && (() => {
               const d = diffMark("hypotheses");
               return (
-              <div key={d.key} className={`mt-6 ${d.className}`}>
+              <div key={d.key} className={`mt-8 ${d.className}`}>
                 {d.badge}
-                <p className="overline mb-2">{tc("hypotheses")}</p>
-                <ul className="space-y-1.5">
+                <p className="overline mb-3 flex items-center gap-2 before:h-px before:w-4 before:bg-hairline before:content-['']">
+                  {tc("hypotheses")}
+                </p>
+                <ul className="space-y-3">
                   {spec.hypotheses.map((h, i) => (
-                    <li key={i} className="flex gap-3 text-body">
-                      <span className="font-mono text-xs text-muted pt-0.5">H{i + 1}</span>
-                      <span>{h}</span>
+                    // H1/H2/H3 in a true aligned gutter. A wider 2.5rem track and
+                    // tabular sans keep the "H" + digit from crowding (the serif
+                    // face squeezed them together); sage accent for the marker.
+                    <li key={i} className="grid grid-cols-[2.5rem_1fr] gap-3 text-body">
+                      <span className="font-medium text-sm tabular-nums leading-relaxed text-accent">
+                        H{i + 1}
+                      </span>
+                      <span className="leading-relaxed">{h}</span>
                     </li>
                   ))}
                 </ul>
@@ -614,7 +757,7 @@ export default function NewStudyPage() {
               return (
               <div key={d.key} className={`mt-6 ${d.className}`}>
                 {d.badge}
-                <p className="overline mb-2">{tc("audienceScreener")}</p>
+                <p className="overline mb-3 flex items-center gap-2 before:h-px before:w-4 before:bg-hairline before:content-['']">{tc("audienceScreener")}</p>
                 <div className="flex flex-wrap gap-2">
                   {spec.audience_screener.map((q, i) => (
                     <span
@@ -630,7 +773,7 @@ export default function NewStudyPage() {
             })()}
 
             <div className="mt-10">
-              <p className="overline mb-4">{tc("questions")}</p>
+              <p className="overline mb-4 flex items-center gap-2 before:h-px before:w-4 before:bg-hairline before:content-['']">{tc("questions")}</p>
               {spec.outline.length === 0 ? (
                 <div className="rounded-card border border-dashed border-hairline p-8 text-center text-muted">
                   {tc("outlinePlaceholder")}
@@ -638,7 +781,7 @@ export default function NewStudyPage() {
               ) : (
                 <ol
                   key={`outline-${changed.has("outline") ? patchSeq : "s"}`}
-                  className={`space-y-3 ${changed.has("outline") ? "tp-diff-flash tp-diff-rail rounded-card" : ""}`}
+                  className={`space-y-2.5 ${changed.has("outline") ? "tp-diff-flash tp-diff-rail rounded-card" : ""}`}
                 >
                   {changed.has("outline") && <li className="sr-only">{tc("blockUpdated")}</li>}
                   {spec.outline.map((q, i) => (
@@ -647,19 +790,20 @@ export default function NewStudyPage() {
                       // New/changed questions ease down into place under the
                       // conversation — the document reads as *growing*, not
                       // snapping in. Staggered so a fresh batch cascades.
-                      className={`rounded-card border border-hairline bg-paper p-4 ${
+                      // Airy padding + a numbered gutter; the ONLY sage rail here
+                      // is the transient diff-flash on the <ol> — resting cards
+                      // stay quiet (a permanent accent bar would nag).
+                      className={`grid grid-cols-[2rem_1fr] gap-4 rounded-card border border-hairline bg-paper p-5 ${
                         changed.has("outline") ? "tp-guide-grow" : ""
                       }`}
                       style={changed.has("outline") ? { animationDelay: `${i * 45}ms` } : undefined}
                     >
-                      <div className="flex gap-4">
-                        <div className="font-mono text-sm text-muted w-6 pt-0.5">
-                          {String(q.order).padStart(2, "0")}
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-ink">{q.question}</p>
-                          <p className="text-xs text-muted mt-1">{tc("goalPrefix")}{q.goal}</p>
-                        </div>
+                      <div className="font-mono text-sm text-muted pt-0.5">
+                        {String(q.order).padStart(2, "0")}
+                      </div>
+                      <div>
+                        <p className="text-ink leading-relaxed">{q.question}</p>
+                        <p className="text-xs text-muted mt-1.5">{tc("goalPrefix")}{q.goal}</p>
                       </div>
                     </li>
                   ))}
@@ -672,7 +816,7 @@ export default function NewStudyPage() {
               return (
               <div key={d.key} className={`mt-10 ${d.className}`}>
                 {d.badge}
-                <p className="overline mb-2">{tc("successCriteria")}</p>
+                <p className="overline mb-3 flex items-center gap-2 before:h-px before:w-4 before:bg-hairline before:content-['']">{tc("successCriteria")}</p>
                 <ul className="space-y-1.5">
                   {spec.success_criteria.map((c, i) => (
                     <li key={i} className="flex gap-3 text-body">
@@ -686,7 +830,7 @@ export default function NewStudyPage() {
             })()}
 
             <div className="mt-10">
-              <p className="overline mb-4">{tc("delivery")}</p>
+              <p className="overline mb-4 flex items-center gap-2 before:h-px before:w-4 before:bg-hairline before:content-['']">{tc("delivery")}</p>
               <div className="flex flex-wrap gap-2">
                 {ALL_CHANNELS.map((ch) => (
                   <button
@@ -790,6 +934,22 @@ export default function NewStudyPage() {
       )}
     </div>
   );
+}
+
+// SSR-safe reduced-motion hook. The spine's one-shot pip ping is gated on this
+// (in addition to the CSS reduced-motion query) so we never even *arm* the
+// animation for a user who asked for stillness. Starts false on the server and
+// first client paint, then syncs — avoids a hydration mismatch.
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const on = () => setReduced(mq.matches);
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  return reduced;
 }
 
 function deriveTitle(text: string) {

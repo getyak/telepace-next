@@ -44,10 +44,16 @@ export type ClarifyCopy = {
  * that the first follow-up feels like it read the goal. Order matters: the
  * first matching bucket wins.
  */
+// Pricing / willingness-to-pay signal. Extracted so both the decision-lens
+// map below and the readiness spine's "who pays" pip can share one definition
+// of "is this a pricing study?" — a single source of truth, not two drifting
+// regexes.
+const PRICING_SIGNAL = /pric|pay|premium|cost|budget|afford|溢价|定价|付费|预算|价格/i;
+
 const DOMAIN_LENSES: Array<{ test: RegExp; keys: Array<keyof ClarifyCopy["generic"]> }> = [
   // Pricing / willingness-to-pay signals
   {
-    test: /pric|pay|premium|cost|budget|afford|溢价|定价|付费|预算|价格/i,
+    test: PRICING_SIGNAL,
     keys: ["pricing", "positioning", "prioritization"],
   },
   // Churn / retention signals
@@ -120,4 +126,110 @@ export function deriveAudienceClarify(copy: ClarifyCopy): ClarifyPrompt {
 
 function dedupe<T>(xs: T[]): T[] {
   return Array.from(new Set(xs));
+}
+
+/* -------------------------------------------------------------------------- *
+ * Readiness spine
+ *
+ * Listen Labs gives creation certainty through a five-screen wizard: you click
+ * Next and always know which step you're on. telepace keeps the single
+ * conversational canvas (its aesthetic moat) but reassembles that same
+ * certainty as a live "readiness spine" in the guide header — five pips that
+ * fill deterministically as the study takes shape, so a researcher who is just
+ * *talking* can glance up and know, with wizard-grade legibility, exactly what
+ * the agent has captured and what remains.
+ *
+ * Like the clarify inference above, this is a thin, deterministic, pure
+ * front-end seam. It reads only the fields the flow already populates; when the
+ * backend starts emitting a `readiness` block on the SSE stream, that
+ * server-authored signal wins and this derivation retires. Pure + typed = it is
+ * trivially unit-testable (see clarify.test.ts) and trivially replaced.
+ * -------------------------------------------------------------------------- */
+
+/** A single pip's state. `na` (not the same as `pending`) means the step does
+ * not apply to this study — e.g. "who pays" on a non-pricing study — and must
+ * render visually distinct so it never reads as "still to do". */
+export type PipState = "pending" | "satisfied" | "na";
+
+/** The five readiness pips, in spine order. */
+export type Readiness = {
+  decision: PipState;
+  audience: PipState;
+  whopays: PipState;
+  depth: PipState;
+  questions: PipState;
+};
+
+/** The keys of {@link Readiness}, in stable spine order — the single source of
+ * truth for iteration order in the component and in tests. */
+export const READINESS_ORDER: Array<keyof Readiness> = [
+  "decision",
+  "audience",
+  "whopays",
+  "depth",
+  "questions",
+];
+
+/** The minimal spec shape the readiness derivation reads. Kept structural (not
+ * the caller's full `Spec`) so this module stays dependency-free and testable
+ * in isolation. */
+export type ReadinessSpecInput = {
+  goal: string;
+  target_persona: string;
+  audience_screener: string[];
+  outline: { length: number } & unknown[];
+};
+
+/** A pay/reimbursement screener signals the "who pays" question is answered.
+ * Distinct from {@link PRICING_SIGNAL} (which classifies the goal): this looks
+ * for an actual payer screener among the audience questions. */
+const PAYER_SCREENER = /pay|reimburs|fund|budget|expens|付费|报销|预算|资金|公司/i;
+
+/** How many questions constitute a "real" outline vs a bare start. */
+const OUTLINE_READY = 3;
+
+/**
+ * Derive the readiness spine from the current spec — pure, no side effects,
+ * no stored state. Each pip answers one wizard-equivalent question:
+ *
+ * - decision  — do we know what decision this supports?  (`goal` present)
+ * - audience  — do we know who we're listening to?       (persona or screener)
+ * - whopays   — pricing studies only: is the payer named? (else `na`)
+ * - depth     — has the outline started?                 (any questions)
+ * - questions — is the outline substantial?              (>= OUTLINE_READY)
+ */
+export function deriveReadiness(spec: ReadinessSpecInput): Readiness {
+  const goal = spec.goal?.trim() ?? "";
+  const isPricing = goal.length > 0 && PRICING_SIGNAL.test(goal);
+  const hasPayerScreener = spec.audience_screener.some((q) => PAYER_SCREENER.test(q));
+
+  return {
+    decision: goal.length > 0 ? "satisfied" : "pending",
+    audience:
+      spec.target_persona.trim().length > 0 || spec.audience_screener.length > 0
+        ? "satisfied"
+        : "pending",
+    // Only pricing studies have a "who pays" step; on everything else it is
+    // genuinely not-applicable, not merely unfinished.
+    whopays: !isPricing ? "na" : hasPayerScreener ? "satisfied" : "pending",
+    depth: spec.outline.length > 0 ? "satisfied" : "pending",
+    questions: spec.outline.length >= OUTLINE_READY ? "satisfied" : "pending",
+  };
+}
+
+/** Which pips newly flipped to `satisfied` between two readiness snapshots.
+ * Drives the coordinated header flash: when this is non-empty, the pip *is* the
+ * change notification, so the caller suppresses the redundant changes-badge
+ * ping (one patch → one flash → one utterance). */
+export function readinessDelta(prev: Readiness, next: Readiness): Array<keyof Readiness> {
+  return READINESS_ORDER.filter(
+    (k) => next[k] === "satisfied" && prev[k] !== "satisfied",
+  );
+}
+
+/** Count of pips that still block a "complete" study — pending pips only.
+ * `na` pips never count. Feeds the publish soft-gate hint ("2 things still
+ * open"). */
+export function pendingCount(readiness: Readiness): number {
+  return READINESS_ORDER.filter((k) => readiness[k] === "pending").length;
 }

@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import { cn } from "../cn";
+import { renderInlineMarkdown } from "./inlineMarkdown";
 
 export type ChatRole = "respondent" | "interviewer" | "system";
 
@@ -201,6 +202,91 @@ export function ClarifyChips({
   );
 }
 
+/* -------------------------------------------------------------------------- *
+ * ReadinessSpine — wizard-grade certainty inside a single conversation.
+ *
+ * Listen Labs gives creation certainty through a five-screen wizard. telepace
+ * keeps its single conversational canvas (serif, warm paper, whitespace — the
+ * aesthetic moat) and reassembles that certainty as a live five-pip spine in
+ * the guide header: the researcher glances up and knows exactly what the agent
+ * has captured and what's still open — without ever clicking "Next".
+ *
+ * Presentational only: it takes an already-derived readiness value (the pure
+ * seam lives in the app's clarify.ts) plus injected localized labels, so this
+ * package stays free of app-side domain logic and the component is trivially
+ * themeable and testable. Every state is legible without colour or motion:
+ * a hollow ring (pending), a filled dot with a ✓ and heavier label (satisfied),
+ * or a dimmed em-dash (not-applicable) — WCAG 1.4.1.
+ * -------------------------------------------------------------------------- */
+
+/** A single pip's state. Mirrors the app's `PipState`; duplicated here so the
+ * UI package carries no app dependency. */
+export type PipStatus = "pending" | "satisfied" | "na";
+
+/** One pip: a stable key, its localized label, and its current status. The
+ * caller builds this array (in spine order) from its derived readiness. */
+export type ReadinessPip = { key: string; label: string; status: PipStatus };
+
+export function ReadinessSpine({
+  pips,
+  /** The pip key that JUST flipped to satisfied on the latest patch, if any —
+   * pings once. Null on the steady state and always under reduced-motion. */
+  justSatisfied,
+  /** Accessible name for the whole spine, e.g. "Study readiness". */
+  label,
+}: {
+  pips: ReadinessPip[];
+  justSatisfied?: string | null;
+  label?: string;
+}) {
+  return (
+    <div className="flex items-center gap-3" role="group" aria-label={label}>
+      {pips.map((pip) => {
+        const satisfied = pip.status === "satisfied";
+        const na = pip.status === "na";
+        return (
+          <span
+            key={pip.key}
+            className={cn(
+              "inline-flex items-center gap-1.5 whitespace-nowrap text-xs transition-colors",
+              satisfied ? "font-medium text-body" : "text-muted",
+            )}
+          >
+            <span
+              // The mark carries meaning three ways so it never relies on colour:
+              // filled dot + ✓ (satisfied), hollow ring (pending), em-dash (n/a).
+              aria-hidden
+              className={cn(
+                "flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[8px] leading-none",
+                satisfied && "bg-accent text-paper",
+                !satisfied && !na && "border border-hairline",
+                // The one-shot ping is gated by the caller (null under
+                // reduced-motion) AND by the CSS reduced-motion query.
+                satisfied && pip.key === justSatisfied && "tp-ping-once",
+              )}
+            >
+              {satisfied ? (
+                <svg width="8" height="8" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M3 8.5 6.5 12 13 4.5"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              ) : na ? (
+                <span className="text-muted">—</span>
+              ) : null}
+            </span>
+            {pip.label}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 /** Localized accessible names for the clarify chips, threaded from the app. */
 export type ClarifyLabels = {
   /** Accessible name for the chip group, e.g. "Answer options". */
@@ -245,15 +331,24 @@ export function ChatBubble({
     >
       <div
         className={cn(
-          "max-w-[80%] rounded-card px-4 py-3 text-[15px] leading-[1.5] whitespace-pre-wrap",
+          // No hardcoded line-height: each script inherits its body rule
+          // (en 1.55, zh 1.7 from globals.css) — a cramped 1.5 override on zh
+          // was the biggest a11y regression in the old bubble.
+          "max-w-[85%] text-[15px] whitespace-pre-wrap",
           isRespondent
-            ? "bg-ink text-paper"
+            // Researcher's reply — a quiet warm sunken-paper slip, not a black
+            // balloon. A softened top-right corner nods to "sent from here".
+            ? "rounded-card rounded-tr-sm bg-paper-sunken px-4 py-2.5 text-ink"
             : isSystem
-              ? "bg-paper-sunken text-muted text-sm"
-              : "bg-paper-elevated border border-hairline text-ink",
+              // System line — a small centered tracked whisper. text-body (AA)
+              // not text-muted (fails AA) since a system sentence carries meaning.
+              ? "px-2 py-1 text-center text-[11px] font-medium uppercase tracking-[0.12em] text-body"
+              // Agent — borderless ink on paper with a hairline margin rail, like
+              // a book's marginalia. The document, not the chat, holds the color.
+              : "border-l-2 border-hairline pl-4 pr-1 py-0.5 text-body",
         )}
       >
-        {showTyping ? <TypingDots label={typingLabel} /> : message.text}
+        {showTyping ? <TypingDots label={typingLabel} /> : renderInlineMarkdown(message.text)}
       </div>
       {showClarify && (
         <ClarifyChips
