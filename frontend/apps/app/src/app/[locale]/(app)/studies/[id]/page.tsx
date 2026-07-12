@@ -351,9 +351,10 @@ function Metric({ label, value, tone }: { label: string; value: string; tone?: "
 }
 
 function ConfidenceBar({ value }: { value: number }) {
+  const t = useTranslations("app.studyDetail");
   const pct = Math.round(Math.min(1, Math.max(0, value)) * 100);
   return (
-    <div className="flex items-center gap-2" title={`Confidence ${pct}%`}>
+    <div className="flex items-center gap-2" title={t("confidenceLabel", { pct })}>
       <div className="h-1 w-16 overflow-hidden rounded-pill bg-paper-sunken">
         <div className="h-full rounded-pill bg-accent" style={{ width: `${pct}%` }} />
       </div>

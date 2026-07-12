@@ -80,7 +80,7 @@ export default async function SettingsPage() {
               <div className="flex items-baseline justify-between mb-6">
                 <div>
                   <p className="font-display text-2xl">Pro</p>
-                  <p className="text-sm text-muted">Renews on 2026-07-15 · $79 / mo</p>
+                  <p className="text-sm text-muted">{t("renewsLine", { date: "2026-07-15", price: "$79 / mo" })}</p>
                 </div>
                 <Button variant="secondary" size="sm">{t("managePlan")}</Button>
               </div>
@@ -98,7 +98,7 @@ export default async function SettingsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-mono text-sm text-ink">tp_live_a1b2•••7f9</p>
-                  <p className="text-xs text-muted">created 2026-06-04 · last used 2026-07-02</p>
+                  <p className="text-xs text-muted">{t("keyMeta", { created: "2026-06-04", lastUsed: "2026-07-02" })}</p>
                 </div>
                 <Button variant="ghost" size="sm">{t("rotate")}</Button>
               </div>

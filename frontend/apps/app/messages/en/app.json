@@ -166,7 +166,8 @@
     "channelWebVoice": "Web voice",
     "channelPhone": "Phone",
     "errorTitle": "Couldn't load this study.",
-    "retryButton": "Retry"
+    "retryButton": "Retry",
+    "confidenceLabel": "Confidence {pct}%"
   },
   "settings": {
     "eyebrow": "Settings",
@@ -185,6 +186,8 @@
     "manage": "Manage",
     "inviteMember": "+ Invite member",
     "managePlan": "Manage plan",
+    "renewsLine": "Renews on {date} · {price}",
+    "keyMeta": "created {created} · last used {lastUsed}",
     "studiesUsed": "Studies used",
     "completions": "Completions",
     "voiceMinutes": "Voice minutes",
