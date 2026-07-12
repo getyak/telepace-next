@@ -49,7 +49,7 @@ export function VersionHistory<T>({
                   disabled={isCurrent}
                   title={isCurrent ? t("current") : t("restore")}
                   className={cn(
-                    "w-full text-left rounded-md px-3 py-2 text-sm transition-colors",
+                    "w-full text-left rounded-btn px-3 py-2 text-sm transition-colors",
                     isCurrent
                       ? "bg-accent/10 text-accent cursor-default"
                       : "text-body hover:bg-ink/5",

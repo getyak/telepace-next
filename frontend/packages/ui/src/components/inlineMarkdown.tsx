@@ -63,7 +63,7 @@ export function renderInlineMarkdown(text: string): React.ReactNode[] {
       nodes.push(
         <code
           key={key++}
-          className="rounded bg-paper-sunken px-1 py-0.5 font-mono text-[0.85em]"
+          className="rounded-input bg-paper-sunken px-1 py-0.5 font-mono text-[0.85em]"
         >
           {code}
         </code>,

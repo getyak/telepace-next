@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@telepace/ui";
 
 type CodeBlockProps = {
@@ -10,6 +11,7 @@ type CodeBlockProps = {
 };
 
 export function CodeBlock({ code, language, title }: CodeBlockProps) {
+  const t = useTranslations("app.integrations");
   const [copied, setCopied] = React.useState(false);
 
   const handleCopy = React.useCallback(async () => {
@@ -50,7 +52,7 @@ export function CodeBlock({ code, language, title }: CodeBlockProps) {
                 : "text-[#999] hover:text-[#ccc] hover:bg-[#333]",
             )}
           >
-            {copied ? "Copied!" : "Copy"}
+            {copied ? t("copied") : t("copy")}
           </button>
         </div>
       )}
@@ -65,7 +67,7 @@ export function CodeBlock({ code, language, title }: CodeBlockProps) {
                 : "text-[#999] hover:text-[#ccc] hover:bg-[#333] opacity-0 group-hover:opacity-100",
             )}
           >
-            {copied ? "Copied!" : "Copy"}
+            {copied ? t("copied") : t("copy")}
           </button>
         )}
         <pre className="bg-[#141414] p-4 overflow-x-auto">

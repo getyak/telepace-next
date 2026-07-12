@@ -16,7 +16,13 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const base =
-  "inline-flex items-center justify-center gap-2 font-medium transition-colors " +
+  // Apple's "respond on the way down": the button dips the instant a pointer
+  // goes down (active), faster than it eases back on release, so it feels
+  // answered before the click resolves. transform-gpu keeps it on the
+  // compositor; under reduced-motion the transition drops (instant, no travel).
+  "inline-flex items-center justify-center gap-2 font-medium transform-gpu " +
+  "transition-[color,background-color,transform] duration-150 " +
+  "active:scale-[0.97] active:duration-75 motion-reduce:transition-none " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 " +
   "focus-visible:ring-offset-paper disabled:opacity-50 disabled:cursor-not-allowed rounded-btn";
 

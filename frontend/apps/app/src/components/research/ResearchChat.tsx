@@ -80,7 +80,7 @@ function ReasoningBlock({ text }: { text: string }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="rounded text-xs font-medium text-accent hover:underline focus:outline-none focus:ring-1 focus:ring-accent"
+        className="rounded-input text-xs font-medium text-accent hover:underline focus:outline-none focus:ring-1 focus:ring-accent"
       >
         {open ? t("hideReasoning") : t("showReasoning")}
       </button>

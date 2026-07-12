@@ -88,7 +88,9 @@
     "detailAnthropic": "Bearer • sk-***-9c1",
     "detailOpenAI": "添加密钥以启用",
     "detailVapi": "外呼号码：+1 415 555 0134",
-    "detailResend": "域名：mail.telepace.io"
+    "detailResend": "域名：mail.telepace.io",
+    "copy": "复制",
+    "copied": "已复制！"
   },
   "studies": {
     "eyebrow": "你的问卷",
@@ -164,7 +166,8 @@
     "channelWebVoice": "网页语音",
     "channelPhone": "电话",
     "errorTitle": "无法加载此问卷。",
-    "retryButton": "重试"
+    "retryButton": "重试",
+    "confidenceLabel": "置信度 {pct}%"
   },
   "settings": {
     "eyebrow": "设置",
@@ -183,6 +186,8 @@
     "manage": "管理",
     "inviteMember": "+ 邀请成员",
     "managePlan": "管理套餐",
+    "renewsLine": "续订于 {date} · {price}",
+    "keyMeta": "创建于 {created} · 上次使用 {lastUsed}",
     "studiesUsed": "已用问卷数",
     "completions": "完成数",
     "voiceMinutes": "语音时长",

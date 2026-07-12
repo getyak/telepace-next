@@ -125,7 +125,9 @@ export function DropdownMenuItem({
         setOpen(false);
       }}
       className={cn(
-        "block w-full px-4 py-2 text-left text-sm text-body transition-colors hover:bg-paper hover:text-ink",
+        "block w-full px-4 py-2 text-left text-sm text-body transition-colors hover:bg-paper hover:text-ink " +
+          "active:bg-paper-sunken focus-visible:bg-paper focus-visible:text-ink focus-visible:outline-none " +
+          "focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
         className,
       )}
       {...props}

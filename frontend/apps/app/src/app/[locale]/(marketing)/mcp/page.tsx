@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
-import { Button } from "@telepace/ui";
+import { Button, Card } from "@telepace/ui";
 import { routes } from "@telepace/config";
 import { PageHeader } from "@/components/marketing/site-chrome";
 
@@ -84,10 +84,12 @@ export default async function McpPage() {
             <Link
               key={id}
               href={surfaceMeta[id].href}
-              className="block rounded-card border border-hairline bg-paper-elevated p-5 hover:bg-paper transition-colors"
+              className="block rounded-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
             >
-              <p className="font-display text-lg">{t(`surfaces.${id}.name`)}</p>
-              <p className="text-xs text-muted mt-1 font-mono">{t(`surfaces.${id}.note`)}</p>
+              <Card interactive className="h-full p-5">
+                <p className="font-display text-lg">{t(`surfaces.${id}.name`)}</p>
+                <p className="text-xs text-muted mt-1 font-mono">{t(`surfaces.${id}.note`)}</p>
+              </Card>
             </Link>
           ))}
         </div>
