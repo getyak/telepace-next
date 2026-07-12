@@ -5,11 +5,22 @@
 @layer base {
   :root {
     color-scheme: light;
+    /* CSS-native mirror of packages/ui/src/tokens.ts, so the base-layer rules
+       below reference the token system instead of repeating raw literals.
+       Keep these values in sync with tokens.ts (single source per platform:
+       Tailwind utilities read tokens.ts; plain CSS reads these vars). */
+    --paper: #F8F6F1;
+    --paper-elevated: #FAF8F3;
+    --ink: #141414;
+    --hairline: #E8E4DB;
+    --desk: #E4DDCE;
+    --accent: #4A5D3B;
+    --accent-soft: #DCE4D2;
   }
 
   html, body {
-    background: #F8F6F1;
-    color: #141414;
+    background: var(--paper);
+    color: var(--ink);
     font-family: var(--font-body), "Inter", "Söhne", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
     letter-spacing: -0.011em;
     line-height: 1.55;
@@ -17,10 +28,14 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Fallback tracking/leading for headings that don't carry a text-* size
+     utility (or use an arbitrary clamp size the fontSize scale can't reach).
+     Named sizes (text-2xl … text-7xl) override both with size-specific values
+     from the preset; hero-scale clamps opt into `tracking-display`. */
   h1, h2, h3, .font-display {
     font-family: var(--font-display), "Instrument Serif", "Fraunces", "Tiempos Headline", ui-serif, Georgia, serif;
     letter-spacing: -0.02em;
-    line-height: 1.05;
+    line-height: 1.12;
     font-weight: 400;
   }
 
@@ -43,15 +58,23 @@
   }
 
   ::selection {
-    background: #DCE4D2;
-    color: #141414;
+    background: var(--accent-soft);
+    color: var(--ink);
   }
 
   a { color: inherit; text-decoration: none; }
 
   ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-thumb { background: #E8E4DB; border-radius: 999px; }
-  ::-webkit-scrollbar-thumb:hover { background: #C9C3B7; }
+  ::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--desk); }
+}
+
+/* Unlayered so it outranks the size-specific `letter-spacing` baked into the
+   Tailwind fontSize utilities (which live in the utilities cascade layer):
+   CJK display glyphs are full-width and must never carry the latin negative
+   tracking. Leading from the size utilities is fine for both scripts. */
+:lang(zh) :is(h1, h2, h3, .font-display) {
+  letter-spacing: 0;
 }
 
 @layer components {
@@ -79,7 +102,7 @@
    see-through panel with no blur, which would let text collide underneath). */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .tp-chrome {
-    background-color: #FAF8F3;
+    background-color: var(--paper-elevated);
   }
 }
 
@@ -87,7 +110,7 @@
    and drop the blur (WCAG-adjacent; matches Apple's own Increase Contrast). */
 @media (prefers-reduced-transparency: reduce) {
   .tp-chrome {
-    background-color: #FAF8F3;
+    background-color: var(--paper-elevated);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
@@ -185,7 +208,7 @@ dialog.tp-dialog::backdrop {
    a jarring blue/yellow — stays inside the editorial palette. */
 @keyframes tp-diff-flash-kf {
   0% { background-color: transparent; }
-  12% { background-color: #DCE4D2; }
+  12% { background-color: var(--accent-soft); }
   100% { background-color: transparent; }
 }
 .tp-diff-flash {
@@ -197,7 +220,7 @@ dialog.tp-dialog::backdrop {
    safe half of the diff signal (WCAG 1.4.1): the flash fades, this stays for the
    render, and pairs with an sr-only "updated" label for assistive tech. */
 .tp-diff-rail {
-  box-shadow: inset 3px 0 0 0 #4A5D3B;
+  box-shadow: inset 3px 0 0 0 var(--accent);
 }
 
 /* Badge ping — the "N changes" dot pings once when the count changes, then

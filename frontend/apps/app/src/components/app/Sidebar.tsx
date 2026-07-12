@@ -109,7 +109,7 @@ export function Sidebar() {
           aria-label={open ? t("closeMenu") : t("openMenu")}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
-          className="-m-2 p-2 text-ink"
+          className="-m-2 rounded-btn p-2 text-ink transform-gpu transition-transform duration-150 active:scale-90 active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
         >
           {open ? <CloseIcon size={20} /> : <MenuIcon size={20} />}
         </button>
@@ -130,7 +130,7 @@ export function Sidebar() {
               type="button"
               aria-label={t("closeMenu")}
               onClick={() => setOpen(false)}
-              className="-m-2 p-2 text-ink"
+              className="-m-2 rounded-btn p-2 text-ink transform-gpu transition-transform duration-150 active:scale-90 active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
             >
               <CloseIcon size={20} />
             </button>

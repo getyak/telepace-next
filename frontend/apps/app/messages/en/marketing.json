@@ -98,6 +98,7 @@
     },
     "useCases": {
       "eyebrow": "Made for",
+    "title": "Built for the people who ask why.",
       "items": {
         "pm": { "role": "Product Managers", "description": "Get customer voice into every roadmap review." },
         "researchers": { "role": "UX Researchers", "description": "Scale 1:1 depth without hiring an army." },
@@ -435,7 +436,8 @@
       "title": "People say more when they don't have to type it.",
       "paragraph1": "Traditional research knows this: a 30-minute call yields 3–5× the actionable signal of a written survey. Voice removes the friction of composition, which is where nuance dies.",
       "paragraph2": "telepace runs the same warmth end-to-end — greeting, probe, silence, follow-up, close — with the consistency only software can offer. Nobody's tired at 4 PM. Nobody's off-script.",
-      "paragraph3": "Because we're stream-based (not turn-based), interviews feel like a real conversation — not the polite waiting game of most voice bots."
+      "paragraph3": "Because we're stream-based (not turn-based), interviews feel like a real conversation — not the polite waiting game of most voice bots.",
+    "pipelineCaption": "voiceflow · production-grade Go audio pipeline"
     },
     "specs": {
       "latency": {
@@ -523,6 +525,7 @@
     },
     "offer": {
       "eyebrow": "The offer",
+    "title": "What we offer.",
       "compensation": "Salary at the 75th percentile of Series A, with meaningful equity — not the 0.05% kind.",
       "benefits": "Full health / dental / vision. $2,000 home-office budget. Two offsites a year.",
       "remote": "Remote-first, async by default, four hours of live overlap.",

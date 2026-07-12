@@ -41,7 +41,7 @@ const entryItemCounts: Record<(typeof entryIds)[number], number> = {
 const tagStyles: Record<string, string> = {
   release: "bg-accent-soft text-accent border-accent/30",
   improvement: "bg-paper-sunken text-body border-hairline",
-  fix: "bg-paper text-muted border-hairline",
+  fix: "bg-paper-sunken text-body border-hairline",
 };
 
 export default async function ChangelogPage() {

@@ -81,7 +81,7 @@ export function SignupForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@company.com"
+            placeholder={t("form.emailPlaceholder")}
           />
         </div>
         <div>
@@ -93,7 +93,7 @@ export function SignupForm() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="8+ characters"
+            placeholder={t("form.passwordHint")}
           />
         </div>
 

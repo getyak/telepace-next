@@ -49,7 +49,7 @@ async function Hero() {
       <div className="container-content grid md:grid-cols-12 gap-10 items-center">
         <div className="md:col-span-7 tp-fade-in-up">
           <p className="overline mb-6">{t("eyebrow")}</p>
-          <h1 className="font-display text-[clamp(2.75rem,6vw,4.75rem)] leading-[1.02]">
+          <h1 className="font-display text-[clamp(2.75rem,6vw,4.75rem)] leading-[1.02] tracking-display">
             {t("titleLine1")}
             <br />
             <span className="italic text-accent">{t("titleEmphasis")}</span>
@@ -226,11 +226,12 @@ async function UseCases() {
       <div className="container-content">
         <Reveal>
           <p className="overline mb-4">{t("eyebrow")}</p>
+          <h2 className="font-display text-4xl md:text-5xl max-w-3xl">{t("title")}</h2>
         </Reveal>
-        <div className="mt-6 grid md:grid-cols-4 gap-6">
+        <div className="mt-10 grid md:grid-cols-4 gap-6">
           {cases.map((c, i) => (
             <Reveal key={c.id} delay={i * 80}>
-              <div className="border-t border-ink pt-6">
+              <div className="border-t border-hairline pt-6">
                 <p className="font-display text-2xl">{c.role}</p>
                 <p className="text-body mt-3">{c.d}</p>
               </div>

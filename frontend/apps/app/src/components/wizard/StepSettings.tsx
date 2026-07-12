@@ -44,9 +44,10 @@ export function StepSettings({
             <button
               key={ch}
               type="button"
+              aria-pressed={channels.includes(ch)}
               onClick={() => toggleChannel(ch)}
               className={cn(
-                "px-3 py-1.5 rounded-pill text-sm border transition-colors",
+                "px-3 py-1.5 rounded-pill text-sm border transform-gpu transition-[transform,color,background-color,border-color] duration-150 active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
                 channels.includes(ch)
                   ? "bg-ink text-paper border-ink"
                   : "bg-paper text-body border-hairline hover:border-ink",

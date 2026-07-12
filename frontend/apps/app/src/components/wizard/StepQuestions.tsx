@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, Input, Label } from "@telepace/ui";
+import { Button, Card, Input, Label } from "@telepace/ui";
 import { FollowUpConfig } from "./FollowUpConfig";
 import type { OutlineItem } from "./types";
 
@@ -43,11 +43,9 @@ export function StepQuestions({ outline, onChange }: StepQuestionsProps) {
         {outline.map((q, i) => {
           const isOpen = expanded === i;
           return (
-            <li
-              key={i}
-              className="rounded-card border border-hairline bg-paper-elevated p-4"
-            >
-              <div className="flex items-start gap-3">
+            <li key={i}>
+              <Card className="p-4">
+                <div className="flex items-start gap-3">
                 <span className="font-mono text-sm text-muted pt-2.5 w-6">
                   {String(q.order).padStart(2, "0")}
                 </span>
@@ -91,7 +89,8 @@ export function StepQuestions({ outline, onChange }: StepQuestionsProps) {
                     />
                   )}
                 </div>
-              </div>
+                </div>
+              </Card>
             </li>
           );
         })}

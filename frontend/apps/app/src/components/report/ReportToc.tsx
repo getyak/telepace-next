@@ -61,10 +61,10 @@ export function ReportToc({ chapters }: { chapters: ReportChapter[] }) {
                 onClick={(e) => handleClick(e, chapter.id)}
                 aria-current={active ? "true" : undefined}
                 className={cn(
-                  "-ml-px block border-l-2 py-1.5 pl-4 text-sm leading-snug transition-colors",
+                  "-ml-px block border-l-2 py-1.5 pl-4 text-sm leading-snug transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
                   active
                     ? "border-accent text-ink"
-                    : "border-transparent text-muted hover:text-body",
+                    : "border-transparent text-muted hover:text-body active:text-ink",
                 )}
               >
                 {chapter.title}
@@ -76,7 +76,7 @@ export function ReportToc({ chapters }: { chapters: ReportChapter[] }) {
       <button
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className="mt-6 pl-4 text-xs text-muted transition-colors hover:text-ink"
+        className="mt-6 pl-4 text-xs text-muted transition-colors hover:text-ink active:text-ink/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
       >
         ↑ {t("backToTop")}
       </button>

@@ -167,7 +167,12 @@
     "channelPhone": "电话",
     "errorTitle": "无法加载此问卷。",
     "retryButton": "重试",
-    "confidenceLabel": "置信度 {pct}%"
+    "confidenceLabel": "置信度 {pct}%",
+    "likertVerySatisfied": "非常满意",
+    "likertSatisfied": "满意",
+    "likertNeutral": "一般",
+    "likertDissatisfied": "不满意",
+    "likertVeryDissatisfied": "非常不满意"
   },
   "settings": {
     "eyebrow": "设置",
@@ -186,6 +191,9 @@
     "manage": "管理",
     "inviteMember": "+ 邀请成员",
     "managePlan": "管理套餐",
+    "roleOwner": "拥有者",
+    "roleEditor": "编辑者",
+    "roleViewer": "查看者",
     "renewsLine": "续订于 {date} · {price}",
     "keyMeta": "创建于 {created} · 上次使用 {lastUsed}",
     "studiesUsed": "已用问卷数",
@@ -449,7 +457,16 @@
     "toNotion": "推送到 Notion",
     "toLinear": "推送到 Linear",
     "noStudies": "暂无问卷。",
-    "noStudiesDescription": "创建并运行至少一个问卷后即可使用 Copilot。"
+    "noStudiesDescription": "创建并运行至少一个问卷后即可使用 Copilot。",
+    "studiesFallback": "你的问卷",
+    "mockStudyOnboarding": "新用户流失（Q3）",
+    "mockStudyPricing": "定价与 SSO 异议",
+    "mockStudyMcp": "MCP 高级用户扩展",
+    "mockStudyChurn": "流失用户召回访谈",
+    "answer1": "在你选择的这些问卷中，定价摩擦是最主要的主题。在 {studies} 中，受访者反复将 $79 档位与缺少 SSO 联系起来——该异议在 34 个已完成访谈中出现了 11 次。",
+    "answer2": "其中两个问卷指向同一方向：新用户在邮箱确认后停滞。{studies} 中的模式表明，人们始终没有收到明确的下一步，因此激活在 48 小时内下降。",
+    "answer3": "对比 {studies}，MCP 集成是最强的扩展驱动力——它是受访者在解释为何升级时唯一会主动提及的功能。",
+    "answer4": "综合 {studies}：流失用户和活跃的高级用户描述了同一个缺口。区别在于时机——高级用户更晚才撞上这堵墙，这为你留出了介入的窗口。"
   },
   "clips": {
     "title": "高光片段",

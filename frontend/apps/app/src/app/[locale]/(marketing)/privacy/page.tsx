@@ -47,11 +47,11 @@ export default async function PrivacyPage() {
               ))}
             </nav>
           </aside>
-          <div className="md:col-span-9 space-y-14">
+          <div className="md:col-span-9 max-w-prose space-y-12">
             {SECTION_IDS.map((id) => (
-              <div key={id} id={id}>
-                <h2 className="font-display text-2xl mb-4">{t(`sections.${id}.title`)}</h2>
-                <div className="space-y-3 text-body">
+              <div key={id} id={id} className="scroll-mt-24">
+                <h2 className="font-display text-2xl mb-3">{t(`sections.${id}.title`)}</h2>
+                <div className="space-y-3 text-body leading-relaxed">
                   {t.raw(`sections.${id}.body`).map((p: string) => <p key={p}>{p}</p>)}
                 </div>
               </div>

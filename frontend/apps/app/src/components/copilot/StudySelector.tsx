@@ -1,14 +1,15 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@telepace/ui";
 
-export type StudyOption = { id: string; name: string };
+export type StudyOption = { id: string; nameKey: string };
 
 export const MOCK_STUDIES: StudyOption[] = [
-  { id: "onboarding-q3", name: "Onboarding drop-off (Q3)" },
-  { id: "pricing-sso", name: "Pricing & SSO objections" },
-  { id: "mcp-expansion", name: "MCP power-user expansion" },
-  { id: "churn-winback", name: "Churn win-back interviews" },
+  { id: "onboarding-q3", nameKey: "mockStudyOnboarding" },
+  { id: "pricing-sso", nameKey: "mockStudyPricing" },
+  { id: "mcp-expansion", nameKey: "mockStudyMcp" },
+  { id: "churn-winback", nameKey: "mockStudyChurn" },
 ];
 
 export function StudySelector({
@@ -24,6 +25,7 @@ export function StudySelector({
   allLabel: string;
   label: string;
 }) {
+  const t = useTranslations("app.copilot");
   const allSelected = selectedIds.length === studies.length;
 
   function toggle(id: string) {
@@ -51,7 +53,7 @@ export function StudySelector({
             selected={selectedIds.includes(study.id)}
             onClick={() => toggle(study.id)}
           >
-            {study.name}
+            {t(study.nameKey)}
           </Pill>
         ))}
       </div>
@@ -74,7 +76,7 @@ function Pill({
       aria-pressed={selected}
       onClick={onClick}
       className={cn(
-        "rounded-pill border px-3 py-1.5 text-sm transition-colors",
+        "rounded-pill border px-3 py-1.5 text-sm transform-gpu transition-[transform,color,background-color,border-color] duration-150 active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
         selected
           ? "border-accent bg-accent text-paper"
           : "border-hairline bg-paper-elevated text-body hover:border-accent/40 hover:text-ink",

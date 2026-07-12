@@ -61,6 +61,7 @@ export default async function CareersPage() {
           </div>
           <div>
             <p className="overline mb-4">{t("offer.eyebrow")}</p>
+            <h2 className="font-display text-3xl mb-6">{t("offer.title")}</h2>
             <div className="space-y-4 text-body">
               <p>{t("offer.compensation")}</p>
               <p>{t("offer.benefits")}</p>

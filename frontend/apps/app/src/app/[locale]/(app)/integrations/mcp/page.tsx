@@ -56,7 +56,7 @@ export default function McpPage() {
     <div className="p-10 max-w-content mx-auto">
       <PageHeader eyebrow={t("title")} title={t("subtitle")} />
 
-      <section className="mb-12">
+      <section className="mb-14">
         <div className="mb-4 flex items-end justify-between gap-4">
           <div>
             <h2 className="font-display text-2xl mb-1">{t("setupTitle")}</h2>

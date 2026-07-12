@@ -6,9 +6,9 @@ import { PageHeader } from "@/components/app/PageHeader";
 const SECTION_IDS = ["workspace", "members", "billing", "api-keys", "mcp", "danger"] as const;
 
 const members = [
-  { name: "Alex Kim", email: "alex@acme.com", role: "Owner" },
-  { name: "Jordan Lee", email: "jordan@acme.com", role: "Editor" },
-  { name: "Priya Rao", email: "priya@acme.com", role: "Viewer" },
+  { name: "Alex Kim", email: "alex@acme.com", roleKey: "roleOwner" },
+  { name: "Jordan Lee", email: "jordan@acme.com", roleKey: "roleEditor" },
+  { name: "Priya Rao", email: "priya@acme.com", roleKey: "roleViewer" },
 ];
 
 export default async function SettingsPage() {
@@ -29,7 +29,7 @@ export default async function SettingsPage() {
         <aside className="md:col-span-3">
           <nav className="sticky top-6 space-y-1 text-sm">
             {SECTION_IDS.map((id) => (
-              <a key={id} href={`#${id}`} className="block rounded-btn px-3 py-2 text-body hover:bg-paper-elevated hover:text-ink transition-colors">
+              <a key={id} href={`#${id}`} className="block rounded-btn px-3 py-2 text-body hover:bg-paper-elevated hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent">
                 {sectionLabel[id]}
               </a>
             ))}
@@ -62,7 +62,7 @@ export default async function SettingsPage() {
                     <p className="font-medium text-ink">{m.name}</p>
                     <p className="text-sm text-muted">{m.email}</p>
                   </div>
-                  <div className="col-span-4 text-sm text-body">{m.role}</div>
+                  <div className="col-span-4 text-sm text-body">{t(m.roleKey)}</div>
                   <div className="col-span-3 text-right">
                     <Button variant="ghost" size="sm">{t("manage")}</Button>
                   </div>

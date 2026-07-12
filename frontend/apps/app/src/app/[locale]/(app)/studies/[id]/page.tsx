@@ -223,7 +223,8 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
       </header>
 
       {(isLive || campaign.status === "ready") && (
-        <section className="mb-10 rounded-card border border-hairline bg-paper-elevated p-6">
+        <section className="mb-10">
+          <Card className="p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0 flex-1">
               <p className="overline mb-2">{t("shareLabel")}</p>
@@ -242,6 +243,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
               </a>
             </div>
           </div>
+          </Card>
         </section>
       )}
 
@@ -266,7 +268,8 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
           ) : (
             <ol className="space-y-3">
               {outline.map((q) => (
-                <li key={q.order} className="rounded-card border border-hairline bg-paper-elevated p-4">
+                <li key={q.order}>
+                  <Card className="p-4">
                   <div className="flex gap-4">
                     <div className="w-6 pt-0.5 font-mono text-sm text-muted">
                       {String(q.order).padStart(2, "0")}
@@ -276,6 +279,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
                       <p className="mt-1 text-xs text-muted">{t("goalPrefix", { goal: q.goal })}</p>
                     </div>
                   </div>
+                  </Card>
                 </li>
               ))}
             </ol>
@@ -462,12 +466,14 @@ function VerbatimCard({ item }: { item: InsightItem }) {
   const quote = str(item.body.quote) ?? item.title;
   const speaker = str(item.body.speaker) ?? str(item.body.attribution);
   return (
-    <figure className="rounded-card border border-hairline bg-paper-elevated p-5">
+    <figure>
+      <Card className="p-5">
       <Badge variant="neutral">{t("badgeVerbatim")}</Badge>
       <blockquote className="mt-2 border-l-2 border-accent pl-4 text-[15px] leading-relaxed text-ink">
         &ldquo;{quote}&rdquo;
       </blockquote>
       {speaker && <figcaption className="mt-2 pl-4 text-xs text-muted">&mdash; {speaker}</figcaption>}
+      </Card>
     </figure>
   );
 }
@@ -582,24 +588,24 @@ function ResponsesSection() {
   );
 }
 
-const MOCK_SENTIMENT: Array<{ label: string; value: number }> = [
-  { label: "Very satisfied", value: 42 },
-  { label: "Satisfied", value: 31 },
-  { label: "Neutral", value: 15 },
-  { label: "Dissatisfied", value: 8 },
-  { label: "Very dissatisfied", value: 4 },
-];
-
-const MOCK_CROSS_TAB_ROWS: CrossTabRow[] = [
-  { metric: "Very satisfied", values: [50, 36, 30], counts: [12, 5, 3] },
-  { metric: "Satisfied",      values: [29, 36, 30], counts: [7, 5, 3] },
-  { metric: "Neutral",        values: [13, 14, 20], counts: [3, 2, 2] },
-  { metric: "Dissatisfied",   values: [8, 14, 20],  counts: [2, 2, 2] },
-];
-
 function AnalysisSection() {
   const tCharts = useTranslations("app.charts");
   const t = useTranslations("app.studyDetail");
+
+  const sentiment: Array<{ label: string; value: number }> = [
+    { label: t("likertVerySatisfied"), value: 42 },
+    { label: t("likertSatisfied"), value: 31 },
+    { label: t("likertNeutral"), value: 15 },
+    { label: t("likertDissatisfied"), value: 8 },
+    { label: t("likertVeryDissatisfied"), value: 4 },
+  ];
+
+  const crossTabRows: CrossTabRow[] = [
+    { metric: t("likertVerySatisfied"), values: [50, 36, 30], counts: [12, 5, 3] },
+    { metric: t("likertSatisfied"),     values: [29, 36, 30], counts: [7, 5, 3] },
+    { metric: t("likertNeutral"),       values: [13, 14, 20], counts: [3, 2, 2] },
+    { metric: t("likertDissatisfied"),  values: [8, 14, 20],  counts: [2, 2, 2] },
+  ];
 
   return (
     <section className="mb-14">
@@ -608,7 +614,7 @@ function AnalysisSection() {
         <Card className="p-6">
           <ChartSection baseN={48} showTop2Box>
             <TpBarChart
-              data={MOCK_SENTIMENT}
+              data={sentiment}
               baseN={48}
               title={t("chartOverallSatisfaction")}
             />
@@ -620,7 +626,7 @@ function AnalysisSection() {
               title={t("chartSatisfactionByChannel")}
               segmentLabel={t("chartSegmentSatisfaction")}
               bucketLabels={[t("channelWebText"), t("channelWebVoice"), t("channelPhone")]}
-              rows={MOCK_CROSS_TAB_ROWS}
+              rows={crossTabRows}
               baseNPerBucket={[24, 14, 10]}
             />
           </ChartSection>

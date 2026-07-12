@@ -771,7 +771,7 @@ export default function NewStudyPage() {
     <div className="h-screen grid grid-cols-12">
       {/* Left: chat pane — a calm one-third rail; the document is the star. */}
       <section className="col-span-4 border-r border-hairline flex flex-col bg-paper">
-        <header className="px-6 h-14 flex items-center justify-between border-b border-hairline">
+        <header className="px-6 min-h-14 py-2.5 flex items-center justify-between border-b border-hairline">
           <p className="overline">{tc("designChat")}</p>
           {busy && campaignId && (
             <button
@@ -1014,14 +1014,14 @@ export default function NewStudyPage() {
             {spec.target_persona && (() => {
               const d = diffMark("persona");
               return (
-                <div
+                <Card
                   key={d.key}
-                  className={`mt-6 rounded-card border border-hairline bg-paper p-4 ${d.className}`}
+                  className={`mt-6 p-4 ${d.className}`}
                 >
                   {d.badge}
                   <p className="overline mb-2 flex items-center gap-2 before:h-px before:w-4 before:bg-hairline before:content-['']">{tc("targetPersona")}</p>
                   <p className="text-body">{spec.target_persona}</p>
-                </div>
+                </Card>
               );
             })()}
 
@@ -1209,7 +1209,7 @@ export default function NewStudyPage() {
                 </Card>
               )}
               {sim?.turns.map((t, i) => (
-                <div key={i} className="rounded-card border border-hairline bg-paper p-4">
+                <Card key={i} className="p-4">
                   <div className="flex gap-3">
                     <span className="font-mono text-xs text-muted pt-0.5 w-6">
                       {String(i + 1).padStart(2, "0")}
@@ -1219,7 +1219,7 @@ export default function NewStudyPage() {
                       <p className="text-ink leading-relaxed">{t.answer}</p>
                     </div>
                   </div>
-                </div>
+                </Card>
               ))}
               {sim && sim.turns.length === 0 && !simLoading && !simError && (
                 <div className="rounded-card border border-dashed border-hairline p-8 text-center text-muted">

@@ -60,7 +60,6 @@ function ReportPageInner({ studyId }: { studyId: string }) {
 
       <header className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="overline mb-2">{t("title")}</p>
           <h1 className="font-display text-4xl text-ink">{t("title")}</h1>
           <p className="mt-2 text-sm text-muted">
             {t("generatedAt").replace("{time}", new Date().toLocaleString())}
