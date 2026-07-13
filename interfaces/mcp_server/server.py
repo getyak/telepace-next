@@ -15,6 +15,7 @@ from agents.analyst import AnalystAgent
 from agents.coordinator import CoordinatorAgent
 from agents.designer import DesignerAgent
 from agents.interviewer import InterviewerAgent
+from agents.shared import build_llm_from_settings
 from core.constants import PRODUCT_NAME
 from core.protocols.mcp_tools import MCP_TOOL_REGISTRY
 from harness import (
@@ -27,25 +28,20 @@ from harness import (
     PolicyStack,
     RedisMemory,
 )
+from interfaces.mcp_server.readers import (
+    AnalystFollowupService,
+    EventStoreTranscriptReader,
+    ProjectorInsightReader,
+)
 from interfaces.mcp_server.tools import TOOL_HANDLERS
 from interfaces.rest_api.config import Settings, get_settings
 from storage.event_store import PostgresEventStore
 from storage.projections import CAMPAIGN_PROJECTION_SQL, CampaignProjector
 
 
-class _NullInsightReader:
-    async def list_insights(self, **_: Any) -> list[dict[str, Any]]:
-        return []
-
-
-class _NullFollowupService:
-    async def answer(self, **_: Any) -> dict[str, Any]:
-        return {"answer": "not implemented yet", "evidence": []}
-
-
 async def build_harness_and_projector(
     settings: Settings,
-) -> tuple[Harness, CampaignProjector, PostgresEventStore]:
+) -> tuple[Harness, CampaignProjector, PostgresEventStore, AnalystAgent]:
     store = PostgresEventStore(
         settings.database_url,
         pool_min_size=settings.pg_pool_min_size,
@@ -106,7 +102,7 @@ async def build_harness_and_projector(
         agents=agents,
         tracer=NullTracer(),
     )
-    return harness, projector, store
+    return harness, projector, store, _analyst
 
 
 def _tool_schema(input_cls: type) -> dict[str, Any]:
@@ -115,10 +111,16 @@ def _tool_schema(input_cls: type) -> dict[str, Any]:
 
 async def main() -> None:
     settings = get_settings()
-    harness, projector, store = await build_harness_and_projector(settings)
+    harness, projector, store, analyst = await build_harness_and_projector(settings)
     public_base = settings.public_base_url
     default_org = UUID(settings.default_org_id)
     default_author = UUID(settings.default_author_id)
+
+    insight_reader = ProjectorInsightReader(projector)
+    followup_service = AnalystFollowupService(
+        analyst=analyst,
+        transcript_reader=EventStoreTranscriptReader(store),
+    )
 
     server = Server(PRODUCT_NAME)
 
@@ -142,8 +144,8 @@ async def main() -> None:
             arguments,
             harness=harness,
             projector=projector,
-            insight_reader=_NullInsightReader(),
-            followup_service=_NullFollowupService(),
+            insight_reader=insight_reader,
+            followup_service=followup_service,
             org_id=default_org,
             author_id=default_author,
             public_base_url=public_base,
