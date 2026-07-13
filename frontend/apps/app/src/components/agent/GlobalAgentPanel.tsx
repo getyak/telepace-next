@@ -7,6 +7,11 @@ import { ChatComposer, ChatFeed, cn, type ChatMessage } from "@telepace/ui";
 import { agentChatStream, type AgentEvent, type AgentTurn } from "@/lib/agentChat";
 import { useRouter } from "@/i18n/navigation";
 import { campaignIdFromResult, toolMessageKey } from "./toolLabels";
+import {
+  CampaignListCard,
+  campaignsFromResult,
+  type CampaignSummary,
+} from "./CampaignListCard";
 
 /**
  * A tool-activity row rendered inline in the feed: shows the running/done/error
@@ -23,7 +28,8 @@ type ToolCard = {
 
 type Entry =
   | { kind: "msg"; msg: ChatMessage }
-  | { kind: "tool"; card: ToolCard };
+  | { kind: "tool"; card: ToolCard }
+  | { kind: "campaigns"; id: string; campaigns: CampaignSummary[] };
 
 let seq = 0;
 function nextId(prefix: string): string {
@@ -138,14 +144,28 @@ export function GlobalAgentPanel({ className }: { className?: string }) {
               },
             ]);
             break;
-          case "tool_result":
-            setEntries((prev) =>
-              markLastTool(prev, event.name, {
+          case "tool_result": {
+            // list_campaigns returns structured rows — render them as real study
+            // cards (status + progress + deep link) instead of waiting for the
+            // LLM to prose them into a markdown wall. Other tools keep their
+            // running→done activity chip.
+            const campaigns =
+              event.name === "list_campaigns" ? campaignsFromResult(event.result) : null;
+            setEntries((prev) => {
+              const marked = markLastTool(prev, event.name, {
                 phase: "done",
                 campaignId: campaignIdFromResult(event.result),
-              }),
-            );
+              });
+              if (campaigns && campaigns.length > 0) {
+                return [
+                  ...marked,
+                  { kind: "campaigns", id: nextId("cl"), campaigns },
+                ];
+              }
+              return marked;
+            });
             break;
+          }
           case "tool_error":
             setEntries((prev) =>
               markLastTool(prev, event.name, { phase: "error", message: event.message }),
@@ -208,6 +228,8 @@ export function GlobalAgentPanel({ className }: { className?: string }) {
             {entries.map((e) =>
               e.kind === "tool" ? (
                 <ToolActivityCard key={e.card.id} card={e.card} />
+              ) : e.kind === "campaigns" ? (
+                <CampaignListCard key={e.id} campaigns={e.campaigns} />
               ) : (
                 <ChatFeed key={e.msg.id} typingLabel={t("thinking")} messages={[e.msg]} />
               ),

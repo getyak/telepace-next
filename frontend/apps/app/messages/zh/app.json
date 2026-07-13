@@ -115,7 +115,10 @@
     "statusLive": "进行中",
     "statusReady": "就绪",
     "statusDraft": "草稿",
-    "statusClosed": "已关闭"
+    "statusClosed": "已关闭",
+    "overviewTotal": "问卷总数",
+    "overviewLive": "进行中",
+    "overviewCompleted": "已完成访谈"
   },
   "studyDetail": {
     "allStudies": "← 所有问卷",

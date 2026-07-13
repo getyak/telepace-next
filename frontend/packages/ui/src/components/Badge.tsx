@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "../cn";
 
-type BadgeVariant = "neutral" | "accent" | "success" | "warning" | "danger";
+export type BadgeVariant = "neutral" | "accent" | "success" | "warning" | "danger";
 
 type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
   variant?: BadgeVariant;

@@ -115,7 +115,10 @@
     "statusLive": "Live",
     "statusReady": "Ready",
     "statusDraft": "Draft",
-    "statusClosed": "Closed"
+    "statusClosed": "Closed",
+    "overviewTotal": "Total studies",
+    "overviewLive": "Live",
+    "overviewCompleted": "Completed interviews"
   },
   "studyDetail": {
     "allStudies": "← All studies",
