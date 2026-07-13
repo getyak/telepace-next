@@ -533,36 +533,46 @@
     "emptyReply": "已完成。",
     "streamError": "出错了：{message}",
     "tool": {
-      "create_campaign": "创建问卷",
-      "create_campaign.running": "正在创建问卷…",
-      "create_campaign.done": "已创建问卷",
-      "get_campaign_progress": "get_campaign_progress",
-      "get_campaign_progress.running": "正在获取进度…",
-      "get_campaign_progress.done": "已获取进度",
-      "get_campaign_insights": "get_campaign_insights",
-      "get_campaign_insights.running": "正在分析洞察…",
-      "get_campaign_insights.done": "已生成洞察",
-      "ask_followup": "ask_followup",
-      "ask_followup.running": "正在检索访谈记录…",
-      "ask_followup.done": "已回答",
-      "push_insights": "push_insights",
-      "push_insights.running": "正在推送洞察…",
-      "push_insights.done": "已推送",
-      "list_campaigns": "list_campaigns",
-      "list_campaigns.running": "正在列出问卷…",
-      "list_campaigns.done": "已列出问卷",
-      "refine_outline": "refine_outline",
-      "refine_outline.running": "正在优化提纲…",
-      "refine_outline.done": "已优化提纲",
-      "start_campaign": "start_campaign",
-      "start_campaign.running": "正在发布问卷…",
-      "start_campaign.done": "已发布",
-      "dispatch_invites": "dispatch_invites",
-      "dispatch_invites.running": "正在发送邀请…",
-      "dispatch_invites.done": "已发送邀请",
-      "generic": "generic",
-      "generic.running": "正在处理…",
-      "generic.done": "已完成",
+      "create_campaign": {
+        "running": "正在创建问卷…",
+        "done": "已创建问卷"
+      },
+      "get_campaign_progress": {
+        "running": "正在获取进度…",
+        "done": "已获取进度"
+      },
+      "get_campaign_insights": {
+        "running": "正在分析洞察…",
+        "done": "已生成洞察"
+      },
+      "ask_followup": {
+        "running": "正在检索访谈记录…",
+        "done": "已回答"
+      },
+      "push_insights": {
+        "running": "正在推送洞察…",
+        "done": "已推送"
+      },
+      "list_campaigns": {
+        "running": "正在列出问卷…",
+        "done": "已列出问卷"
+      },
+      "refine_outline": {
+        "running": "正在优化提纲…",
+        "done": "已优化提纲"
+      },
+      "start_campaign": {
+        "running": "正在发布问卷…",
+        "done": "已发布"
+      },
+      "dispatch_invites": {
+        "running": "正在发送邀请…",
+        "done": "已发送邀请"
+      },
+      "generic": {
+        "running": "正在处理…",
+        "done": "已完成"
+      },
       "error": "{tool} 失败"
     }
   }

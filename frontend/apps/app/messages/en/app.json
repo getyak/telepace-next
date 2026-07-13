@@ -533,36 +533,46 @@
     "emptyReply": "Done.",
     "streamError": "Something went wrong: {message}",
     "tool": {
-      "create_campaign": "create_campaign",
-      "create_campaign.running": "Creating study…",
-      "create_campaign.done": "Created study",
-      "get_campaign_progress": "get_campaign_progress",
-      "get_campaign_progress.running": "Fetching progress…",
-      "get_campaign_progress.done": "Got progress",
-      "get_campaign_insights": "get_campaign_insights",
-      "get_campaign_insights.running": "Analyzing insights…",
-      "get_campaign_insights.done": "Insights ready",
-      "ask_followup": "ask_followup",
-      "ask_followup.running": "Searching transcripts…",
-      "ask_followup.done": "Answered",
-      "push_insights": "push_insights",
-      "push_insights.running": "Pushing insights…",
-      "push_insights.done": "Pushed",
-      "list_campaigns": "list_campaigns",
-      "list_campaigns.running": "Listing studies…",
-      "list_campaigns.done": "Listed studies",
-      "refine_outline": "refine_outline",
-      "refine_outline.running": "Refining outline…",
-      "refine_outline.done": "Outline refined",
-      "start_campaign": "start_campaign",
-      "start_campaign.running": "Publishing study…",
-      "start_campaign.done": "Published",
-      "dispatch_invites": "dispatch_invites",
-      "dispatch_invites.running": "Sending invites…",
-      "dispatch_invites.done": "Invites sent",
-      "generic": "generic",
-      "generic.running": "Working…",
-      "generic.done": "Done",
+      "create_campaign": {
+        "running": "Creating study…",
+        "done": "Created study"
+      },
+      "get_campaign_progress": {
+        "running": "Fetching progress…",
+        "done": "Got progress"
+      },
+      "get_campaign_insights": {
+        "running": "Analyzing insights…",
+        "done": "Insights ready"
+      },
+      "ask_followup": {
+        "running": "Searching transcripts…",
+        "done": "Answered"
+      },
+      "push_insights": {
+        "running": "Pushing insights…",
+        "done": "Pushed"
+      },
+      "list_campaigns": {
+        "running": "Listing studies…",
+        "done": "Listed studies"
+      },
+      "refine_outline": {
+        "running": "Refining outline…",
+        "done": "Outline refined"
+      },
+      "start_campaign": {
+        "running": "Publishing study…",
+        "done": "Published"
+      },
+      "dispatch_invites": {
+        "running": "Sending invites…",
+        "done": "Invites sent"
+      },
+      "generic": {
+        "running": "Working…",
+        "done": "Done"
+      },
       "error": "{tool} failed"
     }
   }

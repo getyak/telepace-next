@@ -37,7 +37,7 @@ function ToolActivityCard({ card }: { card: ToolCard }) {
   const key = toolMessageKey(card.name);
   const verb =
     card.phase === "error"
-      ? t("tool.error", { tool: t(`tool.${key}` as Parameters<typeof t>[0]) })
+      ? t("tool.error", { tool: t(`tool.${key}.running` as Parameters<typeof t>[0]) })
       : card.phase === "done"
         ? t(`tool.${key}.done` as Parameters<typeof t>[0])
         : t(`tool.${key}.running` as Parameters<typeof t>[0]);
