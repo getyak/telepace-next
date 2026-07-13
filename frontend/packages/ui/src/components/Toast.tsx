@@ -118,7 +118,7 @@ function ToastCard({
   return (
     <div
       role={t.kind === "error" ? "alert" : "status"}
-      className="pointer-events-auto w-[min(360px,calc(100vw-2rem))] rounded-card border border-hairline bg-paper-elevated p-3.5 text-sm text-ink shadow-overlay"
+      className="tp-fade-in-up pointer-events-auto w-[min(360px,calc(100vw-2rem))] rounded-card border border-hairline bg-paper-elevated p-3.5 text-sm text-ink shadow-overlay"
     >
       <div className="flex items-start gap-2.5">
         <span

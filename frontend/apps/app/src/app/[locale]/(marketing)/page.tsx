@@ -249,7 +249,7 @@ async function FinalCTA() {
     <section className="section-padding bg-ink text-paper">
       <div className="container-content text-center max-w-3xl mx-auto">
         <Reveal>
-          <h2 className="font-display text-[clamp(2.5rem,5vw,4rem)]">
+          <h2 className="font-display text-[clamp(2.5rem,5vw,4rem)] leading-[1.05] tracking-display">
             {t("titleLine1")}
             <br />
             <span className="italic">{t("titleEmphasis")}</span>

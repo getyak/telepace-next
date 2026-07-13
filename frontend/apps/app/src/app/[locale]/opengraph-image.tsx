@@ -1,16 +1,18 @@
 import { ImageResponse } from "next/og";
 import { siteConfig } from "@telepace/config";
+import { colors } from "@telepace/ui/tokens";
 
 export const runtime = "edge";
 export const alt = `${siteConfig.brand.name} — ${siteConfig.brand.tagline}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-// Colors mirror packages/ui/src/tokens.ts (ImageResponse can't import CSS).
-const PAPER = "#F8F6F1";
-const INK = "#141414";
-const MUTED = "#8A857F";
-const ACCENT = "#4A5D3B";
+// Sourced from packages/ui/src/tokens.ts (plain-JS, edge-safe — no CSS import)
+// so the OG card can't silently drift from the palette.
+const PAPER = colors.paper;
+const INK = colors.ink;
+const MUTED = colors.muted;
+const ACCENT = colors.accent;
 
 // The edge runtime can't await next-intl/server's async getTranslations here,
 // so headline copy is a small inline table instead of a messages/ lookup.

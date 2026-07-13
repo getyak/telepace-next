@@ -4,6 +4,7 @@
 // its own <html>/<body> and cannot rely on globals.css (the failing layout is
 // what imports it). Everything is inline-styled and bilingual.
 import { useEffect } from "react";
+import { colors } from "@telepace/ui/tokens";
 
 export default function GlobalError({
   error,
@@ -25,8 +26,8 @@ export default function GlobalError({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#F8F6F1",
-          color: "#1a1a1a",
+          backgroundColor: colors.paper,
+          color: colors.ink,
           fontFamily:
             "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
           padding: "24px",
@@ -41,7 +42,7 @@ export default function GlobalError({
               marginTop: "0.75rem",
               fontSize: "0.95rem",
               lineHeight: 1.6,
-              color: "#4a4a4a",
+              color: colors.body,
             }}
           >
             The application hit an unexpected error. Please try again.
@@ -55,8 +56,8 @@ export default function GlobalError({
               padding: "0.625rem 1.25rem",
               fontSize: "0.9rem",
               fontWeight: 500,
-              color: "#F8F6F1",
-              backgroundColor: "#4A5D3B",
+              color: colors.paper,
+              backgroundColor: colors.accent,
               border: "none",
               borderRadius: "0.5rem",
               cursor: "pointer",

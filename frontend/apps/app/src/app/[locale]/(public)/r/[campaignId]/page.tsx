@@ -3,6 +3,7 @@
 import { use, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
+  Button,
   Card,
   TextStage,
   VoiceStage,
@@ -524,10 +525,7 @@ function Consent({ onStart }: { onStart: (mode: "text" | "voice") => void }) {
         <h1 className="mb-6 font-display text-5xl leading-tight">{t("title")}</h1>
         <p className="text-lg leading-relaxed text-body">{t("body")}</p>
         <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-          <button
-            onClick={() => onStart("text")}
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-btn bg-ink px-6 text-paper transition-[color,background-color,border-color,transform] duration-150 hover:bg-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100"
-          >
+          <Button variant="primary" size="lg" onClick={() => onStart("text")}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
               <path
                 d="M4 6h16M4 12h16M4 18h10"
@@ -537,11 +535,8 @@ function Consent({ onStart }: { onStart: (mode: "text" | "voice") => void }) {
               />
             </svg>
             {t("startWithText")}
-          </button>
-          <button
-            onClick={() => onStart("voice")}
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-btn border border-hairline px-6 text-ink transition-[color,background-color,border-color,transform] duration-150 hover:border-ink hover:bg-paper-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100"
-          >
+          </Button>
+          <Button variant="secondary" size="lg" onClick={() => onStart("voice")}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
               <rect
                 x="9"
@@ -560,7 +555,7 @@ function Consent({ onStart }: { onStart: (mode: "text" | "voice") => void }) {
               />
             </svg>
             {t("useVoice")}
-          </button>
+          </Button>
         </div>
         <p className="mx-auto mt-6 max-w-sm text-xs text-muted">{t("consentNotice")}</p>
       </div>
