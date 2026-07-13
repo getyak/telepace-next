@@ -76,17 +76,19 @@ export default async function VoicePage() {
                 </pre>
               </div>
             </Card>
-            <dl className="mt-6 space-y-2 text-sm">
-              {specs.map((s) => (
-                <div key={s.k} className="flex justify-between border-b border-hairline py-2">
-                  <dt className="text-muted">{s.k}</dt>
-                  <dd className="text-body text-right">
-                    {s.v}
-                    <span className="block text-xs text-muted">{s.note}</span>
-                  </dd>
-                </div>
-              ))}
-            </dl>
+            <Card className="mt-6 p-5">
+              <dl className="space-y-2 text-sm">
+                {specs.map((s) => (
+                  <div key={s.k} className="flex justify-between border-b border-hairline py-2">
+                    <dt className="text-muted">{s.k}</dt>
+                    <dd className="text-body text-right">
+                      {s.v}
+                      <span className="block text-xs text-muted">{s.note}</span>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </Card>
           </aside>
         </div>
       </section>

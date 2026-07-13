@@ -148,6 +148,7 @@ export function ClarifyChips({
               className={cn(
                 "tp-chip-in group relative rounded-pill border px-3.5 py-1.5 text-left text-sm",
                 "transition-[color,background-color,border-color,box-shadow,transform] duration-150",
+                "transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:active:scale-100",
                 "disabled:cursor-not-allowed disabled:opacity-40",
                 active
                   ? "border-accent bg-accent-soft text-ink"
@@ -429,7 +430,7 @@ export function ChatBubble({
             // Researcher's reply — a quotation slipped onto the page, not an IM
             // balloon: elevated paper, a hairline, no drop shadow. The softened
             // bottom-right corner keeps the "sent from here" direction cue.
-            ? "max-w-[82%] rounded-[18px] rounded-br-md border border-hairline bg-paper-elevated px-4 py-2.5 text-[15px] text-ink"
+            ? "max-w-[82%] rounded-bubble rounded-br-btn border border-hairline bg-paper-elevated px-4 py-2.5 text-[15px] text-ink"
             : isSystem
               // System line — a small centered tracked whisper. text-body (AA)
               // not text-muted since a system sentence carries meaning.
@@ -440,9 +441,9 @@ export function ChatBubble({
                 // a full-width banner, so it reads as "a beam of light on this
                 // one line". A wholly-Latin line tones down one notch.
                 ? cn(
-                    // rounded-r-md (not xl) — a crisp cut paper edge, not a
+                    // rounded-r-btn (not xl) — a crisp cut paper edge, not a
                     // plastic bubble; a 2px rail reads as an editor's change-bar.
-                    "w-fit max-w-[52ch] rounded-r-md border-l-2 border-accent bg-question-wash py-3.5 pl-5 pr-6 font-display leading-snug text-ink",
+                    "w-fit max-w-[52ch] rounded-r-btn border-l-2 border-accent bg-question-wash py-3.5 pl-5 pr-6 font-display leading-snug text-ink",
                     enHero ? "text-[19px] leading-relaxed" : "text-[clamp(1.375rem,2.4vw,1.75rem)]",
                   )
                 : isPast
@@ -705,7 +706,7 @@ export function ChatComposer({
           tactile surface that lifts on focus, rather than a box + a button. */}
       <div
         className={cn(
-          "flex items-end gap-2 rounded-[20px] border bg-paper-elevated px-3 py-2 transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none",
+          "flex items-end gap-2 rounded-well border bg-paper-elevated px-3 py-2 transition-[border-color,box-shadow] duration-200 motion-reduce:transition-none",
           focused
             ? "border-ink/25 shadow-hover ring-4 ring-accent-soft/40"
             : "border-hairline hover:border-ink/20",

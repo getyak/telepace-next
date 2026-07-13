@@ -52,7 +52,7 @@ function ReportPageInner({ studyId }: { studyId: string }) {
       <div className="mb-6">
         <Link
           href={routes.app.studies.byId(studyId)}
-          className="text-sm text-muted transition-colors hover:text-ink"
+          className="rounded-input text-sm text-muted transition-colors hover:text-ink active:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
         >
           ← {t("title")}
         </Link>

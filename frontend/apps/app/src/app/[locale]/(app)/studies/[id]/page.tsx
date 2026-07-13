@@ -50,6 +50,17 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
   const search = useSearchParams();
   const justPublished = search.get("published") === "1";
   const t = useTranslations("app.studyDetail");
+  const statusLabel: Record<string, string> = {
+    live: t("statusLive"),
+    ready: t("statusReady"),
+    draft: t("statusDraft"),
+    closed: t("statusClosed"),
+  };
+  const channelLabel: Record<string, string> = {
+    web_text: t("channelWebText"),
+    web_voice: t("channelWebVoice"),
+    phone_outbound: t("channelPhoneOutbound"),
+  };
   const tReport = useTranslations("app.report");
   const errorsCopy = useErrorsCopy();
 
@@ -197,7 +208,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
             <p className="overline">{t("studyLabel")}</p>
             <Badge variant={statusVariant[campaign.status] ?? "neutral"}>
               {isLive && <span className="tp-pulse-slow inline-block h-1.5 w-1.5 rounded-full bg-accent" />}
-              {campaign.status}
+              {statusLabel[campaign.status] ?? campaign.status}
             </Badge>
           </div>
           <h1 className="font-display text-4xl">{campaign.title}</h1>
@@ -299,7 +310,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
               <li>
                 · {t("channelsLabel")}{" "}
                 <span className="text-ink">
-                  {(spec.channels ?? []).map((c) => c.kind.replace("_", " ")).join(", ") || t("defaultChannel")}
+                  {(spec.channels ?? []).map((c) => channelLabel[c.kind] ?? c.kind.replace("_", " ")).join(", ") || t("defaultChannel")}
                 </span>
               </li>
             </ul>

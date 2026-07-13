@@ -526,7 +526,7 @@ function Consent({ onStart }: { onStart: (mode: "text" | "voice") => void }) {
         <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
           <button
             onClick={() => onStart("text")}
-            className="group inline-flex h-12 items-center justify-center gap-2 rounded-btn bg-ink px-6 text-paper transition-colors hover:bg-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-btn bg-ink px-6 text-paper transition-[color,background-color,border-color,transform] duration-150 hover:bg-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
               <path
@@ -540,7 +540,7 @@ function Consent({ onStart }: { onStart: (mode: "text" | "voice") => void }) {
           </button>
           <button
             onClick={() => onStart("voice")}
-            className="group inline-flex h-12 items-center justify-center gap-2 rounded-btn border border-hairline px-6 text-ink transition-colors hover:border-ink hover:bg-paper-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-btn border border-hairline px-6 text-ink transition-[color,background-color,border-color,transform] duration-150 hover:border-ink hover:bg-paper-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
               <rect

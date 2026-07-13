@@ -49,10 +49,10 @@ export function VersionHistory<T>({
                   disabled={isCurrent}
                   title={isCurrent ? t("current") : t("restore")}
                   className={cn(
-                    "w-full text-left rounded-btn px-3 py-2 text-sm transition-colors",
+                    "w-full text-left rounded-btn px-3 py-2 text-sm transition-[background-color,transform] duration-150",
                     isCurrent
                       ? "bg-accent/10 text-accent cursor-default"
-                      : "text-body hover:bg-ink/5",
+                      : "text-body hover:bg-ink/5 active:bg-ink/10 transform-gpu active:scale-[0.99] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100",
                   )}
                 >
                   <div className="flex items-center justify-between gap-2">

@@ -31,9 +31,18 @@
     },
     "trustBar": {
       "stats": {
-        "channels": { "value": "5 种渠道", "detail": "一次访谈" },
-        "launchTime": { "value": "< 60 秒", "detail": "即可发起一项研究" },
-        "surfaces": { "value": "MCP · Skill · REST", "detail": "无论你的 Agent 运行在哪里" }
+        "channels": {
+          "value": "5 种渠道",
+          "detail": "一次访谈"
+        },
+        "launchTime": {
+          "value": "< 60 秒",
+          "detail": "即可发起一项研究"
+        },
+        "surfaces": {
+          "value": "MCP · Skill · REST",
+          "detail": "无论你的 Agent 运行在哪里"
+        }
       }
     },
     "howItWorks": {
@@ -67,9 +76,18 @@
         "study": "定价研究 — Q3",
         "meta": "24 场访谈 · 3 个主题 · 综合分析完成",
         "themes": {
-          "t1": { "title": "价格被锚定在缺失的企业级功能上", "count": "14 / 24 场访谈" },
-          "t2": { "title": "年付折扣会改变用户的决策逻辑", "count": "11 / 24 场访谈" },
-          "t3": { "title": "按用量计费比两档订阅更有吸引力", "count": "9 / 24 场访谈" }
+          "t1": {
+            "title": "价格被锚定在缺失的企业级功能上",
+            "count": "14 / 24 场访谈"
+          },
+          "t2": {
+            "title": "年付折扣会改变用户的决策逻辑",
+            "count": "11 / 24 场访谈"
+          },
+          "t3": {
+            "title": "按用量计费比两档订阅更有吸引力",
+            "count": "9 / 24 场访谈"
+          }
         },
         "quote": {
           "text": "每月 79 美元本来没问题——直到我发现 SSO 不包含在内，那一刻就开始觉得是在被惩罚。",
@@ -82,11 +100,26 @@
       "eyebrow": "五种渠道，一次访谈",
       "title": "在受访者所在之处与他们相遇。",
       "items": {
-        "link": { "name": "可分享链接", "meta": "秒级发起" },
-        "browserVoice": { "name": "浏览器语音", "meta": "实时 · 低延迟" },
-        "phone": { "name": "外呼电话", "meta": "Vapi + 真人般的温度" },
-        "hotline": { "name": "呼入热线", "meta": "专属号码" },
-        "email": { "name": "邮件邀约", "meta": "异步 · 适合批量" }
+        "link": {
+          "name": "可分享链接",
+          "meta": "秒级发起"
+        },
+        "browserVoice": {
+          "name": "浏览器语音",
+          "meta": "实时 · 低延迟"
+        },
+        "phone": {
+          "name": "外呼电话",
+          "meta": "Vapi + 真人般的温度"
+        },
+        "hotline": {
+          "name": "呼入热线",
+          "meta": "专属号码"
+        },
+        "email": {
+          "name": "邮件邀约",
+          "meta": "异步 · 适合批量"
+        }
       }
     },
     "agentSurfaces": {
@@ -94,16 +127,32 @@
       "title": "让你的 Agent 拥有一位用户研究员。",
       "description": "telepace 提供 MCP 服务、Skill 和 REST API 三种接入方式。无论你的 Agent 运行在 Claude Desktop、Cursor、Codex 还是自建编排系统中，现在都能设计研究方案、发起访谈，并读取结构化的洞察结果。",
       "cta": "浏览 MCP 工具 →",
-      "tabs": { "mcp": "MCP", "rest": "REST API", "skill": "Skill" }
+      "tabs": {
+        "mcp": "MCP",
+        "rest": "REST API",
+        "skill": "Skill"
+      }
     },
     "useCases": {
       "eyebrow": "适用于",
-    "title": "为那些追问「为什么」的人而造。",
+      "title": "为那些追问「为什么」的人而造。",
       "items": {
-        "pm": { "role": "产品经理", "description": "让用户声音进入每一次路线图评审。" },
-        "researchers": { "role": "用户研究员", "description": "在不扩招团队的前提下，规模化开展深度访谈。" },
-        "growth": { "role": "增长团队", "description": "在流失用户忘记原因之前，及时访谈他们。" },
-        "founders": { "role": "创始人", "description": "在打磨 MVP 的同一周内完成 30 场访谈。" }
+        "pm": {
+          "role": "产品经理",
+          "description": "让用户声音进入每一次路线图评审。"
+        },
+        "researchers": {
+          "role": "用户研究员",
+          "description": "在不扩招团队的前提下，规模化开展深度访谈。"
+        },
+        "growth": {
+          "role": "增长团队",
+          "description": "在流失用户忘记原因之前，及时访谈他们。"
+        },
+        "founders": {
+          "role": "创始人",
+          "description": "在打磨 MVP 的同一周内完成 30 场访谈。"
+        }
       }
     },
     "finalCta": {
@@ -130,7 +179,8 @@
       "pro": {
         "name": "专业版",
         "tagline": "适合每周持续交付的产品团队。",
-        "ctaLabel": "开始 Pro 试用"
+        "ctaLabel": "开始 Pro 试用",
+        "badge": "最受欢迎"
       },
       "team": {
         "name": "团队版",
@@ -437,7 +487,7 @@
       "paragraph1": "传统调研早已证明这一点：一通 30 分钟的电话，能获得比书面问卷多 3 到 5 倍的有效信号。语音消除了组织文字带来的阻力，而正是这种阻力让细微之处悄然流失。",
       "paragraph2": "telepace 在全流程中保持同样的亲和力——问候、追问、留白、跟进、收尾——这种一致性只有软件才能做到。它不会在下午四点感到疲惫，也不会偏离脚本。",
       "paragraph3": "因为我们基于流式处理（而非轮次问答），访谈感觉就像一场真实的对话，而不是大多数语音机器人那种彬彬有礼的等待游戏。",
-    "pipelineCaption": "voiceflow · 生产级 Go 音频管线"
+      "pipelineCaption": "voiceflow · 生产级 Go 音频管线"
     },
     "specs": {
       "latency": {
@@ -525,7 +575,7 @@
     },
     "offer": {
       "eyebrow": "我们的待遇",
-    "title": "我们提供的待遇。",
+      "title": "我们提供的待遇。",
       "compensation": "薪资对标 A 轮公司的第 75 分位，附带实打实的股权——不是那种 0.05% 的意思意思。",
       "benefits": "全额医疗 / 牙科 / 视力保险，2000 美元居家办公补贴，每年两次团队线下聚会。",
       "remote": "远程优先，默认异步协作，每天保留四小时的在线重叠时段。",
@@ -754,10 +804,22 @@
       "lede": "一些产品团队，一些代理机构，一些独立创业者。他们的共同点是：拒绝靠猜测做决定。"
     },
     "stats": {
-      "interviewsRun": { "label": "累计访谈次数", "value": "18,412" },
-      "companiesOnboarded": { "label": "入驻企业数", "value": "127" },
-      "avgTimeToInsight": { "label": "平均洞察产出时长", "value": "38 小时" },
-      "nps": { "label": "净推荐值 NPS", "value": "72" }
+      "interviewsRun": {
+        "label": "累计访谈次数",
+        "value": "18,412"
+      },
+      "companiesOnboarded": {
+        "label": "入驻企业数",
+        "value": "127"
+      },
+      "avgTimeToInsight": {
+        "label": "平均洞察产出时长",
+        "value": "38 小时"
+      },
+      "nps": {
+        "label": "净推荐值 NPS",
+        "value": "72"
+      }
     },
     "stories": {
       "northstar": {

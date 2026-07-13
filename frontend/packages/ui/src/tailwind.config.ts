@@ -33,6 +33,8 @@ const preset: Partial<Config> = {
         input: radii.input,
         btn: radii.button,
         card: radii.card,
+        bubble: radii.bubble,
+        well: radii.well,
         pill: radii.pill,
       },
       boxShadow: {

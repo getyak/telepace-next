@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Button, Card, Input, Label } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
+import { SectionNav } from "./_components/SectionNav";
 
 const SECTION_IDS = ["workspace", "members", "billing", "api-keys", "mcp", "danger"] as const;
 
@@ -27,13 +28,7 @@ export default async function SettingsPage() {
 
       <div className="grid md:grid-cols-12 gap-10">
         <aside className="md:col-span-3">
-          <nav className="sticky top-6 space-y-1 text-sm">
-            {SECTION_IDS.map((id) => (
-              <a key={id} href={`#${id}`} className="block rounded-btn px-3 py-2 text-body hover:bg-paper-elevated hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent">
-                {sectionLabel[id]}
-              </a>
-            ))}
-          </nav>
+          <SectionNav sections={SECTION_IDS.map((id) => ({ id, label: sectionLabel[id] }))} />
         </aside>
         <div className="md:col-span-9 space-y-14">
           <section id="workspace">

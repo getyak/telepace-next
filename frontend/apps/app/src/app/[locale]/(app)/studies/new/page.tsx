@@ -144,6 +144,12 @@ export default function NewStudyPage() {
     { id: "sys-1", role: "system", text: tc("systemGreeting") },
   ];
   const suggestions = [tc("suggestion1"), tc("suggestion2"), tc("suggestion3")];
+  const CHANNEL_LABELS: Record<(typeof ALL_CHANNELS)[number], string> = {
+    [CHANNELS.webText]: tc("channelWebText"),
+    [CHANNELS.webVoice]: tc("channelWebVoice"),
+    [CHANNELS.phoneOutbound]: tc("channelPhoneOutbound"),
+    [CHANNELS.email]: tc("channelEmail"),
+  };
 
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   // The default title is shown in the header before the agent derives one, so
@@ -776,7 +782,7 @@ export default function NewStudyPage() {
           {busy && campaignId && (
             <button
               onClick={handleStop}
-              className="text-xs text-muted hover:text-ink transition-colors"
+              className="text-xs text-muted hover:text-ink transition-[color,background-color,border-color,transform] duration-150 transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100"
             >
               ■ {tc("stop")}
             </button>
@@ -803,7 +809,7 @@ export default function NewStudyPage() {
                     key={s}
                     onClick={() => handleSend(s)}
                     disabled={busy}
-                    className="rounded-pill border border-hairline bg-paper-elevated px-3.5 py-1.5 text-left text-sm text-body transition-colors hover:border-ink hover:text-ink"
+                    className="rounded-pill border border-hairline bg-paper-elevated px-3.5 py-1.5 text-left text-sm text-body transition-[color,background-color,border-color,transform] duration-150 hover:border-ink hover:text-ink transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100"
                   >
                     {s}
                   </button>
@@ -836,7 +842,10 @@ export default function NewStudyPage() {
             <div className="flex items-center gap-3">
               <p className="overline">{tc("discussionGuide")}</p>
               <span className="text-xs text-muted">
-                ~{spec.estimated_minutes} min · {spec.target_completions} completions
+                {tc("canvasMeta", {
+                  minutes: spec.estimated_minutes,
+                  completions: spec.target_completions,
+                })}
               </span>
               {changeCount > 0 && (
                 <span
@@ -992,7 +1001,7 @@ export default function NewStudyPage() {
                                 type="button"
                                 disabled={busy}
                                 onClick={() => startEditTask(field)}
-                                className="group w-full text-left text-body leading-relaxed rounded-input px-1.5 py-1 -mx-1.5 transition-colors hover:bg-paper disabled:cursor-not-allowed"
+                                className="group w-full text-left text-body leading-relaxed rounded-input px-1.5 py-1 -mx-1.5 transition-[color,background-color,border-color,transform] duration-150 hover:bg-paper disabled:cursor-not-allowed transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100"
                                 aria-label={tc("taskEditAria", {
                                   facet: tc(`taskField_${field}` as Parameters<typeof tc>[0]),
                                 })}
@@ -1141,13 +1150,13 @@ export default function NewStudyPage() {
                           : [...s.channels, ch],
                       }))
                     }
-                    className={`px-3 py-1.5 rounded-pill text-sm border transition-colors ${
+                    className={`px-3 py-1.5 rounded-pill text-sm border transition-[color,background-color,border-color,transform] duration-150 transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 ${
                       spec.channels.includes(ch)
                         ? "bg-ink text-paper border-ink"
                         : "bg-paper text-body border-hairline hover:border-ink"
                     }`}
                   >
-                    {ch.replace("_", " ")}
+                    {CHANNEL_LABELS[ch]}
                   </button>
                 ))}
               </div>

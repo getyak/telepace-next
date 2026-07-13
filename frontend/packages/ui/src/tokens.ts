@@ -44,6 +44,11 @@ export const radii = {
   input: "4px",
   button: "8px",
   card: "12px",
+  // Chat surfaces: the speech-bubble geometry (bubble) and the composer input
+  // well (well) sit between card and pill — named so they resolve through the
+  // scale instead of arbitrary `rounded-[18px]` / `rounded-[20px]`.
+  bubble: "18px",
+  well: "20px",
   pill: "999px",
 } as const;
 

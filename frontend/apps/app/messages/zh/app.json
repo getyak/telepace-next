@@ -17,7 +17,11 @@
     "srcStripeSync": "Stripe · 自动同步",
     "srcCsvUploaded": "CSV · 上传于 2026-06-01",
     "srcManualVetted": "手动 · 已审核",
-    "statusSynced": "已同步"
+    "statusSynced": "已同步",
+    "colFilename": "文件名",
+    "colRows": "行数",
+    "colDate": "日期",
+    "colStatus": "状态"
   },
   "inbox": {
     "eyebrow": "收件箱",
@@ -107,7 +111,11 @@
     "relativeJustNow": "刚刚",
     "relativeMinutes": "{count} 分钟前",
     "relativeHours": "{count} 小时前",
-    "relativeDays": "{count} 天前"
+    "relativeDays": "{count} 天前",
+    "statusLive": "进行中",
+    "statusReady": "就绪",
+    "statusDraft": "草稿",
+    "statusClosed": "已关闭"
   },
   "studyDetail": {
     "allStudies": "← 所有问卷",
@@ -172,7 +180,13 @@
     "likertSatisfied": "满意",
     "likertNeutral": "一般",
     "likertDissatisfied": "不满意",
-    "likertVeryDissatisfied": "非常不满意"
+    "likertVeryDissatisfied": "非常不满意",
+    "statusLive": "进行中",
+    "statusReady": "就绪",
+    "statusDraft": "草稿",
+    "statusClosed": "已关闭",
+    "channelPhoneOutbound": "电话外呼",
+    "channelEmail": "电子邮件"
   },
   "settings": {
     "eyebrow": "设置",
@@ -392,7 +406,12 @@
     "taskCancel": "取消",
     "taskEmpty": "（待补充）",
     "taskEditHint": "点击编辑",
-    "taskEditAria": "编辑{facet}"
+    "taskEditAria": "编辑{facet}",
+    "channelWebText": "网页文字",
+    "channelWebVoice": "网页语音",
+    "channelPhoneOutbound": "电话外呼",
+    "canvasMeta": "每次访谈约 {minutes} 分钟 · {completions} 份完成",
+    "channelEmail": "电子邮件"
   },
   "wizard": {
     "stepGoal": "目标",

@@ -89,7 +89,7 @@ async function TrustBar() {
       <div className="container-content py-10 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
         {stats.map((s, i) => (
           <Reveal key={s.id} delay={i * 80}>
-            <p className="font-display text-2xl">{s.value}</p>
+            <p className="font-display text-3xl md:text-4xl">{s.value}</p>
             <p className="overline mt-1.5">{s.detail}</p>
           </Reveal>
         ))}

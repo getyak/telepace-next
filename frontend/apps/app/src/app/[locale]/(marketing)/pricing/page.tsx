@@ -105,6 +105,11 @@ export default async function PricingPage() {
                   (meta.highlight ? "border-ink bg-ink text-paper" : "")
                 }
               >
+                {meta.highlight && (
+                  <span className="inline-block rounded-pill bg-accent/15 text-accent overline px-2.5 py-1 mb-4">
+                    {t("tiers.pro.badge")}
+                  </span>
+                )}
                 <p className={"overline " + (meta.highlight ? "text-paper/70" : "")}>
                   {t(`tiers.${id}.name`)}
                 </p>
