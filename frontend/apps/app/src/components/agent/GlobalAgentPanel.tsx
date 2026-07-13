@@ -2,11 +2,12 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { ChatComposer, ChatFeed, cn, type ChatMessage } from "@telepace/ui";
+import { ChatComposer, cn, type ChatMessage } from "@telepace/ui";
 
 import { agentChatStream, type AgentEvent, type AgentTurn } from "@/lib/agentChat";
 import { useRouter } from "@/i18n/navigation";
 import { campaignIdFromResult, toolMessageKey } from "./toolLabels";
+import { AgentMessage } from "./AgentMessage";
 import {
   CampaignListCard,
   campaignsFromResult,
@@ -224,14 +225,14 @@ export function GlobalAgentPanel({ className }: { className?: string }) {
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             {entries.map((e) =>
               e.kind === "tool" ? (
                 <ToolActivityCard key={e.card.id} card={e.card} />
               ) : e.kind === "campaigns" ? (
                 <CampaignListCard key={e.id} campaigns={e.campaigns} />
               ) : (
-                <ChatFeed key={e.msg.id} typingLabel={t("thinking")} messages={[e.msg]} />
+                <AgentMessage key={e.msg.id} message={e.msg} typingLabel={t("thinking")} />
               ),
             )}
           </div>
