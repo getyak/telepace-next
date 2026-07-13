@@ -72,6 +72,8 @@ export function LoginForm() {
             type="email"
             autoComplete="email"
             required
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? "login-error" : undefined}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={t("form.emailPlaceholder")}
@@ -82,7 +84,7 @@ export function LoginForm() {
             <Label htmlFor="password">{t("form.password")}</Label>
             <Link
               href={routes.forgot}
-              className="text-xs text-muted transition-colors hover:text-ink"
+              className="rounded-input text-xs text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
             >
               {t("form.forgot")}
             </Link>
@@ -92,6 +94,8 @@ export function LoginForm() {
             type="password"
             autoComplete="current-password"
             required
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? "login-error" : undefined}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={t("form.passwordPlaceholder")}
@@ -99,7 +103,7 @@ export function LoginForm() {
         </div>
 
         {error && (
-          <p className="text-sm text-danger" role="alert">
+          <p id="login-error" className="text-sm text-danger" role="alert">
             {error}
           </p>
         )}

@@ -124,5 +124,10 @@ export default async function DocsPage() {
 }
 
 function slug(s: string) {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  // Unicode-aware: keep letters (incl. CJK) and numbers, collapse the rest to
+  // hyphens — an ASCII-only strip left zh headings with empty/numeric anchors.
+  return s
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
+    .replace(/^-+|-+$/g, "");
 }
