@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from uuid import UUID
 
 import asyncpg
 import redis.asyncio as redis
@@ -12,6 +13,7 @@ from agents.analyst import AnalystAgent
 from agents.coordinator import CoordinatorAgent
 from agents.designer import DesignerAgent
 from agents.interviewer import InterviewerAgent
+from agents.orchestrator import OrchestratorAgent
 from agents.shared import build_llm_from_settings
 from harness import (
     BudgetPolicy,
@@ -31,6 +33,12 @@ from interfaces.channels.phone_mock import MockPhone
 from interfaces.channels.phone_vapi import VapiPhone
 from interfaces.channels.sms_mock import MockSMS
 from interfaces.channels.sms_twilio import TwilioSMS
+from interfaces.mcp_server.readers import (
+    AnalystFollowupService,
+    EventStoreTranscriptReader,
+    ProjectorInsightReader,
+)
+from interfaces.mcp_server.tools import TOOL_HANDLERS
 from interfaces.rest_api.auth.users_repo import USERS_SCHEMA_SQL, UsersRepo
 from interfaces.rest_api.config import Settings, get_settings
 from storage.event_store import PostgresEventStore
@@ -51,6 +59,11 @@ class AppState:
     users_repo: UsersRepo | None
     llm: object = None  # LLMClient — used by ad-hoc endpoints (e.g. simulate)
     memory: object = None  # HarnessMemory — used to hydrate projection sync
+    # Shared read-side services for the conversational agent. The Orchestrator
+    # itself is built per-request (it needs the caller's org_id/author_id), but
+    # these dependencies are process-wide singletons.
+    insight_reader: object = None  # ProjectorInsightReader
+    followup_service: object = None  # AnalystFollowupService
 
 
 async def build_state() -> AppState:
@@ -127,23 +140,32 @@ async def build_state() -> AppState:
         tracer=NullTracer(),
     )
 
+    analyst = AnalystAgent(
+        llm=llm,
+        max_tokens=settings.analyst_max_tokens,
+        temperature=settings.analyst_temperature,
+    )
+    insight_reader = ProjectorInsightReader(projector)
+    followup_service = AnalystFollowupService(
+        analyst=analyst,
+        transcript_reader=EventStoreTranscriptReader(store),
+    )
+
     return AppState(
         settings=settings,
         event_store=store,
         pool=pool,
         projector=projector,
         harness=harness,
-        analyst=AnalystAgent(
-            llm=llm,
-            max_tokens=settings.analyst_max_tokens,
-            temperature=settings.analyst_temperature,
-        ),
+        analyst=analyst,
         email_dispatcher=email_dispatcher,
         sms_dispatcher=sms_dispatcher,
         phone_dispatcher=phone_dispatcher,
         users_repo=users_repo,
         llm=llm,
         memory=memory,
+        insight_reader=insight_reader,
+        followup_service=followup_service,
     )
 
 
@@ -161,6 +183,26 @@ def get_projector(request: Request) -> CampaignProjector:
 
 def get_settings_dep(request: Request) -> Settings:
     return get_state(request).settings
+
+
+def build_orchestrator_for(state: AppState, *, org_id: UUID, author_id: UUID) -> OrchestratorAgent:
+    """Construct a conversational agent scoped to one caller.
+
+    The Orchestrator is per-request because tool calls that create resources
+    must be attributed to the caller's org/author. Everything else (LLM,
+    harness, projector, read services) is shared from AppState.
+    """
+    return OrchestratorAgent(
+        llm=state.llm,  # type: ignore[arg-type]
+        tool_handlers=TOOL_HANDLERS,
+        harness=state.harness,
+        projector=state.projector,
+        insight_reader=state.insight_reader,
+        followup_service=state.followup_service,
+        org_id=org_id,
+        author_id=author_id,
+        public_base_url=state.settings.public_base_url,
+    )
 
 
 def _build_email(settings: Settings) -> EmailDispatcher:
