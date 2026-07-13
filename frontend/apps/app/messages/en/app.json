@@ -17,7 +17,11 @@
     "srcStripeSync": "Stripe · auto-sync",
     "srcCsvUploaded": "CSV · uploaded 2026-06-01",
     "srcManualVetted": "Manual · vetted",
-    "statusSynced": "synced"
+    "statusSynced": "synced",
+    "colFilename": "Filename",
+    "colRows": "Rows",
+    "colDate": "Date",
+    "colStatus": "Status"
   },
   "inbox": {
     "eyebrow": "Inbox",
@@ -107,7 +111,11 @@
     "relativeJustNow": "just now",
     "relativeMinutes": "{count}m ago",
     "relativeHours": "{count}h ago",
-    "relativeDays": "{count}d ago"
+    "relativeDays": "{count}d ago",
+    "statusLive": "Live",
+    "statusReady": "Ready",
+    "statusDraft": "Draft",
+    "statusClosed": "Closed"
   },
   "studyDetail": {
     "allStudies": "← All studies",
@@ -167,7 +175,18 @@
     "channelPhone": "Phone",
     "errorTitle": "Couldn't load this study.",
     "retryButton": "Retry",
-    "confidenceLabel": "Confidence {pct}%"
+    "confidenceLabel": "Confidence {pct}%",
+    "likertVerySatisfied": "Very satisfied",
+    "likertSatisfied": "Satisfied",
+    "likertNeutral": "Neutral",
+    "likertDissatisfied": "Dissatisfied",
+    "likertVeryDissatisfied": "Very dissatisfied",
+    "statusLive": "Live",
+    "statusReady": "Ready",
+    "statusDraft": "Draft",
+    "statusClosed": "Closed",
+    "channelPhoneOutbound": "Phone outbound",
+    "channelEmail": "Email"
   },
   "settings": {
     "eyebrow": "Settings",
@@ -186,6 +205,9 @@
     "manage": "Manage",
     "inviteMember": "+ Invite member",
     "managePlan": "Manage plan",
+    "roleOwner": "Owner",
+    "roleEditor": "Editor",
+    "roleViewer": "Viewer",
     "renewsLine": "Renews on {date} · {price}",
     "keyMeta": "created {created} · last used {lastUsed}",
     "studiesUsed": "Studies used",
@@ -384,7 +406,12 @@
     "taskCancel": "Cancel",
     "taskEmpty": "(to be defined)",
     "taskEditHint": "click to edit",
-    "taskEditAria": "Edit {facet}"
+    "taskEditAria": "Edit {facet}",
+    "channelWebText": "Web text",
+    "channelWebVoice": "Web voice",
+    "channelPhoneOutbound": "Phone outbound",
+    "canvasMeta": "~{minutes} min per interview · {completions} completions",
+    "channelEmail": "Email"
   },
   "wizard": {
     "stepGoal": "Goal",
@@ -449,7 +476,16 @@
     "toNotion": "Push to Notion",
     "toLinear": "Push to Linear",
     "noStudies": "No studies available.",
-    "noStudiesDescription": "Create and run at least one study to use the copilot."
+    "noStudiesDescription": "Create and run at least one study to use the copilot.",
+    "studiesFallback": "your studies",
+    "mockStudyOnboarding": "Onboarding drop-off (Q3)",
+    "mockStudyPricing": "Pricing & SSO objections",
+    "mockStudyMcp": "MCP power-user expansion",
+    "mockStudyChurn": "Churn win-back interviews",
+    "answer1": "Across the studies you selected, pricing friction is the dominant theme. In {studies}, respondents repeatedly tie the $79 tier to a lack of SSO — the objection shows up in 11 of 34 completed interviews.",
+    "answer2": "Two of the studies point the same direction: onboarding stalls after email confirmation. The pattern in {studies} suggests people never receive a clear next step, so activation drops within 48 hours.",
+    "answer3": "Comparing {studies}, the MCP integration is the strongest expansion driver — it's the single feature respondents cite unprompted when explaining why they upgraded.",
+    "answer4": "Synthesizing {studies}: churned users and active power-users describe the same gap. The difference is timing — power-users hit the wall later, which buys you a window to intervene."
   },
   "clips": {
     "title": "Highlight clips",

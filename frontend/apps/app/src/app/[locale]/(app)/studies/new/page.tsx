@@ -144,6 +144,12 @@ export default function NewStudyPage() {
     { id: "sys-1", role: "system", text: tc("systemGreeting") },
   ];
   const suggestions = [tc("suggestion1"), tc("suggestion2"), tc("suggestion3")];
+  const CHANNEL_LABELS: Record<(typeof ALL_CHANNELS)[number], string> = {
+    [CHANNELS.webText]: tc("channelWebText"),
+    [CHANNELS.webVoice]: tc("channelWebVoice"),
+    [CHANNELS.phoneOutbound]: tc("channelPhoneOutbound"),
+    [CHANNELS.email]: tc("channelEmail"),
+  };
 
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   // The default title is shown in the header before the agent derives one, so
@@ -771,12 +777,12 @@ export default function NewStudyPage() {
     <div className="h-screen grid grid-cols-12">
       {/* Left: chat pane — a calm one-third rail; the document is the star. */}
       <section className="col-span-4 border-r border-hairline flex flex-col bg-paper">
-        <header className="px-6 h-14 flex items-center justify-between border-b border-hairline">
+        <header className="px-6 min-h-14 py-2.5 flex items-center justify-between border-b border-hairline">
           <p className="overline">{tc("designChat")}</p>
           {busy && campaignId && (
             <button
               onClick={handleStop}
-              className="text-xs text-muted hover:text-ink transition-colors"
+              className="text-xs text-muted hover:text-ink transition-[color,background-color,border-color,transform] duration-150 transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
             >
               ■ {tc("stop")}
             </button>
@@ -803,7 +809,7 @@ export default function NewStudyPage() {
                     key={s}
                     onClick={() => handleSend(s)}
                     disabled={busy}
-                    className="rounded-pill border border-hairline bg-paper-elevated px-3.5 py-1.5 text-left text-sm text-body transition-colors hover:border-ink hover:text-ink"
+                    className="rounded-pill border border-hairline bg-paper-elevated px-3.5 py-1.5 text-left text-sm text-body transition-[color,background-color,border-color,transform] duration-150 hover:border-ink hover:text-ink transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
                   >
                     {s}
                   </button>
@@ -836,7 +842,10 @@ export default function NewStudyPage() {
             <div className="flex items-center gap-3">
               <p className="overline">{tc("discussionGuide")}</p>
               <span className="text-xs text-muted">
-                ~{spec.estimated_minutes} min · {spec.target_completions} completions
+                {tc("canvasMeta", {
+                  minutes: spec.estimated_minutes,
+                  completions: spec.target_completions,
+                })}
               </span>
               {changeCount > 0 && (
                 <span
@@ -914,6 +923,7 @@ export default function NewStudyPage() {
                 truncated it). rows=1 + height sync keeps it flush. */}
             <textarea
               value={spec.title}
+              aria-label={tc("untitledStudy")}
               rows={1}
               onChange={(e) => setSpec((s) => ({ ...s, title: e.target.value }))}
               onInput={(e) => {
@@ -992,7 +1002,7 @@ export default function NewStudyPage() {
                                 type="button"
                                 disabled={busy}
                                 onClick={() => startEditTask(field)}
-                                className="group w-full text-left text-body leading-relaxed rounded-input px-1.5 py-1 -mx-1.5 transition-colors hover:bg-paper disabled:cursor-not-allowed"
+                                className="group w-full text-left text-body leading-relaxed rounded-input px-1.5 py-1 -mx-1.5 transition-[color,background-color,border-color,transform] duration-150 hover:bg-paper disabled:cursor-not-allowed transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
                                 aria-label={tc("taskEditAria", {
                                   facet: tc(`taskField_${field}` as Parameters<typeof tc>[0]),
                                 })}
@@ -1014,14 +1024,14 @@ export default function NewStudyPage() {
             {spec.target_persona && (() => {
               const d = diffMark("persona");
               return (
-                <div
+                <Card
                   key={d.key}
-                  className={`mt-6 rounded-card border border-hairline bg-paper p-4 ${d.className}`}
+                  className={`mt-6 p-4 ${d.className}`}
                 >
                   {d.badge}
                   <p className="overline mb-2 flex items-center gap-2 before:h-px before:w-4 before:bg-hairline before:content-['']">{tc("targetPersona")}</p>
                   <p className="text-body">{spec.target_persona}</p>
-                </div>
+                </Card>
               );
             })()}
 
@@ -1133,6 +1143,7 @@ export default function NewStudyPage() {
                 {ALL_CHANNELS.map((ch) => (
                   <button
                     key={ch}
+                    aria-pressed={spec.channels.includes(ch)}
                     onClick={() =>
                       setSpec((s) => ({
                         ...s,
@@ -1141,13 +1152,13 @@ export default function NewStudyPage() {
                           : [...s.channels, ch],
                       }))
                     }
-                    className={`px-3 py-1.5 rounded-pill text-sm border transition-colors ${
+                    className={`px-3 py-1.5 rounded-pill text-sm border transition-[color,background-color,border-color,transform] duration-150 transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
                       spec.channels.includes(ch)
                         ? "bg-ink text-paper border-ink"
                         : "bg-paper text-body border-hairline hover:border-ink"
                     }`}
                   >
-                    {ch.replace("_", " ")}
+                    {CHANNEL_LABELS[ch]}
                   </button>
                 ))}
               </div>
@@ -1209,7 +1220,7 @@ export default function NewStudyPage() {
                 </Card>
               )}
               {sim?.turns.map((t, i) => (
-                <div key={i} className="rounded-card border border-hairline bg-paper p-4">
+                <Card key={i} className="p-4">
                   <div className="flex gap-3">
                     <span className="font-mono text-xs text-muted pt-0.5 w-6">
                       {String(i + 1).padStart(2, "0")}
@@ -1219,7 +1230,7 @@ export default function NewStudyPage() {
                       <p className="text-ink leading-relaxed">{t.answer}</p>
                     </div>
                   </div>
-                </div>
+                </Card>
               ))}
               {sim && sim.turns.length === 0 && !simLoading && !simError && (
                 <div className="rounded-card border border-dashed border-hairline p-8 text-center text-muted">

@@ -79,9 +79,11 @@ export function SignupForm() {
             type="email"
             autoComplete="email"
             required
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? "signup-error" : undefined}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@company.com"
+            placeholder={t("form.emailPlaceholder")}
           />
         </div>
         <div>
@@ -91,14 +93,16 @@ export function SignupForm() {
             type="password"
             autoComplete="new-password"
             required
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? "signup-error" : undefined}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="8+ characters"
+            placeholder={t("form.passwordHint")}
           />
         </div>
 
         {error && (
-          <p className="text-sm text-danger" role="alert">
+          <p id="signup-error" className="text-sm text-danger" role="alert">
             {error}
           </p>
         )}

@@ -70,7 +70,7 @@ export function MobileNav({
         aria-label={open ? closeMenuLabel : openMenuLabel}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="-m-2 p-2 text-ink"
+        className="-m-2 p-2 text-ink rounded-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper transform-gpu transition-transform duration-150 active:scale-90 active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100"
       >
         {open ? <CloseIcon size={20} /> : <MenuIcon size={20} />}
       </button>
@@ -85,7 +85,7 @@ export function MobileNav({
               type="button"
               aria-label={closeMenuLabel}
               onClick={() => setOpen(false)}
-              className="-m-2 p-2 text-ink"
+              className="-m-2 p-2 text-ink rounded-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper transform-gpu transition-transform duration-150 active:scale-90 active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100"
             >
               <CloseIcon size={20} />
             </button>
@@ -97,7 +97,7 @@ export function MobileNav({
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="font-display text-3xl transition-colors hover:text-accent"
+                className="font-display text-3xl transition-colors hover:text-accent rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
               >
                 {l.label}
               </Link>

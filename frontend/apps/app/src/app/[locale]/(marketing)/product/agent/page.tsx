@@ -91,7 +91,7 @@ export default async function AgentPage() {
             <div className="mt-6"><Link href={routes.docs}><Button variant="secondary">{t("harness.docsCta")}</Button></Link></div>
           </div>
           <div className="md:col-span-6">
-            <div className="rounded-card border border-hairline bg-paper p-6">
+            <Card className="p-6">
               <p className="overline mb-4">{t("harness.policiesEyebrow")}</p>
               <dl className="divide-y divide-hairline">
                 {policies.map((p) => (
@@ -101,7 +101,7 @@ export default async function AgentPage() {
                   </div>
                 ))}
               </dl>
-            </div>
+            </Card>
           </div>
         </div>
       </section>

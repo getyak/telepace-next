@@ -23,6 +23,7 @@ export default function ReportPage({ params }: { params: Promise<Params> }) {
 
 function ReportPageInner({ studyId }: { studyId: string }) {
   const t = useTranslations("app.report");
+  const td = useTranslations("app.studyDetail");
   const { graph, loading } = useEvidence();
 
   const chapters = useMemo(
@@ -52,15 +53,14 @@ function ReportPageInner({ studyId }: { studyId: string }) {
       <div className="mb-6">
         <Link
           href={routes.app.studies.byId(studyId)}
-          className="text-sm text-muted transition-colors hover:text-ink"
+          className="rounded-input text-sm text-muted transition-colors hover:text-ink active:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
         >
-          ← {t("title")}
+          ← {td("studyLabel")}
         </Link>
       </div>
 
       <header className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="overline mb-2">{t("title")}</p>
           <h1 className="font-display text-4xl text-ink">{t("title")}</h1>
           <p className="mt-2 text-sm text-muted">
             {t("generatedAt").replace("{time}", new Date().toLocaleString())}

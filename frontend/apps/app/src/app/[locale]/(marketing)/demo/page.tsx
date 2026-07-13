@@ -77,7 +77,7 @@ export default function DemoPage() {
             </Card>
           </div>
           <aside className="md:col-span-4 space-y-6">
-            <div className="rounded-card border border-hairline bg-paper p-6">
+            <Card className="p-6">
               <p className="overline mb-3">{t("hood.title")}</p>
               <ul className="text-sm text-body space-y-2">
                 <li>· {t("hood.items.0")}</li>
@@ -85,16 +85,16 @@ export default function DemoPage() {
                 <li>· {t("hood.items.2")}</li>
                 <li>· {t("hood.items.3")}</li>
               </ul>
-            </div>
-            <div className="rounded-card border border-hairline bg-ink text-paper p-6">
+            </Card>
+            <Card className="bg-ink text-paper p-6">
               <p className="overline text-paper/70 mb-3">{t("voice.eyebrow")}</p>
               <p className="text-sm mb-4">{t("voice.body")}</p>
               <Link href={routes.product.voice}>
-                <Button variant="secondary" className="border-paper/30 text-paper hover:bg-paper/10">
+                <Button variant="inverse-outline">
                   {t("voice.cta")}
                 </Button>
               </Link>
-            </div>
+            </Card>
           </aside>
         </div>
       </section>

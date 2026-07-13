@@ -35,6 +35,12 @@ function useRelativeTime() {
 
 export default function StudiesPage() {
   const t = useTranslations("app.studies");
+  const statusLabel: Record<string, string> = {
+    live: t("statusLive"),
+    ready: t("statusReady"),
+    draft: t("statusDraft"),
+    closed: t("statusClosed"),
+  };
   const errorsCopy = useErrorsCopy();
   const relativeTime = useRelativeTime();
   const [studies, setStudies] = useState<CampaignListItem[] | null>(null);
@@ -76,9 +82,9 @@ export default function StudiesPage() {
         />
       ) : studies === null ? (
         <div className="space-y-3">
-          <Skeleton className="h-[72px] w-full" />
-          <Skeleton className="h-[72px] w-full" />
-          <Skeleton className="h-[72px] w-full" />
+          <Skeleton className="h-[84px] w-full" />
+          <Skeleton className="h-[84px] w-full" />
+          <Skeleton className="h-[84px] w-full" />
         </div>
       ) : studies.length === 0 ? (
         <EmptyState
@@ -110,7 +116,7 @@ export default function StudiesPage() {
                 </p>
               </div>
               <div className="col-span-4 sm:col-span-2">
-                <Badge variant={statusVariant[s.status] ?? "neutral"}>{s.status}</Badge>
+                <Badge variant={statusVariant[s.status] ?? "neutral"}>{statusLabel[s.status] ?? s.status}</Badge>
               </div>
               <div className="col-span-6 text-sm text-body sm:col-span-3">
                 {t("completedCount", { completed: s.progress.completed, target: s.target_completions })}

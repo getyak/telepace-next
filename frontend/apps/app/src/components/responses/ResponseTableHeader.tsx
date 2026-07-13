@@ -1,6 +1,6 @@
 "use client";
 
-import { Input, cn } from "@telepace/ui";
+import { Button, Input, cn } from "@telepace/ui";
 import { useTranslations } from "next-intl";
 
 type ResponseTableHeaderProps = {
@@ -77,15 +77,9 @@ export function ResponseTableHeader({
         <span className="text-xs text-muted">
           {t("countLabel", { filtered: filteredCount, total: totalCount })}
         </span>
-        <button
-          onClick={onExport}
-          className={cn(
-            "inline-flex h-8 items-center gap-1.5 rounded-btn border border-hairline px-3 text-sm font-medium text-body",
-            "transition-colors hover:bg-paper-elevated",
-          )}
-        >
+        <Button variant="secondary" size="sm" onClick={onExport}>
           {t("exportCsv")}
-        </button>
+        </Button>
       </div>
     </div>
   );

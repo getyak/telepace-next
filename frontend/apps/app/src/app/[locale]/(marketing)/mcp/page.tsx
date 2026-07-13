@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
-import { Button, Card } from "@telepace/ui";
+import { Badge, Button, Card } from "@telepace/ui";
 import { routes } from "@telepace/config";
 import { PageHeader } from "@/components/marketing/site-chrome";
 
@@ -105,10 +105,10 @@ export default async function McpPage() {
           </h2>
           <div className="grid gap-4">
             {toolIds.map((id) => (
-              <div key={id} className="rounded-card border border-hairline bg-paper p-6">
+              <Card key={id} className="p-6">
                 <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-2 mb-3">
                   <code className="font-mono text-lg text-ink">{toolMeta[id].name}</code>
-                  <span className="text-xs text-muted">{t("tools.badge")}</span>
+                  <Badge variant="neutral">{t("tools.badge")}</Badge>
                 </div>
                 <p className="text-body mb-4">{t(`tools.items.${id}`)}</p>
                 <div className="grid md:grid-cols-2 gap-3 text-xs font-mono">
@@ -121,7 +121,7 @@ export default async function McpPage() {
                     <code className="text-body whitespace-pre-wrap">{toolMeta[id].output}</code>
                   </div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>

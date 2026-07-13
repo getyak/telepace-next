@@ -57,15 +57,15 @@ export default async function AudiencePage() {
                 </div>
                 <div className="flex gap-6 text-right">
                   <div>
-                    <p className="text-xs text-muted">{t("delivered")}</p>
+                    <p className="overline mb-1">{t("delivered")}</p>
                     <p className="font-display text-xl">{s.delivered}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted">{t("opened")}</p>
+                    <p className="overline mb-1">{t("opened")}</p>
                     <p className="font-display text-xl">{s.opened}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted">{t("completed")}</p>
+                    <p className="overline mb-1">{t("completed")}</p>
                     <p className="font-display text-xl text-accent">{s.completed}</p>
                   </div>
                 </div>
@@ -78,6 +78,12 @@ export default async function AudiencePage() {
       <section>
         <p className="overline mb-4">{t("uploads")}</p>
         <Card className="divide-y divide-hairline">
+          <div className="grid grid-cols-12 items-center px-6 py-2.5">
+            <p className="overline col-span-6">{t("colFilename")}</p>
+            <p className="overline col-span-2">{t("colRows")}</p>
+            <p className="overline col-span-2">{t("colDate")}</p>
+            <p className="overline col-span-2 text-right">{t("colStatus")}</p>
+          </div>
           {uploads.map((u) => (
             <div key={u.name} className="grid grid-cols-12 items-center px-6 py-4 text-sm">
               <div className="col-span-6 font-mono text-body">{u.name}</div>

@@ -72,7 +72,7 @@ export function AgentSurfacesTabs() {
             role="tab"
             aria-selected={active === key}
             onClick={() => setActive(key)}
-            className={`rounded-t-md px-3.5 py-2 font-mono text-xs transition-colors ${
+            className={`rounded-t-btn px-3.5 py-2 font-mono text-xs transition-[color,background-color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-paper/60 transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:active:scale-100 ${
               active === key
                 ? "bg-paper/10 text-paper"
                 : "text-paper/50 hover:text-paper/80"

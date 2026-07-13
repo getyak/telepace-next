@@ -32,12 +32,12 @@ export async function Nav({ hasSession = false }: { hasSession?: boolean }) {
   return (
     <header className="tp-chrome border-b border-hairline sticky top-0 z-40">
       <div className="container-content flex items-center justify-between h-16">
-        <Link href={routes.home} className="font-display text-xl">
+        <Link href={routes.home} className="font-display text-xl rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">
           {siteConfig.brand.name}
         </Link>
         <nav className="hidden md:flex items-center gap-8 text-sm text-body">
           {navLinks.map((l) => (
-            <Link key={l.href} href={l.href} className="hover:text-ink transition-colors">
+            <Link key={l.href} href={l.href} className="hover:text-ink transition-colors rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">
               {l.label}
             </Link>
           ))}
@@ -72,24 +72,24 @@ export async function Footer() {
         </div>
         <div className="flex flex-col gap-2">
           <span className="overline">{tf("product")}</span>
-          <Link href={routes.product.voice} className="hover:text-ink transition-colors">{t("voice")}</Link>
-          <Link href={routes.product.agent} className="hover:text-ink transition-colors">{t("agent")}</Link>
-          <Link href={routes.mcp} className="hover:text-ink transition-colors">{t("mcp")}</Link>
-          <Link href={routes.pricing} className="hover:text-ink transition-colors">{t("pricing")}</Link>
-          <Link href={routes.demo} className="hover:text-ink transition-colors">{tf("liveDemo")}</Link>
+          <Link href={routes.product.voice} className="hover:text-ink transition-colors rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">{t("voice")}</Link>
+          <Link href={routes.product.agent} className="hover:text-ink transition-colors rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">{t("agent")}</Link>
+          <Link href={routes.mcp} className="hover:text-ink transition-colors rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">{t("mcp")}</Link>
+          <Link href={routes.pricing} className="hover:text-ink transition-colors rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">{t("pricing")}</Link>
+          <Link href={routes.demo} className="hover:text-ink transition-colors rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">{tf("liveDemo")}</Link>
         </div>
         <div className="flex flex-col gap-2">
           <span className="overline">{tf("company")}</span>
-          <Link href={routes.customers} className="hover:text-ink transition-colors">{tf("customers")}</Link>
-          <Link href={routes.changelog} className="hover:text-ink transition-colors">{tf("changelog")}</Link>
-          <Link href={routes.careers} className="hover:text-ink transition-colors">{tf("careers")}</Link>
-          <Link href={routes.docs} className="hover:text-ink transition-colors">{t("docs")}</Link>
+          <Link href={routes.customers} className="hover:text-ink transition-colors rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">{tf("customers")}</Link>
+          <Link href={routes.changelog} className="hover:text-ink transition-colors rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">{tf("changelog")}</Link>
+          <Link href={routes.careers} className="hover:text-ink transition-colors rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">{tf("careers")}</Link>
+          <Link href={routes.docs} className="hover:text-ink transition-colors rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">{t("docs")}</Link>
         </div>
         <div className="flex flex-col gap-2">
           <span className="overline">{tf("legal")}</span>
-          <Link href={routes.security} className="hover:text-ink transition-colors">{tf("security")}</Link>
-          <Link href={routes.privacy} className="hover:text-ink transition-colors">{tf("privacy")}</Link>
-          <Link href={routes.terms} className="hover:text-ink transition-colors">{tf("terms")}</Link>
+          <Link href={routes.security} className="hover:text-ink transition-colors rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">{tf("security")}</Link>
+          <Link href={routes.privacy} className="hover:text-ink transition-colors rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">{tf("privacy")}</Link>
+          <Link href={routes.terms} className="hover:text-ink transition-colors rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">{tf("terms")}</Link>
         </div>
       </div>
       <div className="container-content mt-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs text-muted">
@@ -113,7 +113,7 @@ export function PageHeader({
     <section className="border-b border-hairline">
       <div className="container-content py-20 md:py-28 max-w-3xl">
         <p className="overline mb-5">{eyebrow}</p>
-        <h1 className="font-display text-[clamp(2.5rem,5vw,4rem)] leading-[1.05]">{title}</h1>
+        <h1 className="font-display text-[clamp(2.5rem,5vw,4rem)] leading-[1.05] tracking-display">{title}</h1>
         {lede && <p className="mt-6 text-body text-lg leading-relaxed max-w-2xl">{lede}</p>}
       </div>
     </section>

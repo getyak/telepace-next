@@ -1,26 +1,12 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { Card, ChatComposer, ChatFeed, type ChatMessage } from "@telepace/ui";
 
 import { MOCK_STUDIES } from "./StudySelector";
 
-const CROSS_STUDY_ANSWERS = [
-  "Across the studies you selected, pricing friction is the dominant theme. In {studies}, respondents repeatedly tie the $79 tier to a lack of SSO — the objection shows up in 11 of 34 completed interviews.",
-  "Two of the studies point the same direction: onboarding stalls after email confirmation. The pattern in {studies} suggests people never receive a clear next step, so activation drops within 48 hours.",
-  "Comparing {studies}, the MCP integration is the strongest expansion driver — it's the single feature respondents cite unprompted when explaining why they upgraded.",
-  "Synthesizing {studies}: churned users and active power-users describe the same gap. The difference is timing — power-users hit the wall later, which buys you a window to intervene.",
-];
-
-function studyNames(selectedIds: string[]): string {
-  const chosen =
-    selectedIds.length === 0
-      ? MOCK_STUDIES
-      : MOCK_STUDIES.filter((s) => selectedIds.includes(s.id));
-  const names = chosen.map((s) => s.name);
-  if (names.length <= 1) return names[0] ?? "your studies";
-  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
-}
+const ANSWER_TEMPLATE_COUNT = 4;
 
 export function CopilotChat({
   selectedStudyIds,
@@ -33,9 +19,25 @@ export function CopilotChat({
   sendLabel: string;
   thinkingLabel: string;
 }) {
+  const t = useTranslations("app.copilot");
+  const locale = useLocale();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [busy, setBusy] = useState(false);
   const turnRef = useRef(0);
+
+  function studyNames(): string {
+    const chosen =
+      selectedStudyIds.length === 0
+        ? MOCK_STUDIES
+        : MOCK_STUDIES.filter((s) => selectedStudyIds.includes(s.id));
+    const names = chosen.map((s) => t(s.nameKey));
+    if (names.length === 0) return t("studiesFallback");
+    const lf = new Intl.ListFormat(locale, {
+      style: "long",
+      type: "conjunction",
+    });
+    return lf.format(names);
+  }
 
   function handleSend(text: string) {
     if (busy) return;
@@ -52,10 +54,9 @@ export function CopilotChat({
     ]);
     setBusy(true);
 
-    const template =
-      CROSS_STUDY_ANSWERS[turnRef.current % CROSS_STUDY_ANSWERS.length];
+    const n = (turnRef.current % ANSWER_TEMPLATE_COUNT) + 1;
     turnRef.current += 1;
-    const answer = template.replace("{studies}", studyNames(selectedStudyIds));
+    const answer = t(`answer${n}`, { studies: studyNames() });
 
     setTimeout(() => {
       setMessages((prev) =>

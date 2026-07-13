@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
 import { routes, siteConfig } from "@telepace/config";
-import { Button } from "@telepace/ui";
+import { Button, Card } from "@telepace/ui";
 
 import { PageHeader } from "@/components/marketing/site-chrome";
 import { Link } from "@/i18n/navigation";
@@ -98,15 +98,18 @@ export default async function PricingPage() {
           {tierIds.map((id) => {
             const meta = tierMeta[id];
             return (
-              <div
+              <Card
                 key={id}
                 className={
-                  "flex flex-col rounded-card border p-8 " +
-                  (meta.highlight
-                    ? "border-ink bg-ink text-paper"
-                    : "border-hairline bg-paper-elevated")
+                  "relative flex flex-col p-8 " +
+                  (meta.highlight ? "border-ink bg-ink text-paper" : "")
                 }
               >
+                {meta.highlight && (
+                  <span className="absolute -top-3 left-8 inline-block rounded-pill bg-paper/15 text-paper overline px-2.5 py-1">
+                    {t("tiers.pro.badge")}
+                  </span>
+                )}
                 <p className={"overline " + (meta.highlight ? "text-paper/70" : "")}>
                   {t(`tiers.${id}.name`)}
                 </p>
@@ -122,7 +125,20 @@ export default async function PricingPage() {
                 <ul className="mt-8 space-y-3 text-sm flex-1">
                   {meta.featureIds.map((featureId) => (
                     <li key={featureId} className="flex gap-3">
-                      <span className={meta.highlight ? "text-accent-soft" : "text-accent"}>✓</span>
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 20 20"
+                        width="14"
+                        height="14"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className={"mt-1 shrink-0 " + (meta.highlight ? "text-accent-soft" : "text-accent")}
+                      >
+                        <path d="M4 10.5l4 4 8-9" />
+                      </svg>
                       <span className={meta.highlight ? "text-paper/90" : "text-body"}>
                         {t(`features.${featureId}`)}
                       </span>
@@ -131,16 +147,13 @@ export default async function PricingPage() {
                 </ul>
                 <Link href={meta.ctaHref} className="mt-8">
                   <Button
-                    className={
-                      "w-full " +
-                      (meta.highlight ? "bg-paper text-ink hover:bg-paper-elevated" : "")
-                    }
-                    variant={meta.highlight ? "primary" : "secondary"}
+                    className="w-full"
+                    variant={meta.highlight ? "inverse" : "secondary"}
                   >
                     {t(`tiers.${id}.ctaLabel`)}
                   </Button>
                 </Link>
-              </div>
+              </Card>
             );
           })}
         </div>

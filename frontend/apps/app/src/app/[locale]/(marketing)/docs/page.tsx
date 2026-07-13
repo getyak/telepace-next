@@ -84,8 +84,8 @@ export default async function DocsPage() {
           <div className="md:col-span-9 space-y-16">
             <div>
               <p className="overline mb-4">{t("install.eyebrow")}</p>
-              <h2 className="font-display text-3xl mb-6">{t("install.title")}</h2>
-              <pre className="rounded-card border border-hairline bg-ink text-paper font-mono text-[13px] leading-relaxed p-6 overflow-x-auto whitespace-pre-wrap">
+              <h2 className="font-display text-2xl mb-6">{t("install.title")}</h2>
+              <pre className="rounded-card border border-hairline bg-ink text-paper font-mono text-[13px] leading-relaxed p-6 overflow-x-auto whitespace-pre">
 {codeSample}
               </pre>
             </div>
@@ -98,7 +98,7 @@ export default async function DocsPage() {
                     <Card
                       key={it.id}
                       id={slug(it.h)}
-                      className="p-6"
+                      className="p-6 scroll-mt-24"
                     >
                       <p className="font-display text-xl mb-2">{it.h}</p>
                       <p className="text-body text-sm">{it.body}</p>
@@ -124,5 +124,10 @@ export default async function DocsPage() {
 }
 
 function slug(s: string) {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  // Unicode-aware: keep letters (incl. CJK) and numbers, collapse the rest to
+  // hyphens — an ASCII-only strip left zh headings with empty/numeric anchors.
+  return s
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
+    .replace(/^-+|-+$/g, "");
 }

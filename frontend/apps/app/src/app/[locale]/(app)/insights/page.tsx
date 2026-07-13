@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Button, EmptyState, icons } from "@telepace/ui";
+import { Button, Card, EmptyState, icons } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
 
@@ -63,7 +63,7 @@ export default async function InsightsPage() {
       ) : (
       <div className="grid gap-6">
         {themes.map((theme) => (
-          <article key={theme.titleKey} className="rounded-card border border-hairline bg-paper-elevated p-8">
+          <Card key={theme.titleKey} className="p-8">
             <div className="flex items-start justify-between gap-6 mb-6">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-3">
@@ -87,7 +87,7 @@ export default async function InsightsPage() {
                 </blockquote>
               ))}
             </div>
-          </article>
+          </Card>
         ))}
       </div>
       )}

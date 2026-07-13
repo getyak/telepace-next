@@ -63,28 +63,32 @@ export default async function VoicePage() {
           <aside className="md:col-span-5">
             <Card className="overflow-hidden">
               <div className="border-b border-hairline px-5 py-3 text-xs text-muted font-mono">
-                voiceflow · production-grade Go audio pipeline
+                {t("whyVoice.pipelineCaption")}
               </div>
-              <div className="p-5 space-y-2 text-sm font-mono">
-                <p><span className="text-muted">◦</span> mic ─▶ VAD ─▶ STT stream</p>
-                <p><span className="text-muted">◦</span>            ╰▶ Interviewer</p>
-                <p><span className="text-muted">◦</span>                       ↓</p>
-                <p><span className="text-muted">◦</span>                     LLM turn</p>
-                <p><span className="text-muted">◦</span>                       ↓</p>
-                <p><span className="text-muted">◦</span> speaker ◀─ TTS stream ◀╯</p>
+              <div className="p-5">
+                <pre className="font-mono text-sm whitespace-pre overflow-x-auto">
+{`◦ mic ─▶ VAD ─▶ STT stream
+◦            ╰▶ Interviewer
+◦                       ↓
+◦                     LLM turn
+◦                       ↓
+◦ speaker ◀─ TTS stream ◀╯`}
+                </pre>
               </div>
             </Card>
-            <dl className="mt-6 space-y-2 text-sm">
-              {specs.map((s) => (
-                <div key={s.k} className="flex justify-between border-b border-hairline py-2">
-                  <dt className="text-muted">{s.k}</dt>
-                  <dd className="text-body text-right">
-                    {s.v}
-                    <span className="block text-xs text-muted">{s.note}</span>
-                  </dd>
-                </div>
-              ))}
-            </dl>
+            <Card className="mt-6 p-5">
+              <dl className="space-y-2 text-sm">
+                {specs.map((s) => (
+                  <div key={s.k} className="flex justify-between border-b border-hairline py-2">
+                    <dt className="text-muted">{s.k}</dt>
+                    <dd className="text-body text-right">
+                      {s.v}
+                      <span className="block text-xs text-muted">{s.note}</span>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </Card>
           </aside>
         </div>
       </section>
@@ -97,11 +101,11 @@ export default async function VoicePage() {
           </h2>
           <div className="grid md:grid-cols-3 gap-4">
             {channels.map((c) => (
-              <div key={c.name} className="rounded-card border border-hairline bg-paper p-6">
+              <Card key={c.name} className="p-6">
                 <p className="overline mb-3">{c.tag}</p>
                 <p className="font-display text-2xl mb-3">{c.name}</p>
                 <p className="text-body text-sm">{c.body}</p>
-              </div>
+              </Card>
             ))}
           </div>
         </div>

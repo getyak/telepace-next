@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
-import { Button } from "@telepace/ui";
+import { Button, Card } from "@telepace/ui";
 import { siteConfig } from "@telepace/config";
 
 import { Link } from "@/i18n/navigation";
@@ -61,6 +61,7 @@ export default async function CareersPage() {
           </div>
           <div>
             <p className="overline mb-4">{t("offer.eyebrow")}</p>
+            <h2 className="font-display text-3xl mb-6">{t("offer.title")}</h2>
             <div className="space-y-4 text-body">
               <p>{t("offer.compensation")}</p>
               <p>{t("offer.benefits")}</p>
@@ -77,7 +78,7 @@ export default async function CareersPage() {
           <h2 className="font-display text-4xl mb-10">{t("openRoles.title")}</h2>
           <div className="space-y-4">
             {roles.map((r) => (
-              <div key={r.id} className="rounded-card border border-hairline bg-paper p-6 md:flex md:items-start md:justify-between gap-6">
+              <Card key={r.id} className="p-6 md:flex md:items-start md:justify-between gap-6">
                 <div className="flex-1">
                   <p className="font-display text-2xl">{r.title}</p>
                   <p className="text-sm text-muted mt-1">{r.location} · {r.type} · {r.stack}</p>
@@ -88,7 +89,7 @@ export default async function CareersPage() {
                     <Button variant="secondary">{t("openRoles.apply")}</Button>
                   </Link>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>

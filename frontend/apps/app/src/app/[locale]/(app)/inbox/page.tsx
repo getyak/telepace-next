@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Badge, Button } from "@telepace/ui";
+import { Badge, Button, Card } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
 
@@ -36,7 +36,7 @@ const kindLabelKey: Record<string, string> = {
 export default async function InboxPage() {
   const t = await getTranslations("app.inbox");
   return (
-    <div className="p-10 max-w-content mx-auto">
+    <div className="mx-auto max-w-content p-6 md:p-10">
       <PageHeader
         eyebrow={t("eyebrow")}
         title={t("title")}
@@ -48,20 +48,20 @@ export default async function InboxPage() {
         }
       />
 
-      <div className="border border-hairline rounded-card divide-y divide-hairline bg-paper-elevated">
+      <Card className="divide-y divide-hairline overflow-hidden">
         {items.map((it) => (
-          <article key={it.id} className="grid grid-cols-12 items-start gap-4 px-6 py-5 hover:bg-paper transition-colors">
-            <div className="col-span-2">
+          <article key={it.id} className="grid grid-cols-12 items-start gap-4 px-6 py-5">
+            <div className="col-span-3 sm:col-span-2">
               <Badge variant={kindVariant[it.kind] ?? "neutral"}>{t(kindLabelKey[it.kind] ?? it.kind)}</Badge>
             </div>
-            <div className="col-span-8">
+            <div className="col-span-6 sm:col-span-8">
               <p className="text-xs text-muted mb-1">{t(it.studyKey)}</p>
               <p className={it.urgent ? "text-ink font-medium" : "text-body"}>{t(it.bodyKey)}</p>
             </div>
-            <div className="col-span-2 text-right text-sm text-muted">{t(it.timeKey)}</div>
+            <div className="col-span-3 sm:col-span-2 text-right text-sm text-muted">{t(it.timeKey)}</div>
           </article>
         ))}
-      </div>
+      </Card>
     </div>
   );
 }

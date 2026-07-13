@@ -50,6 +50,17 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
   const search = useSearchParams();
   const justPublished = search.get("published") === "1";
   const t = useTranslations("app.studyDetail");
+  const statusLabel: Record<string, string> = {
+    live: t("statusLive"),
+    ready: t("statusReady"),
+    draft: t("statusDraft"),
+    closed: t("statusClosed"),
+  };
+  const channelLabel: Record<string, string> = {
+    web_text: t("channelWebText"),
+    web_voice: t("channelWebVoice"),
+    phone_outbound: t("channelPhoneOutbound"),
+  };
   const tReport = useTranslations("app.report");
   const errorsCopy = useErrorsCopy();
 
@@ -197,7 +208,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
             <p className="overline">{t("studyLabel")}</p>
             <Badge variant={statusVariant[campaign.status] ?? "neutral"}>
               {isLive && <span className="tp-pulse-slow inline-block h-1.5 w-1.5 rounded-full bg-accent" />}
-              {campaign.status}
+              {statusLabel[campaign.status] ?? campaign.status}
             </Badge>
           </div>
           <h1 className="font-display text-4xl">{campaign.title}</h1>
@@ -223,7 +234,8 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
       </header>
 
       {(isLive || campaign.status === "ready") && (
-        <section className="mb-10 rounded-card border border-hairline bg-paper-elevated p-6">
+        <section className="mb-10">
+          <Card className="p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0 flex-1">
               <p className="overline mb-2">{t("shareLabel")}</p>
@@ -242,6 +254,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
               </a>
             </div>
           </div>
+          </Card>
         </section>
       )}
 
@@ -266,7 +279,8 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
           ) : (
             <ol className="space-y-3">
               {outline.map((q) => (
-                <li key={q.order} className="rounded-card border border-hairline bg-paper-elevated p-4">
+                <li key={q.order}>
+                  <Card className="p-4">
                   <div className="flex gap-4">
                     <div className="w-6 pt-0.5 font-mono text-sm text-muted">
                       {String(q.order).padStart(2, "0")}
@@ -276,6 +290,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
                       <p className="mt-1 text-xs text-muted">{t("goalPrefix", { goal: q.goal })}</p>
                     </div>
                   </div>
+                  </Card>
                 </li>
               ))}
             </ol>
@@ -295,7 +310,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
               <li>
                 · {t("channelsLabel")}{" "}
                 <span className="text-ink">
-                  {(spec.channels ?? []).map((c) => c.kind.replace("_", " ")).join(", ") || t("defaultChannel")}
+                  {(spec.channels ?? []).map((c) => channelLabel[c.kind] ?? c.kind.replace("_", " ")).join(", ") || t("defaultChannel")}
                 </span>
               </li>
             </ul>
@@ -462,12 +477,14 @@ function VerbatimCard({ item }: { item: InsightItem }) {
   const quote = str(item.body.quote) ?? item.title;
   const speaker = str(item.body.speaker) ?? str(item.body.attribution);
   return (
-    <figure className="rounded-card border border-hairline bg-paper-elevated p-5">
+    <figure>
+      <Card className="p-5">
       <Badge variant="neutral">{t("badgeVerbatim")}</Badge>
       <blockquote className="mt-2 border-l-2 border-accent pl-4 text-[15px] leading-relaxed text-ink">
         &ldquo;{quote}&rdquo;
       </blockquote>
       {speaker && <figcaption className="mt-2 pl-4 text-xs text-muted">&mdash; {speaker}</figcaption>}
+      </Card>
     </figure>
   );
 }
@@ -582,24 +599,24 @@ function ResponsesSection() {
   );
 }
 
-const MOCK_SENTIMENT: Array<{ label: string; value: number }> = [
-  { label: "Very satisfied", value: 42 },
-  { label: "Satisfied", value: 31 },
-  { label: "Neutral", value: 15 },
-  { label: "Dissatisfied", value: 8 },
-  { label: "Very dissatisfied", value: 4 },
-];
-
-const MOCK_CROSS_TAB_ROWS: CrossTabRow[] = [
-  { metric: "Very satisfied", values: [50, 36, 30], counts: [12, 5, 3] },
-  { metric: "Satisfied",      values: [29, 36, 30], counts: [7, 5, 3] },
-  { metric: "Neutral",        values: [13, 14, 20], counts: [3, 2, 2] },
-  { metric: "Dissatisfied",   values: [8, 14, 20],  counts: [2, 2, 2] },
-];
-
 function AnalysisSection() {
   const tCharts = useTranslations("app.charts");
   const t = useTranslations("app.studyDetail");
+
+  const sentiment: Array<{ label: string; value: number }> = [
+    { label: t("likertVerySatisfied"), value: 42 },
+    { label: t("likertSatisfied"), value: 31 },
+    { label: t("likertNeutral"), value: 15 },
+    { label: t("likertDissatisfied"), value: 8 },
+    { label: t("likertVeryDissatisfied"), value: 4 },
+  ];
+
+  const crossTabRows: CrossTabRow[] = [
+    { metric: t("likertVerySatisfied"), values: [50, 36, 30], counts: [12, 5, 3] },
+    { metric: t("likertSatisfied"),     values: [29, 36, 30], counts: [7, 5, 3] },
+    { metric: t("likertNeutral"),       values: [13, 14, 20], counts: [3, 2, 2] },
+    { metric: t("likertDissatisfied"),  values: [8, 14, 20],  counts: [2, 2, 2] },
+  ];
 
   return (
     <section className="mb-14">
@@ -608,7 +625,7 @@ function AnalysisSection() {
         <Card className="p-6">
           <ChartSection baseN={48} showTop2Box>
             <TpBarChart
-              data={MOCK_SENTIMENT}
+              data={sentiment}
               baseN={48}
               title={t("chartOverallSatisfaction")}
             />
@@ -620,7 +637,7 @@ function AnalysisSection() {
               title={t("chartSatisfactionByChannel")}
               segmentLabel={t("chartSegmentSatisfaction")}
               bucketLabels={[t("channelWebText"), t("channelWebVoice"), t("channelPhone")]}
-              rows={MOCK_CROSS_TAB_ROWS}
+              rows={crossTabRows}
               baseNPerBucket={[24, 14, 10]}
             />
           </ChartSection>

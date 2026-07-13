@@ -31,9 +31,18 @@
     },
     "trustBar": {
       "stats": {
-        "channels": { "value": "5 channels", "detail": "one interview" },
-        "launchTime": { "value": "< 60s", "detail": "to launch a study" },
-        "surfaces": { "value": "MCP · Skill · REST", "detail": "wherever your agent lives" }
+        "channels": {
+          "value": "5 channels",
+          "detail": "one interview"
+        },
+        "launchTime": {
+          "value": "< 60s",
+          "detail": "to launch a study"
+        },
+        "surfaces": {
+          "value": "MCP · Skill · REST",
+          "detail": "wherever your agent lives"
+        }
       }
     },
     "howItWorks": {
@@ -67,9 +76,18 @@
         "study": "Pricing study — Q3",
         "meta": "24 interviews · 3 themes · synthesis complete",
         "themes": {
-          "t1": { "title": "Price anchors to missing enterprise features", "count": "14 / 24 interviews" },
-          "t2": { "title": "Annual discount changes the calculus", "count": "11 / 24 interviews" },
-          "t3": { "title": "Usage-based pricing would beat both tiers", "count": "9 / 24 interviews" }
+          "t1": {
+            "title": "Price anchors to missing enterprise features",
+            "count": "14 / 24 interviews"
+          },
+          "t2": {
+            "title": "Annual discount changes the calculus",
+            "count": "11 / 24 interviews"
+          },
+          "t3": {
+            "title": "Usage-based pricing would beat both tiers",
+            "count": "9 / 24 interviews"
+          }
         },
         "quote": {
           "text": "Seventy-nine a month is fine — until I realized SSO wasn't included. That's when it started feeling punitive.",
@@ -82,11 +100,26 @@
       "eyebrow": "Five channels, one interview",
       "title": "Meet respondents where they already are.",
       "items": {
-        "link": { "name": "Shareable link", "meta": "seconds to launch" },
-        "browserVoice": { "name": "Browser voice", "meta": "real-time · low latency" },
-        "phone": { "name": "Outbound phone call", "meta": "Vapi + human warmth" },
-        "hotline": { "name": "Inbound hotline", "meta": "your own number" },
-        "email": { "name": "Email invite", "meta": "async · batch friendly" }
+        "link": {
+          "name": "Shareable link",
+          "meta": "seconds to launch"
+        },
+        "browserVoice": {
+          "name": "Browser voice",
+          "meta": "real-time · low latency"
+        },
+        "phone": {
+          "name": "Outbound phone call",
+          "meta": "Vapi + human warmth"
+        },
+        "hotline": {
+          "name": "Inbound hotline",
+          "meta": "your own number"
+        },
+        "email": {
+          "name": "Email invite",
+          "meta": "async · batch friendly"
+        }
       }
     },
     "agentSurfaces": {
@@ -94,15 +127,32 @@
       "title": "Your agent gets a user researcher.",
       "description": "telepace ships as an MCP server, a Skill, and a REST API. Wherever your agents live — Claude Desktop, Cursor, Codex, a custom orchestrator — they can now design studies, dispatch interviews, and read back structured insights.",
       "cta": "Browse MCP tools →",
-      "tabs": { "mcp": "MCP", "rest": "REST API", "skill": "Skill" }
+      "tabs": {
+        "mcp": "MCP",
+        "rest": "REST API",
+        "skill": "Skill"
+      }
     },
     "useCases": {
       "eyebrow": "Made for",
+      "title": "Built for the people who ask why.",
       "items": {
-        "pm": { "role": "Product Managers", "description": "Get customer voice into every roadmap review." },
-        "researchers": { "role": "UX Researchers", "description": "Scale 1:1 depth without hiring an army." },
-        "growth": { "role": "Growth", "description": "Interview churned users before they forget why they left." },
-        "founders": { "role": "Founders", "description": "Run 30 interviews the week you're building the MVP." }
+        "pm": {
+          "role": "Product Managers",
+          "description": "Get customer voice into every roadmap review."
+        },
+        "researchers": {
+          "role": "UX Researchers",
+          "description": "Scale 1:1 depth without hiring an army."
+        },
+        "growth": {
+          "role": "Growth",
+          "description": "Interview churned users before they forget why they left."
+        },
+        "founders": {
+          "role": "Founders",
+          "description": "Run 30 interviews the week you're building the MVP."
+        }
       }
     },
     "finalCta": {
@@ -129,7 +179,8 @@
       "pro": {
         "name": "Pro",
         "tagline": "For product teams shipping weekly.",
-        "ctaLabel": "Start Pro trial"
+        "ctaLabel": "Start Pro trial",
+        "badge": "Most popular"
       },
       "team": {
         "name": "Team",
@@ -435,7 +486,8 @@
       "title": "People say more when they don't have to type it.",
       "paragraph1": "Traditional research knows this: a 30-minute call yields 3–5× the actionable signal of a written survey. Voice removes the friction of composition, which is where nuance dies.",
       "paragraph2": "telepace runs the same warmth end-to-end — greeting, probe, silence, follow-up, close — with the consistency only software can offer. Nobody's tired at 4 PM. Nobody's off-script.",
-      "paragraph3": "Because we're stream-based (not turn-based), interviews feel like a real conversation — not the polite waiting game of most voice bots."
+      "paragraph3": "Because we're stream-based (not turn-based), interviews feel like a real conversation — not the polite waiting game of most voice bots.",
+      "pipelineCaption": "voiceflow · production-grade Go audio pipeline"
     },
     "specs": {
       "latency": {
@@ -523,6 +575,7 @@
     },
     "offer": {
       "eyebrow": "The offer",
+      "title": "What we offer.",
       "compensation": "Salary at the 75th percentile of Series A, with meaningful equity — not the 0.05% kind.",
       "benefits": "Full health / dental / vision. $2,000 home-office budget. Two offsites a year.",
       "remote": "Remote-first, async by default, four hours of live overlap.",
@@ -751,10 +804,22 @@
       "lede": "A few product teams, a few agencies, a few solo founders. What they share: they refused to guess."
     },
     "stats": {
-      "interviewsRun": { "label": "Interviews run", "value": "18,412" },
-      "companiesOnboarded": { "label": "Companies onboarded", "value": "127" },
-      "avgTimeToInsight": { "label": "Average time-to-insight", "value": "38 hrs" },
-      "nps": { "label": "NPS", "value": "72" }
+      "interviewsRun": {
+        "label": "Interviews run",
+        "value": "18,412"
+      },
+      "companiesOnboarded": {
+        "label": "Companies onboarded",
+        "value": "127"
+      },
+      "avgTimeToInsight": {
+        "label": "Average time-to-insight",
+        "value": "38 hrs"
+      },
+      "nps": {
+        "label": "NPS",
+        "value": "72"
+      }
     },
     "stories": {
       "northstar": {

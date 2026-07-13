@@ -51,11 +51,11 @@ export default async function TermsPage() {
               ))}
             </nav>
           </aside>
-          <div className="md:col-span-9 space-y-12">
+          <div className="md:col-span-9 max-w-prose space-y-12">
             {SECTION_IDS.map((id) => (
-              <div key={id} id={id}>
+              <div key={id} id={id} className="scroll-mt-24">
                 <h2 className="font-display text-2xl mb-3">{t(`sections.${id}.title`)}</h2>
-                <p className="text-body">{t(`sections.${id}.body`)}</p>
+                <p className="text-body leading-relaxed">{t(`sections.${id}.body`)}</p>
               </div>
             ))}
             <div className="border-t border-hairline pt-8 text-sm text-muted">

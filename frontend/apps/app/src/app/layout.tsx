@@ -11,8 +11,13 @@ import type { ErrorsCopyTable } from "../lib/errors";
 // Self-hosted via next/font: no Google Fonts <link>, no FOUT, and every
 // route group (marketing, app, auth, respondent) inherits the variables.
 const inter = Inter({ subsets: ["latin"], variable: "--font-body" });
+// Load the true italic face too: the marketing heroes emphasize a word with
+// <span className="italic"> — without the drawn italic the browser synthesizes
+// a faux oblique, which undercuts the editorial serif exactly where it's most
+// prominent. Instrument Serif ships an upright + a designed italic at 400.
 const serif = Instrument_Serif({
   weight: "400",
+  style: ["normal", "italic"],
   subsets: ["latin"],
   variable: "--font-display",
 });

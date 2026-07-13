@@ -3,6 +3,7 @@
 import { use, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
+  Button,
   Card,
   TextStage,
   VoiceStage,
@@ -503,7 +504,7 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
           to Listen Labs' page arrows. Muted, tabular, never pulls focus. */}
       {progress.total > 0 && (
         <div className="pointer-events-none absolute bottom-6 right-6 z-10 sm:bottom-8 sm:right-9">
-          <span className="font-mono text-[11px] tabular-nums text-faint">
+          <span className="font-mono text-[11px] tabular-nums text-muted">
             {t("progress.questionOf", {
               current: Math.min(progress.current ?? 1, progress.total),
               total: progress.total,
@@ -524,10 +525,7 @@ function Consent({ onStart }: { onStart: (mode: "text" | "voice") => void }) {
         <h1 className="mb-6 font-display text-5xl leading-tight">{t("title")}</h1>
         <p className="text-lg leading-relaxed text-body">{t("body")}</p>
         <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-          <button
-            onClick={() => onStart("text")}
-            className="group inline-flex h-12 items-center justify-center gap-2 rounded-btn bg-ink px-6 text-paper transition-colors hover:bg-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-          >
+          <Button variant="primary" size="lg" onClick={() => onStart("text")}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
               <path
                 d="M4 6h16M4 12h16M4 18h10"
@@ -537,11 +535,8 @@ function Consent({ onStart }: { onStart: (mode: "text" | "voice") => void }) {
               />
             </svg>
             {t("startWithText")}
-          </button>
-          <button
-            onClick={() => onStart("voice")}
-            className="group inline-flex h-12 items-center justify-center gap-2 rounded-btn border border-hairline px-6 text-ink transition-colors hover:border-ink hover:bg-paper-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-          >
+          </Button>
+          <Button variant="secondary" size="lg" onClick={() => onStart("voice")}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
               <rect
                 x="9"
@@ -560,7 +555,7 @@ function Consent({ onStart }: { onStart: (mode: "text" | "voice") => void }) {
               />
             </svg>
             {t("useVoice")}
-          </button>
+          </Button>
         </div>
         <p className="mx-auto mt-6 max-w-sm text-xs text-muted">{t("consentNotice")}</p>
       </div>
@@ -611,8 +606,8 @@ function TopProgressRule({ progress }: { progress: Progress }) {
       className="fixed inset-x-0 top-0 z-30 h-[3px] bg-transparent"
     >
       <div
-        className="h-full bg-accent transition-[width] duration-700 ease-out"
-        style={{ width: `${pct}%` }}
+        className="h-full w-full origin-left bg-accent transition-transform duration-500 ease-out motion-reduce:transition-none"
+        style={{ transform: `scaleX(${pct / 100})` }}
       />
     </div>
   );
@@ -642,7 +637,7 @@ function ProgressBar({ progress, embedded }: { progress: Progress; embedded?: bo
         // of ruled drawers.
         embedded
           ? "bg-transparent"
-          : "sticky top-0 z-20 border-b border-hairline/60 bg-paper/85 backdrop-blur-md",
+          : "sticky top-0 z-20 border-b border-hairline tp-chrome",
       )}
     >
       <div className={cn("w-full py-3.5", embedded ? "px-6 sm:px-8" : "mx-auto max-w-xl px-6")}>
@@ -671,8 +666,8 @@ function ProgressBar({ progress, embedded }: { progress: Progress; embedded?: bo
         ) : (
           <div className="h-1 w-full overflow-hidden rounded-pill bg-hairline">
             <div
-              className="h-full rounded-pill bg-accent transition-[width] duration-500 ease-out"
-              style={{ width: `${pct}%` }}
+              className="h-full w-full origin-left rounded-pill bg-accent transition-transform duration-500 ease-out motion-reduce:transition-none"
+              style={{ transform: `scaleX(${pct / 100})` }}
             />
           </div>
         )}

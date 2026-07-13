@@ -141,7 +141,17 @@ export function ResponseTable({ rows, className }: ResponseTableProps) {
           <thead>
             <tr className="border-t border-hairline">
               {columns.map((col) => (
-                <th key={col.label} className="overline px-4 py-2.5 text-left font-normal">
+                <th
+                  key={col.label}
+                  className="overline px-4 py-2.5 text-left font-normal"
+                  aria-sort={
+                    col.key && sortKey === col.key
+                      ? sortDir === "asc"
+                        ? "ascending"
+                        : "descending"
+                      : "none"
+                  }
+                >
                   {col.key ? (
                     // A real <button> so the sort control is keyboard-operable
                     // (Enter/Space) and shows a focus ring + pointer-down press —

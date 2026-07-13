@@ -99,8 +99,8 @@ export function DropdownMenuContent({
     <div
       role="menu"
       className={cn(
-        "absolute z-50 min-w-[180px] overflow-hidden rounded-card border border-hairline bg-paper-elevated py-1 shadow-overlay",
-        side === "bottom" ? "top-full mt-2" : "bottom-full mb-2",
+        "tp-fade-in-up absolute z-50 min-w-[180px] overflow-hidden rounded-card border border-hairline bg-paper-elevated py-1 shadow-overlay",
+        side === "bottom" ? "top-full mt-2 origin-top" : "bottom-full mb-2 origin-bottom",
         className,
       )}
     >

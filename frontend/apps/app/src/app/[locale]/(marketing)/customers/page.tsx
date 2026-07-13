@@ -71,7 +71,7 @@ export default async function CustomersPage() {
                 </div>
               </div>
               <blockquote className="md:col-span-8 font-display text-2xl md:text-3xl leading-tight text-ink relative pl-8 border-l-2 border-accent">
-                “{s.quote}”
+                {s.quote}
               </blockquote>
               {i < stories.length - 1 && (
                 <div className="md:col-span-12 border-b border-hairline mt-4" />
