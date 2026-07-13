@@ -5,13 +5,13 @@ import { useTranslations } from "next-intl";
 import {
   Button,
   Card,
-  ChatFeed,
   ChatComposer,
   ReadinessSpine,
   type ChatMessage,
   type ClarifyPrompt,
   type ReadinessPip,
 } from "@telepace/ui";
+import { AgentMessage } from "@/components/agent/AgentMessage";
 import { ALL_CHANNELS, CHANNELS } from "@telepace/config";
 import {
   deriveDecisionClarify,
@@ -186,6 +186,10 @@ export default function NewStudyPage() {
   // ready-to-publish note. Consumed and cleared in the refine onDone.
   const nextStageRef = useRef<"audience" | "closure" | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  // Anchor the conversation to its latest turn — the old ChatFeed auto-scrolled
+  // internally; our own message list needs an explicit end sentinel to keep the
+  // newest reply in view as the design chat grows.
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   // ── The pre-creation assessment gate ──────────────────────────────────────
   // Until intent is clear, NO campaign is created. These refs carry the loop's
@@ -237,6 +241,14 @@ export default function NewStudyPage() {
   const prefersReducedMotion = usePrefersReducedMotion();
 
   const readiness = deriveReadiness(spec);
+
+  // Keep the newest turn in view as the conversation grows (replaces ChatFeed's
+  // internal auto-scroll). Depends on the last message's text so streamed
+  // deltas keep the tail pinned, not just new-message arrivals.
+  const lastMsg = messages[messages.length - 1];
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages.length, lastMsg?.text, lastMsg?.pending]);
 
   // Localized copy for the domain-aware clarification chips. Memoized so the
   // object identity is stable across renders (it feeds pure derive fns).
@@ -789,17 +801,31 @@ export default function NewStudyPage() {
           )}
         </header>
         <div className="flex-1 overflow-y-auto px-6">
-          <ChatFeed
-            messages={messages}
-            typingLabel={tc("typing")}
-            onClarify={handleClarifySelect}
-            onClarifyFreeform={handleClarifyFreeform}
-            clarifyDisabled={busy}
-            clarifyLabels={{
-              group: tc("clarifyGroupLabel"),
-              count: (n) => tc("clarifyCount", { count: n }),
-            }}
-          />
+          {/* The design conversation — quiet copilot prose, NOT the interview
+              ChatFeed's serif "hero" question. The designer agent's clarifying
+              questions read as ordinary assistant turns with answer chips. */}
+          <div
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions"
+            className="flex flex-col gap-4 py-5"
+          >
+            {messages.map((m) => (
+              <AgentMessage
+                key={m.id}
+                message={m}
+                typingLabel={tc("typing")}
+                onClarify={handleClarifySelect}
+                onClarifyFreeform={handleClarifyFreeform}
+                clarifyDisabled={busy}
+                clarifyLabels={{
+                  group: tc("clarifyGroupLabel"),
+                  count: (n) => tc("clarifyCount", { count: n }),
+                }}
+              />
+            ))}
+            <div ref={chatEndRef} />
+          </div>
           {messages.length === 1 && (
             <div className="mt-2 space-y-2">
               <p className="text-xs text-muted">{tc("tryThese")}</p>
@@ -917,6 +943,12 @@ export default function NewStudyPage() {
         </header>
 
         <div className="flex-1 overflow-y-auto p-8 bg-paper-elevated">
+          {!campaignId && !spec.goal ? (
+            <CanvasEmptyState
+              title={tc("canvasEmptyTitle")}
+              body={tc("canvasEmptyBody")}
+            />
+          ) : (
           <div className="max-w-3xl mx-auto">
             {/* Auto-growing title: a long zh goal-turned-title must wrap onto a
                 second line, never clip off the right edge (a single-line <input>
@@ -1152,9 +1184,9 @@ export default function NewStudyPage() {
                           : [...s.channels, ch],
                       }))
                     }
-                    className={`px-3 py-1.5 rounded-pill text-sm border transition-[color,background-color,border-color,transform] duration-150 transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-pill text-sm border transition-[color,background-color,border-color,transform] duration-150 transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
                       spec.channels.includes(ch)
-                        ? "bg-ink text-paper border-ink"
+                        ? "bg-accent-soft text-ink border-accent"
                         : "bg-paper text-body border-hairline hover:border-ink"
                     }`}
                   >
@@ -1164,6 +1196,7 @@ export default function NewStudyPage() {
               </div>
             </div>
           </div>
+          )}
         </div>
       </section>
 
@@ -1241,6 +1274,33 @@ export default function NewStudyPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * The canvas before any study exists — a calm, Claude-artifact-style "your
+ * document will take shape here" state. Not a form of empty inputs: a centered,
+ * neutral placeholder with a faint manuscript skeleton (a few ruled lines that
+ * hint at the outline to come), a title, and one line of guidance. Everything
+ * quiet — the real content earns the ink once the conversation produces it.
+ */
+function CanvasEmptyState({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="flex h-full min-h-[60vh] flex-col items-center justify-center px-8 text-center">
+      <div className="w-full max-w-sm">
+        {/* Faint manuscript skeleton — ruled lines of decreasing weight that
+            evoke a page waiting to be written, not a spinner or an icon. */}
+        <div aria-hidden className="mx-auto mb-8 flex w-40 flex-col gap-2.5 opacity-60">
+          <div className="h-2.5 w-2/3 rounded-pill bg-hairline" />
+          <div className="h-1.5 w-full rounded-pill bg-hairline" />
+          <div className="h-1.5 w-full rounded-pill bg-hairline" />
+          <div className="h-1.5 w-4/5 rounded-pill bg-hairline" />
+          <div className="mt-2 h-1.5 w-1/2 rounded-pill bg-hairline" />
+        </div>
+        <p className="font-display text-xl leading-snug text-ink">{title}</p>
+        <p className="mt-2 text-sm leading-relaxed text-muted">{body}</p>
+      </div>
     </div>
   );
 }

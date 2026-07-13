@@ -414,7 +414,9 @@
     "channelWebVoice": "Web voice",
     "channelPhoneOutbound": "Phone outbound",
     "canvasMeta": "~{minutes} min per interview · {completions} completions",
-    "channelEmail": "Email"
+    "channelEmail": "Email",
+    "canvasEmptyTitle": "Nothing drafted yet",
+    "canvasEmptyBody": "Tell the designer what you want to learn on the left — the interview takes shape here."
   },
   "wizard": {
     "stepGoal": "Goal",

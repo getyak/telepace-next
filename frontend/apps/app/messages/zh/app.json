@@ -414,7 +414,9 @@
     "channelWebVoice": "网页语音",
     "channelPhoneOutbound": "电话外呼",
     "canvasMeta": "每次访谈约 {minutes} 分钟 · {completions} 份完成",
-    "channelEmail": "电子邮件"
+    "channelEmail": "电子邮件",
+    "canvasEmptyTitle": "提纲尚未开始",
+    "canvasEmptyBody": "在左侧告诉设计师你想了解什么，访谈提纲会在这里逐步成形。"
   },
   "wizard": {
     "stepGoal": "目标",

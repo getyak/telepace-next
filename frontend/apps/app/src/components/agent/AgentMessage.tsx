@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { TypingDots, cn, renderInlineMarkdown } from "@telepace/ui";
+import { ClarifyChips, TypingDots, cn, renderInlineMarkdown } from "@telepace/ui";
 
-import type { ChatMessage } from "@telepace/ui";
+import type { ChatMessage, ClarifyLabels } from "@telepace/ui";
 
 /**
  * The agent chat's own message renderer — deliberately NOT the interview
@@ -102,19 +102,36 @@ function AssistantProse({ text }: { text: string }) {
 }
 
 /**
- * One chat turn in the copilot rail. Respondent (the researcher) sits right in
- * a small quiet bubble; the agent's reply sits left as plain prose. Pending
- * agent turns show typing dots.
+ * One chat turn in a copilot rail. Respondent (the researcher) sits right in a
+ * small quiet bubble; the agent's reply sits left as plain prose; a system line
+ * is a centered, tracked whisper. Pending agent turns show typing dots.
+ *
+ * When the agent turn carries a clarify prompt (the create studio's guided
+ * questions), the answer chips render below the prose via the shared
+ * ClarifyChips — same interaction as the interview flow, but without the serif
+ * "hero" treatment that ChatFeed gives the current question.
  */
 export function AgentMessage({
   message,
   typingLabel,
+  onClarify,
+  onClarifyFreeform,
+  clarifyDisabled,
+  clarifyLabels,
 }: {
   message: ChatMessage;
   typingLabel?: string;
+  /** Receives (reply text, this message's id, chosen option id) on chip select. */
+  onClarify?: (text: string, messageId: string, optionId?: string) => void;
+  /** Called (with this message's id) when the researcher opts to type instead. */
+  onClarifyFreeform?: (messageId: string) => void;
+  clarifyDisabled?: boolean;
+  clarifyLabels?: ClarifyLabels;
 }) {
   const isUser = message.role === "respondent";
+  const isSystem = message.role === "system";
   const showTyping = message.pending && !message.text;
+  const showClarify = message.clarify && !message.pending && onClarify;
 
   if (isUser) {
     return (
@@ -126,12 +143,32 @@ export function AgentMessage({
     );
   }
 
+  if (isSystem) {
+    return (
+      <div className="tp-msg-in flex justify-center py-1">
+        <p className="max-w-[90%] text-center text-[11px] font-medium uppercase tracking-[0.1em] text-muted">
+          {message.text}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className={cn("tp-msg-in flex flex-col", showTyping && "py-1")}>
       {showTyping ? (
         <TypingDots label={typingLabel} />
       ) : (
         <AssistantProse text={message.text} />
+      )}
+      {showClarify && (
+        <ClarifyChips
+          prompt={message.clarify!}
+          onSelect={(text, optionId) => onClarify!(text, message.id, optionId)}
+          onFreeform={onClarifyFreeform ? () => onClarifyFreeform(message.id) : undefined}
+          disabled={clarifyDisabled}
+          groupLabel={clarifyLabels?.group}
+          countLabel={clarifyLabels?.count}
+        />
       )}
     </div>
   );
