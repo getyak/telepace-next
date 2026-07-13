@@ -23,6 +23,7 @@ export default function ReportPage({ params }: { params: Promise<Params> }) {
 
 function ReportPageInner({ studyId }: { studyId: string }) {
   const t = useTranslations("app.report");
+  const td = useTranslations("app.studyDetail");
   const { graph, loading } = useEvidence();
 
   const chapters = useMemo(
@@ -54,7 +55,7 @@ function ReportPageInner({ studyId }: { studyId: string }) {
           href={routes.app.studies.byId(studyId)}
           className="rounded-input text-sm text-muted transition-colors hover:text-ink active:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
         >
-          ← {t("title")}
+          ← {td("studyLabel")}
         </Link>
       </div>
 

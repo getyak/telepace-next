@@ -137,7 +137,7 @@ function ToastCard({
                 t.action?.onClick();
                 onDismiss();
               }}
-              className="mt-2 rounded-btn border border-hairline px-2.5 py-1 text-xs text-body transition-colors hover:bg-paper hover:text-ink"
+              className="mt-2 rounded-btn border border-hairline px-2.5 py-1 text-xs text-body transition-colors hover:bg-paper hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
             >
               {t.action.label}
             </button>
@@ -147,7 +147,7 @@ function ToastCard({
           type="button"
           aria-label={dismissLabel}
           onClick={onDismiss}
-          className="-m-1 p-1 leading-none text-muted transition-colors hover:text-ink"
+          className="-m-1 p-1 leading-none text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
         >
           ×
         </button>

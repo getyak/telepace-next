@@ -53,7 +53,7 @@ export function UserMenu() {
 
   return (
     <DropdownMenu className="border-t border-hairline">
-      <DropdownMenuTrigger className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-paper">
+      <DropdownMenuTrigger className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent">
         <span className="flex h-9 w-9 items-center justify-center rounded-pill bg-ink text-sm font-medium text-paper">
           {initial}
         </span>

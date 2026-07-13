@@ -76,11 +76,11 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Desktop rail — a translucent material pinned to the viewport so it
-          stays put while the page scrolls beneath it (Apple: floating chrome,
-          not a panel that scrolls away). tp-chrome frosts to solid under
-          prefers-reduced-transparency / no-backdrop-filter. */}
-      <aside className="tp-chrome hidden w-[240px] shrink-0 flex-col border-r border-hairline md:sticky md:top-0 md:flex md:h-screen">
+      {/* Desktop rail — a solid sibling column in the side-by-side flex row.
+          Nothing scrolls behind it (the <main> next to it owns the scroll),
+          so a translucent/backdrop-blur material would render inert GPU work
+          for no visual effect; a flat elevated surface is correct here. */}
+      <aside className="bg-paper-elevated hidden w-[240px] shrink-0 flex-col border-r border-hairline md:sticky md:top-0 md:flex md:h-screen">
         <div className="border-b border-hairline px-5 py-5">
           <Link href={routes.app.root} className="font-display text-xl">
             {siteConfig.brand.name}

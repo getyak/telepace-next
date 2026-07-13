@@ -148,7 +148,7 @@ export function ClarifyChips({
               className={cn(
                 "tp-chip-in group relative rounded-pill border px-3.5 py-1.5 text-left text-sm",
                 "transition-[color,background-color,border-color,box-shadow,transform] duration-150",
-                "transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:active:scale-100",
+                "transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
                 "disabled:cursor-not-allowed disabled:opacity-40",
                 active
                   ? "border-accent bg-accent-soft text-ink"
@@ -425,7 +425,7 @@ export function ChatBubble({
           // No hardcoded line-height: each script inherits its body rule
           // (en 1.55, zh 1.7 from globals.css) — a cramped 1.5 override on zh
           // was the biggest a11y regression in the old bubble.
-          "whitespace-pre-wrap transition-[opacity,background-color] duration-300",
+          "whitespace-pre-wrap transition-[opacity,background-color] duration-300 motion-reduce:transition-none",
           isRespondent
             // Researcher's reply — a quotation slipped onto the page, not an IM
             // balloon: elevated paper, a hairline, no drop shadow. The softened
@@ -1164,7 +1164,7 @@ export function VoiceOrb({
           without motion or colour (WCAG 1.4.1). */}
       <div
         className={cn(
-          "relative z-10 flex items-center justify-center rounded-full transition-[transform,background-color] duration-500 ease-out motion-reduce:transition-none",
+          "relative z-10 flex items-center justify-center rounded-full transition-[transform,background-color] duration-500 ease-out motion-reduce:transition-none active:duration-75 group-active:duration-75",
           core,
           recording ? "bg-ink" : "bg-accent",
           speaking || recording ? "scale-105" : "scale-100",

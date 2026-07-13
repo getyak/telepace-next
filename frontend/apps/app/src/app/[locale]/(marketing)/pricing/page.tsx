@@ -101,12 +101,12 @@ export default async function PricingPage() {
               <Card
                 key={id}
                 className={
-                  "flex flex-col p-8 " +
+                  "relative flex flex-col p-8 " +
                   (meta.highlight ? "border-ink bg-ink text-paper" : "")
                 }
               >
                 {meta.highlight && (
-                  <span className="inline-block rounded-pill bg-paper/15 text-paper overline px-2.5 py-1 mb-4">
+                  <span className="absolute -top-3 left-8 inline-block rounded-pill bg-paper/15 text-paper overline px-2.5 py-1">
                     {t("tiers.pro.badge")}
                   </span>
                 )}

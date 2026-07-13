@@ -782,7 +782,7 @@ export default function NewStudyPage() {
           {busy && campaignId && (
             <button
               onClick={handleStop}
-              className="text-xs text-muted hover:text-ink transition-[color,background-color,border-color,transform] duration-150 transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100"
+              className="text-xs text-muted hover:text-ink transition-[color,background-color,border-color,transform] duration-150 transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
             >
               ■ {tc("stop")}
             </button>
@@ -809,7 +809,7 @@ export default function NewStudyPage() {
                     key={s}
                     onClick={() => handleSend(s)}
                     disabled={busy}
-                    className="rounded-pill border border-hairline bg-paper-elevated px-3.5 py-1.5 text-left text-sm text-body transition-[color,background-color,border-color,transform] duration-150 hover:border-ink hover:text-ink transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100"
+                    className="rounded-pill border border-hairline bg-paper-elevated px-3.5 py-1.5 text-left text-sm text-body transition-[color,background-color,border-color,transform] duration-150 hover:border-ink hover:text-ink transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
                   >
                     {s}
                   </button>
@@ -923,6 +923,7 @@ export default function NewStudyPage() {
                 truncated it). rows=1 + height sync keeps it flush. */}
             <textarea
               value={spec.title}
+              aria-label={tc("untitledStudy")}
               rows={1}
               onChange={(e) => setSpec((s) => ({ ...s, title: e.target.value }))}
               onInput={(e) => {
@@ -1001,7 +1002,7 @@ export default function NewStudyPage() {
                                 type="button"
                                 disabled={busy}
                                 onClick={() => startEditTask(field)}
-                                className="group w-full text-left text-body leading-relaxed rounded-input px-1.5 py-1 -mx-1.5 transition-[color,background-color,border-color,transform] duration-150 hover:bg-paper disabled:cursor-not-allowed transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100"
+                                className="group w-full text-left text-body leading-relaxed rounded-input px-1.5 py-1 -mx-1.5 transition-[color,background-color,border-color,transform] duration-150 hover:bg-paper disabled:cursor-not-allowed transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
                                 aria-label={tc("taskEditAria", {
                                   facet: tc(`taskField_${field}` as Parameters<typeof tc>[0]),
                                 })}
@@ -1142,6 +1143,7 @@ export default function NewStudyPage() {
                 {ALL_CHANNELS.map((ch) => (
                   <button
                     key={ch}
+                    aria-pressed={spec.channels.includes(ch)}
                     onClick={() =>
                       setSpec((s) => ({
                         ...s,
@@ -1150,7 +1152,7 @@ export default function NewStudyPage() {
                           : [...s.channels, ch],
                       }))
                     }
-                    className={`px-3 py-1.5 rounded-pill text-sm border transition-[color,background-color,border-color,transform] duration-150 transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 ${
+                    className={`px-3 py-1.5 rounded-pill text-sm border transition-[color,background-color,border-color,transform] duration-150 transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
                       spec.channels.includes(ch)
                         ? "bg-ink text-paper border-ink"
                         : "bg-paper text-body border-hairline hover:border-ink"

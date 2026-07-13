@@ -49,7 +49,7 @@ export function SectionNav({ sections }: { sections: Section[] }) {
             aria-current={isActive ? "true" : undefined}
             className={`block rounded-btn px-3 py-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
               isActive
-                ? "bg-paper-elevated text-ink font-medium"
+                ? "bg-paper-elevated text-ink font-medium border-l-2 border-accent pl-[calc(0.75rem-2px)]"
                 : "text-body hover:bg-paper-elevated hover:text-ink"
             }`}
           >
