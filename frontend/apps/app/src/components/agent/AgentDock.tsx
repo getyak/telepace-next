@@ -4,6 +4,7 @@ import * as React from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@telepace/ui";
 
+import { usePathname } from "@/i18n/navigation";
 import { GlobalAgentPanel } from "./GlobalAgentPanel";
 
 /**
@@ -22,7 +23,15 @@ import { GlobalAgentPanel } from "./GlobalAgentPanel";
  */
 export function AgentDock() {
   const t = useTranslations("app.agent");
+  const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
+
+  // The full-screen study studio (/studies/new*) is the deep-authoring surface
+  // (方案 B): it already owns the whole viewport with its own chat rail, so the
+  // floating dock would collide with it. Hide the dock there — the studio is
+  // where heavy authoring lives; the dock covers quick, cross-study actions
+  // everywhere else.
+  const hidden = pathname.startsWith("/studies/new");
 
   // Close on Escape whenever open (never trap the user).
   React.useEffect(() => {
@@ -33,6 +42,8 @@ export function AgentDock() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
+
+  if (hidden) return null;
 
   return (
     <>
