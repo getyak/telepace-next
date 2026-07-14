@@ -254,8 +254,17 @@ export async function getCampaignInsights(id: string): Promise<CampaignInsights>
   return apiFetch<CampaignInsights>(apiEndpoints.campaigns.insights(id));
 }
 
-export async function startCampaign(id: string) {
-  return apiFetch(apiEndpoints.campaigns.start(id), { method: "POST" });
+/** Publishing flips the campaign to live and returns which of its persisted
+ * channels are actually dispatchable to recipients (email/sms/phone) — the
+ * studio uses this to point at the separate, real dispatch step. */
+export type StartResult = {
+  status?: string;
+  dispatchable_channels?: string[];
+  [k: string]: unknown;
+};
+
+export async function startCampaign(id: string): Promise<StartResult> {
+  return apiFetch<StartResult>(apiEndpoints.campaigns.start(id), { method: "POST" });
 }
 
 export async function closeCampaign(id: string) {
