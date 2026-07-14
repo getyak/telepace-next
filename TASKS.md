@@ -163,3 +163,4 @@
 2026-07-13 T-306 done, commit 4176811 — CopilotChat wired to real agent (de-mocked); AgentDock hidden in /studies/new studio (方案 B)
 2026-07-14 T-307 done, commit 17ae8cc — study-progress visualization + structured agent list cards (shared ProgressBar/studyStatus, list overview band, list_campaigns cards with status/progress/deep-link, detail metric bar); "取 resume 之骨、留 telepace 之魂"
 2026-07-14 T-307 done, commit 8bb6c07 — create-studio all-in redesign (Jobs-voice feedback): fix scroll-collapse (h-screen shell + main scroll), i18n content follows UI locale, remove "N changes" badge, drop na "who pays" pip, collapsible chat rail (guide is the star), honest LaunchPanel promoting Delivery to the publish moment
+2026-07-14 T-307 done, commit 7d4e461 — fix workbench phantom page-scroll (canvas pane's overflow-y-auto leaked content height to <html>); pin studio root with absolute inset-0 on relative main so only the panes scroll, page no longer drags into blank space
