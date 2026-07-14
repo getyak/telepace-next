@@ -834,8 +834,13 @@ export default function NewStudyPage() {
     }
   }
 
+  // A fixed workbench: the root is pinned to <main> via `absolute inset-0` so
+  // it's exactly the viewport minus the sidebar, and scrolling happens ONLY
+  // inside each pane below. (An h-full + flex/overflow-y-auto chain leaks the
+  // canvas pane's content height up to <html>, letting the whole page drag into
+  // blank space — inset-0 clips it for good.)
   return (
-    <div className="flex h-full min-h-0 overflow-hidden">
+    <div className="absolute inset-0 flex overflow-hidden">
       {/* Left: the design conversation as a RECALLABLE rail. Before a study
           exists it's the full stage (the whole pre-create gate lives here);
           once the guide is born it recedes to a slim strip so the document
