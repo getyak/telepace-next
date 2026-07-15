@@ -89,10 +89,19 @@
   - 做：Upload Discussion Guide（导入已有提纲解析成题目）+ 分类模板起手（Market/UX/Product/Concept）。
   - 验收：上传一份提纲能解析出题目；模板点击能预填。
 
-- [x] **T-111 · 每题 AI 追问(follow-ups)配置 + 欢迎/同意/结束/奖励/跳转**
+- [ ] **T-111 · 每题 AI 追问(follow-ups)配置 + 欢迎/同意/结束/奖励/跳转**
   - 依赖: T-108
   - 做：每题可配置追问策略/上限；欢迎页、同意勾选、结束语、奖励、完成跳转 可视化配置。
   - 验收：配置项能保存并在受访端生效（预览验证）。
+  - ⚠️ 2026-07-15 复核后回退为未完成：UI 组件（FollowUpConfig / WelcomeEndConfig）已存在且功能正确，
+    但**后端完全没有这五个字段** —— `CampaignSpec`(core/domain/models.py) 无 welcome_message /
+    consent_text / end_message / reward_description / redirect_url，`createCampaign` 也不接受它们；
+    `welcome_message` 全仓库只出现在前端文件里。组件挂在 WizardPage 下，而 WizardPage 既不调用
+    createCampaign，其路由 /studies/new/wizard 也无任何入口链接（孤儿页）。
+    即当前实现无法满足"能保存并在受访端生效"这条验收。
+  - 待办顺序：① 后端 CampaignSpec + 建表/迁移 + createCampaign 接受这五个字段
+    ② 受访端读取并生效 ③ 再把配置 UI 接进 /studies/new（组件可直接复用，contract 已对齐）。
+    在 ① 之前接 UI 会做出"输入即丢弃"的假表单，故本次未接。
 
 ---
 
@@ -164,3 +173,6 @@
 2026-07-14 T-307 done, commit 17ae8cc — study-progress visualization + structured agent list cards (shared ProgressBar/studyStatus, list overview band, list_campaigns cards with status/progress/deep-link, detail metric bar); "取 resume 之骨、留 telepace 之魂"
 2026-07-14 T-307 done, commit 8bb6c07 — create-studio all-in redesign (Jobs-voice feedback): fix scroll-collapse (h-screen shell + main scroll), i18n content follows UI locale, remove "N changes" badge, drop na "who pays" pip, collapsible chat rail (guide is the star), honest LaunchPanel promoting Delivery to the publish moment
 2026-07-14 T-307 done, commit 7d4e461 — fix workbench phantom page-scroll (canvas pane's overflow-y-auto leaked content height to <html>); pin studio root with absolute inset-0 on relative main so only the panes scroll, page no longer drags into blank space
+2026-07-15 T-204/T-207 gap-fill done, commit abcf2ea — MCP docs page was shipped but unreachable (no routes.ts entry, zero inbound links, absent from integrations index); added routes.app.integrationsMcp + an MCP card leading the integrations index. Added error.tsx for (auth)/(marketing)/(public) — only (app) had one — and extracted shared bilingual copy into errorBoundaryCopy.ts. Added loading.tsx for inbox/insights. No root not-found.tsx: middleware redirects every unprefixed path to a locale, so [locale]/not-found.tsx already catches them (verified /nonsense-url → 307 → 404).
+2026-07-15 PR queue audit — closed #10/#12/#13/#14/#16 as already-reimplemented on main (verified against commits 93f64a6/6ed36ba/d78cc11/4b8b732; main's files are supersets, two byte-identical). Reopened #15 after finding my "main is a superset" call was wrong there — main's MCP page is a documentation regression AND orphaned; superseded by abcf2ea. Note: those 5 branches predate the [locale] i18n refactor, which is why all went DIRTY at once — work landed on main directly instead of through the PRs.
+2026-07-15 T-111 reverted to [ ] — see task note. UI exists, backend has none of the five fields.
