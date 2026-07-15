@@ -1,0 +1,6 @@
+interface:
+  display_name: "Telepace Next"
+  short_description: "Repo-specific patterns and workflows for telepace-next"
+  default_prompt: "Use the telepace-next repo skill to follow existing architecture, testing, and workflow conventions."
+policy:
+  allow_implicit_invocation: true
