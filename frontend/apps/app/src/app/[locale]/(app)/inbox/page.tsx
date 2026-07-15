@@ -1,7 +1,22 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Badge, Button, Card } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata.app.inbox" });
+  return {
+    title: t("title"),
+    description: t("description"),
+    robots: { index: false, follow: false },
+  };
+}
 
 type InboxItemDef = {
   id: string;

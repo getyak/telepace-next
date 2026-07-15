@@ -67,6 +67,34 @@
     "newStudy": {
       "title": "New study",
       "description": "Describe your research goal and shape it into a publishable study with the agent."
+    },
+    "studies": {
+      "title": "Studies",
+      "description": "Manage your voice interview studies — drafts, live, and finished."
+    },
+    "copilot": {
+      "title": "Copilot",
+      "description": "Ask across your studies and get answers backed by evidence."
+    },
+    "insights": {
+      "title": "Insights",
+      "description": "Themes pulled from every interview across your studies, each backed by what people actually said."
+    },
+    "inbox": {
+      "title": "Inbox",
+      "description": "Everything that needs a human — escalations, new insights, and study progress in one place."
+    },
+    "audience": {
+      "title": "Audience",
+      "description": "Manage who telepace can talk to for you: segments, imported lists, and how they respond."
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Manage workspace preferences, members, billing, API keys, and MCP access."
+    },
+    "integrations": {
+      "title": "Integrations",
+      "description": "Connect telepace to Notion, Linear, Slack, webhooks, and your model providers."
     }
   }
 }

@@ -1,9 +1,24 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Button, Card, CardBody, CardFooter, Input, Label } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
 import { DeleteWorkspaceDialog } from "./_components/DeleteWorkspaceDialog";
 import { SettingsShell } from "./_components/SettingsShell";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata.app.settings" });
+  return {
+    title: t("title"),
+    description: t("description"),
+    robots: { index: false, follow: false },
+  };
+}
 
 const SECTION_IDS = ["workspace", "members", "billing", "api-keys", "mcp", "danger"] as const;
 

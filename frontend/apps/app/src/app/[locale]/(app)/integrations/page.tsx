@@ -1,9 +1,24 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { Badge, Button, Card, EmptyState, icons } from "@telepace/ui";
 import { routes } from "@telepace/config";
 
 import { Link } from "@/i18n/navigation";
 import { PageHeader } from "@/components/app/PageHeader";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata.app.integrations" });
+  return {
+    title: t("title"),
+    description: t("description"),
+    robots: { index: false, follow: false },
+  };
+}
 
 type IntegrationDef = {
   name: string;

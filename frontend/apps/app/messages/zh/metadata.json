@@ -67,6 +67,34 @@
     "newStudy": {
       "title": "新建问卷",
       "description": "描述你的研究目标，与 Agent 一起把它变成一份可发布的问卷。"
+    },
+    "studies": {
+      "title": "问卷",
+      "description": "管理你的语音访谈研究——草稿、进行中与已完成。"
+    },
+    "copilot": {
+      "title": "Copilot",
+      "description": "跨问卷提问，让研究 Copilot 带着证据回答你。"
+    },
+    "insights": {
+      "title": "洞察",
+      "description": "汇总所有问卷的访谈内容，提炼成带原话佐证的主题洞察。"
+    },
+    "inbox": {
+      "title": "收件箱",
+      "description": "集中处理需要人工介入的事项——升级、新洞察与研究进展。"
+    },
+    "audience": {
+      "title": "受众",
+      "description": "管理 telepace 可以联系的人群：受众分群、名单导入与触达情况。"
+    },
+    "settings": {
+      "title": "设置",
+      "description": "管理工作区偏好、成员、账单、API 密钥与 MCP 接入。"
+    },
+    "integrations": {
+      "title": "集成",
+      "description": "把 telepace 连接到 Notion、Linear、Slack、Webhook 与你的模型服务商。"
     }
   }
 }
