@@ -100,7 +100,7 @@ export function HeroInterview() {
                   </Link>
                   <button
                     type="button"
-                    className="text-sm text-muted underline underline-offset-4 hover:text-ink transition-colors"
+                    className="tp-press-text text-sm text-muted underline underline-offset-4 hover:text-ink transition-[color,opacity] rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
                     onClick={() => {
                       setMessages([
                         { id: nextId.current++, role: "interviewer", text: t("q1") },
@@ -150,7 +150,7 @@ export function HeroInterview() {
                 type="button"
                 disabled={typing}
                 onClick={() => answer(s)}
-                className="rounded-pill border border-hairline bg-paper px-3 py-1.5 text-sm text-body transition-colors hover:border-ink hover:text-ink disabled:opacity-50"
+                className="tp-press tp-press-control rounded-pill border border-hairline bg-paper px-3 py-1.5 text-sm text-body transition-[color,background-color,border-color,transform] hover:border-ink hover:text-ink disabled:opacity-50 disabled:active:transform-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
               >
                 {s}
               </button>

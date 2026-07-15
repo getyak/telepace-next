@@ -1,10 +1,13 @@
 import { getTranslations } from "next-intl/server";
-import { Button, Card, Input, Label } from "@telepace/ui";
+import { Button, Card, CardBody, CardFooter, Input, Label } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
-import { SectionNav } from "./_components/SectionNav";
+import { DeleteWorkspaceDialog } from "./_components/DeleteWorkspaceDialog";
+import { SettingsShell } from "./_components/SettingsShell";
 
 const SECTION_IDS = ["workspace", "members", "billing", "api-keys", "mcp", "danger"] as const;
+
+const WORKSPACE_SLUG = "acme";
 
 const members = [
   { name: "Alex Kim", email: "alex@acme.com", roleKey: "roleOwner" },
@@ -12,118 +15,175 @@ const members = [
   { name: "Priya Rao", email: "priya@acme.com", roleKey: "roleViewer" },
 ];
 
+const usage = [
+  { labelKey: "studiesUsed", value: "14" },
+  { labelKey: "completions", value: "312 / 500" },
+  { labelKey: "voiceMinutes", value: "48 min" },
+];
+
 export default async function SettingsPage() {
   const t = await getTranslations("app.settings");
-  const sectionLabel: Record<(typeof SECTION_IDS)[number], string> = {
-    workspace: t("sections.workspace"),
-    members: t("sections.members"),
-    billing: t("sections.billing"),
-    "api-keys": t("sections.apiKeys"),
-    mcp: t("sections.mcp"),
-    danger: t("sections.danger"),
-  };
-  return (
-    <div className="p-10 max-w-content mx-auto">
-      <PageHeader eyebrow={t("eyebrow")} title={t("title")} />
 
-      <div className="grid md:grid-cols-12 gap-10">
-        <aside className="md:col-span-3">
-          <SectionNav sections={SECTION_IDS.map((id) => ({ id, label: sectionLabel[id] }))} />
-        </aside>
-        <div className="md:col-span-9 space-y-14">
-          <section id="workspace">
-            <p className="overline mb-4">{t("sections.workspace")}</p>
-            <Card className="p-6 space-y-4">
-              <div>
-                <Label htmlFor="ws-name">{t("workspaceName")}</Label>
-                <Input id="ws-name" defaultValue="Acme Research" />
-              </div>
-              <div>
-                <Label htmlFor="ws-slug">{t("urlSlug")}</Label>
-                <Input id="ws-slug" defaultValue="acme" />
-              </div>
-              <div className="pt-2 flex justify-end">
-                <Button>{t("saveChanges")}</Button>
-              </div>
-            </Card>
-          </section>
+  const sections = [
+    { id: "workspace", label: t("sections.workspace"), description: t("sectionDesc.workspace") },
+    { id: "members", label: t("sections.members"), description: t("sectionDesc.members") },
+    { id: "billing", label: t("sections.billing"), description: t("sectionDesc.billing") },
+    { id: "api-keys", label: t("sections.apiKeys"), description: t("sectionDesc.apiKeys") },
+    { id: "mcp", label: t("sections.mcp"), description: t("sectionDesc.mcp") },
+    { id: "danger", label: t("sections.danger"), description: t("sectionDesc.danger") },
+  ];
 
-          <section id="members">
-            <p className="overline mb-4">{t("sections.members")}</p>
-            <Card className="divide-y divide-hairline">
-              {members.map((m) => (
-                <div key={m.email} className="grid grid-cols-12 items-center px-6 py-4">
-                  <div className="col-span-5">
-                    <p className="font-medium text-ink">{m.name}</p>
-                    <p className="text-sm text-muted">{m.email}</p>
-                  </div>
-                  <div className="col-span-4 text-sm text-body">{t(m.roleKey)}</div>
-                  <div className="col-span-3 text-right">
-                    <Button variant="ghost" size="sm">{t("manage")}</Button>
-                  </div>
-                </div>
-              ))}
-              <div className="px-6 py-4 flex justify-end">
-                <Button variant="secondary" size="sm">{t("inviteMember")}</Button>
-              </div>
-            </Card>
-          </section>
+  const panels: Record<(typeof SECTION_IDS)[number], React.ReactNode> = {
+    workspace: (
+      <Card>
+        <CardBody className="space-y-5">
+          <div>
+            <Label htmlFor="ws-name">{t("workspaceName")}</Label>
+            <Input id="ws-name" defaultValue="Acme Research" aria-describedby="ws-name-hint" />
+            <p id="ws-name-hint" className="mt-1.5 text-xs text-muted">
+              {t("workspaceNameHint")}
+            </p>
+          </div>
+          <div>
+            <Label htmlFor="ws-slug">{t("urlSlug")}</Label>
+            <Input id="ws-slug" defaultValue={WORKSPACE_SLUG} aria-describedby="ws-slug-hint" />
+            <p id="ws-slug-hint" className="mt-1.5 text-xs text-muted">
+              {t("urlSlugHint")}
+            </p>
+          </div>
+        </CardBody>
+        {/* The commit sits on its own hairline shelf, mapped to the fields above. */}
+        <CardFooter className="flex justify-end">
+          <Button size="sm">{t("saveChanges")}</Button>
+        </CardFooter>
+      </Card>
+    ),
 
-          <section id="billing">
-            <p className="overline mb-4">{t("sections.billing")}</p>
-            <Card className="p-6">
-              <div className="flex items-baseline justify-between mb-6">
-                <div>
-                  <p className="font-display text-2xl">Pro</p>
-                  <p className="text-sm text-muted">{t("renewsLine", { date: "2026-07-15", price: "$79 / mo" })}</p>
-                </div>
-                <Button variant="secondary" size="sm">{t("managePlan")}</Button>
+    members: (
+      <Card>
+        <ul className="divide-y divide-hairline">
+          {members.map((m) => (
+            <li
+              key={m.email}
+              className="flex items-center justify-between gap-4 px-6 py-4"
+            >
+              <div className="min-w-0">
+                <p className="truncate font-medium text-ink">{m.name}</p>
+                <p className="truncate text-sm text-muted">{m.email}</p>
               </div>
-              <div className="grid grid-cols-3 border-t border-hairline pt-4">
-                <div><p className="overline mb-1">{t("studiesUsed")}</p><p className="font-display text-2xl">14</p></div>
-                <div><p className="overline mb-1">{t("completions")}</p><p className="font-display text-2xl">312 / 500</p></div>
-                <div><p className="overline mb-1">{t("voiceMinutes")}</p><p className="font-display text-2xl">48 min</p></div>
+              <div className="flex shrink-0 items-center gap-4">
+                <span className="text-sm text-body">{t(m.roleKey)}</span>
+                <Button variant="ghost" size="sm">
+                  {t("manage")}
+                </Button>
               </div>
-            </Card>
-          </section>
+            </li>
+          ))}
+        </ul>
+        <CardFooter className="flex items-center justify-between">
+          <p className="text-xs text-muted">{t("seatsHint")}</p>
+          <Button variant="secondary" size="sm">
+            {t("inviteMember")}
+          </Button>
+        </CardFooter>
+      </Card>
+    ),
 
-          <section id="api-keys">
-            <p className="overline mb-4">{t("sections.apiKeys")}</p>
-            <Card className="p-6 space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-mono text-sm text-ink">tp_live_a1b2•••7f9</p>
-                  <p className="text-xs text-muted">{t("keyMeta", { created: "2026-06-04", lastUsed: "2026-07-02" })}</p>
-                </div>
-                <Button variant="ghost" size="sm">{t("rotate")}</Button>
-              </div>
-              <div className="pt-2 flex justify-end">
-                <Button variant="secondary" size="sm">{t("createKey")}</Button>
-              </div>
-            </Card>
-          </section>
-
-          <section id="mcp">
-            <p className="overline mb-4">{t("sections.mcp")}</p>
-            <Card className="p-6">
-              <p className="text-body mb-3">{t("mcpEndpointIntro")}</p>
-              <pre className="font-mono text-sm rounded-btn bg-paper-sunken p-3 text-ink">https://mcp.telepace.io/w/acme</pre>
-              <p className="text-xs text-muted mt-3">{t("mcpAuthHint")}</p>
-            </Card>
-          </section>
-
-          <section id="danger">
-            <p className="overline mb-4 text-terracotta">{t("sections.danger")}</p>
-            <div className="rounded-card border border-terracotta/30 bg-terracotta/5 p-6 flex items-center justify-between">
-              <div>
-                <p className="font-display text-lg">{t("deleteWorkspace")}</p>
-                <p className="text-sm text-body">{t("deleteWorkspaceWarning")}</p>
-              </div>
-              <Button variant="secondary" className="border-terracotta text-terracotta hover:bg-terracotta hover:text-paper">{t("deleteWorkspace")}</Button>
+    billing: (
+      <Card>
+        <CardBody>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="overline mb-1">{t("planLabel")}</p>
+              <p className="font-display text-3xl">Pro</p>
+              <p className="mt-1 text-sm text-muted">
+                {t("renewsLine", { date: "2026-07-15", price: "$79 / mo" })}
+              </p>
             </div>
-          </section>
+            <Button variant="secondary" size="sm">
+              {t("managePlan")}
+            </Button>
+          </div>
+        </CardBody>
+        <CardFooter className="bg-paper-sunken/40">
+          <p className="overline mb-3">{t("usageTitle")}</p>
+          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {usage.map((u) => (
+              <div key={u.labelKey}>
+                <dt className="text-xs text-muted">{t(u.labelKey)}</dt>
+                <dd className="mt-0.5 font-display text-2xl">{u.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </CardFooter>
+      </Card>
+    ),
+
+    "api-keys": (
+      <Card>
+        <CardBody>
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="truncate font-mono text-sm text-ink">tp_live_a1b2•••7f9</p>
+              <p className="mt-0.5 text-xs text-muted">
+                {t("keyMeta", { created: "2026-06-04", lastUsed: "2026-07-02" })}
+              </p>
+            </div>
+            <Button variant="ghost" size="sm">
+              {t("rotate")}
+            </Button>
+          </div>
+        </CardBody>
+        <CardFooter className="flex items-center justify-between gap-4">
+          <p className="text-xs text-muted">{t("keysHint")}</p>
+          <Button variant="secondary" size="sm">
+            {t("createKey")}
+          </Button>
+        </CardFooter>
+      </Card>
+    ),
+
+    mcp: (
+      <Card>
+        <CardBody>
+          <p className="text-body">{t("mcpEndpointIntro")}</p>
+          <pre className="mt-3 overflow-x-auto rounded-btn bg-paper-sunken p-3 font-mono text-sm text-ink">
+            https://mcp.telepace.io/w/{WORKSPACE_SLUG}
+          </pre>
+          <p className="mt-3 text-xs text-muted">{t("mcpAuthHint")}</p>
+        </CardBody>
+      </Card>
+    ),
+
+    danger: (
+      <div className="rounded-card border border-terracotta/30 bg-terracotta/5">
+        <div className="flex flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-display text-lg">{t("deleteWorkspace")}</p>
+            <p className="mt-0.5 text-sm text-body">{t("deleteWorkspaceWarning")}</p>
+          </div>
+          <div className="shrink-0">
+            <DeleteWorkspaceDialog
+              slug={WORKSPACE_SLUG}
+              labels={{
+                trigger: t("deleteWorkspace"),
+                title: t("deleteConfirmTitle"),
+                body: t("deleteConfirmBody", { slug: WORKSPACE_SLUG }),
+                inputLabel: t("deleteConfirmLabel"),
+                confirm: t("deleteConfirmCta"),
+                cancel: t("cancel"),
+              }}
+            />
+          </div>
         </div>
       </div>
+    ),
+  };
+
+  return (
+    <div className="mx-auto max-w-content p-10">
+      <PageHeader eyebrow={t("eyebrow")} title={t("title")} />
+      <SettingsShell sections={sections} panels={panels} />
     </div>
   );
 }

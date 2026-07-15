@@ -22,12 +22,12 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
         "rounded-card border border-hairline bg-paper-elevated",
         elevated ? "shadow-hover" : "shadow-none",
         interactive &&
-          // transform + shadow only (compositor-friendly). The press state is
-          // faster than the settle so touch-down reads as instant and release
-          // eases back — Apple's "respond on the way down" feel.
-          "transform-gpu cursor-pointer transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] " +
-            "hover:-translate-y-0.5 hover:shadow-hover active:translate-y-0 active:scale-[0.994] active:shadow-none active:duration-75 " +
-            "motion-reduce:transform-none motion-reduce:transition-none",
+          // Hover lifts (shadow + rise); press takes the `card` rung of the
+          // ladder so a large surface dips the same perceived ~1.5px a button
+          // does. transform + shadow only, so this stays on the compositor.
+          "tp-press tp-press-card cursor-pointer transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] " +
+            "hover:-translate-y-0.5 hover:shadow-hover active:shadow-none " +
+            "motion-reduce:hover:transform-none",
         className,
       )}
       {...props}

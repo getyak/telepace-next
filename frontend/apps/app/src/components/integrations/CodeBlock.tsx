@@ -46,7 +46,7 @@ export function CodeBlock({ code, language, title }: CodeBlockProps) {
           <button
             onClick={handleCopy}
             className={cn(
-              "text-xs font-medium px-2 py-1 rounded-btn transition-[color,background-color,transform] duration-150 active:scale-95 transform-gpu motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-paper/40",
+              "text-xs font-medium px-2 py-1 rounded-btn tp-press tp-press-control transition-[color,background-color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-paper/40",
               copied
                 ? "text-success bg-success/10"
                 : "text-[#999] hover:text-[#ccc] hover:bg-[#333]",
@@ -61,7 +61,7 @@ export function CodeBlock({ code, language, title }: CodeBlockProps) {
           <button
             onClick={handleCopy}
             className={cn(
-              "absolute top-3 right-3 text-xs font-medium px-2 py-1 rounded-btn transition-[color,background-color,opacity,transform] duration-150 active:scale-95 transform-gpu motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-paper/40",
+              "absolute top-3 right-3 text-xs font-medium px-2 py-1 rounded-btn tp-press tp-press-control transition-[color,background-color,opacity,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-paper/40",
               copied
                 ? "text-success bg-success/10 opacity-100"
                 : "text-[#999] hover:text-[#ccc] hover:bg-[#333] opacity-0 group-hover:opacity-100",

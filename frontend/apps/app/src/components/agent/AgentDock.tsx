@@ -57,8 +57,8 @@ export function AgentDock() {
           "fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full",
           "bg-ink text-paper shadow-overlay",
           "transition-[transform,opacity] duration-200 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)]",
-          "transform-gpu hover:scale-105 active:scale-95",
-          "motion-reduce:transition-opacity motion-reduce:hover:scale-100 motion-reduce:active:scale-100",
+          "tp-press tp-press-icon hover:scale-105",
+          "motion-reduce:transition-opacity motion-reduce:hover:scale-100",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-accent",
           open && "scale-90 opacity-0 pointer-events-none",
         )}
@@ -101,7 +101,7 @@ export function AgentDock() {
             type="button"
             onClick={() => setOpen(false)}
             aria-label={t("closeLabel")}
-            className="rounded-input px-2 py-1 text-sm text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+            className="tp-press tp-press-icon rounded-input px-2 py-1 text-sm text-muted transition-[color,transform] hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
           >
             ✕
           </button>

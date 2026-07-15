@@ -21,7 +21,7 @@ class _ToolBase(BaseModel):
 
 class CreateCampaignInput(_ToolBase):
     title: str = Field(description="Short, human-readable name for the study.")
-    goal: str = Field(description="What you want to learn. 1–3 sentences.")
+    goal: str = Field(description="What you want to learn. 1-3 sentences.")
     background: str = Field(
         default="",
         description="Optional prior context: hypotheses, known constraints.",

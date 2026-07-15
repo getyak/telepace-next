@@ -83,8 +83,8 @@ export function CampaignListCard({ campaigns }: { campaigns: CampaignSummary[] }
             className={cn(
               "group flex flex-col gap-2 rounded-card border border-hairline bg-paper-elevated px-3.5 py-2.5 text-left",
               "transition-[border-color,background-color,transform] duration-150",
-              "transform-gpu hover:border-ink/20 hover:bg-paper active:scale-[0.99] active:duration-75",
-              "motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
+              "tp-press tp-press-card hover:border-ink/20 hover:bg-paper",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
             )}
           >
             <div className="flex items-start justify-between gap-2">

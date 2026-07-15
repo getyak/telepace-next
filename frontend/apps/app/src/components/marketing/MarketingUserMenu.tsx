@@ -43,7 +43,7 @@ export type MarketingUserMenuLabels = {
 function GuestActions({ labels }: { labels: MarketingUserMenuLabels }) {
   return (
     <>
-      <Link href={routes.login} className="text-sm text-body transition-colors hover:text-ink">
+      <Link href={routes.login} className="tp-press-text text-sm text-body transition-[color,opacity] hover:text-ink">
         {labels.signIn}
       </Link>
       <Link href={routes.signup}>
@@ -81,7 +81,7 @@ export function MarketingUserMenu({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-2 rounded-pill transition-opacity hover:opacity-80">
+      <DropdownMenuTrigger className="tp-press tp-press-icon flex items-center gap-2 rounded-pill transition-[opacity,transform] hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">
         <span className="flex h-9 w-9 items-center justify-center rounded-pill bg-ink text-sm font-medium text-paper">
           {initial}
         </span>

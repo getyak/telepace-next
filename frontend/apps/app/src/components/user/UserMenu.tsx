@@ -40,7 +40,7 @@ export function UserMenu() {
       <div className="border-t border-hairline p-4">
         <Link
           href={routes.login}
-          className="block w-full rounded-btn border border-hairline px-3 py-2 text-center text-sm text-body transition-colors hover:bg-paper hover:text-ink"
+          className="tp-press tp-press-control block w-full rounded-btn border border-hairline px-3 py-2 text-center text-sm text-body transition-[color,background-color,transform] hover:bg-paper hover:text-ink"
         >
           {t("signIn")}
         </Link>
@@ -53,7 +53,7 @@ export function UserMenu() {
 
   return (
     <DropdownMenu className="border-t border-hairline">
-      <DropdownMenuTrigger className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent">
+      <DropdownMenuTrigger className="tp-press tp-press-row flex w-full items-center gap-3 px-4 py-3 text-left transition-[color,background-color,transform] hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent">
         <span className="flex h-9 w-9 items-center justify-center rounded-pill bg-ink text-sm font-medium text-paper">
           {initial}
         </span>

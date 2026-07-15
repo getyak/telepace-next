@@ -116,6 +116,84 @@
   }
 }
 
+/* ---------- Press feedback (the touch half of the vocabulary) ------------ */
+
+/* Every pressable surface in the product dips through one of four rungs. The
+   rung is chosen by the element's SIZE, not by what it is, because the eye
+   judges edge displacement rather than scale ratio: a uniform scale leaves
+   small controls looking inert and large ones looking rubbery.
+
+   The scales below were solved, not guessed. Edge travel for a centred scale is
+   `size × (1 − scale) / 2`; each rung's scale is fitted so travel lands near
+   ~0.85px across that rung's real size band, holding the whole product inside
+   0.5–1.1px over a 20× size range (20px icon → 640px card). Verified by
+   measuring composited geometry in-browser, not by arithmetic alone.
+   Values mirror `press.scale` in tokens.ts.
+
+   The dip (75ms) is deliberately faster than the release (150ms) — Apple's
+   "respond on the way down": the surface answers immediately and eases back,
+   so the finger leads and the UI follows. Symmetric timing reads as a toggle.
+
+   transform+opacity only, so this stays on the compositor and never lands on
+   the layout path. */
+.tp-press {
+  transform: translateZ(0);
+  transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tp-press:active {
+  transition-duration: 75ms;
+}
+
+/* The `:active:active` doubling is load-bearing, not a typo. Several of these
+   surfaces also carry Tailwind's `hover:scale-105`, and a mouse press is
+   always *also* a hover — at equal specificity (0,2,0) the tie breaks on
+   source order, and Tailwind's utilities emit after this file, so a plain
+   `.tp-press-icon:active` loses and the dip never renders. Repeating the
+   pseudo-class buys one specificity rung (0,3,0) so the press deterministically
+   outranks the hover it coexists with, whatever the emit order. */
+.tp-press-icon:active:active    { transform: scale(0.93); }
+.tp-press-control:active:active { transform: scale(0.96); }
+.tp-press-row:active:active     { transform: scale(0.993); }
+.tp-press-card:active:active    { transform: scale(0.997); }
+
+/* Text rung — for inline links (nav items, footer, brand wordmark), where the
+   other rungs are the wrong tool. A `transform: scale` on text creates a
+   stacking context and re-rasterises the glyphs, so subpixel antialiasing
+   shifts and the text visibly softens mid-press; it also scales the link's box
+   inside a text row, nudging the baseline. An opacity dip acknowledges the
+   press with zero geometry change and zero glyph resampling — and it's what
+   the platform itself does for inline links. */
+.tp-press-text {
+  transition: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tp-press-text:active:active {
+  opacity: 0.55;
+  transition-duration: 75ms;
+}
+
+/* Reduced motion — the press must still ACKNOWLEDGE, it just must not travel.
+   Dropping the scale silently would leave these surfaces feeling dead, so the
+   dip is replaced with an instant tonal shift (no transform, no transition):
+   feedback survives, vestibular motion doesn't. */
+@media (prefers-reduced-motion: reduce) {
+  .tp-press,
+  .tp-press:active,
+  .tp-press-text,
+  .tp-press-text:active {
+    transition: none;
+  }
+  /* The text rung is already motion-free (opacity only), so it keeps its dip —
+     it just lands instantly instead of easing. */
+  /* Matches the doubled specificity above so this actually overrides it. */
+  .tp-press-icon:active:active,
+  .tp-press-control:active:active,
+  .tp-press-row:active:active,
+  .tp-press-card:active:active {
+    transform: none;
+    filter: brightness(0.94);
+  }
+}
+
 /* ---------- Motion vocabulary (the only animations in the product) ------- */
 
 /* Spinner — ~800ms uniform rotation. */

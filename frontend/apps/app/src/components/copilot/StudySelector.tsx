@@ -76,7 +76,7 @@ function Pill({
       aria-pressed={selected}
       onClick={onClick}
       className={cn(
-        "rounded-pill border px-3 py-1.5 text-sm transform-gpu transition-[transform,color,background-color,border-color] duration-150 active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
+        "rounded-pill border px-3 py-1.5 text-sm transition-[transform,color,background-color,border-color] duration-150 tp-press tp-press-control motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
         selected
           ? "border-accent bg-accent text-paper"
           : "border-hairline bg-paper-elevated text-body hover:border-accent/40 hover:text-ink",

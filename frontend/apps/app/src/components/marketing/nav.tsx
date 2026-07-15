@@ -42,18 +42,18 @@ export function Nav() {
     <>
       <header className="border-b border-hairline sticky top-0 z-40 bg-paper/85 backdrop-blur">
         <div className="container-content flex items-center justify-between h-16">
-          <Link href={routes.home} className="font-display text-xl">
+          <Link href={routes.home} className="tp-press-text font-display text-xl">
             {siteConfig.brand.name}
           </Link>
           <nav className="hidden md:flex items-center gap-8 text-sm text-body">
             {navLinks.map((l) => (
-              <Link key={l.href} href={l.href} className="hover:text-ink transition-colors">
+              <Link key={l.href} href={l.href} className="tp-press-text hover:text-ink transition-[color,opacity]">
                 {l.label}
               </Link>
             ))}
           </nav>
           <div className="hidden md:flex items-center gap-3">
-            <Link href={routes.login} className="text-sm text-body hover:text-ink transition-colors">
+            <Link href={routes.login} className="tp-press-text text-sm text-body hover:text-ink transition-[color,opacity]">
               Sign in
             </Link>
             <Link href={routes.signup}>
@@ -62,7 +62,7 @@ export function Nav() {
           </div>
           <button
             type="button"
-            className="md:hidden -mr-2 p-2 text-ink"
+            className="tp-press tp-press-icon md:hidden -mr-2 p-2 text-ink rounded-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
@@ -80,13 +80,13 @@ export function Nav() {
         <div className="fixed inset-x-0 top-16 bottom-0 z-30 bg-paper flex flex-col md:hidden">
           <nav className="flex-1 overflow-y-auto px-6 py-10 flex flex-col gap-2">
             {navLinks.map((l) => (
-              <Link key={l.href} href={l.href} className="font-display text-3xl py-2">
+              <Link key={l.href} href={l.href} className="tp-press-text font-display text-3xl py-2">
                 {l.label}
               </Link>
             ))}
           </nav>
           <div className="border-t border-hairline px-6 py-6 flex flex-col gap-3">
-            <Link href={routes.login} className="text-center rounded-btn border border-hairline py-3 text-sm text-body">
+            <Link href={routes.login} className="tp-press tp-press-control block text-center rounded-btn border border-hairline py-3 text-sm text-body">
               Sign in
             </Link>
             <Link href={routes.signup}>

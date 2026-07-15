@@ -30,7 +30,7 @@ export default async function NotFound() {
       </p>
       <Link
         href={`/${locale}`}
-        className="mt-8 inline-flex items-center justify-center rounded-btn bg-accent px-5 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent/90"
+        className="tp-press tp-press-control mt-8 inline-flex items-center justify-center rounded-btn bg-accent px-5 py-2.5 text-sm font-medium text-paper transition-[color,background-color,transform] hover:bg-accent/90"
       >
         {c.home}
       </Link>

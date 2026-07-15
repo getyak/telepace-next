@@ -148,7 +148,7 @@ export function ClarifyChips({
               className={cn(
                 "tp-chip-in group relative rounded-pill border px-3.5 py-1.5 text-left text-sm",
                 "transition-[color,background-color,border-color,box-shadow,transform] duration-150",
-                "transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
+                "tp-press tp-press-control focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
                 "disabled:cursor-not-allowed disabled:opacity-40",
                 active
                   ? "border-accent bg-accent-soft text-ink"
@@ -740,7 +740,7 @@ export function ChatComposer({
             "mb-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-[transform,background-color,color] duration-200 motion-reduce:transition-none",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
             canSend
-              ? "bg-accent text-paper hover:scale-105 active:scale-95"
+              ? "tp-press tp-press-icon bg-accent text-paper hover:scale-105"
               : "cursor-not-allowed bg-paper-sunken text-muted",
           )}
         >
@@ -1019,7 +1019,7 @@ export function StageComposer({
             "mb-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-[transform,color] duration-200 motion-reduce:transition-none",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
             canSend
-              ? "text-accent hover:scale-110 active:scale-95"
+              ? "tp-press tp-press-icon text-accent hover:scale-110"
               : "cursor-not-allowed text-faint",
           )}
         >
@@ -1171,7 +1171,11 @@ export function VoiceOrb({
           interactive &&
             !disabled &&
             !recording &&
-            "group-hover:scale-105 group-active:scale-95",
+            // Driven by the PARENT's press, not its own, so this can't use the
+            // tp-press ladder (which keys off `:active` on the element itself).
+            // Hand-matched to the icon rung's 0.93 so the orb dips in step with
+            // every other icon-scale control.
+            "group-hover:scale-105 group-active:scale-[0.93]",
         )}
       >
         {interactive && (

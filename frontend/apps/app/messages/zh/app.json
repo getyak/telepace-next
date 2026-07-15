@@ -221,7 +221,29 @@
     "mcpEndpointIntro": "你的工作区 MCP 接入地址：",
     "mcpAuthHint": "使用上方的 API 密钥进行认证。兼容 Claude Desktop、Claude Code、Cursor 和 Codex。",
     "deleteWorkspace": "删除工作区",
-    "deleteWorkspaceWarning": "所有问卷、访谈记录和洞察将在 30 天宽限期后被永久删除。"
+    "deleteWorkspaceWarning": "所有问卷、访谈记录和洞察将在 30 天宽限期后被永久删除。",
+    "sectionDesc": {
+      "workspace": "此工作区的名称与访问地址。",
+      "members": "谁可以查看和编辑此工作区。",
+      "billing": "你的套餐、用量与续订。",
+      "apiKeys": "用于程序化访问认证的密钥。",
+      "mcp": "将此工作区接入你的 AI 工具。",
+      "danger": "不可撤销的操作，请谨慎执行。"
+    },
+    "workspaceNameHint": "将显示在应用各处及邀请函中。",
+    "urlSlugHint": "用于 URL 地址和 MCP 接入地址。",
+    "membersCount": "{count} 位成员",
+    "seatsHint": "角色决定谁能编辑问卷、查看访谈记录。",
+    "planLabel": "当前套餐",
+    "usageTitle": "本计费周期",
+    "keysHint": "密钥仅在创建时显示一次。一旦泄露请立即轮换。",
+    "copyEndpoint": "复制",
+    "copied": "已复制",
+    "deleteConfirmTitle": "确认删除此工作区？",
+    "deleteConfirmBody": "所有问卷、访谈记录和洞察将在 30 天宽限期后被永久删除。如需确认，请在下方输入工作区标识 {slug}。",
+    "deleteConfirmLabel": "工作区标识",
+    "deleteConfirmCta": "永久删除工作区",
+    "cancel": "取消"
   },
   "responses": {
     "title": "受访者数据",

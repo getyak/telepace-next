@@ -217,7 +217,7 @@ export function GlobalAgentPanel({ className }: { className?: string }) {
                   type="button"
                   onClick={() => submit(s)}
                   disabled={busy}
-                  className="rounded-pill border border-hairline bg-paper-elevated px-3.5 py-1.5 text-left text-sm text-body transition-[color,background-color,border-color,transform] duration-150 hover:border-ink hover:text-ink transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+                  className="rounded-pill border border-hairline bg-paper-elevated px-3.5 py-1.5 text-left text-sm text-body transition-[color,background-color,border-color,transform] duration-150 hover:border-ink hover:text-ink tp-press tp-press-control motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
                 >
                   {s}
                 </button>

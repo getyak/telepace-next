@@ -116,7 +116,7 @@ export default function StudiesPage() {
                   // hover tints on approach, `active` presses a shade deeper the
                   // moment it's held, and the press settles ~3× faster than it
                   // releases so the row feels answered, not laggy.
-                  className="flex items-center gap-4 px-6 py-4 transition-colors duration-200 hover:bg-paper active:bg-paper-sunken active:duration-75"
+                  className="tp-press tp-press-row flex items-center gap-4 px-6 py-4 transition-[color,background-color,transform] duration-200 hover:bg-paper active:bg-paper-sunken"
                 >
                   {/* Title + meta take the room; a long title truncates rather
                       than pushing the progress column off the row. */}

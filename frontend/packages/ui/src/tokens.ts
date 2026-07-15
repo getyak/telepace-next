@@ -81,3 +81,51 @@ export const motion = {
   base: "220ms cubic-bezier(0.4, 0, 0.2, 1)",
   slow: "420ms cubic-bezier(0.22, 1, 0.36, 1)",
 } as const;
+
+/**
+ * Press feedback — the physical half of the motion vocabulary.
+ *
+ * Two rules, both from Apple's *Designing Fluid Interfaces*:
+ *
+ * 1. "Respond on the way down." The dip is faster than the release
+ *    (`downDuration` < `upDuration`), so a press feels *answered* rather than
+ *    animated. Symmetric timing reads as a slow toggle; this reads as touch.
+ *
+ * 2. Scale is graded by element size, because what the eye judges is EDGE
+ *    DISPLACEMENT, not the ratio. A uniform scale makes small controls look
+ *    inert and large ones look rubbery: at 0.97 a 24px icon shifts 0.36px
+ *    (invisible) while a 640px card shifts 9.6px (sloppy).
+ *
+ *    Travel for a centred scale is `size × (1 − scale) / 2`. Each rung's scale
+ *    is fitted so travel stays near ~0.85px across that rung's REAL size band,
+ *    which holds every press in the product inside 0.5–1.1px over a 20× size
+ *    range — so a 20px icon and a 640px card read as the same gesture:
+ *
+ *      icon    20–32px   0.930  → 0.70–1.12px
+ *      control 32–48px   0.960  → 0.64–0.96px   (h-8/h-10/h-12 buttons)
+ *      row    180–320px  0.993  → 0.63–1.12px   (nav items, list rows)
+ *      card   360–640px  0.997  → 0.54–0.96px
+ *
+ * Consumed as the `.tp-press-*` classes in globals.css — these constants are
+ * the single source those rules are derived from.
+ */
+export const press = {
+  scale: {
+    icon: 0.93,
+    control: 0.96,
+    row: 0.993,
+    card: 0.997,
+  },
+  /**
+   * Inline text links (nav, footer, wordmark) dip in OPACITY, not scale — a
+   * transform on text re-rasterises the glyphs (visible softening under
+   * subpixel AA) and nudges the baseline inside a text row. Same timing as the
+   * scale rungs, so a link and a button still feel like one gesture.
+   */
+  textOpacity: 0.55,
+  /** Dip: fast enough to feel like acknowledgement, not animation. */
+  downDuration: "75ms",
+  /** Release: eases back, so the finger leads and the surface follows. */
+  upDuration: "150ms",
+  easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+} as const;

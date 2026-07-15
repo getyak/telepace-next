@@ -221,7 +221,29 @@
     "mcpEndpointIntro": "Your workspace's MCP endpoint:",
     "mcpAuthHint": "Authenticate with your API key above. Compatible with Claude Desktop, Claude Code, Cursor, and Codex.",
     "deleteWorkspace": "Delete workspace",
-    "deleteWorkspaceWarning": "All studies, transcripts, and insights will be permanently deleted after a 30-day grace period."
+    "deleteWorkspaceWarning": "All studies, transcripts, and insights will be permanently deleted after a 30-day grace period.",
+    "sectionDesc": {
+      "workspace": "How this workspace is named and addressed.",
+      "members": "Who can see and edit this workspace.",
+      "billing": "Your plan, usage, and renewal.",
+      "apiKeys": "Keys that authenticate programmatic access.",
+      "mcp": "Connect this workspace to your AI tools.",
+      "danger": "Irreversible actions. Proceed with care."
+    },
+    "workspaceNameHint": "Shown across the app and in invitations.",
+    "urlSlugHint": "Used in URLs and your MCP endpoint.",
+    "membersCount": "{count} people",
+    "seatsHint": "Roles control who can edit studies and view transcripts.",
+    "planLabel": "Current plan",
+    "usageTitle": "This billing period",
+    "keysHint": "Keys are shown once at creation. Rotate immediately if exposed.",
+    "copyEndpoint": "Copy",
+    "copied": "Copied",
+    "deleteConfirmTitle": "Delete this workspace?",
+    "deleteConfirmBody": "This deletes all studies, transcripts, and insights after a 30-day grace period. To confirm, type the workspace slug {slug} below.",
+    "deleteConfirmLabel": "Workspace slug",
+    "deleteConfirmCta": "Delete workspace permanently",
+    "cancel": "Cancel"
   },
   "responses": {
     "title": "Responses",

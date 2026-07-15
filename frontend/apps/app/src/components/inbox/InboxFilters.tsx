@@ -31,7 +31,9 @@ export function InboxFilters({ active, onChange, counts }: InboxFiltersProps) {
             aria-selected={isActive}
             onClick={() => onChange(f.value)}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-pill border px-3 py-1 text-sm transition-colors",
+              "tp-press tp-press-control inline-flex items-center gap-1.5 rounded-pill border px-3 py-1 text-sm " +
+                "transition-[color,background-color,border-color,transform] " +
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
               isActive
                 ? "border-accent bg-accent text-paper"
                 : "border-hairline bg-paper-elevated text-body hover:border-accent/40 hover:text-ink",

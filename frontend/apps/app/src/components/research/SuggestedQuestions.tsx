@@ -42,7 +42,7 @@ export function SuggestedQuestions({
               onClick={() => onSelect(question)}
               className="rounded-pill focus:outline-none focus:ring-1 focus:ring-accent disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <Badge className="cursor-pointer bg-paper-elevated hover:bg-accent-soft hover:text-accent">
+              <Badge className="tp-press tp-press-control cursor-pointer bg-paper-elevated hover:bg-accent-soft hover:text-accent">
                 {question}
               </Badge>
             </button>
