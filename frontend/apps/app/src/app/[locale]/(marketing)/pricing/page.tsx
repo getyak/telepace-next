@@ -4,6 +4,8 @@ import { routes, siteConfig } from "@telepace/config";
 import { Button, Card } from "@telepace/ui";
 
 import { PageHeader } from "@/components/marketing/site-chrome";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { buildPageMetadata, faqPageSchema } from "@/lib/seo";
 import { Link } from "@/i18n/navigation";
 
 export async function generateMetadata({
@@ -12,8 +14,11 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "metadata.marketing.pricing" });
-  return { title: t("title"), description: t("description") };
+  return buildPageMetadata({
+    locale,
+    path: routes.pricing,
+    namespace: "metadata.marketing.pricing",
+  });
 }
 
 const tierIds = ["free", "pro", "team", "enterprise"] as const;
@@ -81,8 +86,14 @@ const faqIds = ["completionDefinition", "byoLlmKey", "phoneMinutes", "cancellati
 export default async function PricingPage() {
   const t = await getTranslations("marketing.pricing");
 
+  const faqItems = faqIds.map((id) => ({
+    question: t(`faq.items.${id}.question`),
+    answer: t(`faq.items.${id}.answer`),
+  }));
+
   return (
     <>
+      <JsonLd data={faqPageSchema(faqItems)} />
       <PageHeader
         eyebrow={t("hero.eyebrow")}
         title={

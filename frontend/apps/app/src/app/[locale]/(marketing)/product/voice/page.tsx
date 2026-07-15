@@ -1,8 +1,10 @@
 import { getTranslations } from "next-intl/server";
 import { Button, Card } from "@telepace/ui";
-import { routes } from "@telepace/config";
+import { routes, siteConfig } from "@telepace/config";
 
 import { PageHeader } from "@/components/marketing/site-chrome";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { absoluteUrl, breadcrumbListSchema, buildPageMetadata } from "@/lib/seo";
 import { Link } from "@/i18n/navigation";
 
 export async function generateMetadata({
@@ -11,15 +13,24 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "metadata.marketing.productVoice" });
-  return { title: t("title"), description: t("description") };
+  return buildPageMetadata({
+    locale,
+    path: routes.product.voice,
+    namespace: "metadata.marketing.productVoice",
+  });
 }
 
 const SPEC_IDS = ["latency", "turnTaking", "language", "pii", "consent"] as const;
 const CHANNEL_IDS = ["browser", "phone", "hotline"] as const;
 
-export default async function VoicePage() {
+export default async function VoicePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const t = await getTranslations("marketing.productVoice");
+  const tMeta = await getTranslations("metadata.marketing");
 
   const specs = SPEC_IDS.map((id) => ({
     k: t(`specs.${id}.k`),
@@ -35,6 +46,12 @@ export default async function VoicePage() {
 
   return (
     <>
+      <JsonLd
+        data={breadcrumbListSchema([
+          { name: siteConfig.brand.name, url: absoluteUrl(locale, routes.home) },
+          { name: tMeta("productVoice.title"), url: absoluteUrl(locale, routes.product.voice) },
+        ])}
+      />
       <PageHeader
         eyebrow={t("hero.eyebrow")}
         title={<>{t("hero.titlePrefix")} <span className="italic text-accent">{t("hero.titleHighlight")}</span></>}

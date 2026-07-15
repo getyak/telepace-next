@@ -10,6 +10,8 @@ import {
 } from "@telepace/icons";
 
 import { Link } from "@/i18n/navigation";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { buildPageMetadata, softwareApplicationSchema } from "@/lib/seo";
 import { AgentSurfacesTabs } from "@/components/marketing/AgentSurfacesTabs";
 import { HeroBackdrop } from "@/components/marketing/HeroBackdrop";
 import { HeroInterview } from "@/components/marketing/HeroInterview";
@@ -22,13 +24,28 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "metadata.marketing.home" });
-  return { title: t("title"), description: t("description") };
+  return buildPageMetadata({
+    locale,
+    path: routes.home,
+    namespace: "metadata.marketing.home",
+  });
 }
 
-export default function Home() {
+export default async function Home({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata.marketing.home" });
   return (
     <>
+      <JsonLd
+        data={softwareApplicationSchema({
+          name: t("title"),
+          description: t("description"),
+        })}
+      />
       <Hero />
       <TrustBar />
       <HowItWorks />

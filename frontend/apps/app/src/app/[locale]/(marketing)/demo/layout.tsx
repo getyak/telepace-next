@@ -1,4 +1,6 @@
-import { getTranslations } from "next-intl/server";
+import { routes } from "@telepace/config";
+
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -6,8 +8,11 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "metadata.marketing.demo" });
-  return { title: t("title"), description: t("description") };
+  return buildPageMetadata({
+    locale,
+    path: routes.demo,
+    namespace: "metadata.marketing.demo",
+  });
 }
 
 export default function DemoLayout({ children }: { children: React.ReactNode }) {

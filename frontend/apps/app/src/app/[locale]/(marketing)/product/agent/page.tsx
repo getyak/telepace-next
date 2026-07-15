@@ -2,8 +2,10 @@ import { getTranslations } from "next-intl/server";
 
 import { Link } from "@/i18n/navigation";
 import { Button, Card } from "@telepace/ui";
-import { routes } from "@telepace/config";
+import { routes, siteConfig } from "@telepace/config";
 import { PageHeader } from "@/components/marketing/site-chrome";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { absoluteUrl, breadcrumbListSchema, buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -11,16 +13,25 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "metadata.marketing.productAgent" });
-  return { title: t("title"), description: t("description") };
+  return buildPageMetadata({
+    locale,
+    path: routes.product.agent,
+    namespace: "metadata.marketing.productAgent",
+  });
 }
 
 const AGENT_IDS = ["designer", "interviewer", "analyst", "coordinator"] as const;
 
 const POLICY_IDS = ["budget", "pii", "escalation", "observability"] as const;
 
-export default async function AgentPage() {
+export default async function AgentPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const t = await getTranslations("marketing.productAgent");
+  const tMeta = await getTranslations("metadata.marketing");
 
   const agents = AGENT_IDS.map((id) => ({
     id,
@@ -38,6 +49,12 @@ export default async function AgentPage() {
 
   return (
     <>
+      <JsonLd
+        data={breadcrumbListSchema([
+          { name: siteConfig.brand.name, url: absoluteUrl(locale, routes.home) },
+          { name: tMeta("productAgent.title"), url: absoluteUrl(locale, routes.product.agent) },
+        ])}
+      />
       <PageHeader
         eyebrow={t("hero.eyebrow")}
         title={<>{t("hero.titleLead")} <span className="italic text-accent">{t("hero.titleEmphasis")}</span></>}
