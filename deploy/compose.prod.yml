@@ -30,7 +30,7 @@ services:
       TELEPACE_REDIS_URL: redis://redis:6379/0
       TELEPACE_PUBLIC_BASE_URL: https://telepace.cubxxw.com
       TELEPACE_API_BASE_URL: https://api.telepace.cubxxw.com
-      TELEPACE_CORS_ALLOW_ORIGINS: https://telepace.cubxxw.com
+      TELEPACE_CORS_ALLOW_ORIGINS: '["https://telepace.cubxxw.com"]'
     depends_on:
       postgres:
         condition: service_healthy
