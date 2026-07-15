@@ -64,4 +64,5 @@ jobs:
       - run: bash scripts/design-guard.sh
       - run: pnpm typecheck
       - run: pnpm check:tokens
+      - run: pnpm test
       - run: pnpm build

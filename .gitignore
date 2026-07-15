@@ -38,3 +38,11 @@ data/
 
 # Playwright MCP debug artifacts
 .playwright-mcp/
+
+# Playwright E2E
+# .auth holds a real signed-in session cookie — never commit it.
+frontend/e2e/.auth/
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+frontend/.cache/

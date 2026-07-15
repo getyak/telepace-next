@@ -12,7 +12,13 @@
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
     "check:colors": "node scripts/check-color-tokens.mjs",
-    "check:tokens": "bash scripts/check-design-tokens.sh"
+    "check:tokens": "bash scripts/check-design-tokens.sh",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
   }
 }
