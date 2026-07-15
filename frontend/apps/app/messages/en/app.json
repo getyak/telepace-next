@@ -94,7 +94,11 @@
     "detailVapi": "Outbound number: +1 415 555 0134",
     "detailResend": "Domain: mail.telepace.io",
     "copy": "Copy",
-    "copied": "Copied!"
+    "copied": "Copied!",
+    "catAgentProtocol": "Agent protocol",
+    "mcpName": "MCP Server",
+    "mcpDetail": "Let Claude, Cursor, or Codex run your research directly — create studies, query insights, and export evidence over MCP.",
+    "viewDocs": "View docs"
   },
   "studies": {
     "eyebrow": "Your studies",

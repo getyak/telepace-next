@@ -34,6 +34,7 @@ export const routes = {
     insights: "/insights",
     copilot: "/copilot",
     integrations: "/integrations",
+    integrationsMcp: "/integrations/mcp",
     settings: "/settings",
     studies: {
       root: "/studies",
