@@ -355,6 +355,7 @@
   },
   "newStudy": {
     "untitledStudy": "未命名问卷",
+    "pageHeading": "新建问卷",
     "systemGreeting": "告诉我你想了解什么，我来帮你起草访谈提纲。",
     "suggestion1": "上个季度试用用户为什么在升级前流失了？",
     "suggestion2": "自由职业者如何决定使用哪款开票工具？",

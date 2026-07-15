@@ -841,6 +841,11 @@ export default function NewStudyPage() {
   // blank space — inset-0 clips it for good.)
   return (
     <div className="absolute inset-0 flex overflow-hidden">
+      {/* The studio's visual title is the editable <textarea> below — a form
+          control, so it gives screen readers no landmark to jump to and the
+          page had no <h1> at all. This names the page for AT without putting a
+          second, competing title on screen. */}
+      <h1 className="sr-only">{tc("pageHeading")}</h1>
       {/* Left: the design conversation as a RECALLABLE rail. Before a study
           exists it's the full stage (the whole pre-create gate lives here);
           once the guide is born it recedes to a slim strip so the document

@@ -62,5 +62,11 @@
       "title": "创建账户",
       "description": "创建一个 telepace 账户——免费版每月包含 3 项研究，无需信用卡。"
     }
+  },
+  "app": {
+    "newStudy": {
+      "title": "新建问卷",
+      "description": "描述你的研究目标，与 Agent 一起把它变成一份可发布的问卷。"
+    }
   }
 }

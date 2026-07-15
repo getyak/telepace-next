@@ -355,6 +355,7 @@
   },
   "newStudy": {
     "untitledStudy": "Untitled study",
+    "pageHeading": "New study",
     "systemGreeting": "Tell me what you'd like to learn. I'll draft the interview for you.",
     "suggestion1": "Why did trial users churn before upgrading last quarter?",
     "suggestion2": "How do freelancers decide which invoicing tool to pay for?",

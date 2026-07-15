@@ -62,5 +62,11 @@
       "title": "Create your account",
       "description": "Create a telepace account — free tier includes 3 studies a month, no card required."
     }
+  },
+  "app": {
+    "newStudy": {
+      "title": "New study",
+      "description": "Describe your research goal and shape it into a publishable study with the agent."
+    }
   }
 }
