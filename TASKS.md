@@ -139,6 +139,15 @@
 
 ---
 
+## P3 — 增长 / 可发现性（SEO + 分享体验）
+
+- [x] **T-401 · 深度 SEO：每页 canonical + hreflang + 结构化数据**
+  - 背景：营销页面已有 title/description，但缺少 per-page canonical 与 hreflang（en/zh 互为重复内容）、缺少 JSON-LD 结构化数据、root metadata 偏薄。
+  - 做：新增 `src/lib/seo.ts`（`buildPageMetadata` 输出 canonical + 全量 hreflang + x-default + locale-aware OpenGraph/Twitter；`organization/webSite/softwareApplication/faqPage/breadcrumbList` schema 构造器）+ `JsonLd` 组件；13 个营销页统一走 `buildPageMetadata`；营销 layout 注入 Organization+WebSite；首页注入 SoftwareApplication、定价页注入 FAQPage、产品页注入 BreadcrumbList；root layout 补 keywords/robots(max-image-preview:large)/applicationName/formatDetection。
+  - 验收：`pnpm typecheck && pnpm build && pnpm test` 全绿；起服务 curl 校验 `/en|/zh` 各页 canonical 自引用、hreflang(en/zh/x-default)、JSON-LD 类型正确渲染；新增 `src/lib/seo.test.ts` 覆盖。
+
+---
+
 ## 进度记录（每完成一个任务在此追加一行）
 <!-- 例: 2026-07-08 T-001 done, commit abc1234 -->
 2026-07-09 T-103 done, commit 6094c9b — chart components (TpBarChart, CrossTab, ChartSection) with warm-beige theme
@@ -176,3 +185,4 @@
 2026-07-15 T-204/T-207 gap-fill done, commit abcf2ea — MCP docs page was shipped but unreachable (no routes.ts entry, zero inbound links, absent from integrations index); added routes.app.integrationsMcp + an MCP card leading the integrations index. Added error.tsx for (auth)/(marketing)/(public) — only (app) had one — and extracted shared bilingual copy into errorBoundaryCopy.ts. Added loading.tsx for inbox/insights. No root not-found.tsx: middleware redirects every unprefixed path to a locale, so [locale]/not-found.tsx already catches them (verified /nonsense-url → 307 → 404).
 2026-07-15 PR queue audit — closed #10/#12/#13/#14/#16 as already-reimplemented on main (verified against commits 93f64a6/6ed36ba/d78cc11/4b8b732; main's files are supersets, two byte-identical). Reopened #15 after finding my "main is a superset" call was wrong there — main's MCP page is a documentation regression AND orphaned; superseded by abcf2ea. Note: those 5 branches predate the [locale] i18n refactor, which is why all went DIRTY at once — work landed on main directly instead of through the PRs.
 2026-07-15 T-111 reverted to [ ] — see task note. UI exists, backend has none of the five fields.
+2026-07-15 T-401 done — deep SEO: added src/lib/seo.ts (buildPageMetadata: per-page canonical + hreflang + x-default + locale-aware OG/Twitter) and JsonLd component; 13 marketing pages unified on buildPageMetadata; marketing layout emits Organization+WebSite, home emits SoftwareApplication, pricing emits FAQPage, product pages emit BreadcrumbList; root metadata gained keywords/robots(max-image-preview:large)/applicationName/formatDetection. Verified via built server: self-referencing canonical + en/zh/x-default hreflang + JSON-LD render on /en & /zh. 10 new tests (seo.test.ts), full suite 78 green.

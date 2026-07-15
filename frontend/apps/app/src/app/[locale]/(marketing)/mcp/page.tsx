@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { Badge, Button, Card } from "@telepace/ui";
 import { routes } from "@telepace/config";
 import { PageHeader } from "@/components/marketing/site-chrome";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -11,8 +12,11 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "metadata.marketing.mcp" });
-  return { title: t("title"), description: t("description") };
+  return buildPageMetadata({
+    locale,
+    path: routes.mcp,
+    namespace: "metadata.marketing.mcp",
+  });
 }
 
 const toolIds = [

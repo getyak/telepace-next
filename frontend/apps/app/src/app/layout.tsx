@@ -37,6 +37,24 @@ export const metadata: Metadata = {
     template: `%s · ${siteConfig.brand.name}`,
   },
   description: siteConfig.brand.tagline,
+  applicationName: siteConfig.brand.name,
+  authors: [{ name: siteConfig.brand.name, url: siteConfig.urls.home }],
+  creator: siteConfig.brand.name,
+  publisher: siteConfig.brand.name,
+  category: "technology",
+  keywords: [
+    "user research",
+    "voice interviews",
+    "AI research agent",
+    "customer interviews",
+    "qualitative research",
+    "interview automation",
+    "MCP",
+    "product research",
+  ],
+  // Marketing copy contains phone numbers and emails as prose, not tappable
+  // links — stop iOS Safari from auto-linkifying and restyling them.
+  formatDetection: { telephone: false, email: false, address: false },
   openGraph: {
     type: "website",
     siteName: siteConfig.brand.name,
@@ -48,6 +66,19 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${siteConfig.brand.name} — ${siteConfig.brand.tagline}`,
     description: siteConfig.brand.tagline,
+  },
+  // Let crawlers index everything public and show full snippets / large image
+  // previews. Private surfaces are excluded via robots.ts, not here.
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
 };
 

@@ -4,6 +4,7 @@ import { routes, siteConfig } from "@telepace/config";
 import { Button } from "@telepace/ui";
 
 import { PageHeader } from "@/components/marketing/site-chrome";
+import { buildPageMetadata } from "@/lib/seo";
 import { Link } from "@/i18n/navigation";
 
 export async function generateMetadata({
@@ -12,8 +13,11 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "metadata.marketing.customers" });
-  return { title: t("title"), description: t("description") };
+  return buildPageMetadata({
+    locale,
+    path: routes.customers,
+    namespace: "metadata.marketing.customers",
+  });
 }
 
 const storyIds = ["northstar", "radicle", "pentagramLabs"] as const;

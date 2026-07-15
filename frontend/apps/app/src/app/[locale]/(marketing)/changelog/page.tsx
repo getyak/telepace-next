@@ -1,8 +1,9 @@
 import { getTranslations } from "next-intl/server";
-import { siteConfig } from "@telepace/config";
+import { routes, siteConfig } from "@telepace/config";
 
 import { Link } from "@/i18n/navigation";
 import { PageHeader } from "@/components/marketing/site-chrome";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -10,8 +11,11 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "metadata.marketing.changelog" });
-  return { title: t("title"), description: t("description") };
+  return buildPageMetadata({
+    locale,
+    path: routes.changelog,
+    namespace: "metadata.marketing.changelog",
+  });
 }
 
 const entryIds = [
