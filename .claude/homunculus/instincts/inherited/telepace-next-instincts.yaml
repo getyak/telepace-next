@@ -1,0 +1,297 @@
+# Instincts generated from https://github.com/getyak/telepace-next
+# Generated: 2026-07-15T12:11:15.156Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: telepace-next-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/getyak/telepace-next
+---
+
+# Telepace Next Commit Length
+
+## Action
+
+Keep commit messages concise (~37 characters)
+
+## Evidence
+
+- Average commit message length: 37 chars
+- Based on 1 commits
+
+---
+id: telepace-next-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/getyak/telepace-next
+---
+
+# Telepace Next Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: telepace-next-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/getyak/telepace-next
+---
+
+# Telepace Next Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: telepace-next-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/getyak/telepace-next
+---
+
+# Telepace Next Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: telepace-next-test-separate
+trigger: "when writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/getyak/telepace-next
+---
+
+# Telepace Next Test Separate
+
+## Action
+
+Place tests in the tests/ or __tests__/ directory, mirroring src structure
+
+## Evidence
+
+- Separate test directory pattern detected
+- Tests live in dedicated test folders
+
+---
+id: telepace-next-instinct-file-naming-camelCase
+trigger: "When creating a new file in the codebase"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: getyak/telepace-next
+---
+
+# Telepace Next Instinct File Naming CamelCase
+
+## Action
+
+Name the file using camelCase
+
+## Evidence
+
+- Pattern: namingConventions.files = camelCase
+
+---
+id: telepace-next-instinct-function-naming-camelCase
+trigger: "When defining a new function"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: getyak/telepace-next
+---
+
+# Telepace Next Instinct Function Naming CamelCase
+
+## Action
+
+Name the function using camelCase
+
+## Evidence
+
+- Pattern: namingConventions.functions = camelCase
+
+---
+id: telepace-next-instinct-class-naming-PascalCase
+trigger: "When defining a new class"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: getyak/telepace-next
+---
+
+# Telepace Next Instinct Class Naming PascalCase
+
+## Action
+
+Name the class using PascalCase
+
+## Evidence
+
+- Pattern: namingConventions.classes = PascalCase
+
+---
+id: telepace-next-instinct-constant-naming-screaming-snake-case
+trigger: "When defining a constant"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: getyak/telepace-next
+---
+
+# Telepace Next Instinct Constant Naming Screaming Snake Case
+
+## Action
+
+Name the constant using SCREAMING_SNAKE_CASE
+
+## Evidence
+
+- Pattern: namingConventions.constants = SCREAMING_SNAKE_CASE
+
+---
+id: telepace-next-instinct-import-style-relative
+trigger: "When importing modules"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: getyak/telepace-next
+---
+
+# Telepace Next Instinct Import Style Relative
+
+## Action
+
+Use relative import paths
+
+## Evidence
+
+- Pattern: importStyle = relative
+
+---
+id: telepace-next-instinct-export-style-named
+trigger: "When exporting functions, classes, or constants"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: getyak/telepace-next
+---
+
+# Telepace Next Instinct Export Style Named
+
+## Action
+
+Use named exports
+
+## Evidence
+
+- Pattern: exportStyle = named
+
+---
+id: telepace-next-instinct-test-location-separate
+trigger: "When adding or organizing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: getyak/telepace-next
+---
+
+# Telepace Next Instinct Test Location Separate
+
+## Action
+
+Place test files in a separate folder from source files
+
+## Evidence
+
+- Pattern: testLocation = separate
+
+---
+id: telepace-next-instinct-git-commit-freeform
+trigger: "When writing a commit message"
+confidence: 0.7
+domain: git
+source: repo-analysis
+source_repo: getyak/telepace-next
+---
+
+# Telepace Next Instinct Git Commit Freeform
+
+## Action
+
+Use a freeform commit message without a required prefix
+
+## Evidence
+
+- Pattern: commits.type = freeform
+- No prefixes detected in commit examples
+
+---
+id: telepace-next-instinct-git-commit-short
+trigger: "When writing a commit message"
+confidence: 0.7
+domain: git
+source: repo-analysis
+source_repo: getyak/telepace-next
+---
+
+# Telepace Next Instinct Git Commit Short
+
+## Action
+
+Keep the commit message concise (around 37 characters on average)
+
+## Evidence
+
+- Pattern: commits.averageLength = 37
+
+---
+id: telepace-next-instinct-deploy-workflow-location
+trigger: "When modifying deployment workflows"
+confidence: 0.8
+domain: workflow
+source: repo-analysis
+source_repo: getyak/telepace-next
+---
+
+# Telepace Next Instinct Deploy Workflow Location
+
+## Action
+
+Edit the .github/workflows/deploy.yml file
+
+## Evidence
+
+- Pattern: configFiles includes .github/workflows/deploy.yml
+
