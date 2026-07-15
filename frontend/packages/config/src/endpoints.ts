@@ -30,6 +30,9 @@ export const apiEndpoints = {
     join: "/v1/interviews/join",
     reply: "/v1/interviews/reply",
   },
+  agent: {
+    chat: "/v1/agent/chat",
+  },
 } as const;
 
 export const wsEndpoints = {

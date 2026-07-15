@@ -52,7 +52,7 @@ export function VersionHistory<T>({
                     "w-full text-left rounded-btn px-3 py-2 text-sm transition-[background-color,transform] duration-150",
                     isCurrent
                       ? "bg-accent/10 text-accent cursor-default"
-                      : "text-body hover:bg-ink/5 active:bg-ink/10 transform-gpu active:scale-[0.99] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100",
+                      : "text-body hover:bg-ink/5 active:bg-ink/10 tp-press tp-press-row motion-reduce:transition-none",
                   )}
                 >
                   <div className="flex items-center justify-between gap-2">

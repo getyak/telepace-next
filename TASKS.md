@@ -155,3 +155,12 @@
 2026-07-09 T-205 done, commit 4b8b732 — cross-study copilot (CopilotChat, StudySelector, MemoExport)
 2026-07-09 T-206 done, commit d78cc11 — i18n consistency (all hardcoded strings extracted to en/zh app.json)
 2026-07-12 T-208 done, commit 890b6a5 — pre-creation task assessment gate (/assess endpoint, research_task first-class field, hard-gated clarify loop, editable Research Task card)
+2026-07-13 T-301 done, commit e4d03bf — wire real insight/followup readers into MCP tools (ProjectorInsightReader, EventStoreTranscriptReader, AnalystFollowupService)
+2026-07-13 T-302 done, commit 8114132/07be97e — OrchestratorAgent conversational tool-calling core (reuses MCP_TOOL_REGISTRY + TOOL_HANDLERS, MockLLM TDD)
+2026-07-13 T-303 done, commit e64b5cc — POST /agent/chat SSE endpoint (JWT-scoped per-request orchestrator)
+2026-07-13 T-304 done, commit 15e8177 — 4 new MCP tools (list_campaigns, refine_outline, start_campaign, dispatch_invites) closing the full lifecycle loop
+2026-07-13 T-305 done, commit a91a638 — global research-copilot sidebar (agentChat SSE client, GlobalAgentPanel, AgentDock apple-design drawer, zh/en i18n)
+2026-07-13 T-306 done, commit 4176811 — CopilotChat wired to real agent (de-mocked); AgentDock hidden in /studies/new studio (方案 B)
+2026-07-14 T-307 done, commit 17ae8cc — study-progress visualization + structured agent list cards (shared ProgressBar/studyStatus, list overview band, list_campaigns cards with status/progress/deep-link, detail metric bar); "取 resume 之骨、留 telepace 之魂"
+2026-07-14 T-307 done, commit 8bb6c07 — create-studio all-in redesign (Jobs-voice feedback): fix scroll-collapse (h-screen shell + main scroll), i18n content follows UI locale, remove "N changes" badge, drop na "who pays" pip, collapsible chat rail (guide is the star), honest LaunchPanel promoting Delivery to the publish moment
+2026-07-14 T-307 done, commit 7d4e461 — fix workbench phantom page-scroll (canvas pane's overflow-y-auto leaked content height to <html>); pin studio root with absolute inset-0 on relative main so only the panes scroll, page no longer drags into blank space

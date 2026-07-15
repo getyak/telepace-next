@@ -16,7 +16,7 @@ from interfaces.rest_api import ws
 from interfaces.rest_api.auth.router import router as auth_router
 from interfaces.rest_api.config import get_settings
 from interfaces.rest_api.deps import AppState, build_state
-from interfaces.rest_api.routers import campaigns, health, interviews
+from interfaces.rest_api.routers import agent, campaigns, health, interviews
 from interfaces.rest_api.worker import analyze_completion
 
 logger = logging.getLogger(__name__)
@@ -84,6 +84,7 @@ def create_app() -> FastAPI:
     application.include_router(auth_router)
     application.include_router(campaigns.router)
     application.include_router(interviews.router)
+    application.include_router(agent.router)
     application.include_router(ws.router)
     application.include_router(voice_ws.router)
     return application

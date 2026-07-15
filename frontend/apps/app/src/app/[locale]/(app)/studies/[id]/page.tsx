@@ -4,7 +4,7 @@ import { use, useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Badge, Button, Card, Dialog, EmptyState, Skeleton, toast } from "@telepace/ui";
+import { Badge, Button, Card, Dialog, EmptyState, ProgressBar, Skeleton, toast } from "@telepace/ui";
 import { routes } from "@telepace/config";
 import { ResponseTable } from "@/components/responses";
 import type { ResponseRow } from "@/types/evidence";
@@ -259,7 +259,13 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
       )}
 
       <section className="mb-14 grid grid-cols-2 gap-4 md:grid-cols-4">
-        <Metric label={t("metricCompleted")} value={t("completedValue", { completed: progress.completed, target })} tone="accent" />
+        <Metric
+          label={t("metricCompleted")}
+          value={t("completedValue", { completed: progress.completed, target })}
+          tone="accent"
+          progress={target > 0 ? Math.min(1, progress.completed / target) : undefined}
+          progressLabel={t("completedValue", { completed: progress.completed, target })}
+        />
         <Metric label={t("metricInProgress")} value={String(inProgress)} />
         <Metric label={t("metricMedianLength")} value={formatDuration(progress.avg_duration_seconds)} />
         <Metric label={t("metricInsights")} value={String(totalInsights)} />
@@ -356,11 +362,28 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
   );
 }
 
-function Metric({ label, value, tone }: { label: string; value: string; tone?: "accent" }) {
+function Metric({
+  label,
+  value,
+  tone,
+  progress,
+  progressLabel,
+}: {
+  label: string;
+  value: string;
+  tone?: "accent";
+  /** When set (0–1), draws a completion bar under the value — the same progress
+   * language used on the studies list and the agent chat cards. */
+  progress?: number;
+  progressLabel?: string;
+}) {
   return (
     <Card className="p-5">
       <p className="overline mb-2">{label}</p>
       <p className={`font-display text-3xl ${tone === "accent" ? "text-accent" : "text-ink"}`}>{value}</p>
+      {progress !== undefined && (
+        <ProgressBar className="mt-3" value={progress} label={progressLabel} />
+      )}
     </Card>
   );
 }

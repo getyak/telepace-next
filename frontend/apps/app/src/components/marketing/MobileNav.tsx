@@ -70,7 +70,7 @@ export function MobileNav({
         aria-label={open ? closeMenuLabel : openMenuLabel}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="-m-2 p-2 text-ink rounded-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper transform-gpu transition-transform duration-150 active:scale-90 active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100"
+        className="-m-2 p-2 text-ink rounded-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper transition-transform duration-150 tp-press tp-press-icon motion-reduce:transition-none"
       >
         {open ? <CloseIcon size={20} /> : <MenuIcon size={20} />}
       </button>
@@ -85,7 +85,7 @@ export function MobileNav({
               type="button"
               aria-label={closeMenuLabel}
               onClick={() => setOpen(false)}
-              className="-m-2 p-2 text-ink rounded-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper transform-gpu transition-transform duration-150 active:scale-90 active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100"
+              className="-m-2 p-2 text-ink rounded-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper transition-transform duration-150 tp-press tp-press-icon motion-reduce:transition-none"
             >
               <CloseIcon size={20} />
             </button>

@@ -1,17 +1,17 @@
 "use client";
 
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import {
   Button,
   Card,
-  ChatFeed,
   ChatComposer,
   ReadinessSpine,
   type ChatMessage,
   type ClarifyPrompt,
   type ReadinessPip,
 } from "@telepace/ui";
+import { AgentMessage } from "@/components/agent/AgentMessage";
 import { ALL_CHANNELS, CHANNELS } from "@telepace/config";
 import {
   deriveDecisionClarify,
@@ -139,6 +139,11 @@ export default function NewStudyPage() {
   const router = useRouter();
   const tc = useTranslations("app.newStudy");
   const errorsCopy = useErrorsCopy();
+  // The UI locale ("en" | "zh") — threaded into assess/create so the Designer
+  // produces the persona/hypotheses/questions in the language the researcher is
+  // actually reading, instead of inferring it from the goal text (which let
+  // Chinese content leak onto the English studio).
+  const locale = useLocale();
 
   const initialMessages: ChatMessage[] = [
     { id: "sys-1", role: "system", text: tc("systemGreeting") },
@@ -165,11 +170,12 @@ export default function NewStudyPage() {
   const [sim, setSim] = useState<SimulateResponse | null>(null);
   const [simError, setSimError] = useState<string | null>(null);
   const [lastFailed, setLastFailed] = useState<string | null>(null);
-  // Which guide sections changed on the most recent patch — drives the diff
-  // flash + the "~N changes" badge. Keyed by section id so each block can
-  // independently re-trigger its one-shot highlight animation.
+  // Which guide sections changed on the most recent patch — drives the
+  // in-place diff flash. Keyed by section id so each block can independently
+  // re-trigger its one-shot highlight animation. The block IS the change
+  // notification (it highlights in place); we deliberately show NO "~N changes"
+  // counter — a number with no exit (there is no revert) only breeds anxiety.
   const [changed, setChanged] = useState<Set<string>>(new Set());
-  const [changeCount, setChangeCount] = useState(0);
   // Monotonic patch counter — feeds each block's remount key so the one-shot
   // diff-flash / grow animation replays even when the SAME block changes on two
   // consecutive patches (moved.size alone would stay constant and React would
@@ -186,6 +192,22 @@ export default function NewStudyPage() {
   // ready-to-publish note. Consumed and cleared in the refine onDone.
   const nextStageRef = useRef<"audience" | "closure" | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  // Anchor the conversation to its latest turn — the old ChatFeed auto-scrolled
+  // internally; our own message list needs an explicit end sentinel to keep the
+  // newest reply in view as the design chat grows.
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Chat-rail presentation (the conversation is the midwife, the guide is the
+  // star). null = no explicit user choice; the default is derived: expanded
+  // while no study exists (the whole pre-create gate lives here), then it
+  // recedes to a slim recallable strip once the guide is born. true/false = a
+  // sticky user override (they pinned it open or closed).
+  const [chatExpandedOverride, setChatExpandedOverride] = useState<boolean | null>(null);
+  // How many messages the researcher has "seen" — i.e. the count at the moment
+  // the rail was last expanded. When a new agent turn arrives while collapsed,
+  // messages.length outruns this and the strip shows an unread dot so a pending
+  // clarify is never hidden behind the collapsed rail.
+  const seenLenRef = useRef<number>(0);
 
   // ── The pre-creation assessment gate ──────────────────────────────────────
   // Until intent is clear, NO campaign is created. These refs carry the loop's
@@ -230,13 +252,30 @@ export default function NewStudyPage() {
   // a monotonic seq so an identical sentence still re-announces (WCAG 4.1.3).
   const [readinessLive, setReadinessLive] = useState<string>("");
   const [readinessLiveSeq, setReadinessLiveSeq] = useState(0);
-  // When a pip transitions, the pip IS the change notification — so we suppress
-  // the redundant changes-badge ping for that one patch (one patch → one flash).
-  const [suppressBadgePing, setSuppressBadgePing] = useState(false);
 
   const prefersReducedMotion = usePrefersReducedMotion();
 
   const readiness = deriveReadiness(spec);
+
+  // The rail is expanded through the whole pre-create gate (all clarify chips
+  // live here), then recedes once a study exists — unless the researcher has
+  // pinned it. A pure derivation, so the collapse happens without an effect
+  // (no flicker, no extra render).
+  const chatExpanded = chatExpandedOverride ?? !campaignId;
+  // A new agent turn arrived while the rail was collapsed → surface an unread
+  // dot so a pending clarify is never hidden. While expanded, we stay caught up.
+  const hasUnread = !chatExpanded && messages.length > seenLenRef.current;
+  useEffect(() => {
+    if (chatExpanded) seenLenRef.current = messages.length;
+  }, [chatExpanded, messages.length]);
+
+  // Keep the newest turn in view as the conversation grows (replaces ChatFeed's
+  // internal auto-scroll). Depends on the last message's text so streamed
+  // deltas keep the tail pinned, not just new-message arrivals.
+  const lastMsg = messages[messages.length - 1];
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages.length, lastMsg?.text, lastMsg?.pending]);
 
   // Localized copy for the domain-aware clarification chips. Memoized so the
   // object identity is stable across renders (it feeds pure derive fns).
@@ -274,16 +313,28 @@ export default function NewStudyPage() {
     [tc],
   );
 
+  // The pips the spine actually renders. "who pays" only applies to pricing
+  // studies; on everything else deriveReadiness marks it `na`. Rather than draw
+  // a greyed, minus-sign stub among the green checks (a "lost tooth"), we drop
+  // it from the spine entirely and let it appear — as a real, required step —
+  // only when the study is a pricing one. deriveReadiness/READINESS_ORDER are
+  // unchanged (pendingCount + tests still rely on the full five-pip model);
+  // this is purely what the header chooses to show.
+  const spineOrder = useMemo<Array<keyof Readiness>>(
+    () => READINESS_ORDER.filter((k) => k !== "whopays" || readiness.whopays !== "na"),
+    [readiness.whopays],
+  );
+
   // The pips array the presentational spine renders — labels + live status,
-  // built from the derived readiness in stable spine order.
+  // built from the derived readiness in applicable-spine order.
   const readinessPips = useMemo<ReadinessPip[]>(
     () =>
-      READINESS_ORDER.map((k) => ({
+      spineOrder.map((k) => ({
         key: k,
         label: readinessLabels[k],
         status: readiness[k],
       })),
-    [readiness, readinessLabels],
+    [spineOrder, readiness, readinessLabels],
   );
 
   // How many applicable pips are still pending — feeds the publish soft-gate
@@ -326,18 +377,15 @@ export default function NewStudyPage() {
 
     if (moved.size > 0) {
       setChanged(moved);
-      setChangeCount(moved.size);
       // Bump the sequence so consecutive edits to the same block still remount
       // and replay their highlight.
       setPatchSeq((n) => n + 1);
     }
 
-    // Coordinated header cue: when a pip transitions, the pip IS the change
-    // notification, so suppress the redundant changes-badge ping for this one
-    // patch — one patch → one flash → one utterance (the whole "calm" of the
-    // spine depends on not firing two competing pings 8px apart).
+    // A readiness pip landing is the one meaningful header cue — ping it and
+    // announce it. (There is no competing changes-badge anymore; the guide
+    // blocks flash in place, which is the "what changed" answer.)
     if (flipped.length > 0) {
-      setSuppressBadgePing(true);
       // Arm the one-shot pip ping only when motion is welcome; the CSS query is
       // a second gate. Ping the last-flipped pip (questions wins on a full jump).
       setJustSatisfied(prefersReducedMotion ? null : flipped[flipped.length - 1]);
@@ -351,7 +399,6 @@ export default function NewStudyPage() {
       );
       setReadinessLiveSeq((n) => n + 1);
     } else {
-      setSuppressBadgePing(false);
       setJustSatisfied(null);
     }
   }
@@ -414,6 +461,12 @@ export default function NewStudyPage() {
       title: derivedTitle,
       goal,
       research_task: taskPayload,
+      // Content language follows the UI locale (fixes zh content on /en).
+      language: locale,
+      // Persist the delivery selection at create time — the pills used to be
+      // dead local state that never reached the server; now the choice is real
+      // and drives which channels are dispatchable after publish.
+      channels: spec.channels,
     });
     setCampaignId(created.campaign_id);
     setSpec((s) => ({
@@ -471,6 +524,8 @@ export default function NewStudyPage() {
       assess = await assessTask({
         goal,
         prior_context: priorContextRef.current,
+        // Clarifying questions come back in the researcher's UI language.
+        language: locale,
       });
     } catch {
       const local = assessReadinessLocal(goal, priorContextRef.current);
@@ -757,8 +812,14 @@ export default function NewStudyPage() {
     if (!campaignId) return;
     setPublishing(true);
     try {
-      await startCampaign(campaignId);
-      router.push(`/studies/${campaignId}?published=1`);
+      // Start returns which of the persisted channels are actually
+      // dispatchable (email/sms/phone) — hand them to the study page so it can
+      // point at the real, separate dispatch step instead of pretending the
+      // publish click already sent anything.
+      const res = await startCampaign(campaignId);
+      const dispatchable = (res?.dispatchable_channels ?? []).join(",");
+      const query = dispatchable ? `?published=1&dispatch=${dispatchable}` : "?published=1";
+      router.push(`/studies/${campaignId}${query}`);
     } catch (err) {
       const copy = friendlyMessage(err, errorsCopy);
       setMessages((prev) => [
@@ -773,33 +834,109 @@ export default function NewStudyPage() {
     }
   }
 
+  // A fixed workbench: the root is pinned to <main> via `absolute inset-0` so
+  // it's exactly the viewport minus the sidebar, and scrolling happens ONLY
+  // inside each pane below. (An h-full + flex/overflow-y-auto chain leaks the
+  // canvas pane's content height up to <html>, letting the whole page drag into
+  // blank space — inset-0 clips it for good.)
   return (
-    <div className="h-screen grid grid-cols-12">
-      {/* Left: chat pane — a calm one-third rail; the document is the star. */}
-      <section className="col-span-4 border-r border-hairline flex flex-col bg-paper">
+    <div className="absolute inset-0 flex overflow-hidden">
+      {/* Left: the design conversation as a RECALLABLE rail. Before a study
+          exists it's the full stage (the whole pre-create gate lives here);
+          once the guide is born it recedes to a slim strip so the document
+          becomes the star, and expands again on click. Width animates; the
+          chat stays mounted so messages, scroll, and composer focus survive a
+          collapse and it's instantly re-grabbable. */}
+      <div
+        className={`relative flex shrink-0 flex-col border-r border-hairline bg-paper transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+          chatExpanded ? "w-[380px]" : "w-12"
+        }`}
+      >
+        {/* Collapsed strip — a quiet spine: expand affordance, a rotated
+            "Design chat" label, and an unread dot when an agent turn landed
+            while collapsed. The whole strip is the expand hit target. */}
+        {!chatExpanded && (
+          <button
+            type="button"
+            onClick={() => setChatExpandedOverride(true)}
+            aria-label={tc("expandChat")}
+            className="group absolute inset-0 flex flex-col items-center gap-3 py-4 transition-colors hover:bg-paper-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+          >
+            <span
+              aria-hidden
+              className="text-muted transition-colors group-hover:text-ink"
+            >
+              ⟩
+            </span>
+            <span
+              aria-hidden
+              className="overline whitespace-nowrap text-muted [writing-mode:vertical-rl]"
+            >
+              {tc("designChat")}
+            </span>
+            {(hasUnread || busy) && (
+              <span
+                aria-hidden
+                className={`mt-1 h-1.5 w-1.5 rounded-full bg-accent ${busy ? "tp-pulse-slow" : ""}`}
+              />
+            )}
+          </button>
+        )}
+
+        {/* Expanded chat — the full conversation surface. Hidden (not
+            unmounted) when collapsed so its state is preserved. */}
+        <section className={`flex min-h-0 flex-1 flex-col ${chatExpanded ? "" : "hidden"}`}>
         <header className="px-6 min-h-14 py-2.5 flex items-center justify-between border-b border-hairline">
           <p className="overline">{tc("designChat")}</p>
+          <div className="flex items-center gap-3">
           {busy && campaignId && (
             <button
               onClick={handleStop}
-              className="text-xs text-muted hover:text-ink transition-[color,background-color,border-color,transform] duration-150 transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+              className="text-xs text-muted hover:text-ink transition-[color,background-color,border-color,transform] duration-150 tp-press tp-press-control motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
             >
               ■ {tc("stop")}
             </button>
           )}
+          {/* Collapse the rail — only offered once a study exists (before that
+              the conversation is the whole task and mustn't be hidden). */}
+          {campaignId && (
+            <button
+              type="button"
+              onClick={() => setChatExpandedOverride(false)}
+              aria-label={tc("collapseChat")}
+              className="text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+            >
+              ‹
+            </button>
+          )}
+          </div>
         </header>
         <div className="flex-1 overflow-y-auto px-6">
-          <ChatFeed
-            messages={messages}
-            typingLabel={tc("typing")}
-            onClarify={handleClarifySelect}
-            onClarifyFreeform={handleClarifyFreeform}
-            clarifyDisabled={busy}
-            clarifyLabels={{
-              group: tc("clarifyGroupLabel"),
-              count: (n) => tc("clarifyCount", { count: n }),
-            }}
-          />
+          {/* The design conversation — quiet copilot prose, NOT the interview
+              ChatFeed's serif "hero" question. The designer agent's clarifying
+              questions read as ordinary assistant turns with answer chips. */}
+          <div
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions"
+            className="flex flex-col gap-4 py-5"
+          >
+            {messages.map((m) => (
+              <AgentMessage
+                key={m.id}
+                message={m}
+                typingLabel={tc("typing")}
+                onClarify={handleClarifySelect}
+                onClarifyFreeform={handleClarifyFreeform}
+                clarifyDisabled={busy}
+                clarifyLabels={{
+                  group: tc("clarifyGroupLabel"),
+                  count: (n) => tc("clarifyCount", { count: n }),
+                }}
+              />
+            ))}
+            <div ref={chatEndRef} />
+          </div>
           {messages.length === 1 && (
             <div className="mt-2 space-y-2">
               <p className="text-xs text-muted">{tc("tryThese")}</p>
@@ -809,7 +946,7 @@ export default function NewStudyPage() {
                     key={s}
                     onClick={() => handleSend(s)}
                     disabled={busy}
-                    className="rounded-pill border border-hairline bg-paper-elevated px-3.5 py-1.5 text-left text-sm text-body transition-[color,background-color,border-color,transform] duration-150 hover:border-ink hover:text-ink transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+                    className="rounded-pill border border-hairline bg-paper-elevated px-3.5 py-1.5 text-left text-sm text-body transition-[color,background-color,border-color,transform] duration-150 hover:border-ink hover:text-ink tp-press tp-press-control motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
                   >
                     {s}
                   </button>
@@ -833,10 +970,12 @@ export default function NewStudyPage() {
           sendLabel={tc("send")}
           focusSignal={composerFocusKey}
         />
-      </section>
+        </section>
+      </div>
 
-      {/* Right: canvas pane — the wide, elevated-paper research manuscript. */}
-      <section className="col-span-8 flex flex-col overflow-hidden">
+      {/* Right: canvas pane — the wide, elevated-paper research manuscript.
+          It takes the full remaining stage (flex-1) — the star of the studio. */}
+      <section className="flex flex-1 min-w-0 flex-col overflow-hidden">
         <header className="px-8 min-h-14 py-2.5 flex items-center justify-between gap-6 border-b border-hairline">
           <div className="min-w-0 flex flex-col gap-1.5">
             <div className="flex items-center gap-3">
@@ -847,24 +986,6 @@ export default function NewStudyPage() {
                   completions: spec.target_completions,
                 })}
               </span>
-              {changeCount > 0 && (
-                <span
-                  key={changeCount + Array.from(changed).join()}
-                  aria-hidden
-                  className="tp-chip-in inline-flex items-center gap-1.5 rounded-pill bg-accent-soft px-2.5 py-1 text-xs text-accent"
-                >
-                  {/* Suppress the badge ping on any patch where a readiness pip
-                      transitions — the pip's own ping IS the change notification
-                      (one patch → one flash). Only the badge dot is suppressed;
-                      the badge itself still shows. */}
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full bg-accent ${
-                      suppressBadgePing ? "" : "tp-ping-once"
-                    }`}
-                  />
-                  {tc("changesTracked", { count: changeCount })}
-                </span>
-              )}
             </div>
             {/* The readiness spine — wizard-grade certainty without a wizard. */}
             <ReadinessSpine
@@ -872,20 +993,24 @@ export default function NewStudyPage() {
               justSatisfied={justSatisfied}
               label={tc("readinessLabel")}
             />
-            {/* One polite live region carries BOTH the guide-change count and the
-                readiness transition — SSE updates move no focus, so assistive
-                tech needs the spoken equivalent (WCAG 4.1.3). Keyed by a seq so an
-                identical utterance still re-announces; readiness wins when it
-                just fired (it's the more meaningful event). */}
+            {/* A polite live region carries the readiness transition — SSE
+                updates move no focus, so assistive tech needs the spoken
+                equivalent (WCAG 4.1.3). Keyed by a seq so an identical
+                utterance still re-announces. (The per-block diff flash carries
+                "what changed" visually; there is no change-count to announce.) */}
             <span
-              key={`live-${readinessLiveSeq}-${changeCount}-${Array.from(changed).join()}`}
+              key={`live-${readinessLiveSeq}`}
               className="sr-only"
               role="status"
               aria-live="polite"
             >
-              {readinessLive || (changeCount > 0 ? tc("guideUpdated", { count: changeCount }) : "")}
+              {readinessLive}
             </span>
           </div>
+          {/* The header keeps only the lightweight "preview a respondent"
+              action. Publishing lives at the end of the manuscript in the
+              LaunchPanel — one honest launch moment, not a second CTA up here
+              competing with it. */}
           <div className="flex shrink-0 items-center gap-2">
             <Button
               variant="ghost"
@@ -896,27 +1021,16 @@ export default function NewStudyPage() {
             >
               {tc("simulateRespondent")}
             </Button>
-            {/* Publish soft-gate: enabled once there's a goal + at least a started
-                outline (never trapped). If audience/depth remain open, a muted
-                factual hint sits beside publish — never a red error, because
-                publishing an incomplete study is a legitimate choice. */}
-            {readinessOpen > 0 && campaignId && spec.outline.length > 0 && (
-              <span className="text-xs text-muted whitespace-nowrap">
-                {tc("readinessOpenHint", { remaining: readinessOpen })}
-              </span>
-            )}
-            <Button
-              size="sm"
-              loading={publishing}
-              disabled={!campaignId || spec.outline.length === 0}
-              onClick={handlePublish}
-            >
-              {tc("publishStudy")}
-            </Button>
           </div>
         </header>
 
         <div className="flex-1 overflow-y-auto p-8 bg-paper-elevated">
+          {!campaignId && !spec.goal ? (
+            <CanvasEmptyState
+              title={tc("canvasEmptyTitle")}
+              body={tc("canvasEmptyBody")}
+            />
+          ) : (
           <div className="max-w-3xl mx-auto">
             {/* Auto-growing title: a long zh goal-turned-title must wrap onto a
                 second line, never clip off the right edge (a single-line <input>
@@ -1002,7 +1116,7 @@ export default function NewStudyPage() {
                                 type="button"
                                 disabled={busy}
                                 onClick={() => startEditTask(field)}
-                                className="group w-full text-left text-body leading-relaxed rounded-input px-1.5 py-1 -mx-1.5 transition-[color,background-color,border-color,transform] duration-150 hover:bg-paper disabled:cursor-not-allowed transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+                                className="group w-full text-left text-body leading-relaxed rounded-input px-1.5 py-1 -mx-1.5 transition-[color,background-color,border-color,transform] duration-150 hover:bg-paper disabled:cursor-not-allowed tp-press tp-press-control motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
                                 aria-label={tc("taskEditAria", {
                                   facet: tc(`taskField_${field}` as Parameters<typeof tc>[0]),
                                 })}
@@ -1137,33 +1251,40 @@ export default function NewStudyPage() {
               );
             })()}
 
-            <div className="mt-10">
-              <p className="overline mb-4 flex items-center gap-2 before:h-px before:w-4 before:bg-hairline before:content-['']">{tc("delivery")}</p>
-              <div className="flex flex-wrap gap-2">
-                {ALL_CHANNELS.map((ch) => (
-                  <button
-                    key={ch}
-                    aria-pressed={spec.channels.includes(ch)}
-                    onClick={() =>
-                      setSpec((s) => ({
-                        ...s,
-                        channels: s.channels.includes(ch)
-                          ? s.channels.filter((c) => c !== ch)
-                          : [...s.channels, ch],
-                      }))
-                    }
-                    className={`px-3 py-1.5 rounded-pill text-sm border transition-[color,background-color,border-color,transform] duration-150 transform-gpu active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
-                      spec.channels.includes(ch)
-                        ? "bg-ink text-paper border-ink"
-                        : "bg-paper text-body border-hairline hover:border-ink"
-                    }`}
-                  >
-                    {CHANNEL_LABELS[ch]}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* Launch — the delivery plan promoted from a footer afterthought
+                to the closing moment of the manuscript. This is the product's
+                soul (voice-native, agent-first), so it reads as *launching*:
+                pick how the study reaches people, see honestly what each channel
+                does, then publish. Anchored here because it's where the
+                researcher finishes reading the guide and decides to ship. */}
+            <LaunchPanel
+              channels={spec.channels}
+              onToggleChannel={(ch) =>
+                setSpec((s) => ({
+                  ...s,
+                  channels: s.channels.includes(ch)
+                    ? s.channels.filter((c) => c !== ch)
+                    : [...s.channels, ch],
+                }))
+              }
+              channelLabels={CHANNEL_LABELS}
+              onPublish={handlePublish}
+              publishing={publishing}
+              canPublish={!!campaignId && spec.outline.length > 0}
+              openReadiness={readinessOpen}
+              copy={{
+                title: tc("launchTitle"),
+                subtitle: tc("launchSubtitle"),
+                consequenceLink: tc("deliveryConsequenceLink"),
+                consequenceDispatch: tc("deliveryConsequenceDispatch"),
+                publishGetLink: tc("publishGetLink"),
+                publishAndDispatch: tc("publishStudy"),
+                dispatchSubline: tc("publishThenDispatch"),
+                openHint: (n) => tc("readinessOpenHint", { remaining: n }),
+              }}
+            />
           </div>
+          )}
         </div>
       </section>
 
@@ -1241,6 +1362,151 @@ export default function NewStudyPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * The canvas before any study exists — a calm, Claude-artifact-style "your
+ * document will take shape here" state. Not a form of empty inputs: a centered,
+ * neutral placeholder with a faint manuscript skeleton (a few ruled lines that
+ * hint at the outline to come), a title, and one line of guidance. Everything
+ * quiet — the real content earns the ink once the conversation produces it.
+ */
+function CanvasEmptyState({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="flex h-full min-h-[60vh] flex-col items-center justify-center px-8 text-center">
+      <div className="w-full max-w-sm">
+        {/* Faint manuscript skeleton — ruled lines of decreasing weight that
+            evoke a page waiting to be written, not a spinner or an icon. */}
+        <div aria-hidden className="mx-auto mb-8 flex w-40 flex-col gap-2.5 opacity-60">
+          <div className="h-2.5 w-2/3 rounded-pill bg-hairline" />
+          <div className="h-1.5 w-full rounded-pill bg-hairline" />
+          <div className="h-1.5 w-full rounded-pill bg-hairline" />
+          <div className="h-1.5 w-4/5 rounded-pill bg-hairline" />
+          <div className="mt-2 h-1.5 w-1/2 rounded-pill bg-hairline" />
+        </div>
+        <p className="font-display text-xl leading-snug text-ink">{title}</p>
+        <p className="mt-2 text-sm leading-relaxed text-muted">{body}</p>
+      </div>
+    </div>
+  );
+}
+
+// Which channels are actually *dispatched* to a recipient after publish
+// (email/phone place real sends) vs. link channels served by a shareable live
+// session (web text / web voice). This drives the honest per-channel copy — we
+// never imply publishing dispatches a link channel, nor that a dispatch channel
+// goes out on the publish click itself (dispatch is a real, separate step).
+const DISPATCH_CHANNELS = new Set<string>([CHANNELS.phoneOutbound, CHANNELS.email]);
+
+type LaunchCopy = {
+  title: string;
+  subtitle: string;
+  consequenceLink: string;
+  consequenceDispatch: string;
+  publishGetLink: string;
+  publishAndDispatch: string;
+  dispatchSubline: string;
+  openHint: (n: number) => string;
+};
+
+/**
+ * The launch moment. The delivery plan — how this study reaches people — used
+ * to be a footer afterthought; here it's the closing act of the manuscript,
+ * paired with the publish action. Each channel states honestly what selecting
+ * it means (a shareable live link, or eligible-to-dispatch-after-publish). The
+ * publish CTA adapts to the selection but never overpromises: it says "get
+ * link" for link-only studies and "publish" (with a dispatch-is-next subline)
+ * when a dispatchable channel is on — it never claims to send calls on click.
+ */
+function LaunchPanel({
+  channels,
+  onToggleChannel,
+  channelLabels,
+  onPublish,
+  publishing,
+  canPublish,
+  openReadiness,
+  copy,
+}: {
+  channels: string[];
+  onToggleChannel: (ch: (typeof ALL_CHANNELS)[number]) => void;
+  channelLabels: Record<(typeof ALL_CHANNELS)[number], string>;
+  onPublish: () => void;
+  publishing: boolean;
+  canPublish: boolean;
+  openReadiness: number;
+  copy: LaunchCopy;
+}) {
+  const hasDispatch = channels.some((c) => DISPATCH_CHANNELS.has(c));
+
+  return (
+    <div className="mt-12 rounded-well border border-hairline bg-paper p-6">
+      <p className="overline mb-1 flex items-center gap-2 text-accent before:h-px before:w-4 before:bg-accent/40 before:content-['']">
+        {copy.title}
+      </p>
+      <p className="text-sm leading-relaxed text-muted">{copy.subtitle}</p>
+
+      {/* Channels as a plan, each with its honest consequence line. */}
+      <ul className="mt-4 flex flex-col gap-2">
+        {ALL_CHANNELS.map((ch) => {
+          const on = channels.includes(ch);
+          const consequence = DISPATCH_CHANNELS.has(ch)
+            ? copy.consequenceDispatch
+            : copy.consequenceLink;
+          return (
+            <li key={ch}>
+              <button
+                type="button"
+                aria-pressed={on}
+                onClick={() => onToggleChannel(ch)}
+                className={`flex w-full items-center gap-3 rounded-card border px-4 py-3 text-left transition-[color,background-color,border-color,transform] duration-150 tp-press tp-press-row motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
+                  on
+                    ? "border-accent bg-accent-soft"
+                    : "border-hairline bg-paper hover:border-ink"
+                }`}
+              >
+                {/* Checkbox affordance — a clear on/off, not a bare toggle. */}
+                <span
+                  aria-hidden
+                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border text-[10px] ${
+                    on ? "border-accent bg-accent text-paper" : "border-hairline text-transparent"
+                  }`}
+                >
+                  ✓
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className={`block text-sm ${on ? "text-ink" : "text-body"}`}>
+                    {channelLabels[ch]}
+                  </span>
+                  <span className="block text-xs text-muted">{consequence}</span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+
+      {/* Publish — the confident launch. Copy is channel-aware but honest:
+          link-only → "get link"; dispatchable on → "publish" + a subline that
+          the send happens in the next (dispatch) step. */}
+      <div className="mt-5 flex flex-col gap-2">
+        {openReadiness > 0 && canPublish && (
+          <p className="text-xs text-muted">{copy.openHint(openReadiness)}</p>
+        )}
+        <Button
+          className="w-full"
+          loading={publishing}
+          disabled={!canPublish}
+          onClick={onPublish}
+        >
+          {hasDispatch ? copy.publishAndDispatch : copy.publishGetLink}
+        </Button>
+        {hasDispatch && (
+          <p className="text-center text-xs text-muted">{copy.dispatchSubline}</p>
+        )}
+      </div>
     </div>
   );
 }

@@ -25,8 +25,9 @@ export {
 } from "./components/Chat";
 export { renderInlineMarkdown } from "./components/inlineMarkdown";
 export { Spinner } from "./components/Spinner";
-export { Badge } from "./components/Badge";
+export { Badge, type BadgeVariant } from "./components/Badge";
 export { Skeleton } from "./components/Skeleton";
+export { ProgressBar } from "./components/ProgressBar";
 export { EmptyState } from "./components/EmptyState";
 export { Dialog } from "./components/Dialog";
 export {

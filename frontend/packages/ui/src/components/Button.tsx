@@ -13,18 +13,25 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   size?: "sm" | "md" | "lg";
   /** Shows a spinner and blocks clicks while an async action runs. */
   loading?: boolean;
+  /**
+   * Square, icon-only button (no text). Takes the `icon` rung of the press
+   * ladder — a small target needs a deeper scale to travel the same ~1.5px a
+   * text button does. Pair with an `aria-label`.
+   */
+  icon?: boolean;
 };
 
 const base =
-  // Apple's "respond on the way down": the button dips the instant a pointer
-  // goes down (active), faster than it eases back on release, so it feels
-  // answered before the click resolves. transform-gpu keeps it on the
-  // compositor; under reduced-motion the transition drops (instant, no travel).
-  "inline-flex items-center justify-center gap-2 font-medium transform-gpu " +
+  // Press feedback comes from the `tp-press` ladder (see globals.css): the dip
+  // is faster than the release, and the rung is graded by size so every
+  // control travels the same perceived distance. Colour transitions stay here;
+  // the transform belongs to the ladder.
+  "inline-flex items-center justify-center gap-2 font-medium tp-press " +
   "transition-[color,background-color,transform] duration-150 " +
-  "active:scale-[0.97] active:duration-75 motion-reduce:transition-none " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 " +
-  "focus-visible:ring-offset-paper disabled:opacity-50 disabled:cursor-not-allowed rounded-btn";
+  "focus-visible:ring-offset-paper disabled:opacity-50 disabled:cursor-not-allowed " +
+  // A disabled control must not pretend to respond.
+  "disabled:active:transform-none rounded-btn";
 
 const variants = {
   primary: "bg-ink text-paper hover:bg-ink-soft",
@@ -48,19 +55,40 @@ const spinnerSize = {
   lg: 16,
 };
 
+const iconSizes = {
+  sm: "h-8 w-8 p-0",
+  md: "h-10 w-10 p-0",
+  lg: "h-12 w-12 p-0",
+};
+
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { className, variant = "primary", size = "md", loading = false, disabled, children, ...props },
+    {
+      className,
+      variant = "primary",
+      size = "md",
+      loading = false,
+      icon = false,
+      disabled,
+      children,
+      ...props
+    },
     ref,
   ) => (
     <button
       ref={ref}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
-      className={cn(base, variants[variant], sizes[size], className)}
+      className={cn(
+        base,
+        variants[variant],
+        icon ? iconSizes[size] : sizes[size],
+        icon ? "tp-press-icon" : "tp-press-control",
+        className,
+      )}
       {...props}
     >
-      {loading && <Spinner size={14} />}
+      {loading && <Spinner size={spinnerSize[size]} />}
       {children}
     </button>
   ),

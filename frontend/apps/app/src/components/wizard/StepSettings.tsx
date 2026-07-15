@@ -47,7 +47,7 @@ export function StepSettings({
               aria-pressed={channels.includes(ch)}
               onClick={() => toggleChannel(ch)}
               className={cn(
-                "px-3 py-1.5 rounded-pill text-sm border transform-gpu transition-[transform,color,background-color,border-color] duration-150 active:scale-[0.97] active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
+                "px-3 py-1.5 rounded-pill text-sm border transition-[transform,color,background-color,border-color] duration-150 tp-press tp-press-control motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
                 channels.includes(ch)
                   ? "bg-ink text-paper border-ink"
                   : "bg-paper text-body border-hairline hover:border-ink",

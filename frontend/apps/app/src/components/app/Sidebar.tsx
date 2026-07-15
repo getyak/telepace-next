@@ -82,7 +82,7 @@ export function Sidebar() {
           for no visual effect; a flat elevated surface is correct here. */}
       <aside className="bg-paper-elevated hidden w-[240px] shrink-0 flex-col border-r border-hairline md:sticky md:top-0 md:flex md:h-screen">
         <div className="border-b border-hairline px-5 py-5">
-          <Link href={routes.app.root} className="font-display text-xl">
+          <Link href={routes.app.root} className="tp-press-text font-display text-xl">
             {siteConfig.brand.name}
           </Link>
         </div>
@@ -101,7 +101,7 @@ export function Sidebar() {
       {/* Mobile top bar — sticky translucent chrome so the page content
           scrolls *under* it (where the material actually reads). */}
       <div className="tp-chrome sticky top-0 z-30 flex h-14 items-center justify-between border-b border-hairline px-4 md:hidden">
-        <Link href={routes.app.root} className="font-display text-lg">
+        <Link href={routes.app.root} className="tp-press-text font-display text-lg">
           {siteConfig.brand.name}
         </Link>
         <button
@@ -109,7 +109,7 @@ export function Sidebar() {
           aria-label={open ? t("closeMenu") : t("openMenu")}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
-          className="-m-2 rounded-btn p-2 text-ink transform-gpu transition-transform duration-150 active:scale-90 active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+          className="tp-press tp-press-icon -m-2 rounded-btn p-2 text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
         >
           {open ? <CloseIcon size={20} /> : <MenuIcon size={20} />}
         </button>
@@ -121,7 +121,7 @@ export function Sidebar() {
           <div className="flex h-14 items-center justify-between border-b border-hairline px-4">
             <Link
               href={routes.app.root}
-              className="font-display text-lg"
+              className="tp-press-text font-display text-lg"
               onClick={() => setOpen(false)}
             >
               {siteConfig.brand.name}
@@ -130,7 +130,7 @@ export function Sidebar() {
               type="button"
               aria-label={t("closeMenu")}
               onClick={() => setOpen(false)}
-              className="-m-2 rounded-btn p-2 text-ink transform-gpu transition-transform duration-150 active:scale-90 active:duration-75 motion-reduce:transition-none motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+              className="tp-press tp-press-icon -m-2 rounded-btn p-2 text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
             >
               <CloseIcon size={20} />
             </button>
@@ -142,7 +142,10 @@ export function Sidebar() {
                 href={item.href}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  "font-display text-3xl transition-colors hover:text-accent",
+                  // Row rung + a left-anchored origin: these sit flush to the
+                  // margin, so scaling from the centre would drift them off it.
+                  "tp-press tp-press-row origin-left font-display text-3xl " +
+                    "transition-[color,transform] hover:text-accent",
                   isActive(pathname, item.href) ? "text-accent" : "text-ink",
                 )}
               >
@@ -166,7 +169,8 @@ function SideLink({ item, label, active }: { item: Item; label: string; active: 
       href={item.href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "relative flex items-center gap-2.5 rounded-btn px-3 py-2 transition-colors " +
+        "tp-press tp-press-row relative flex items-center gap-2.5 rounded-btn px-3 py-2 " +
+          "transition-[color,background-color,transform] " +
           "active:bg-paper-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
         active
           ? "bg-paper font-medium text-ink"

@@ -175,7 +175,7 @@ export function ResponseTable({ rows, className }: ResponseTableProps) {
             {filtered.map((row) => (
               <tr
                 key={row.respondent_id}
-                className="transition-colors hover:bg-paper"
+                className="tp-press tp-press-row transition-[color,background-color,transform] hover:bg-paper"
               >
                 <td className="px-4 py-3 text-sm font-medium text-ink">
                   {displayName(row)}
