@@ -1,6 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import { Badge, Button, Card, EmptyState, icons } from "@telepace/ui";
+import { routes } from "@telepace/config";
 
+import { Link } from "@/i18n/navigation";
 import { PageHeader } from "@/components/app/PageHeader";
 
 type IntegrationDef = {
@@ -32,6 +34,19 @@ export default async function IntegrationsPage() {
         title={t("title")}
         actions={<Button size="sm">{t("addIntegration")}</Button>}
       />
+
+      {/* MCP is the only surface here that is our own protocol rather than a
+          third-party vendor, so it leads instead of sitting in the vendor grid. */}
+      <Card className="mb-8 p-6 flex items-start justify-between gap-6">
+        <div>
+          <p className="overline mb-1">{t("catAgentProtocol")}</p>
+          <p className="font-display text-2xl mb-2">{t("mcpName")}</p>
+          <p className="text-sm text-body">{t("mcpDetail")}</p>
+        </div>
+        <Link href={routes.app.integrationsMcp}>
+          <Button variant="secondary" size="sm">{t("viewDocs")}</Button>
+        </Link>
+      </Card>
 
       {integrations.length === 0 ? (
         <EmptyState

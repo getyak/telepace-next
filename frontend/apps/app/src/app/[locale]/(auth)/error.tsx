@@ -5,7 +5,7 @@ import { Button, EmptyState } from "@telepace/ui";
 
 import { useErrorCopy } from "@/components/app/errorBoundaryCopy";
 
-export default function AppError({
+export default function AuthError({
   error,
   reset,
 }: {
