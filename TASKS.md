@@ -31,6 +31,11 @@
   - 做：新增端到端冒烟：进入 `/zh/studies/new` → 输入研究目标 → 正常路径能生成提纲；失败路径有兜底。
   - 验收：`pnpm test`（或 `pnpm test:e2e`）该用例全绿；控制台无未捕获异常。
 
+- [x] **T-005 · 登录后跳回被拦截页面时 locale 前缀重复导致 404**
+  - 背景：`middleware.ts:41` 把含 locale 的物理路径写进 `next`（`/zh/studies/new`），而 `LoginForm.tsx:51` 用 next-intl 的 `useRouter` push——该 router 会自己再补一次 locale。任何未登录用户访问受保护页 → 登录成功 → 落在 `/zh/zh/studies/new` 404。`SignupForm` push 的是无前缀常量，故不受影响。
+  - 做：`next` 改存 middleware 已算好的 `logicalPath`（locale-stripped），与 i18n router 的契约对齐。
+  - 验收：`src/middleware.test.ts` 覆盖"剥离 locale / 保留 query / 登录页带正确 locale / 绝不出现双前缀 / 放行非保护路由"；经变异验证（还原 bug 时 3 条准确失败）。真实浏览器全链路复验：未登录访问 `/zh/studies/new` → 表单登录 → 落地 `/zh/studies/new`（非 404）。
+
 ---
 
 ## P1 — 对标基线补齐（分析系统 + 创建向导）

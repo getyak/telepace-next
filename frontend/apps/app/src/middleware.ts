@@ -38,7 +38,10 @@ export default function middleware(req: NextRequest) {
   if (isProtected && !req.cookies.get(ACCESS_COOKIE)?.value) {
     const url = req.nextUrl.clone();
     url.pathname = `/${locale}/login`;
-    url.search = `?next=${encodeURIComponent(pathname + search)}`;
+    // `next` carries the locale-stripped path: the login form pushes it through
+    // next-intl's router, which re-applies the locale prefix itself. Storing
+    // the physical `pathname` here would land the user on /zh/zh/... (404).
+    url.search = `?next=${encodeURIComponent(logicalPath + search)}`;
     return NextResponse.redirect(url);
   }
 
