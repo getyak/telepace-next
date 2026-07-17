@@ -2,6 +2,13 @@
 
 import { use, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+
+import { usePathname, useRouter } from "@/i18n/navigation";
+
+// Locales the respondent UI can render. The interview's content language (from
+// the WS hello) is authoritative; if the URL locale disagrees we switch to it
+// so greetings/progress/prompts match the question text instead of clashing.
+const SUPPORTED_LOCALES = ["en", "zh"] as const;
 import {
   Button,
   Card,
@@ -31,7 +38,11 @@ const REPLY_WATCHDOG_MS = 45000;
 
 export default function RespondentPage(props: { params: Promise<Params> }) {
   const t = useTranslations("respondent");
-  const { campaignId } = use(props.params);
+  const { campaignId, locale } = use(props.params);
+  const router = useRouter();
+  const pathname = usePathname();
+  // Guard so a locale switch fires at most once (it remounts the page).
+  const localeAlignedRef = useRef(false);
   const [phase, setPhase] = useState<"consent" | "chat" | "voice" | "done">("consent");
   const [mode, setMode] = useState<"text" | "voice">("text");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -93,6 +104,7 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
       let msg: {
         type: string;
         opening?: string;
+        language?: string;
         progress?: { question_order?: number | null; total_questions?: number };
         result?: {
           text?: string;
@@ -106,6 +118,20 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
         return;
       }
       if (msg.type === VoiceEventType.Hello) {
+        // Align the page locale to the study's content language so the host's
+        // greeting, progress, and prompts speak the same language as the
+        // questions. Fires at most once; a no-op when they already agree.
+        const lang = msg.language;
+        if (
+          lang &&
+          !localeAlignedRef.current &&
+          (SUPPORTED_LOCALES as readonly string[]).includes(lang) &&
+          lang !== locale
+        ) {
+          localeAlignedRef.current = true;
+          router.replace(pathname, { locale: lang });
+          return;
+        }
         if (msg.progress?.total_questions) {
           setProgress({
             current: msg.progress.question_order ?? 1,
@@ -159,7 +185,7 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
       closedByUs = true;
       ws.close();
     };
-  }, [phase, campaignId, retryKey]);
+  }, [phase, campaignId, retryKey, locale, router, pathname]);
 
   // Watchdog: never leave the respondent stuck on a silent interviewer.
   useEffect(() => {

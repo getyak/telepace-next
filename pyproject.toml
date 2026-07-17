@@ -58,6 +58,9 @@ ignore = ["E501"]
 "interfaces/rest_api/routers/*.py" = ["B008"]
 "interfaces/rest_api/auth/router.py" = ["B008"]
 "interfaces/rest_api/auth/deps.py" = ["B008"]
+# ws.py holds Chinese respondent-facing copy; RUF001 flags legitimate fullwidth
+# CJK punctuation (——, ：) as "ambiguous", which it isn't in this context.
+"interfaces/rest_api/ws.py" = ["RUF001"]
 
 [tool.mypy]
 python_version = "3.12"

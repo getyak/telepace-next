@@ -64,14 +64,14 @@
   - 做：未登录探测性 401 不打成 console error（可 debug/info 或静默）；仅保留真正异常为 error。
   - 验收：无痕首屏 console 无被误报为 ERROR 的探测性 401。
 
-- [ ] **T-507 · [缺陷] 受访者访谈语言跟随 study 语言，消除中英混排**
+- [x] **T-507 · [缺陷] 受访者访谈语言跟随 study 语言，消除中英混排**
   - Medium · i18n · 产品缺陷
   - 现象：中文 study 从 `/en` 进入，主持人话术英文（"Thanks for taking the time…"、"Let's start:"、追问回应）而问题正文中文，割裂。
   - 证据：`(public)/r/[campaignId]/page.tsx` 主持人话术跟随 URL locale，内容跟随 study content language，未对齐。
   - 做：受访者链接以 study content language 为准渲染主持人话术与 UI（或进入时按 study 语言协商/重定向 locale），确保开场/追问/结束与问题正文同语言。
   - 验收：中文 study 链接全程中文、英文 study 全程英文（各复验一条）。
 
-- [ ] **T-508 · [验证] 受访者访谈追问计数与进度语义**
+- [x] **T-508 · [验证] 受访者访谈追问计数与进度语义**
   - Low · 需复测 · 待确认是否缺陷
   - 现象：受访者答完首题、主持人追问后，进度仍显示「Question 1 of 5」——需确认追问是否应占独立槽、进度是否准确反映实际推进。
   - 做：走完一整场受访者访谈（5 题 + 若干追问），核对进度条与「Question N of M」是否正确、追问是否被合理归类；若语义错误则修正。
@@ -231,4 +231,5 @@
 2026-07-18 plan.md created — 29 tasks (T-501..T-529) covering ALL observations from dual-user full-stack E2E audit (score 72/100): confirmed defects, boundary checks, blind-spot pages, a11y/perf/engineering
 2026-07-18 T-501/502/503 done — 每个注册独立 org(不再回退共享默认 org) + 列表按 org 过滤 + 所有 by-id campaign 端点补归属校验(越权返回 404，修 IDOR)。新增 tests/integration/test_campaign_isolation.py(5 用例)。验收：ruff 全绿；后端 63 tests passed；真机全栈 API 验证(双用户 org 各异且非默认、新用户列表 count=0、旧 campaign_id 越权 404)；真机 UI 验证(新用户 /studies 显示「No studies yet」空态、console 0 error)。commit 8f4fef1
 2026-07-18 T-504 done — 在 http 层给所有非流式请求注入 30s 客户端超时(调用方自带 signal 的 SSE/可取消请求不受影响)，挂起请求会被 abort 并抛新增的 TIMEOUT 错误类型，命中调用方 catch → 显示可操作错误 + Retry + 解锁 UI，消除永久「drafting…」卡死。新增 errors 的 timeout 文案(en/zh)。验收：typecheck + build 全绿；真机 UI 用 fetch 拦截复现挂起 → 30s 后显示「This is taking too long」+ Retry + 输入框解锁、console 0 error。commit 71551dd
-2026-07-18 T-505/506 done — 根因同源：AuthProvider 挂载即无条件探测 /me，未登录访客必得 401→refresh 401→emit auth:expired→全局弹「会话已过期」+ 两条 401 console 噪音。修复：给 AuthProvider 传 SSR 已知的 initialHasSession(server 读 httpOnly cookie)，无 cookie 时直接 status=guest 并跳过注定 401 的 /me 探测；有 cookie 才探测(仅 /me 能确认 cookie 是否已过期，真过期仍正确提示)。营销 + app 两个 layout 都传入。验收：typecheck + build 全绿；真机 UI 无痕访客访问 /en → 0 个 auth 探测请求、无过期 toast、console 0 error；对照:已登录用户访问 /en 仍正确探测 /me 且无误弹。
+2026-07-18 T-505/506 done — 根因同源：AuthProvider 挂载即无条件探测 /me，未登录访客必得 401→refresh 401→emit auth:expired→全局弹「会话已过期」+ 两条 401 console 噪音。修复：给 AuthProvider 传 SSR 已知的 initialHasSession(server 读 httpOnly cookie)，无 cookie 时直接 status=guest 并跳过注定 401 的 /me 探测；有 cookie 才探测(仅 /me 能确认 cookie 是否已过期，真过期仍正确提示)。营销 + app 两个 layout 都传入。验收：typecheck + build 全绿；真机 UI 无痕访客访问 /en → 0 个 auth 探测请求、无过期 toast、console 0 error；对照:已登录用户访问 /en 仍正确探测 /me 且无误弹。commit 48da99b
+2026-07-18 T-507/508 done — T-507[缺陷]:后端 _opening_turn 开场白硬编码英文(与中文问题正文混排)。修复:后端开场白按 campaign.spec.primary_language 选 zh/en 模板 + WS hello 携带 language 字段;前端受访者页收到 hello.language 后若与 URL locale 不一致则 router.replace 对齐 locale(整页 UI+内容统一语言)。加 ws.py 的 RUF001 per-file-ignore(中文全角标点合法)。T-508[验证]:确认追问停留同题(question_order 取自当前 outline_item 的 order，追问指向同题→order 不变)是正确设计，非缺陷。验收:ruff 全绿、interviewer 7 tests passed、typecheck + build 全绿;真机 zh study 从 /en 进入→URL 对齐 /zh + 主持人中文开场白 +「第 1/7 题」;对照 en study 从 /zh 进入→对齐 /en + 英文开场白;console 0 error。(附注:发现一条 en 标记但正文中文的脏 study，归 T-528 清理，不影响本修复正确性)
