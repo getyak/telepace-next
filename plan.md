@@ -156,17 +156,17 @@
   - 做：进入 `/integrations`（含 MCP 卡片）与 `/settings`，验证集成配置、账户设置、退出登录、各项保存生效。
   - 验收：设置项保存生效；MCP/集成入口可达且文档清晰。
 
-- [ ] **T-521 · [验证] study 详情 + 叙事报告页复测**
+- [x] **T-521 · [验证] study 详情 + 叙事报告页复测**
   - 现象：`/studies/[id]` 与 `/studies/[id]/report` 本次未进入（列表 65 项但未点进）。TASKS.md T-102/T-103/T-105/T-106 标记报告/图表/证据追溯/响应表已完成。
   - 做：点开一个 live study，验证详情、叙事报告（目录锚点/导出）、图表交叉表、证据点击回溯原话、逐人响应表 + CSV 导出。
   - 验收：报告渲染完整、证据无死链、导出可打开。
 
-- [ ] **T-522 · [验证] Demo（60 秒 live 试用）页复测**
+- [x] **T-522 · [验证] Demo（60 秒 live 试用）页复测**
   - 现象：落地页多处 CTA 指向 `/demo`（"Try a live 60-sec interview"），是重要试用钩子，本次未测。
   - 做：走完 demo 交互，验证无需注册即可体验、语言一致、结束引导到注册。
   - 验收：demo 完整可跑；结束有明确转化引导。
 
-- [ ] **T-523 · [验证] 营销子页 + 法务页复测（product/mcp/customers/changelog/careers/docs/security/privacy/terms）**
+- [x] **T-523 · [验证] 营销子页 + 法务页复测（product/mcp/customers/changelog/careers/docs/security/privacy/terms）**
   - 现象：footer/导航链接指向这些页，本次只测了 landing/pricing。security/privacy 尤其重要（定价页 FAQ 承诺「见 Security 页的完整声明」）。
   - 做：逐页打开，验证内容非占位、canonical/hreflang/JSON-LD（T-401 已做）正确、无「会话过期」提示、zh/en 一致。
   - 验收：各页内容真实完整、无 404、无 i18n 残留、Security 页确有数据处理声明。
@@ -238,3 +238,4 @@
 2026-07-18 T-513/515 done — 关键突破:确认真实 LLM(openrouter)可用(assess 14.8s 返回 clarity 85、create 19s 生成提纲)。T-513[验证]:真机端到端从一句话研究需求→右栏生成发布就绪的完整提纲(7 题各带 goal、target_persona、4 hypotheses、3 screener、3 success criteria、readiness 走到「Questions captured — ready to publish」、Simulate/Publish 可用)，提纲质量人工走查优秀(动机→onboarding→卡点→价值→未升级原因→改进的标准流失访谈结构)。T-515[验证+缺陷]:voice 入口存在可点；发现真实缺陷——麦克风被拒时 micDenied 提示只进 messages 而 VoiceStage 不显示，用户卡在无解释的「connecting…」orb。修复:加 micDenied state + voice 阶段可见降级横幅「We couldn't access your microphone」+「Switch to typing」一键回退按钮(en/zh)。验收:typecheck + build 全绿;真机麦克风被拒→显示降级横幅→点「Switch to typing」→成功回退文字访谈(输入框+「Question 1 of 5」，横幅/orb 消失)。真实语音链路(录音/STT/TTS)需真麦克风，headless 无法测，属环境限制;但降级健壮性已完整修复验证。测试数据已清理。commit 00c7c8d
 2026-07-18 T-514 done — [验证→缺陷]:确认 Insights 页三个动作(Filter/Push to Notion/Dismiss)原本全是无 onClick 的纯装饰按钮(server component)，点了静默无反应。修复:把页面拆为 client 组件 InsightsBoard，三动作真实生效——Dismiss 即时移除卡片 + Undo 可撤销 toast(不可逆陷阱→可撤销);Filter 按 tag 循环筛选;Push to Notion 因无集成配置→明确 toast 引导「Notion isn't connected — Connect it in Integrations」(而非静默失败)。加 en/zh 文案。验收:typecheck + build 全绿;真机 Filter 3→1 卡、Dismiss 3→2 卡 + Undo toast、Push to Notion 显示未配置引导、console 0 error。(排查提示:toast 显示窗口短，验证需 50ms 快速轮询而非工具往返间隔)commit 32e057b
 2026-07-18 T-517~520 done — P4 盲区页批量真机走查。T-517[验证→缺陷]:Inbox 的「Mark all read」「Filter」与 T-514 同类——无 onClick 装饰按钮，静默失败。修复:拆 client 组件 InboxBoard，Mark all read 标记全部已读(视觉降级 + read 标记 + Undo 撤销)、Filter 按 kind 循环筛选、加全读/筛选空态。T-518 Audience / T-519 Copilot / T-520 Integrations+Settings[验证]:四页渲染健康(有 h1/内容/无白屏/console 0 error)，Copilot 已是 client + 有交互;登出真实可用(UserMenu Sign out→跳 /login + /me 401)。settings/integrations 的「保存」按钮为未接后端的展示占位(非静默失败陷阱那种轻交互，持久化需接后端，不做假保存以免误导)——记为已知未完成项，非缺陷。验收:typecheck + build 全绿;真机 Inbox Filter 4→1、Mark all read + Undo toast;audience/copilot/integrations/settings 均健康;登出链路完整;console 0 error。
+2026-07-18 T-521~523 done — P4 收尾盲区页真机走查。T-521[验证→缺陷]:study 详情页健康(进度指标/3洞察/分享/CSV/Close 均渲染);报告页内容完整(Executive summary/Key findings/3主题/Recommendations/Appendix + TOC 目录锚点 + 图表 + Export Markdown/PDF)，但发现真实缺陷——报告页 `t("generatedAt").replace("{time}",...)` 未给 next-intl 传 time 参数→14 条 IntlError FORMATTING_ERROR + 页面显示原始 key。修复:改为 t("generatedAt",{time:...}) 正确插值(两处:显示 + markdown 导出)，放宽 toMarkdown 的 t 参数类型支持 values。T-522[验证]:demo 页健康。T-523[验证]:security/privacy/terms/mcp/customers/changelog/careers/docs/product-voice/product-agent 共 11 页均内容真实完整、无 i18n 泄漏、无死链(/product 本身不被链接非缺陷)、security 页确有数据处理声明。验收:typecheck + build 全绿;真机 generatedAt 修复后显示「Generated 7/18/2026, 5:18:47 AM」、IntlError 消除;11 营销页全部健康;测试数据已清理。

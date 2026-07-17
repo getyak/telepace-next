@@ -63,7 +63,7 @@ function ReportPageInner({ studyId }: { studyId: string }) {
         <div>
           <h1 className="font-display text-4xl text-ink">{t("title")}</h1>
           <p className="mt-2 text-sm text-muted">
-            {t("generatedAt").replace("{time}", new Date().toLocaleString())}
+            {t("generatedAt", { time: new Date().toLocaleString() })}
           </p>
         </div>
         {hasReport && (
@@ -103,13 +103,16 @@ function ReportPageInner({ studyId }: { studyId: string }) {
 // Markdown export
 // ---------------------------------------------------------------------------
 
-function toMarkdown(graph: EvidenceGraph, t: (key: string) => string): string {
+function toMarkdown(
+  graph: EvidenceGraph,
+  t: (key: string, values?: Record<string, string | number>) => string,
+): string {
   const lines: string[] = [];
   const push = (s = "") => lines.push(s);
 
   push(`# ${t("title")}`);
   push();
-  push(`_${t("generatedAt").replace("{time}", new Date().toLocaleString())}_`);
+  push(`_${t("generatedAt", { time: new Date().toLocaleString() })}_`);
   push();
 
   push(`## ${t("executive")}`);
