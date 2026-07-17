@@ -42,7 +42,14 @@
     "itemTime1": "12 分钟前",
     "itemTime2": "1 小时前",
     "itemTime3": "3 小时前",
-    "itemTime4": "昨天"
+    "itemTime4": "昨天",
+    "markedReadToast": "已将全部通知标为已读。",
+    "undo": "撤销",
+    "filterAll": "全部",
+    "filterBy": "筛选：{kind}",
+    "allReadEmpty": "全部处理完毕。",
+    "noneForFilter": "该类别下暂无内容。",
+    "readBadge": "已读"
   },
   "insights": {
     "eyebrow": "洞察",

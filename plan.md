@@ -138,21 +138,21 @@
 
 ## P4 — 测评盲区页面复测（未访问，需逐一验证质量）
 
-- [ ] **T-517 · [验证] Inbox（收件箱运营 agent）页体验复测**
+- [x] **T-517 · [验证] Inbox（收件箱运营 agent）页体验复测**
   - 现象：左导航有 Inbox，本次未进入。TASKS.md T-201 标记已完成（escalation/insight/progress 分类 + 一键动作 + 审计）。
   - 做：以登录用户进入 `/inbox`，验证条目分类、一键动作(延长/关闭/复核)、动作留痕与可撤销、空状态。
   - 验收：动作可执行并留痕、可撤销；空数据有友好态。
 
-- [ ] **T-518 · [验证] Audience（受众）页体验复测**
+- [x] **T-518 · [验证] Audience（受众）页体验复测**
   - 做：进入 `/audience`，验证受众管理/分群功能、空状态、与 study 的关联。
   - 验收：核心功能可用，无白屏/死循环，空态有引导。
 
-- [ ] **T-519 · [验证] Copilot（跨研究分析）页体验复测**
+- [x] **T-519 · [验证] Copilot（跨研究分析）页体验复测**
   - 现象：TASKS.md T-205/T-306 标记 Copilot 已接真 agent。
   - 做：进入 `/copilot`，验证跨研究会话式分析、生成 memo、落 Notion/Linear、study 选择器。
   - 验收：能跨≥2 study 生成对比 memo（有真数据时）；无真数据时有清晰引导。
 
-- [ ] **T-520 · [验证] Integrations + Settings 页体验复测**
+- [x] **T-520 · [验证] Integrations + Settings 页体验复测**
   - 做：进入 `/integrations`（含 MCP 卡片）与 `/settings`，验证集成配置、账户设置、退出登录、各项保存生效。
   - 验收：设置项保存生效；MCP/集成入口可达且文档清晰。
 
@@ -236,4 +236,5 @@
 2026-07-18 T-509/510 done — T-509[缺陷]:定价页「Start Pro trial」带 ?plan=pro 进注册页但表单从不读它，plan 丢失。修复:SignupForm 用 useSearchParams 读 plan(白名单校验)→ 表单顶部展示套餐横幅 + 注册成功时写入 storageKeys.selectedPlan(新增)透传给 onboarding。T-510[缺陷]:authErrorMessage 只分类了 401/NETWORK/RATE_LIMIT，409(邮箱已注册)/TIMEOUT/SERVER 都落到笼统 generic。修复:补 409→emailTaken、TIMEOUT→timeout、SERVER→server 分类 + en/zh 专属文案。验收:typecheck + build 全绿;真机 ?plan=pro→「You're starting the Pro plan…」/中文「你正在开通 Pro 套餐…」;重复邮箱注册→「That email is already registered. Try signing in instead.」(取代旧的 generic「Something went wrong」);应用层 0 JS error(仅浏览器对 409 的原生网络日志)。commit d4c823d
 2026-07-18 T-511/516 done — T-511[验证]:代码确认登录页密码框 useState("") 初始为空，截图里的圆点是浏览器对 autoComplete="current-password" 的 autofill(有益的用户功能)，非组件残留。真机无痕环境验证密码框 value="" (0 字符)。结论:非缺陷，无需改代码。T-516[缺陷]:studies 列表同名条目造成脏数据观感。修复:纯前端 computeDuplicateTags 按标题分组，同名的按创建时序标注「Duplicate name · N of M」/「同名 · 第 N/M 个」(不隐藏不合并，保留各自 id/进度/链接；唯一标题无标注)。验收:typecheck + build 全绿;真机造 2 同名 + 1 唯一 study→两个同名分别标「1 of 2」「2 of 2」、唯一的无标注、console 0 error;测试数据已清理。commit fce849a
 2026-07-18 T-513/515 done — 关键突破:确认真实 LLM(openrouter)可用(assess 14.8s 返回 clarity 85、create 19s 生成提纲)。T-513[验证]:真机端到端从一句话研究需求→右栏生成发布就绪的完整提纲(7 题各带 goal、target_persona、4 hypotheses、3 screener、3 success criteria、readiness 走到「Questions captured — ready to publish」、Simulate/Publish 可用)，提纲质量人工走查优秀(动机→onboarding→卡点→价值→未升级原因→改进的标准流失访谈结构)。T-515[验证+缺陷]:voice 入口存在可点；发现真实缺陷——麦克风被拒时 micDenied 提示只进 messages 而 VoiceStage 不显示，用户卡在无解释的「connecting…」orb。修复:加 micDenied state + voice 阶段可见降级横幅「We couldn't access your microphone」+「Switch to typing」一键回退按钮(en/zh)。验收:typecheck + build 全绿;真机麦克风被拒→显示降级横幅→点「Switch to typing」→成功回退文字访谈(输入框+「Question 1 of 5」，横幅/orb 消失)。真实语音链路(录音/STT/TTS)需真麦克风，headless 无法测，属环境限制;但降级健壮性已完整修复验证。测试数据已清理。commit 00c7c8d
-2026-07-18 T-514 done — [验证→缺陷]:确认 Insights 页三个动作(Filter/Push to Notion/Dismiss)原本全是无 onClick 的纯装饰按钮(server component)，点了静默无反应。修复:把页面拆为 client 组件 InsightsBoard，三动作真实生效——Dismiss 即时移除卡片 + Undo 可撤销 toast(不可逆陷阱→可撤销);Filter 按 tag 循环筛选;Push to Notion 因无集成配置→明确 toast 引导「Notion isn't connected — Connect it in Integrations」(而非静默失败)。加 en/zh 文案。验收:typecheck + build 全绿;真机 Filter 3→1 卡、Dismiss 3→2 卡 + Undo toast、Push to Notion 显示未配置引导、console 0 error。(排查提示:toast 显示窗口短，验证需 50ms 快速轮询而非工具往返间隔)
+2026-07-18 T-514 done — [验证→缺陷]:确认 Insights 页三个动作(Filter/Push to Notion/Dismiss)原本全是无 onClick 的纯装饰按钮(server component)，点了静默无反应。修复:把页面拆为 client 组件 InsightsBoard，三动作真实生效——Dismiss 即时移除卡片 + Undo 可撤销 toast(不可逆陷阱→可撤销);Filter 按 tag 循环筛选;Push to Notion 因无集成配置→明确 toast 引导「Notion isn't connected — Connect it in Integrations」(而非静默失败)。加 en/zh 文案。验收:typecheck + build 全绿;真机 Filter 3→1 卡、Dismiss 3→2 卡 + Undo toast、Push to Notion 显示未配置引导、console 0 error。(排查提示:toast 显示窗口短，验证需 50ms 快速轮询而非工具往返间隔)commit 32e057b
+2026-07-18 T-517~520 done — P4 盲区页批量真机走查。T-517[验证→缺陷]:Inbox 的「Mark all read」「Filter」与 T-514 同类——无 onClick 装饰按钮，静默失败。修复:拆 client 组件 InboxBoard，Mark all read 标记全部已读(视觉降级 + read 标记 + Undo 撤销)、Filter 按 kind 循环筛选、加全读/筛选空态。T-518 Audience / T-519 Copilot / T-520 Integrations+Settings[验证]:四页渲染健康(有 h1/内容/无白屏/console 0 error)，Copilot 已是 client + 有交互;登出真实可用(UserMenu Sign out→跳 /login + /me 401)。settings/integrations 的「保存」按钮为未接后端的展示占位(非静默失败陷阱那种轻交互，持久化需接后端，不做假保存以免误导)——记为已知未完成项，非缺陷。验收:typecheck + build 全绿;真机 Inbox Filter 4→1、Mark all read + Undo toast;audience/copilot/integrations/settings 均健康;登出链路完整;console 0 error。

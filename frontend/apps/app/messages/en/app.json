@@ -42,7 +42,14 @@
     "itemTime1": "12m ago",
     "itemTime2": "1h ago",
     "itemTime3": "3h ago",
-    "itemTime4": "yesterday"
+    "itemTime4": "yesterday",
+    "markedReadToast": "All notifications marked read.",
+    "undo": "Undo",
+    "filterAll": "All",
+    "filterBy": "Filter: {kind}",
+    "allReadEmpty": "You're all caught up.",
+    "noneForFilter": "Nothing in this category.",
+    "readBadge": "read"
   },
   "insights": {
     "eyebrow": "Insights",
