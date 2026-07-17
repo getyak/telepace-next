@@ -52,6 +52,10 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
   const [speaking, setSpeaking] = useState(false);
   const [progress, setProgress] = useState<Progress>({ current: null, total: 0 });
   const [awaiting, setAwaiting] = useState(false);
+  // Set when the mic can't be accessed in voice mode — the orb alone leaves the
+  // respondent stuck on "connecting…" with no visible reason or way out, so we
+  // surface a banner + a one-tap fallback to the text interview.
+  const [micDenied, setMicDenied] = useState(false);
   // Voice-mode UI: the respondent taps the orb to start/stop capture, and can
   // silence or replay the interviewer's read-aloud.
   const [voicePhase, setVoicePhase] = useState<VoicePhase>("idle");
@@ -267,6 +271,9 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
         // the Listen Labs "tap to speak" affordance.
       } catch (err) {
         console.error("mic permission denied", err);
+        // Surface it in the voice stage (a banner + fallback button), not only
+        // as a chat line the orb view never shows.
+        setMicDenied(true);
         setMessages((prev) => [
           ...prev,
           {
@@ -418,6 +425,24 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
     return (
       <div className="flex min-h-screen flex-col">
         <ProgressBar progress={progress} />
+        {micDenied && (
+          <div
+            role="alert"
+            className="mx-auto mt-4 flex w-[min(90vw,32rem)] flex-wrap items-center justify-between gap-3 rounded-btn border border-hairline bg-paper-sunken px-4 py-3 text-sm shadow-overlay"
+          >
+            <span className="text-body">{t("voice.micDeniedBanner")}</span>
+            <button
+              onClick={() => {
+                setMicDenied(false);
+                setMode("text");
+                setPhase("chat");
+              }}
+              className="shrink-0 rounded-btn bg-accent px-3 py-1.5 text-sm font-medium text-paper hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+            >
+              {t("voice.switchToText")}
+            </button>
+          </div>
+        )}
         <VoiceStage
           question={lastQuestion}
           phase={voicePhase}

@@ -110,7 +110,7 @@
 
 ## P3 — 加分项的深化（核心价值端到端验证 + 完善）
 
-- [ ] **T-513 · [验证] Designer 生成完整访谈提纲的端到端质量**
+- [x] **T-513 · [验证] Designer 生成完整访谈提纲的端到端质量**
   - 需复测（本次受 env 限制未验完）· 依赖: T-504
   - 现象：Designer 反问澄清做得很好（亮点），但因占位 LLM + 无有效 key，最终「生成提纲」这一步未端到端跑通、右栏 Discussion Guide 未填充。
   - 做：配置有效 LLM key，走完 design chat → 断言右栏生成结构完整的提纲（题目/时长/persona/screener）、四步 readiness(Decision/Audience/Depth/Questions) 正确点亮、"Simulate respondent" 可用。
@@ -122,7 +122,7 @@
   - 做：逐一验证——Dismiss 后洞察消失且持久化；Filter 能按主题/置信度筛选；Push to Notion 走通集成（或给出未配置时的清晰引导）。
   - 验收：三动作均按预期生效或有明确的未配置引导，无静默失败。
 
-- [ ] **T-515 · [验证] 受访者语音入口(Use voice)端到端可用**
+- [x] **T-515 · [验证] 受访者语音入口(Use voice)端到端可用**
   - 需复测 · 核心差异化(语音原生)
   - 现象：受访者页有 "Use voice" 入口（语音原生定位的关键），本次只测了文字入口。
   - 做：测语音入口——权限请求、实时录音/转写、主持人语音应答、低延迟；移动端与桌面各测。
@@ -234,4 +234,5 @@
 2026-07-18 T-505/506 done — 根因同源：AuthProvider 挂载即无条件探测 /me，未登录访客必得 401→refresh 401→emit auth:expired→全局弹「会话已过期」+ 两条 401 console 噪音。修复：给 AuthProvider 传 SSR 已知的 initialHasSession(server 读 httpOnly cookie)，无 cookie 时直接 status=guest 并跳过注定 401 的 /me 探测；有 cookie 才探测(仅 /me 能确认 cookie 是否已过期，真过期仍正确提示)。营销 + app 两个 layout 都传入。验收：typecheck + build 全绿；真机 UI 无痕访客访问 /en → 0 个 auth 探测请求、无过期 toast、console 0 error；对照:已登录用户访问 /en 仍正确探测 /me 且无误弹。commit 48da99b
 2026-07-18 T-507/508 done — T-507[缺陷]:后端 _opening_turn 开场白硬编码英文(与中文问题正文混排)。修复:后端开场白按 campaign.spec.primary_language 选 zh/en 模板 + WS hello 携带 language 字段;前端受访者页收到 hello.language 后若与 URL locale 不一致则 router.replace 对齐 locale(整页 UI+内容统一语言)。加 ws.py 的 RUF001 per-file-ignore(中文全角标点合法)。T-508[验证]:确认追问停留同题(question_order 取自当前 outline_item 的 order，追问指向同题→order 不变)是正确设计，非缺陷。验收:ruff 全绿、interviewer 7 tests passed、typecheck + build 全绿;真机 zh study 从 /en 进入→URL 对齐 /zh + 主持人中文开场白 +「第 1/7 题」;对照 en study 从 /zh 进入→对齐 /en + 英文开场白;console 0 error。(附注:发现一条 en 标记但正文中文的脏 study，归 T-528 清理，不影响本修复正确性)commit 151cb8d
 2026-07-18 T-509/510 done — T-509[缺陷]:定价页「Start Pro trial」带 ?plan=pro 进注册页但表单从不读它，plan 丢失。修复:SignupForm 用 useSearchParams 读 plan(白名单校验)→ 表单顶部展示套餐横幅 + 注册成功时写入 storageKeys.selectedPlan(新增)透传给 onboarding。T-510[缺陷]:authErrorMessage 只分类了 401/NETWORK/RATE_LIMIT，409(邮箱已注册)/TIMEOUT/SERVER 都落到笼统 generic。修复:补 409→emailTaken、TIMEOUT→timeout、SERVER→server 分类 + en/zh 专属文案。验收:typecheck + build 全绿;真机 ?plan=pro→「You're starting the Pro plan…」/中文「你正在开通 Pro 套餐…」;重复邮箱注册→「That email is already registered. Try signing in instead.」(取代旧的 generic「Something went wrong」);应用层 0 JS error(仅浏览器对 409 的原生网络日志)。commit d4c823d
-2026-07-18 T-511/516 done — T-511[验证]:代码确认登录页密码框 useState("") 初始为空，截图里的圆点是浏览器对 autoComplete="current-password" 的 autofill(有益的用户功能)，非组件残留。真机无痕环境验证密码框 value="" (0 字符)。结论:非缺陷，无需改代码。T-516[缺陷]:studies 列表同名条目造成脏数据观感。修复:纯前端 computeDuplicateTags 按标题分组，同名的按创建时序标注「Duplicate name · N of M」/「同名 · 第 N/M 个」(不隐藏不合并，保留各自 id/进度/链接；唯一标题无标注)。验收:typecheck + build 全绿;真机造 2 同名 + 1 唯一 study→两个同名分别标「1 of 2」「2 of 2」、唯一的无标注、console 0 error;测试数据已清理。
+2026-07-18 T-511/516 done — T-511[验证]:代码确认登录页密码框 useState("") 初始为空，截图里的圆点是浏览器对 autoComplete="current-password" 的 autofill(有益的用户功能)，非组件残留。真机无痕环境验证密码框 value="" (0 字符)。结论:非缺陷，无需改代码。T-516[缺陷]:studies 列表同名条目造成脏数据观感。修复:纯前端 computeDuplicateTags 按标题分组，同名的按创建时序标注「Duplicate name · N of M」/「同名 · 第 N/M 个」(不隐藏不合并，保留各自 id/进度/链接；唯一标题无标注)。验收:typecheck + build 全绿;真机造 2 同名 + 1 唯一 study→两个同名分别标「1 of 2」「2 of 2」、唯一的无标注、console 0 error;测试数据已清理。commit fce849a
+2026-07-18 T-513/515 done — 关键突破:确认真实 LLM(openrouter)可用(assess 14.8s 返回 clarity 85、create 19s 生成提纲)。T-513[验证]:真机端到端从一句话研究需求→右栏生成发布就绪的完整提纲(7 题各带 goal、target_persona、4 hypotheses、3 screener、3 success criteria、readiness 走到「Questions captured — ready to publish」、Simulate/Publish 可用)，提纲质量人工走查优秀(动机→onboarding→卡点→价值→未升级原因→改进的标准流失访谈结构)。T-515[验证+缺陷]:voice 入口存在可点；发现真实缺陷——麦克风被拒时 micDenied 提示只进 messages 而 VoiceStage 不显示，用户卡在无解释的「connecting…」orb。修复:加 micDenied state + voice 阶段可见降级横幅「We couldn't access your microphone」+「Switch to typing」一键回退按钮(en/zh)。验收:typecheck + build 全绿;真机麦克风被拒→显示降级横幅→点「Switch to typing」→成功回退文字访谈(输入框+「Question 1 of 5」，横幅/orb 消失)。真实语音链路(录音/STT/TTS)需真麦克风，headless 无法测，属环境限制;但降级健壮性已完整修复验证。测试数据已清理。

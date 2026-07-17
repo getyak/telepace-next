@@ -40,7 +40,9 @@
     "tapToSend": "Listening · tap to send",
     "sending": "Working on your answer…",
     "readAloud": "Read aloud",
-    "replay": "Replay question"
+    "replay": "Replay question",
+    "micDeniedBanner": "We couldn't access your microphone.",
+    "switchToText": "Switch to typing"
   },
   "connection": {
     "lost": "Connection lost — your previous answers are saved.",
