@@ -12,4 +12,6 @@ const NS = "telepace";
 export const storageKeys = {
   /** Non-sensitive: remembers which sign-in method was used last ("google" | "password"). */
   lastLoginMethod: `${NS}.auth.last_method`,
+  /** Non-sensitive: desktop sidebar collapsed to the icon rail ("1" | "0"). */
+  sidebarCollapsed: `${NS}.app.sidebar_collapsed`,
 } as const;

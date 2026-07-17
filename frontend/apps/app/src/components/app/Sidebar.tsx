@@ -8,9 +8,9 @@
 
 import { Link } from "@/i18n/navigation";
 import { usePathname } from "@/i18n/navigation";
-import { useEffect, useState, type ComponentType } from "react";
+import { useCallback, useEffect, useState, type ComponentType } from "react";
 import { useTranslations } from "next-intl";
-import { routes, siteConfig } from "@telepace/config";
+import { routes, siteConfig, storageKeys } from "@telepace/config";
 import {
   AudienceIcon,
   CloseIcon,
@@ -19,6 +19,7 @@ import {
   InsightsIcon,
   IntegrationsIcon,
   MenuIcon,
+  PanelLeftIcon,
   SettingsIcon,
   StudiesIcon,
   type IconProps,
@@ -55,6 +56,33 @@ export function Sidebar() {
   const t = useTranslations("nav.app.sidebar");
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  // Always starts expanded so server and first client render agree; the stored
+  // preference is applied post-mount (same approach as the login form's
+  // last-method recall). Collapsing is a layout change only — nothing is
+  // unmounted — so the correction is invisible beyond a width transition.
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (window.localStorage.getItem(storageKeys.sidebarCollapsed) === "1") {
+        setCollapsed(true);
+      }
+    } catch {
+      // Private-mode / blocked storage: the rail just stays expanded.
+    }
+  }, []);
+
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed((v) => {
+      const next = !v;
+      try {
+        window.localStorage.setItem(storageKeys.sidebarCollapsed, next ? "1" : "0");
+      } catch {
+        // Preference simply won't survive a reload; the toggle still works.
+      }
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     setOpen(false);
@@ -80,22 +108,71 @@ export function Sidebar() {
           Nothing scrolls behind it (the <main> next to it owns the scroll),
           so a translucent/backdrop-blur material would render inert GPU work
           for no visual effect; a flat elevated surface is correct here. */}
-      <aside className="bg-paper-elevated hidden w-[240px] shrink-0 flex-col border-r border-hairline md:sticky md:top-0 md:flex md:h-screen">
-        <div className="border-b border-hairline px-5 py-5">
-          <Link href={routes.app.root} className="tp-press-text font-display text-xl">
-            {siteConfig.brand.name}
+      <aside
+        className={cn(
+          "bg-paper-elevated hidden shrink-0 flex-col border-r border-hairline md:sticky md:top-0 md:flex md:h-screen",
+          // Width is the only animated property — the rail's own children are
+          // laid out from it, so transitioning width alone keeps the collapse
+          // reading as one continuous motion. Reduced-motion users get the end
+          // state immediately.
+          "transition-[width] duration-300 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none",
+          collapsed ? "w-[64px]" : "w-[240px]",
+        )}
+      >
+        <div
+          className={cn(
+            "flex h-[69px] shrink-0 items-center border-b border-hairline",
+            collapsed ? "justify-center px-2" : "justify-between px-5",
+          )}
+        >
+          {/* The wordmark can't shrink into 64px, so collapsed shows the
+              monogram — still a link home, still the brand, just at rail scale. */}
+          <Link
+            href={routes.app.root}
+            className="tp-press-text font-display text-xl"
+            aria-label={siteConfig.brand.name}
+          >
+            {collapsed ? siteConfig.brand.name[0] : siteConfig.brand.name}
           </Link>
+          {!collapsed && (
+            <CollapseToggle collapsed={collapsed} onToggle={toggleCollapsed} label={t("collapseSidebar")} />
+          )}
         </div>
-        <nav className="flex-1 space-y-1 px-3 py-4 text-sm">
+
+        <nav className={cn("flex-1 space-y-1 py-4 text-sm", collapsed ? "px-2" : "px-3")}>
           {PRIMARY.map((item) => (
-            <SideLink key={item.href} item={item} label={t(item.labelKey)} active={isActive(pathname, item.href)} />
+            <SideLink
+              key={item.href}
+              item={item}
+              label={t(item.labelKey)}
+              active={isActive(pathname, item.href)}
+              collapsed={collapsed}
+            />
           ))}
-          <p className="overline px-3 pb-1 pt-6">{t("workspaceLabel")}</p>
+          {/* The section heading is text-only; at rail width the hairline does
+              the same grouping work without needing to be legible. */}
+          {collapsed ? (
+            <div aria-hidden className="mx-2 my-3 border-t border-hairline" />
+          ) : (
+            <p className="overline px-3 pb-1 pt-6">{t("workspaceLabel")}</p>
+          )}
           {WORKSPACE.map((item) => (
-            <SideLink key={item.href} item={item} label={t(item.labelKey)} active={isActive(pathname, item.href)} />
+            <SideLink
+              key={item.href}
+              item={item}
+              label={t(item.labelKey)}
+              active={isActive(pathname, item.href)}
+              collapsed={collapsed}
+            />
           ))}
         </nav>
-        <UserMenu />
+
+        {collapsed && (
+          <div className="flex justify-center border-t border-hairline py-2">
+            <CollapseToggle collapsed={collapsed} onToggle={toggleCollapsed} label={t("expandSidebar")} />
+          </div>
+        )}
+        <UserMenu collapsed={collapsed} />
       </aside>
 
       {/* Mobile top bar — sticky translucent chrome so the page content
@@ -162,16 +239,59 @@ export function Sidebar() {
   );
 }
 
-function SideLink({ item, label, active }: { item: Item; label: string; active: boolean }) {
+function CollapseToggle({
+  collapsed,
+  onToggle,
+  label,
+}: {
+  collapsed: boolean;
+  onToggle: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={label}
+      title={label}
+      aria-expanded={!collapsed}
+      className={cn(
+        "tp-press tp-press-icon rounded-btn p-1.5 text-muted",
+        "transition-[color,background-color,transform] hover:bg-paper hover:text-ink",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
+      )}
+    >
+      <PanelLeftIcon size={16} />
+    </button>
+  );
+}
+
+function SideLink({
+  item,
+  label,
+  active,
+  collapsed,
+}: {
+  item: Item;
+  label: string;
+  active: boolean;
+  collapsed: boolean;
+}) {
   const Icon = item.icon;
   return (
     <Link
       href={item.href}
       aria-current={active ? "page" : undefined}
+      // Collapsed, the icon is the only cue left, so the label has to reach the
+      // accessibility tree and the pointer some other way: aria-label names the
+      // link, title gives the hover tooltip.
+      aria-label={collapsed ? label : undefined}
+      title={collapsed ? label : undefined}
       className={cn(
-        "tp-press tp-press-row relative flex items-center gap-2.5 rounded-btn px-3 py-2 " +
+        "tp-press tp-press-row relative flex items-center rounded-btn py-2 " +
           "transition-[color,background-color,transform] " +
           "active:bg-paper-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
+        collapsed ? "justify-center px-0" : "gap-2.5 px-3",
         active
           ? "bg-paper font-medium text-ink"
           : "text-body hover:bg-paper hover:text-ink",
@@ -183,8 +303,10 @@ function SideLink({ item, label, active }: { item: Item; label: string; active: 
           className="absolute bottom-1.5 left-0 top-1.5 w-0.5 rounded-pill bg-accent"
         />
       )}
-      <Icon size={16} className={active ? "text-accent" : "text-muted"} />
-      {label}
+      <Icon size={16} className={cn("shrink-0", active ? "text-accent" : "text-muted")} />
+      {/* Removed from the tree rather than hidden, so the flex row collapses
+          cleanly and screen readers don't read a stale duplicate of aria-label. */}
+      {!collapsed && <span className="truncate">{label}</span>}
     </Link>
   );
 }

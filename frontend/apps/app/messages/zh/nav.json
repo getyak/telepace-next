@@ -10,7 +10,9 @@
       "integrations": "集成",
       "settings": "设置",
       "openMenu": "打开菜单",
-      "closeMenu": "关闭菜单"
+      "closeMenu": "关闭菜单",
+      "collapseSidebar": "收起侧边栏",
+      "expandSidebar": "展开侧边栏"
     },
     "userMenu": {
       "signIn": "登录",

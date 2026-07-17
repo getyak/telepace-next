@@ -10,7 +10,9 @@
       "integrations": "Integrations",
       "settings": "Settings",
       "openMenu": "Open menu",
-      "closeMenu": "Close menu"
+      "closeMenu": "Close menu",
+      "collapseSidebar": "Collapse sidebar",
+      "expandSidebar": "Expand sidebar"
     },
     "userMenu": {
       "signIn": "Sign in",

@@ -129,6 +129,20 @@ export function ChevronDownIcon({ size, ...props }: IconProps) {
   );
 }
 
+/**
+ * Sidebar rail — a framed panel with its left column marked off. Depicts the
+ * thing being toggled (the rail) rather than a direction, so one mark serves
+ * both states; the caller conveys direction via the adjacent chevron.
+ */
+export function PanelLeftIcon({ size, ...props }: IconProps) {
+  return (
+    <svg {...base(size, props)}>
+      <rect x="2" y="3" width="12" height="10" rx="1.5" />
+      <path d="M6.5 3v10" />
+    </svg>
+  );
+}
+
 /** A quiet five-bar waveform — the product's one recurring visual motif. */
 export function WaveformIcon({ size, ...props }: IconProps) {
   return (
