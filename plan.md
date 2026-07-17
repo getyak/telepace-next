@@ -94,7 +94,7 @@
   - 做：邮箱已注册 / 密码太短 / 网络不可达 / 服务端错误 各自不同且可操作；复用 `friendlyMessage` + `errors.*`，补齐 zh/en 键。
   - 验收：分别触发三类错误提示各不相同且可操作；zh/en 无 MISSING_MESSAGE。
 
-- [ ] **T-511 · [验证] 登录页密码框 autofill 残留复测**
+- [x] **T-511 · [验证] 登录页密码框 autofill 残留复测**
   - Trivial · 需复测
   - 现象：截图中登录页密码框显示已预填圆点，疑似浏览器 autofill 或状态残留。
   - 做：无痕环境复测登录页初始态；若确为组件残留（非浏览器 autofill）则清理初始值。
@@ -128,7 +128,7 @@
   - 做：测语音入口——权限请求、实时录音/转写、主持人语音应答、低延迟；移动端与桌面各测。
   - 验收：语音访谈能完成至少一轮问答；失败时有清晰降级（回退文字）。
 
-- [ ] **T-516 · [缺陷] 列表页近重复 study 的去重/合并提示**
+- [x] **T-516 · [缺陷] 列表页近重复 study 的去重/合并提示**
   - Minor · 数据质量 · 产品缺陷
   - 现象：studies 列表大量重复条目（「Why did trial users churn」出现 2 次、「上个季度…」出现 3 次）。
   - 做：列表对同标题+同作者的近重复给出合并/去重提示或视觉聚合；避免脏数据观感。
@@ -233,4 +233,5 @@
 2026-07-18 T-504 done — 在 http 层给所有非流式请求注入 30s 客户端超时(调用方自带 signal 的 SSE/可取消请求不受影响)，挂起请求会被 abort 并抛新增的 TIMEOUT 错误类型，命中调用方 catch → 显示可操作错误 + Retry + 解锁 UI，消除永久「drafting…」卡死。新增 errors 的 timeout 文案(en/zh)。验收：typecheck + build 全绿；真机 UI 用 fetch 拦截复现挂起 → 30s 后显示「This is taking too long」+ Retry + 输入框解锁、console 0 error。commit 71551dd
 2026-07-18 T-505/506 done — 根因同源：AuthProvider 挂载即无条件探测 /me，未登录访客必得 401→refresh 401→emit auth:expired→全局弹「会话已过期」+ 两条 401 console 噪音。修复：给 AuthProvider 传 SSR 已知的 initialHasSession(server 读 httpOnly cookie)，无 cookie 时直接 status=guest 并跳过注定 401 的 /me 探测；有 cookie 才探测(仅 /me 能确认 cookie 是否已过期，真过期仍正确提示)。营销 + app 两个 layout 都传入。验收：typecheck + build 全绿；真机 UI 无痕访客访问 /en → 0 个 auth 探测请求、无过期 toast、console 0 error；对照:已登录用户访问 /en 仍正确探测 /me 且无误弹。commit 48da99b
 2026-07-18 T-507/508 done — T-507[缺陷]:后端 _opening_turn 开场白硬编码英文(与中文问题正文混排)。修复:后端开场白按 campaign.spec.primary_language 选 zh/en 模板 + WS hello 携带 language 字段;前端受访者页收到 hello.language 后若与 URL locale 不一致则 router.replace 对齐 locale(整页 UI+内容统一语言)。加 ws.py 的 RUF001 per-file-ignore(中文全角标点合法)。T-508[验证]:确认追问停留同题(question_order 取自当前 outline_item 的 order，追问指向同题→order 不变)是正确设计，非缺陷。验收:ruff 全绿、interviewer 7 tests passed、typecheck + build 全绿;真机 zh study 从 /en 进入→URL 对齐 /zh + 主持人中文开场白 +「第 1/7 题」;对照 en study 从 /zh 进入→对齐 /en + 英文开场白;console 0 error。(附注:发现一条 en 标记但正文中文的脏 study，归 T-528 清理，不影响本修复正确性)commit 151cb8d
-2026-07-18 T-509/510 done — T-509[缺陷]:定价页「Start Pro trial」带 ?plan=pro 进注册页但表单从不读它，plan 丢失。修复:SignupForm 用 useSearchParams 读 plan(白名单校验)→ 表单顶部展示套餐横幅 + 注册成功时写入 storageKeys.selectedPlan(新增)透传给 onboarding。T-510[缺陷]:authErrorMessage 只分类了 401/NETWORK/RATE_LIMIT，409(邮箱已注册)/TIMEOUT/SERVER 都落到笼统 generic。修复:补 409→emailTaken、TIMEOUT→timeout、SERVER→server 分类 + en/zh 专属文案。验收:typecheck + build 全绿;真机 ?plan=pro→「You're starting the Pro plan…」/中文「你正在开通 Pro 套餐…」;重复邮箱注册→「That email is already registered. Try signing in instead.」(取代旧的 generic「Something went wrong」);应用层 0 JS error(仅浏览器对 409 的原生网络日志)。
+2026-07-18 T-509/510 done — T-509[缺陷]:定价页「Start Pro trial」带 ?plan=pro 进注册页但表单从不读它，plan 丢失。修复:SignupForm 用 useSearchParams 读 plan(白名单校验)→ 表单顶部展示套餐横幅 + 注册成功时写入 storageKeys.selectedPlan(新增)透传给 onboarding。T-510[缺陷]:authErrorMessage 只分类了 401/NETWORK/RATE_LIMIT，409(邮箱已注册)/TIMEOUT/SERVER 都落到笼统 generic。修复:补 409→emailTaken、TIMEOUT→timeout、SERVER→server 分类 + en/zh 专属文案。验收:typecheck + build 全绿;真机 ?plan=pro→「You're starting the Pro plan…」/中文「你正在开通 Pro 套餐…」;重复邮箱注册→「That email is already registered. Try signing in instead.」(取代旧的 generic「Something went wrong」);应用层 0 JS error(仅浏览器对 409 的原生网络日志)。commit d4c823d
+2026-07-18 T-511/516 done — T-511[验证]:代码确认登录页密码框 useState("") 初始为空，截图里的圆点是浏览器对 autoComplete="current-password" 的 autofill(有益的用户功能)，非组件残留。真机无痕环境验证密码框 value="" (0 字符)。结论:非缺陷，无需改代码。T-516[缺陷]:studies 列表同名条目造成脏数据观感。修复:纯前端 computeDuplicateTags 按标题分组，同名的按创建时序标注「Duplicate name · N of M」/「同名 · 第 N/M 个」(不隐藏不合并，保留各自 id/进度/链接；唯一标题无标注)。验收:typecheck + build 全绿;真机造 2 同名 + 1 唯一 study→两个同名分别标「1 of 2」「2 of 2」、唯一的无标注、console 0 error;测试数据已清理。

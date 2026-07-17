@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Badge, Button, Card, EmptyState, ProgressBar, Skeleton, cn } from "@telepace/ui";
@@ -31,6 +31,35 @@ function useRelativeTime() {
   };
 }
 
+/**
+ * Flag studies that share an identical title so a list littered with same-named
+ * entries reads as "you have 3 of these", not as noise. Returns, per study id, a
+ * {index, total} when its title is shared — index 1-based by creation order
+ * (oldest first) — and nothing when the title is unique. Never hides or merges
+ * rows: each study keeps its own id, progress, and link; this only labels them.
+ */
+function computeDuplicateTags(
+  studies: CampaignListItem[],
+): Map<string, { index: number; total: number }> {
+  const byTitle = new Map<string, CampaignListItem[]>();
+  for (const s of studies) {
+    const key = s.title.trim().toLowerCase();
+    const bucket = byTitle.get(key);
+    if (bucket) bucket.push(s);
+    else byTitle.set(key, [s]);
+  }
+  const tags = new Map<string, { index: number; total: number }>();
+  for (const bucket of byTitle.values()) {
+    if (bucket.length < 2) continue;
+    // Oldest first, so "1 of N" is the original and later dupes count up.
+    const ordered = [...bucket].sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+    );
+    ordered.forEach((s, i) => tags.set(s.id, { index: i + 1, total: ordered.length }));
+  }
+  return tags;
+}
+
 export default function StudiesPage() {
   const t = useTranslations("app.studies");
   const statusLabel: Record<string, string> = {
@@ -43,6 +72,10 @@ export default function StudiesPage() {
   const relativeTime = useRelativeTime();
   const [studies, setStudies] = useState<CampaignListItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const duplicateTags = useMemo(
+    () => computeDuplicateTags(studies ?? []),
+    [studies],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -108,6 +141,7 @@ export default function StudiesPage() {
               const live = isLiveStatus(s.status);
               const closed = s.status === "closed";
               const inFlight = Math.max(0, s.progress.started - s.progress.completed);
+              const dup = duplicateTags.get(s.id);
               return (
                 <Link
                   key={s.id}
@@ -129,11 +163,18 @@ export default function StudiesPage() {
                     >
                       {s.title}
                     </p>
-                    <p className="mt-0.5 truncate text-xs text-muted">
-                      {t("questionsUpdated", {
-                        count: s.question_count,
-                        time: relativeTime(s.updated_at),
-                      })}
+                    <p className="mt-0.5 flex items-center gap-2 truncate text-xs text-muted">
+                      <span className="truncate">
+                        {t("questionsUpdated", {
+                          count: s.question_count,
+                          time: relativeTime(s.updated_at),
+                        })}
+                      </span>
+                      {dup && (
+                        <span className="shrink-0 rounded-pill bg-paper-sunken px-1.5 py-0.5 text-[10px] font-medium text-muted">
+                          {t("duplicateTag", { index: dup.index, total: dup.total })}
+                        </span>
+                      )}
                     </p>
                   </div>
 

@@ -122,7 +122,8 @@
     "statusClosed": "已关闭",
     "overviewTotal": "问卷总数",
     "overviewLive": "进行中",
-    "overviewCompleted": "已完成访谈"
+    "overviewCompleted": "已完成访谈",
+    "duplicateTag": "同名 · 第 {index} / {total} 个"
   },
   "studyDetail": {
     "allStudies": "← 所有问卷",

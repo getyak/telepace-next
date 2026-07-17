@@ -122,7 +122,8 @@
     "statusClosed": "Closed",
     "overviewTotal": "Total studies",
     "overviewLive": "Live",
-    "overviewCompleted": "Completed interviews"
+    "overviewCompleted": "Completed interviews",
+    "duplicateTag": "Duplicate name · {index} of {total}"
   },
   "studyDetail": {
     "allStudies": "← All studies",
