@@ -43,7 +43,7 @@
 
 ## P1 — 核心流程健壮性（用户被卡死 / 首因掉价）
 
-- [ ] **T-504 · [缺陷] 「创建研究」正常路径补超时+错误+重试，消除永久卡死**
+- [x] **T-504 · [缺陷] 「创建研究」正常路径补超时+错误+重试，消除永久卡死**
   - High · 健壮性 · 产品缺陷（后端慢部分为环境限制，但前端无兜底是真 bug）
   - 现象：走完澄清对话后停在「Got it — drafting your outline now…」，输入框/发送禁用，>2 分钟无超时/错误/退路。网络证据：`POST /api/proxy/v1/campaigns` 永久 pending。
   - 证据：`studies/new/page.tsx` — `runAssessGate` 内 `await createFromTask(...)`(约 :559) **无 try/catch**；而 `skipGate`(约 :689) **有** try/catch → 错误处理不对称；`createFromTask`(:454) 内 `createCampaign` 无超时(文件已有 `abortRef` 可复用)。
@@ -229,4 +229,5 @@
 ## 进度记录（每完成一个任务在此追加一行）
 <!-- 例: 2026-07-18 T-501 done, commit abc1234 — per-user org on register -->
 2026-07-18 plan.md created — 29 tasks (T-501..T-529) covering ALL observations from dual-user full-stack E2E audit (score 72/100): confirmed defects, boundary checks, blind-spot pages, a11y/perf/engineering
-2026-07-18 T-501/502/503 done — 每个注册独立 org(不再回退共享默认 org) + 列表按 org 过滤 + 所有 by-id campaign 端点补归属校验(越权返回 404，修 IDOR)。新增 tests/integration/test_campaign_isolation.py(5 用例)。验收：ruff 全绿；后端 63 tests passed；真机全栈 API 验证(双用户 org 各异且非默认、新用户列表 count=0、旧 campaign_id 越权 404)；真机 UI 验证(新用户 /studies 显示「No studies yet」空态、console 0 error)。
+2026-07-18 T-501/502/503 done — 每个注册独立 org(不再回退共享默认 org) + 列表按 org 过滤 + 所有 by-id campaign 端点补归属校验(越权返回 404，修 IDOR)。新增 tests/integration/test_campaign_isolation.py(5 用例)。验收：ruff 全绿；后端 63 tests passed；真机全栈 API 验证(双用户 org 各异且非默认、新用户列表 count=0、旧 campaign_id 越权 404)；真机 UI 验证(新用户 /studies 显示「No studies yet」空态、console 0 error)。commit 8f4fef1
+2026-07-18 T-504 done — 在 http 层给所有非流式请求注入 30s 客户端超时(调用方自带 signal 的 SSE/可取消请求不受影响)，挂起请求会被 abort 并抛新增的 TIMEOUT 错误类型，命中调用方 catch → 显示可操作错误 + Retry + 解锁 UI，消除永久「drafting…」卡死。新增 errors 的 timeout 文案(en/zh)。验收：typecheck + build 全绿；真机 UI 用 fetch 拦截复现挂起 → 30s 后显示「This is taking too long」+ Retry + 输入框解锁、console 0 error。

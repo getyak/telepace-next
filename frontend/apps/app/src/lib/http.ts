@@ -22,6 +22,13 @@ export type { ErrorKind } from "./errors";
 
 type RequestInit_ = RequestInit & { json?: unknown };
 
+// A non-streaming request that never returns leaves the UI stuck forever — the
+// audit hit exactly this: `POST /v1/campaigns` stayed pending and the "drafting
+// your outline…" bubble spun with no timeout, error, or way out. Any request
+// that doesn't bring its own AbortSignal (SSE and user-cancelable calls do) gets
+// this client-side deadline so a hung request fails loudly instead of silently.
+const DEFAULT_TIMEOUT_MS = 30_000;
+
 // ---------- BFF path mapping ------------------------------------------------
 
 /** Endpoints that must never trigger a refresh-retry (they'd loop). */
@@ -101,25 +108,49 @@ function methodOf(init: RequestInit_): string {
 }
 
 async function doFetch(path: string, init: RequestInit_): Promise<Response> {
-  const { json, headers: _h, ...rest } = init;
+  const { json, headers: _h, signal: callerSignal, ...rest } = init;
   const headers = buildHeaders(init);
+
+  // Only arm the default deadline when the caller didn't bring its own signal.
+  // SSE streams and user-cancelable calls pass a signal and manage their own
+  // lifetime; everything else must not be able to hang forever.
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  let timedOut = false;
+  let signal = callerSignal ?? undefined;
+  if (!signal) {
+    const controller = new AbortController();
+    timeoutId = setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, DEFAULT_TIMEOUT_MS);
+    signal = controller.signal;
+  }
+
   try {
     return await fetch(toBffPath(path), {
       ...rest,
       headers,
+      signal,
       body: json !== undefined ? JSON.stringify(json) : rest.body,
     });
   } catch (cause) {
     // fetch() only throws on network / abort / CORS — anything else is Response.
     const aborted =
       cause instanceof DOMException && cause.name === "AbortError";
+    // Our own deadline firing is a TIMEOUT (retryable, distinct copy); a caller
+    // aborting is CANCELED; anything else that didn't reach the server is NETWORK.
+    const kind = timedOut ? "TIMEOUT" : aborted ? "CANCELED" : "NETWORK";
     const err = new ApiError({
-      kind: aborted ? "CANCELED" : "NETWORK",
+      kind,
       status: 0,
-      detail: (cause as Error)?.message ?? "fetch failed",
+      detail: timedOut
+        ? `request timed out after ${DEFAULT_TIMEOUT_MS}ms`
+        : ((cause as Error)?.message ?? "fetch failed"),
     });
     emit({ type: "api:error", error: err, method: methodOf(init), path });
     throw err;
+  } finally {
+    if (timeoutId !== undefined) clearTimeout(timeoutId);
   }
 }
 

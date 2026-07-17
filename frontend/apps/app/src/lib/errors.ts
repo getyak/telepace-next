@@ -12,6 +12,7 @@
 
 export type ErrorKind =
   | "NETWORK" //   fetch never reached server (offline, DNS, TLS, CORS)
+  | "TIMEOUT" //   request sent but no response within the client deadline
   | "AUTH" //      401 — no/expired credentials
   | "FORBIDDEN" // 403 — logged in but not allowed
   | "NOT_FOUND" // 404
@@ -61,6 +62,7 @@ export type FriendlyCopy = {
 /** Maps an ErrorKind to its key in the `errors` messages namespace. */
 const KIND_TO_MESSAGE_KEY: Record<ErrorKind, string> = {
   NETWORK: "network",
+  TIMEOUT: "timeout",
   AUTH: "auth",
   FORBIDDEN: "forbidden",
   NOT_FOUND: "not_found",
