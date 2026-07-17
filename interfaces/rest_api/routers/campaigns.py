@@ -53,6 +53,26 @@ _SIM_JSON_RE = re.compile(r"```json\s*(.*?)\s*```", re.DOTALL)
 _ASSESS_READY_CLARITY = 60
 
 
+async def _load_owned_campaign(
+    projector: CampaignProjector, campaign_id: UUID, user: AuthUser
+):
+    """Fetch a campaign and enforce that the caller's org owns it.
+
+    Any campaign the caller cannot own is reported as 404 (not 403) so an
+    attacker cannot probe which ids exist across tenants — the endpoint looks
+    identical whether the study is missing or simply belongs to someone else.
+    Prevents IDOR: without this check any authenticated user could read another
+    tenant's study spec and respondents' raw answers by guessing/knowing an id.
+    """
+    campaign = await projector.get_campaign(campaign_id)
+    if campaign is None or campaign.org_id != user.org_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=ErrorMessages.CAMPAIGN_NOT_FOUND,
+        )
+    return campaign
+
+
 _ASSESS_SYSTEM = (
     "You are the intake analyst for a user-research platform. A researcher "
     "types an opening line. Your ONLY job is to decide whether their intent is "
@@ -261,13 +281,9 @@ async def get_campaign(
     campaign_id: UUID,
     projector: CampaignProjector = Depends(get_projector),
     settings: Settings = Depends(get_settings_dep),
-    _user: AuthUser = Depends(require_current_user),
+    user: AuthUser = Depends(require_current_user),
 ) -> dict:
-    campaign = await projector.get_campaign(campaign_id)
-    if campaign is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=ErrorMessages.CAMPAIGN_NOT_FOUND
-        )
+    campaign = await _load_owned_campaign(projector, campaign_id, user)
     progress = await projector.get_progress(campaign_id)
     return {
         "campaign": campaign.model_dump(mode="json"),
@@ -288,13 +304,9 @@ async def get_campaign(
 async def get_campaign_insights(
     campaign_id: UUID,
     projector: CampaignProjector = Depends(get_projector),
-    _user: AuthUser = Depends(require_current_user),
+    user: AuthUser = Depends(require_current_user),
 ) -> dict:
-    campaign = await projector.get_campaign(campaign_id)
-    if campaign is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=ErrorMessages.CAMPAIGN_NOT_FOUND
-        )
+    await _load_owned_campaign(projector, campaign_id, user)
     rows = await projector.list_insights(campaign_id)
     grouped: dict[str, list[dict]] = {
         "themes": [],
@@ -328,11 +340,7 @@ async def close_campaign(
     settings: Settings = Depends(get_settings_dep),
     user: AuthUser = Depends(require_current_user),
 ) -> dict:
-    campaign = await projector.get_campaign(campaign_id)
-    if campaign is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=ErrorMessages.CAMPAIGN_NOT_FOUND
-        )
+    campaign = await _load_owned_campaign(projector, campaign_id, user)
     from core.domain.models import CampaignStatus
     from core.events import CampaignClosed
 
@@ -356,9 +364,11 @@ async def refine_outline(
     body: RefineBody,
     request: Request,
     harness: Harness = Depends(get_harness),
+    projector: CampaignProjector = Depends(get_projector),
     settings: Settings = Depends(get_settings_dep),
     user: AuthUser = Depends(require_current_user),
 ) -> dict:
+    await _load_owned_campaign(projector, campaign_id, user)
     cmd = RefineOutline(
         actor=_actor_ref(settings, user),
         campaign_id=campaign_id,
@@ -382,9 +392,11 @@ async def refine_outline_stream(
     request: Request,
     background: BackgroundTasks,
     harness: Harness = Depends(get_harness),
+    projector: CampaignProjector = Depends(get_projector),
     settings: Settings = Depends(get_settings_dep),
     user: AuthUser = Depends(require_current_user),
 ) -> StreamingResponse:
+    await _load_owned_campaign(projector, campaign_id, user)
     memory = harness._memory  # type: ignore[attr-defined]
     ctx = await memory.load(campaign_id)
     current_spec = ctx.get("spec") or {}
@@ -442,6 +454,7 @@ async def start_campaign(
     settings: Settings = Depends(get_settings_dep),
     user: AuthUser = Depends(require_current_user),
 ) -> dict:
+    await _load_owned_campaign(projector, campaign_id, user)
     cmd = StartCampaign(
         actor=_actor_ref(settings, user),
         campaign_id=campaign_id,
@@ -487,9 +500,11 @@ async def dispatch_invites(
     campaign_id: UUID,
     body: DispatchInvitesBody,
     harness: Harness = Depends(get_harness),
+    projector: CampaignProjector = Depends(get_projector),
     settings: Settings = Depends(get_settings_dep),
     user: AuthUser = Depends(require_current_user),
 ) -> dict:
+    await _load_owned_campaign(projector, campaign_id, user)
     cmd = DispatchInvites(
         actor=_actor_ref(settings, user),
         campaign_id=campaign_id,
@@ -562,7 +577,7 @@ async def simulate_interview(
     body: SimulateBody,
     request: Request,
     projector: CampaignProjector = Depends(get_projector),
-    _user: AuthUser = Depends(require_current_user),
+    user: AuthUser = Depends(require_current_user),
 ) -> dict:
     """Ask the LLM to role-play a respondent and answer the current outline.
 
@@ -570,11 +585,7 @@ async def simulate_interview(
     campaign spec is fetched from the projection; the LLM sees each outline
     item's question + goal and produces a single JSON of Q/A turns.
     """
-    campaign = await projector.get_campaign(campaign_id)
-    if campaign is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=ErrorMessages.CAMPAIGN_NOT_FOUND
-        )
+    campaign = await _load_owned_campaign(projector, campaign_id, user)
     outline = campaign.spec.outline.items
     if not outline:
         raise HTTPException(

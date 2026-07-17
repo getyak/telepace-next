@@ -8,7 +8,7 @@ constant.
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
@@ -90,7 +90,12 @@ async def register(
             ),
         )
 
-    org_id = body.org_id or UUID(settings.default_org_id)
+    # Each new registration gets its own tenant. `default_org_id` is a dev-only
+    # fallback used when auth is disabled — it must never be the org a real
+    # signup lands in, or every user shares one tenant and can see each other's
+    # studies. An explicit `body.org_id` (e.g. an invite joining an existing
+    # org) is still honored; absent that, mint a fresh org per user.
+    org_id = body.org_id or uuid4()
     encoded = hash_password(body.password, iterations=settings.password_pbkdf2_iterations)
     try:
         user = await users.create(
