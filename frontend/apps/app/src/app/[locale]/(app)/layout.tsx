@@ -1,6 +1,8 @@
+import { cookies } from "next/headers";
 import { getMessages } from "next-intl/server";
 
 import { AuthProvider } from "@/lib/auth/AuthProvider";
+import { ACCESS_COOKIE } from "@/lib/auth/cookies";
 import { Sidebar } from "@/components/app/Sidebar";
 import { AgentDock } from "@/components/agent/AgentDock";
 import { ErrorsCopyProvider } from "@/components/app/ErrorsCopyContext";
@@ -9,9 +11,13 @@ import type { ErrorsCopyTable } from "@/lib/errors";
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const messages = await getMessages();
   const errorsCopy = (messages.errors ?? {}) as ErrorsCopyTable;
+  // Server can read the httpOnly cookie — hand it in so a cookie-less visitor
+  // resolves as guest without a doomed /me probe (see AuthProvider).
+  const cookieStore = await cookies();
+  const hasSession = cookieStore.has(ACCESS_COOKIE);
 
   return (
-    <AuthProvider>
+    <AuthProvider initialHasSession={hasSession}>
       <ErrorsCopyProvider copy={errorsCopy}>
         {/* Lock the shell to the viewport and let <main> own the scroll, so the
             sticky sidebar can never be scrolled away (a page that sets its own

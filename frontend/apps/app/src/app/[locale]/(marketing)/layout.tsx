@@ -17,7 +17,7 @@ export default async function MarketingLayout({
   const hasSession = cookieStore.has(ACCESS_COOKIE);
 
   return (
-    <AuthProvider redirectOnExpiry={false}>
+    <AuthProvider redirectOnExpiry={false} initialHasSession={hasSession}>
       {/* Site-wide identity graph — rendered once for every marketing route so
           Organization/WebSite are always discoverable regardless of entry page. */}
       <JsonLd data={[organizationSchema(), webSiteSchema()]} />

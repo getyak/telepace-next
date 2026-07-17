@@ -50,14 +50,14 @@
   - 做：① 用 `skipGate` 的 try/catch 模式包裹 gate 正常路径创建；失败时改可见错误 + 重置 busy + 重试；② `createCampaign` 加超时(如 30s，复用 AbortController)；③ 文案走 `friendlyMessage`。
   - 验收：mock 500/超时/断网 → 不再无限 drafting，可见错误可重试；新增测试覆盖「gate 正常路径创建失败」分支。
 
-- [ ] **T-505 · [缺陷] 营销页不再对未登录访客弹「会话已过期」**
+- [x] **T-505 · [缺陷] 营销页不再对未登录访客弹「会话已过期」**
   - Medium · 信任(首因) · 产品缺陷
   - 现象：无痕新访客打开落地页/定价页即弹「Your session has expired / Please sign in again」。
   - 证据：`components/toast/HttpErrorBridge.tsx:24` 监听 `auth:expired`；由 `/api/auth/me`、`/api/auth/refresh` 401 触发；营销/公开页也无条件跑会话探测，把「本来没登录」误当「会话过期」。
   - 做：区分「首次探测 401（静默=未登录）」与「已登录后 token 失效 401（才提示+跳登录）」；营销/公开路由不弹过期提示；仅 app 受保护上下文且此前已登录时提示。
   - 验收：无痕访问 `/en`、`/en/pricing` 无过期提示；已登录后 token 失效仍正确提示跳登录。
 
-- [ ] **T-506 · [缺陷] 首屏探测性 401 从 console ERROR 降级**
+- [x] **T-506 · [缺陷] 首屏探测性 401 从 console ERROR 降级**
   - Low · 可观测性 · 产品缺陷（与 T-505 同源，可合并但独立验收）
   - 现象：首屏 console 即 2 条 `401 Unauthorized` ERROR（/auth/me、/auth/refresh），污染日志、干扰真实错误排查。
   - 证据：本次测评 console 首屏两条 401 被标记为 ERROR level。
@@ -230,4 +230,5 @@
 <!-- 例: 2026-07-18 T-501 done, commit abc1234 — per-user org on register -->
 2026-07-18 plan.md created — 29 tasks (T-501..T-529) covering ALL observations from dual-user full-stack E2E audit (score 72/100): confirmed defects, boundary checks, blind-spot pages, a11y/perf/engineering
 2026-07-18 T-501/502/503 done — 每个注册独立 org(不再回退共享默认 org) + 列表按 org 过滤 + 所有 by-id campaign 端点补归属校验(越权返回 404，修 IDOR)。新增 tests/integration/test_campaign_isolation.py(5 用例)。验收：ruff 全绿；后端 63 tests passed；真机全栈 API 验证(双用户 org 各异且非默认、新用户列表 count=0、旧 campaign_id 越权 404)；真机 UI 验证(新用户 /studies 显示「No studies yet」空态、console 0 error)。commit 8f4fef1
-2026-07-18 T-504 done — 在 http 层给所有非流式请求注入 30s 客户端超时(调用方自带 signal 的 SSE/可取消请求不受影响)，挂起请求会被 abort 并抛新增的 TIMEOUT 错误类型，命中调用方 catch → 显示可操作错误 + Retry + 解锁 UI，消除永久「drafting…」卡死。新增 errors 的 timeout 文案(en/zh)。验收：typecheck + build 全绿；真机 UI 用 fetch 拦截复现挂起 → 30s 后显示「This is taking too long」+ Retry + 输入框解锁、console 0 error。
+2026-07-18 T-504 done — 在 http 层给所有非流式请求注入 30s 客户端超时(调用方自带 signal 的 SSE/可取消请求不受影响)，挂起请求会被 abort 并抛新增的 TIMEOUT 错误类型，命中调用方 catch → 显示可操作错误 + Retry + 解锁 UI，消除永久「drafting…」卡死。新增 errors 的 timeout 文案(en/zh)。验收：typecheck + build 全绿；真机 UI 用 fetch 拦截复现挂起 → 30s 后显示「This is taking too long」+ Retry + 输入框解锁、console 0 error。commit 71551dd
+2026-07-18 T-505/506 done — 根因同源：AuthProvider 挂载即无条件探测 /me，未登录访客必得 401→refresh 401→emit auth:expired→全局弹「会话已过期」+ 两条 401 console 噪音。修复：给 AuthProvider 传 SSR 已知的 initialHasSession(server 读 httpOnly cookie)，无 cookie 时直接 status=guest 并跳过注定 401 的 /me 探测；有 cookie 才探测(仅 /me 能确认 cookie 是否已过期，真过期仍正确提示)。营销 + app 两个 layout 都传入。验收：typecheck + build 全绿；真机 UI 无痕访客访问 /en → 0 个 auth 探测请求、无过期 toast、console 0 error；对照:已登录用户访问 /en 仍正确探测 /me 且无误弹。
