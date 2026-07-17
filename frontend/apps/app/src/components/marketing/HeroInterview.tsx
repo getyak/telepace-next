@@ -167,6 +167,9 @@ export function HeroInterview() {
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               placeholder={t("inputPlaceholder")}
+              // placeholder disappears once typing starts and is never an
+              // accessible name — give the field a stable label for screen readers.
+              aria-label={t("inputPlaceholder")}
               disabled={typing}
               className="min-w-0 flex-1 rounded-input border border-hairline bg-paper px-3.5 py-2 text-sm outline-none transition-colors placeholder:text-muted focus:border-ink disabled:opacity-50"
             />
