@@ -14,4 +14,7 @@ export const storageKeys = {
   lastLoginMethod: `${NS}.auth.last_method`,
   /** Non-sensitive: desktop sidebar collapsed to the icon rail ("1" | "0"). */
   sidebarCollapsed: `${NS}.app.sidebar_collapsed`,
+  /** Non-sensitive: plan chosen on the pricing page, carried through signup
+   *  (e.g. "pro") so onboarding can resume the intended tier after registration. */
+  selectedPlan: `${NS}.billing.selected_plan`,
 } as const;

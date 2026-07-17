@@ -81,13 +81,13 @@
 
 ## P2 — 转化漏斗与注册体验（摩擦点，非阻断）
 
-- [ ] **T-509 · [缺陷] 注册页透传并展示 plan 上下文**
+- [x] **T-509 · [缺陷] 注册页透传并展示 plan 上下文**
   - Minor · 转化 · 产品缺陷
   - 现象：定价页「Start Pro trial」带 `?plan=pro` 进注册页，表单无任何 Pro 提示，plan 丢失。
   - 做：注册页读 `plan` query，表单顶部展示所选套餐，plan 透传到注册请求/注册后引导。
   - 验收：带 `?plan=pro` → 显示 Pro 标识；注册成功后套餐选择被保留。
 
-- [ ] **T-510 · [缺陷] 注册/登录失败文案区分具体原因**
+- [x] **T-510 · [缺陷] 注册/登录失败文案区分具体原因**
   - Minor · 转化 · 产品缺陷
   - 现象：注册失败只显示「Something went wrong. Please try again.」；后端不可达(500)与业务校验失败共用同一句。
   - 证据：后端离线时 `/api/auth/register` 500 → 前端统一提示；`lib/errors.ts` 未按类别细分。
@@ -232,4 +232,5 @@
 2026-07-18 T-501/502/503 done — 每个注册独立 org(不再回退共享默认 org) + 列表按 org 过滤 + 所有 by-id campaign 端点补归属校验(越权返回 404，修 IDOR)。新增 tests/integration/test_campaign_isolation.py(5 用例)。验收：ruff 全绿；后端 63 tests passed；真机全栈 API 验证(双用户 org 各异且非默认、新用户列表 count=0、旧 campaign_id 越权 404)；真机 UI 验证(新用户 /studies 显示「No studies yet」空态、console 0 error)。commit 8f4fef1
 2026-07-18 T-504 done — 在 http 层给所有非流式请求注入 30s 客户端超时(调用方自带 signal 的 SSE/可取消请求不受影响)，挂起请求会被 abort 并抛新增的 TIMEOUT 错误类型，命中调用方 catch → 显示可操作错误 + Retry + 解锁 UI，消除永久「drafting…」卡死。新增 errors 的 timeout 文案(en/zh)。验收：typecheck + build 全绿；真机 UI 用 fetch 拦截复现挂起 → 30s 后显示「This is taking too long」+ Retry + 输入框解锁、console 0 error。commit 71551dd
 2026-07-18 T-505/506 done — 根因同源：AuthProvider 挂载即无条件探测 /me，未登录访客必得 401→refresh 401→emit auth:expired→全局弹「会话已过期」+ 两条 401 console 噪音。修复：给 AuthProvider 传 SSR 已知的 initialHasSession(server 读 httpOnly cookie)，无 cookie 时直接 status=guest 并跳过注定 401 的 /me 探测；有 cookie 才探测(仅 /me 能确认 cookie 是否已过期，真过期仍正确提示)。营销 + app 两个 layout 都传入。验收：typecheck + build 全绿；真机 UI 无痕访客访问 /en → 0 个 auth 探测请求、无过期 toast、console 0 error；对照:已登录用户访问 /en 仍正确探测 /me 且无误弹。commit 48da99b
-2026-07-18 T-507/508 done — T-507[缺陷]:后端 _opening_turn 开场白硬编码英文(与中文问题正文混排)。修复:后端开场白按 campaign.spec.primary_language 选 zh/en 模板 + WS hello 携带 language 字段;前端受访者页收到 hello.language 后若与 URL locale 不一致则 router.replace 对齐 locale(整页 UI+内容统一语言)。加 ws.py 的 RUF001 per-file-ignore(中文全角标点合法)。T-508[验证]:确认追问停留同题(question_order 取自当前 outline_item 的 order，追问指向同题→order 不变)是正确设计，非缺陷。验收:ruff 全绿、interviewer 7 tests passed、typecheck + build 全绿;真机 zh study 从 /en 进入→URL 对齐 /zh + 主持人中文开场白 +「第 1/7 题」;对照 en study 从 /zh 进入→对齐 /en + 英文开场白;console 0 error。(附注:发现一条 en 标记但正文中文的脏 study，归 T-528 清理，不影响本修复正确性)
+2026-07-18 T-507/508 done — T-507[缺陷]:后端 _opening_turn 开场白硬编码英文(与中文问题正文混排)。修复:后端开场白按 campaign.spec.primary_language 选 zh/en 模板 + WS hello 携带 language 字段;前端受访者页收到 hello.language 后若与 URL locale 不一致则 router.replace 对齐 locale(整页 UI+内容统一语言)。加 ws.py 的 RUF001 per-file-ignore(中文全角标点合法)。T-508[验证]:确认追问停留同题(question_order 取自当前 outline_item 的 order，追问指向同题→order 不变)是正确设计，非缺陷。验收:ruff 全绿、interviewer 7 tests passed、typecheck + build 全绿;真机 zh study 从 /en 进入→URL 对齐 /zh + 主持人中文开场白 +「第 1/7 题」;对照 en study 从 /zh 进入→对齐 /en + 英文开场白;console 0 error。(附注:发现一条 en 标记但正文中文的脏 study，归 T-528 清理，不影响本修复正确性)commit 151cb8d
+2026-07-18 T-509/510 done — T-509[缺陷]:定价页「Start Pro trial」带 ?plan=pro 进注册页但表单从不读它，plan 丢失。修复:SignupForm 用 useSearchParams 读 plan(白名单校验)→ 表单顶部展示套餐横幅 + 注册成功时写入 storageKeys.selectedPlan(新增)透传给 onboarding。T-510[缺陷]:authErrorMessage 只分类了 401/NETWORK/RATE_LIMIT，409(邮箱已注册)/TIMEOUT/SERVER 都落到笼统 generic。修复:补 409→emailTaken、TIMEOUT→timeout、SERVER→server 分类 + en/zh 专属文案。验收:typecheck + build 全绿;真机 ?plan=pro→「You're starting the Pro plan…」/中文「你正在开通 Pro 套餐…」;重复邮箱注册→「That email is already registered. Try signing in instead.」(取代旧的 generic「Something went wrong」);应用层 0 JS error(仅浏览器对 409 的原生网络日志)。
