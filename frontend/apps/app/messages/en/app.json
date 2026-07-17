@@ -65,7 +65,14 @@
     "theme2Quote2": "The email said 'you're in' but the app didn't seem to know that.",
     "theme3Title": "The MCP hook is the reason for the upgrade",
     "theme3Quote1": "The MCP integration is what made me pull out the card. Everything else is table stakes.",
-    "theme3Quote2": "My Claude does research now. That's magic. Ten times worth $79."
+    "theme3Quote2": "My Claude does research now. That's magic. Ten times worth $79.",
+    "filterAll": "All themes",
+    "filterByTag": "Filter: {tag}",
+    "notionNotConnected": "Notion isn't connected yet. Connect it in Integrations to push insights.",
+    "notionCta": "Notion integration is not set up — configure it in Integrations first.",
+    "dismissedEmpty": "All insights dismissed. Reload to bring them back.",
+    "dismissedToast": "Insight dismissed.",
+    "restore": "Undo"
   },
   "integrations": {
     "eyebrow": "Integrations",

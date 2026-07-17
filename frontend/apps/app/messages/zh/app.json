@@ -65,7 +65,14 @@
     "theme2Quote2": "邮件说「你已注册成功」，但应用似乎不知道这回事。",
     "theme3Title": "MCP 集成是升级的核心原因",
     "theme3Quote1": "MCP 集成是让我掏钱的关键。其他功能都是基本配置。",
-    "theme3Quote2": "我的 Claude 现在能做研究了。太神奇了。$79 值十倍。"
+    "theme3Quote2": "我的 Claude 现在能做研究了。太神奇了。$79 值十倍。",
+    "filterAll": "全部主题",
+    "filterByTag": "筛选：{tag}",
+    "notionNotConnected": "Notion 尚未连接。请先在「集成」中连接后再推送洞察。",
+    "notionCta": "Notion 集成尚未配置——请先在「集成」中设置。",
+    "dismissedEmpty": "已忽略全部洞察。刷新可恢复。",
+    "dismissedToast": "洞察已忽略。",
+    "restore": "撤销"
   },
   "integrations": {
     "eyebrow": "集成",
