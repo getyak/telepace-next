@@ -16,6 +16,9 @@ class ErrorMessages:
     PASSWORD_TOO_SHORT = "password must be at least {min_length} characters"
     USER_NOT_FOUND = "user not found"
     AUTH_UNAVAILABLE = "auth subsystem not initialized"
+    OAUTH_NOT_CONFIGURED = "oauth provider not configured"
+    OAUTH_STATE_INVALID = "invalid or expired oauth state"
+    OAUTH_EXCHANGE_FAILED = "oauth sign-in failed"
 
     # Campaigns
     CAMPAIGN_NOT_FOUND = "campaign not found"

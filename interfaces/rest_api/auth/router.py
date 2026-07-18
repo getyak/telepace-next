@@ -120,7 +120,10 @@ async def login(
     users: UsersRepo = Depends(_get_users_repo),
 ) -> TokenResponse:
     user = await users.get_by_email(str(body.email))
-    if user is None or not user.is_active:
+    # A passwordless (SSO) account can only sign in through its provider — treat
+    # a password-login attempt against it as invalid credentials, without leaking
+    # that the email exists under a different provider.
+    if user is None or not user.is_active or user.password_hash is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=ErrorMessages.INVALID_CREDENTIALS,

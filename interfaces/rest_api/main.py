@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from core.events import InterviewCompleted, StudyDrafted
 from interfaces.realtime import voice_ws
 from interfaces.rest_api import ws
+from interfaces.rest_api.auth.oauth_google import router as oauth_google_router
 from interfaces.rest_api.auth.router import router as auth_router
 from interfaces.rest_api.config import get_settings
 from interfaces.rest_api.deps import AppState, build_state
@@ -82,6 +83,7 @@ def create_app() -> FastAPI:
     )
     application.include_router(health.router)
     application.include_router(auth_router)
+    application.include_router(oauth_google_router)
     application.include_router(campaigns.router)
     application.include_router(interviews.router)
     application.include_router(agent.router)

@@ -10,6 +10,8 @@ import { useTranslations } from "next-intl";
 import { Button } from "@telepace/ui";
 import { GoogleIcon } from "@telepace/icons";
 
+import { rememberLoginMethod } from "./auth-helpers";
+
 export function GoogleButton({ lastUsed }: { lastUsed: boolean }) {
   const t = useTranslations("auth");
   return (
@@ -19,6 +21,10 @@ export function GoogleButton({ lastUsed }: { lastUsed: boolean }) {
         variant="secondary"
         className="h-11 w-full"
         onClick={() => {
+          // Remember before we leave: the round-trip returns to /studies, not
+          // here, so this synchronous localStorage write is our only chance to
+          // light the "Last used" pill next time.
+          rememberLoginMethod("google");
           // The OAuth entry point is a full-page navigation, not an XHR.
           window.location.href = "/api/auth/oauth/google";
         }}
