@@ -79,6 +79,13 @@ cd frontend && pnpm install && pnpm dev   # → http://localhost:3300
 > No migration step: the database schema is created automatically on backend
 > startup (`CREATE TABLE IF NOT EXISTS`), so there is no `alembic` to run.
 
+> **Behind a SOCKS proxy?** If your shell exports `ALL_PROXY`/`http_proxy`,
+> the LLM SDK crashes on startup with a missing-`socksio` error and local
+> `curl` hangs. Strip the proxy for the backend process (or install
+> `httpx[socks]`). Full walkthrough + an end-to-end
+> register → create → respondent self-test:
+> [docs/local-fullstack-selftest.md](docs/local-fullstack-selftest.md).
+
 ## License
 
 MIT (planned).
