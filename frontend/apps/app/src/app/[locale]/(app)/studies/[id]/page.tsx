@@ -18,8 +18,23 @@ import {
   type CampaignInsights,
   type InsightItem,
 } from "@/lib/api";
-import { TpBarChart, CrossTab, ChartSection } from "@/components/charts";
+import dynamic from "next/dynamic";
+// Import from the concrete files, NOT the charts barrel (@/components/charts):
+// the barrel re-exports TpBarChart, so importing anything through it drags
+// recharts (~120kB) into this page's first-load bundle. ChartSection and
+// CrossTab are plain markup (no recharts) and stay synchronous.
+import { ChartSection } from "@/components/charts/ChartSection";
+import { CrossTab } from "@/components/charts/CrossTab";
 import type { CrossTabRow } from "@/types/evidence";
+
+// Only TpBarChart pulls in recharts, and it renders further down the page (and
+// only when the study has data). Load it lazily so study-detail first paint
+// ships no charting library — this route was the app's heaviest (249kB First
+// Load JS vs ~135kB elsewhere), all of it recharts.
+const TpBarChart = dynamic(
+  () => import("@/components/charts/TpBarChart").then((m) => m.TpBarChart),
+  { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> },
+);
 import { friendlyMessage } from "@/lib/errors";
 import { useErrorsCopy } from "@/components/app/ErrorsCopyContext";
 
