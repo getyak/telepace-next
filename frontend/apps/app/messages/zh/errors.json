@@ -3,6 +3,10 @@
     "title": "网络无法连接",
     "description": "请检查网络后重试。如启用了代理，localhost 需加入直连。"
   },
+  "timeout": {
+    "title": "响应时间过长",
+    "description": "请求超时，暂未收到后端响应，请重试。"
+  },
   "auth": {
     "title": "登录已过期",
     "description": "请重新登录以继续操作。",

@@ -1,11 +1,20 @@
 "use client";
 
 import * as React from "react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { cn } from "@telepace/ui";
 
 import { usePathname } from "@/i18n/navigation";
-import { GlobalAgentPanel } from "./GlobalAgentPanel";
+
+// The panel pulls in ChatComposer + the agent-chat streaming client, none of
+// which the drawer needs until it's actually opened. AgentDock lives in the app
+// layout, so a static import would put that weight in every app page's first
+// load. Lazy-load it (client-only; the panel is already gated on `open`).
+const GlobalAgentPanel = dynamic(
+  () => import("./GlobalAgentPanel").then((m) => m.GlobalAgentPanel),
+  { ssr: false },
+);
 
 /**
  * The always-present global agent affordance: a floating trigger bottom-right

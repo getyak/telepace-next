@@ -2,6 +2,13 @@
 
 import { use, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+
+import { usePathname, useRouter } from "@/i18n/navigation";
+
+// Locales the respondent UI can render. The interview's content language (from
+// the WS hello) is authoritative; if the URL locale disagrees we switch to it
+// so greetings/progress/prompts match the question text instead of clashing.
+const SUPPORTED_LOCALES = ["en", "zh"] as const;
 import {
   Button,
   Card,
@@ -31,7 +38,11 @@ const REPLY_WATCHDOG_MS = 45000;
 
 export default function RespondentPage(props: { params: Promise<Params> }) {
   const t = useTranslations("respondent");
-  const { campaignId } = use(props.params);
+  const { campaignId, locale } = use(props.params);
+  const router = useRouter();
+  const pathname = usePathname();
+  // Guard so a locale switch fires at most once (it remounts the page).
+  const localeAlignedRef = useRef(false);
   const [phase, setPhase] = useState<"consent" | "chat" | "voice" | "done">("consent");
   const [mode, setMode] = useState<"text" | "voice">("text");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -41,6 +52,10 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
   const [speaking, setSpeaking] = useState(false);
   const [progress, setProgress] = useState<Progress>({ current: null, total: 0 });
   const [awaiting, setAwaiting] = useState(false);
+  // Set when the mic can't be accessed in voice mode — the orb alone leaves the
+  // respondent stuck on "connecting…" with no visible reason or way out, so we
+  // surface a banner + a one-tap fallback to the text interview.
+  const [micDenied, setMicDenied] = useState(false);
   // Voice-mode UI: the respondent taps the orb to start/stop capture, and can
   // silence or replay the interviewer's read-aloud.
   const [voicePhase, setVoicePhase] = useState<VoicePhase>("idle");
@@ -93,6 +108,7 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
       let msg: {
         type: string;
         opening?: string;
+        language?: string;
         progress?: { question_order?: number | null; total_questions?: number };
         result?: {
           text?: string;
@@ -106,6 +122,20 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
         return;
       }
       if (msg.type === VoiceEventType.Hello) {
+        // Align the page locale to the study's content language so the host's
+        // greeting, progress, and prompts speak the same language as the
+        // questions. Fires at most once; a no-op when they already agree.
+        const lang = msg.language;
+        if (
+          lang &&
+          !localeAlignedRef.current &&
+          (SUPPORTED_LOCALES as readonly string[]).includes(lang) &&
+          lang !== locale
+        ) {
+          localeAlignedRef.current = true;
+          router.replace(pathname, { locale: lang });
+          return;
+        }
         if (msg.progress?.total_questions) {
           setProgress({
             current: msg.progress.question_order ?? 1,
@@ -159,7 +189,7 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
       closedByUs = true;
       ws.close();
     };
-  }, [phase, campaignId, retryKey]);
+  }, [phase, campaignId, retryKey, locale, router, pathname]);
 
   // Watchdog: never leave the respondent stuck on a silent interviewer.
   useEffect(() => {
@@ -241,6 +271,9 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
         // the Listen Labs "tap to speak" affordance.
       } catch (err) {
         console.error("mic permission denied", err);
+        // Surface it in the voice stage (a banner + fallback button), not only
+        // as a chat line the orb view never shows.
+        setMicDenied(true);
         setMessages((prev) => [
           ...prev,
           {
@@ -392,6 +425,24 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
     return (
       <div className="flex min-h-screen flex-col">
         <ProgressBar progress={progress} />
+        {micDenied && (
+          <div
+            role="alert"
+            className="mx-auto mt-4 flex w-[min(90vw,32rem)] flex-wrap items-center justify-between gap-3 rounded-btn border border-hairline bg-paper-sunken px-4 py-3 text-sm shadow-overlay"
+          >
+            <span className="text-body">{t("voice.micDeniedBanner")}</span>
+            <button
+              onClick={() => {
+                setMicDenied(false);
+                setMode("text");
+                setPhase("chat");
+              }}
+              className="shrink-0 rounded-btn bg-accent px-3 py-1.5 text-sm font-medium text-paper hover:bg-accent/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+            >
+              {t("voice.switchToText")}
+            </button>
+          </div>
+        )}
         <VoiceStage
           question={lastQuestion}
           phase={voicePhase}

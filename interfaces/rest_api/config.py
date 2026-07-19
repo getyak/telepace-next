@@ -76,6 +76,19 @@ class Settings(BaseSettings):
     auth_max_failed_attempts: int = 5
     auth_lockout_seconds: int = 15 * 60
 
+    # --- OAuth / SSO (T-512). Empty client id disables the Google flow; the
+    # frontend gates its "Continue with Google" button on NEXT_PUBLIC_OAUTH_GOOGLE
+    # independently. The redirect URI must exactly match a Google Cloud Console
+    # "Authorized redirect URI" — it lands on the frontend BFF (port 3300), which
+    # exchanges the code and sets the httpOnly session cookies.
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    oauth_google_redirect_uri: str = "http://localhost:3300/api/auth/oauth/google/callback"
+    oauth_google_scopes: str = "openid email profile"
+    # Where the backend sends the browser after a successful callback exchange.
+    oauth_success_redirect: str = "/studies"
+    oauth_failure_redirect: str = "/login?error=oauth"
+
     # --- Actor prefixes (event `actor` field: "<prefix>:<id>")
     actor_prefix_user: str = "user"
     actor_prefix_system: str = "system"

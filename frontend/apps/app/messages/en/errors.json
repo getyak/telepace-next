@@ -3,6 +3,10 @@
     "title": "Can't reach the network",
     "description": "Check your connection and try again. If you're on a proxy, make sure localhost is excluded."
   },
+  "timeout": {
+    "title": "This is taking too long",
+    "description": "The request timed out before we heard back. Please try again."
+  },
   "auth": {
     "title": "Your session has expired",
     "description": "Please sign in again to continue.",

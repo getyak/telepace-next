@@ -33,6 +33,14 @@ export function LoginForm() {
     setLastMethod(getLastLoginMethod());
   }, []);
 
+  // The OAuth callback bounces back here with ?error=oauth when Google sign-in
+  // is declined or the exchange fails — surface it in the shared error slot.
+  useEffect(() => {
+    if (params.get("error") === "oauth") {
+      setError(t("oauth.failed"));
+    }
+  }, [params, t]);
+
   async function onSubmit(evt: React.FormEvent<HTMLFormElement>) {
     evt.preventDefault();
     setError(null);

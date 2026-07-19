@@ -40,7 +40,9 @@
     "tapToSend": "正在聆听 · 点击发送",
     "sending": "正在处理你的回答…",
     "readAloud": "语音朗读",
-    "replay": "重听问题"
+    "replay": "重听问题",
+    "micDeniedBanner": "无法访问你的麦克风。",
+    "switchToText": "改用文字"
   },
   "connection": {
     "lost": "连接已断开 —— 你之前的回答已保存。",

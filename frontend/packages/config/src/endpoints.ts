@@ -13,6 +13,8 @@ export const apiEndpoints = {
     refresh: "/auth/refresh",
     me: "/auth/me",
     logout: "/auth/logout",
+    oauthGoogleStart: "/auth/oauth/google/start",
+    oauthGoogleExchange: "/auth/oauth/google/exchange",
   },
   campaigns: {
     root: "/v1/campaigns",

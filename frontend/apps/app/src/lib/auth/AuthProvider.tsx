@@ -23,6 +23,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({
   children,
   redirectOnExpiry = true,
+  initialHasSession,
 }: {
   children: React.ReactNode;
   /**
@@ -32,12 +33,24 @@ export function AuthProvider({
    * `redirectOnExpiry={false}`.
    */
   redirectOnExpiry?: boolean;
+  /**
+   * First-paint hint from the server, which can read the httpOnly session
+   * cookie. When it's explicitly `false` we KNOW the visitor is a guest, so we
+   * skip the initial `/me` probe entirely — that probe was a guaranteed 401
+   * that (a) tripped the global "session expired" toast on marketing pages a
+   * never-logged-in visitor first sees, and (b) logged two noisy 401s on every
+   * first paint. `true`/`undefined` keep the probe (a cookie may be present but
+   * expired, which only /me can confirm).
+   */
+  initialHasSession?: boolean;
 }) {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
-  // The session lives in an httpOnly cookie, so the client can't know its
-  // auth state synchronously — always start in "loading" and resolve via /me.
-  const [status, setStatus] = useState<AuthStatus>("loading");
+  // The session lives in an httpOnly cookie, so the client can't know its full
+  // auth state synchronously. When the server already told us there's no cookie,
+  // start as a settled guest; otherwise start "loading" and resolve via /me.
+  const knownGuest = initialHasSession === false;
+  const [status, setStatus] = useState<AuthStatus>(knownGuest ? "guest" : "loading");
 
   const refresh = useCallback(async () => {
     try {
@@ -56,8 +69,10 @@ export function AuthProvider({
   }, []);
 
   useEffect(() => {
+    // No cookie means no session to resolve — don't fire a doomed /me probe.
+    if (knownGuest) return;
     void refresh();
-  }, [refresh]);
+  }, [refresh, knownGuest]);
 
   useEffect(() => {
     return onHttpEvent((evt) => {

@@ -55,9 +55,16 @@ export function validationErrorMessage(err: ValidationError, t: AuthTranslator):
  */
 export function authErrorMessage(err: unknown, t: AuthTranslator): string {
   if (err instanceof ApiError) {
+    // Registering an already-taken email 409s — say so specifically, with a
+    // path forward, instead of dumping the raw backend string or "went wrong".
+    if (err.status === 409) return t("errors.emailTaken");
     if (err.status === 401) return t("errors.invalidCredentials");
     if (err.kind === "NETWORK") return t("errors.network");
+    if (err.kind === "TIMEOUT") return t("errors.timeout");
     if (err.kind === "RATE_LIMIT") return t("errors.rateLimit");
+    // A 5xx is our fault, not the user's input — keep it distinct from the
+    // catch-all "something went wrong" so the copy doesn't blame them.
+    if (err.kind === "SERVER") return t("errors.server");
     const hint = extractDetail(err.detail);
     if (hint) return hint;
   }

@@ -2,10 +2,11 @@
 
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, Input, Label } from "@telepace/ui";
-import { env, routes, validateRegister } from "@telepace/config";
+import { env, routes, storageKeys, validateRegister } from "@telepace/config";
 
 import { registerUser } from "@/lib/auth/client";
 import {
@@ -17,10 +18,21 @@ import {
 } from "./auth-helpers";
 import { GoogleButton, OrDivider } from "./GoogleButton";
 
+// Plans the pricing page can hand off via ?plan=. Anything else is ignored so
+// a stray/hand-typed query never renders a bogus banner.
+const KNOWN_PLANS = new Set(["pro"]);
+
 export function SignupForm() {
   const t = useTranslations("auth");
   const tv = useTranslations("auth.validation");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // The tier the visitor picked on /pricing ("Start Pro trial" → ?plan=pro).
+  // Surfaced as a banner and carried through signup so onboarding can resume it.
+  const plan = useMemo(() => {
+    const raw = searchParams.get("plan");
+    return raw && KNOWN_PLANS.has(raw) ? raw : null;
+  }, [searchParams]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,6 +58,11 @@ export function SignupForm() {
     try {
       await registerUser({ email, password, display_name: name || undefined });
       rememberLoginMethod("password");
+      // Carry the chosen plan past registration so onboarding/billing can pick
+      // it up — it was previously dropped the moment the pricing CTA landed here.
+      if (plan && typeof window !== "undefined") {
+        window.localStorage.setItem(storageKeys.selectedPlan, plan);
+      }
       router.push(routes.app.root);
     } catch (err) {
       setError(authErrorMessage(err, t));
@@ -55,6 +72,15 @@ export function SignupForm() {
 
   return (
     <div className="space-y-4">
+      {plan && (
+        <p
+          className="rounded-lg border border-accent/30 bg-accent-soft px-3 py-2 text-sm text-ink"
+          role="status"
+        >
+          {t("signup.planNotice", { plan: t(`signup.plan${plan.charAt(0).toUpperCase()}${plan.slice(1)}`) })}
+        </p>
+      )}
+
       {env.oauthGoogleEnabled && (
         <>
           <GoogleButton lastUsed={lastMethod === "google"} />

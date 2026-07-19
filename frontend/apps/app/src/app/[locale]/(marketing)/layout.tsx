@@ -17,7 +17,16 @@ export default async function MarketingLayout({
   const hasSession = cookieStore.has(ACCESS_COOKIE);
 
   return (
-    <AuthProvider redirectOnExpiry={false}>
+    <AuthProvider redirectOnExpiry={false} initialHasSession={hasSession}>
+      {/* Scroll-reveal blocks start at opacity:0 and only fade in once JS
+          (IntersectionObserver) marks them visible. Without JS — a crawler that
+          doesn't execute scripts, or a reader who disabled them — that content
+          would stay invisible. This <noscript> forces every .tp-reveal fully
+          visible when JS never runs, so the landing content is always painted.
+          The reduced-motion path is handled separately in globals.css. */}
+      <noscript>
+        <style>{".tp-reveal{opacity:1!important;transform:none!important}"}</style>
+      </noscript>
       {/* Site-wide identity graph — rendered once for every marketing route so
           Organization/WebSite are always discoverable regardless of entry page. */}
       <JsonLd data={[organizationSchema(), webSiteSchema()]} />
