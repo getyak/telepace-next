@@ -93,7 +93,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       suppressHydrationWarning
       className={`${inter.variable} ${serif.variable} ${serifZh.variable}`}
     >
-      <body>
+      {/* Browser extensions (translation tools like 沉浸式翻译, dark-mode/DarkReader,
+          ad blockers, password managers) commonly stamp attributes onto <body>
+          before React hydrates. Without this, React 18 flags the attribute drift
+          as a recoverable hydration mismatch and regenerates the shell — a visible
+          flash. `suppressHydrationWarning` is one level deep, so it only forgives
+          <body>'s own attributes (it can't forgive injected child *nodes* — those
+          are inherently recoverable-only), which is exactly the common case here.
+          Mirrors the same guard already on <html>. See docs/hydration-mismatch-and-zh-audit.md. */}
+      <body suppressHydrationWarning>
         {children}
         <Toaster dismissLabel={t("dismiss")} />
         <HttpErrorBridge copy={errorsCopy} />
