@@ -99,6 +99,17 @@ export async function buildPageMetadata({
   };
 }
 
+/**
+ * `Metadata` fragment for pages that must never be indexed even if a link to
+ * them escapes into the wild (respondent interview links, auth forms). This
+ * is the belt-and-suspenders layer on top of `robots.ts`'s disallow list —
+ * that only asks crawlers not to *fetch* the URL, it doesn't guarantee a
+ * previously-indexed or externally-linked page gets dropped from results.
+ */
+export function noindexMetadata(): Metadata {
+  return { robots: { index: false, follow: false } };
+}
+
 /* ------------------------------------------------------------------ *
  * JSON-LD schema builders. Pure functions returning plain objects.
  * ------------------------------------------------------------------ */
