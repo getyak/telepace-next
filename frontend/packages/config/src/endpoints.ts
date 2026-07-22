@@ -27,6 +27,8 @@ export const apiEndpoints = {
     dispatch: (id: string) => `/v1/campaigns/${id}/dispatch`,
     simulate: (id: string) => `/v1/campaigns/${id}/simulate`,
     insights: (id: string) => `/v1/campaigns/${id}/insights`,
+    settings: (id: string) => `/v1/campaigns/${id}/settings`,
+    respondent: (id: string) => `/v1/campaigns/${id}/respondent`,
   },
   interviews: {
     join: "/v1/interviews/join",

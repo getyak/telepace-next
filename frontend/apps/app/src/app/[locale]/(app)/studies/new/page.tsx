@@ -31,14 +31,17 @@ import {
   refineOutlineStream,
   simulateInterview,
   startCampaign,
+  updateCampaignSettings,
   type AssessResult,
   type AssessClarifyQuestion,
+  type RespondentExperienceSettings,
   type ResearchTaskInput,
   type SimulateResponse,
 } from "@/lib/api";
 import { friendlyMessage } from "@/lib/errors";
 import { useErrorsCopy } from "@/components/app/ErrorsCopyContext";
 import { useRouter } from "@/i18n/navigation";
+import { WelcomeEndConfig } from "@/components/wizard/WelcomeEndConfig";
 
 type OutlineItem = {
   order: number;
@@ -75,7 +78,7 @@ type Spec = {
   target_completions: number;
   estimated_minutes: number;
   success_criteria: string[];
-};
+} & Required<RespondentExperienceSettings>;
 
 const INITIAL_SPEC: Spec = {
   title: "New study",
@@ -90,6 +93,11 @@ const INITIAL_SPEC: Spec = {
   target_completions: 10,
   estimated_minutes: 15,
   success_criteria: [],
+  welcome_message: "",
+  consent_text: "",
+  end_message: "",
+  reward_description: "",
+  redirect_url: "",
 };
 
 type ServerSpec = {
@@ -106,7 +114,7 @@ type ServerSpec = {
   };
   channels?: ChannelEntry[];
   target_completions?: number;
-};
+} & RespondentExperienceSettings;
 
 // Merge any subset of server-shaped spec fields into local Spec state.
 // Applied identically to the initial GET-after-create load and to every
@@ -132,6 +140,12 @@ function mergeServerSpec(prev: Spec, patch: ServerSpec, title?: string): Spec {
     next.channels = patch.channels.map((c) => c.kind).filter(Boolean);
   if (typeof patch.target_completions === "number")
     next.target_completions = patch.target_completions;
+  if (typeof patch.welcome_message === "string") next.welcome_message = patch.welcome_message;
+  if (typeof patch.consent_text === "string") next.consent_text = patch.consent_text;
+  if (typeof patch.end_message === "string") next.end_message = patch.end_message;
+  if (typeof patch.reward_description === "string")
+    next.reward_description = patch.reward_description;
+  if (typeof patch.redirect_url === "string") next.redirect_url = patch.redirect_url;
   return next;
 }
 
@@ -164,6 +178,11 @@ export default function NewStudyPage() {
   const [campaignId, setCampaignId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  // Respondent-experience settings (welcome/consent/end/reward/redirect) are
+  // collapsed by default — most studies never touch them, and showing five
+  // more text fields above the publish button by default would bury it.
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const settingsSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [simOpen, setSimOpen] = useState(false);
   const [simLoading, setSimLoading] = useState(false);
   const [simSeed, setSimSeed] = useState(0);
@@ -808,6 +827,21 @@ export default function NewStudyPage() {
     void handleSend(text);
   }
 
+  // Update local state immediately for a responsive Textarea/Input, then
+  // debounce the actual PATCH so a keystroke doesn't fire a request per
+  // character — matches the "save on pause" pattern respondents' own text
+  // composer doesn't need but a multi-field settings form does.
+  function handleSettingsChange(patch: RespondentExperienceSettings) {
+    setSpec((s) => ({ ...s, ...patch }));
+    if (!campaignId) return;
+    if (settingsSaveTimerRef.current) clearTimeout(settingsSaveTimerRef.current);
+    settingsSaveTimerRef.current = setTimeout(() => {
+      void updateCampaignSettings(campaignId, patch).catch(() => {
+        /* best-effort: the field keeps its local value, next edit retries */
+      });
+    }, 600);
+  }
+
   async function handlePublish() {
     if (!campaignId) return;
     setPublishing(true);
@@ -1255,6 +1289,35 @@ export default function NewStudyPage() {
               </div>
               );
             })()}
+
+            {/* Respondent experience — welcome/consent/end/reward/redirect.
+                Collapsed by default and placed just above Launch: it's part
+                of preparing to publish, not part of the outline itself. */}
+            {campaignId && (
+              <div className="mt-10">
+                <button
+                  type="button"
+                  onClick={() => setSettingsOpen((v) => !v)}
+                  className="overline flex items-center gap-2 text-body before:h-px before:w-4 before:bg-hairline before:content-['']"
+                  aria-expanded={settingsOpen}
+                >
+                  {tc("respondentExperienceTitle")}
+                  <span className="text-muted">
+                    {settingsOpen
+                      ? tc("respondentExperienceCollapse")
+                      : tc("respondentExperienceExpand")}
+                  </span>
+                </button>
+                {settingsOpen && (
+                  <Card className="mt-3 p-5">
+                    <p className="mb-5 text-sm text-muted">
+                      {tc("respondentExperienceSubtitle")}
+                    </p>
+                    <WelcomeEndConfig spec={spec} onChange={handleSettingsChange} />
+                  </Card>
+                )}
+              </div>
+            )}
 
             {/* Launch — the delivery plan promoted from a footer afterthought
                 to the closing moment of the manuscript. This is the product's

@@ -156,6 +156,45 @@ class _FakeProjector:
     async def list_insights(self, campaign_id: UUID) -> list[dict]:
         return []
 
+    async def apply(
+        self,
+        seq: int,
+        event: object,
+        *,
+        org_id: UUID | None = None,
+        initial_spec: CampaignSpec | None = None,
+    ) -> None:
+        """Mirror the Postgres JSONB shallow-merge for SpecUpdated only —
+        the one event type the settings-PATCH tests below exercise."""
+        from core.events import SpecUpdated
+
+        if isinstance(event, SpecUpdated):
+            existing = self._campaigns.get(event.campaign_id)
+            if existing is not None:
+                merged_spec = existing.spec.model_copy(update=event.patch)
+                self._campaigns[event.campaign_id] = existing.model_copy(
+                    update={"spec": merged_spec}
+                )
+
+
+@dataclass
+class _StoredEvent:
+    seq: int
+    event: object
+
+
+class _FakeEventStore:
+    """Records appended events with a monotonic seq; no real persistence."""
+
+    def __init__(self) -> None:
+        self._seq = 0
+        self.appended: list[object] = []
+
+    async def append(self, event: object) -> _StoredEvent:
+        self._seq += 1
+        self.appended.append(event)
+        return _StoredEvent(seq=self._seq, event=event)
+
 
 def _build_client() -> tuple[TestClient, _MemUsersRepo, _FakeProjector]:
     app = FastAPI()
@@ -169,6 +208,7 @@ def _build_client() -> tuple[TestClient, _MemUsersRepo, _FakeProjector]:
         users_repo=users,
         projector=projector,
         harness=None,
+        event_store=_FakeEventStore(),
     )
     return TestClient(app), users, projector
 
@@ -246,3 +286,113 @@ def test_unknown_campaign_id_is_404_for_owner_too() -> None:
     client, _, _ = _build_client()
     token = _register(client, "alex@example.com")
     assert client.get(f"/v1/campaigns/{uuid4()}", headers=_auth(token)).status_code == 404
+
+
+# -- T-111 (respondent-facing welcome/consent/end/reward/redirect) -------------
+
+
+def test_update_settings_persists_and_respondent_endpoint_reflects_it() -> None:
+    client, users, projector = _build_client()
+    token = _register(client, "alex@example.com")
+    alex = users.users[users.by_email["alex@example.com"]]
+
+    cid = uuid4()
+    projector.add(campaign_id=cid, org_id=alex.org_id, author_id=alex.id, title="Alex study")
+
+    r = client.patch(
+        f"/v1/campaigns/{cid}/settings",
+        headers=_auth(token),
+        json={
+            "welcome_message": "Welcome!",
+            "consent_text": "I agree to be recorded.",
+            "end_message": "Thanks!",
+            "reward_description": "$20 gift card",
+            "redirect_url": "https://example.com/thanks",
+        },
+    )
+    assert r.status_code == 200, r.text
+    assert r.json()["spec"]["welcome_message"] == "Welcome!"
+
+    # No auth header at all — this is the anonymous respondent's own read.
+    pub = client.get(f"/v1/campaigns/{cid}/respondent")
+    assert pub.status_code == 200
+    body = pub.json()
+    assert body == {
+        "welcome_message": "Welcome!",
+        "consent_text": "I agree to be recorded.",
+        "end_message": "Thanks!",
+        "reward_description": "$20 gift card",
+        "redirect_url": "https://example.com/thanks",
+        "primary_language": "en",
+    }
+
+
+def test_update_settings_only_touches_fields_sent() -> None:
+    client, users, projector = _build_client()
+    token = _register(client, "alex@example.com")
+    alex = users.users[users.by_email["alex@example.com"]]
+    cid = uuid4()
+    projector.add(campaign_id=cid, org_id=alex.org_id, author_id=alex.id, title="Alex study")
+
+    client.patch(
+        f"/v1/campaigns/{cid}/settings",
+        headers=_auth(token),
+        json={"welcome_message": "Hi"},
+    )
+    r = client.patch(
+        f"/v1/campaigns/{cid}/settings",
+        headers=_auth(token),
+        json={"end_message": "Bye"},
+    )
+    assert r.status_code == 200, r.text
+    spec = r.json()["spec"]
+    assert spec["welcome_message"] == "Hi", "prior field must survive an unrelated patch"
+    assert spec["end_message"] == "Bye"
+
+
+def test_update_settings_cross_tenant_returns_404() -> None:
+    client, users, projector = _build_client()
+    alex_token = _register(client, "alex@example.com")
+    mia_token = _register(client, "mia@example.com")
+    alex = users.users[users.by_email["alex@example.com"]]
+
+    cid = uuid4()
+    projector.add(campaign_id=cid, org_id=alex.org_id, author_id=alex.id, title="Alex study")
+
+    r = client.patch(
+        f"/v1/campaigns/{cid}/settings",
+        headers=_auth(mia_token),
+        json={"welcome_message": "hijacked"},
+    )
+    assert r.status_code == 404
+
+    # Confirm the outsider's rejected write never landed.
+    r = client.get(f"/v1/campaigns/{cid}/respondent")
+    assert r.json()["welcome_message"] == ""
+    _ = alex_token
+
+
+def test_respondent_endpoint_excludes_sensitive_spec_fields() -> None:
+    """The public respondent endpoint must never leak goal/hypotheses/etc."""
+    client, users, projector = _build_client()
+    token = _register(client, "alex@example.com")
+    alex = users.users[users.by_email["alex@example.com"]]
+    cid = uuid4()
+    projector.add(campaign_id=cid, org_id=alex.org_id, author_id=alex.id, title="Alex study")
+
+    r = client.get(f"/v1/campaigns/{cid}/respondent")
+    assert r.status_code == 200
+    assert set(r.json().keys()) == {
+        "welcome_message",
+        "consent_text",
+        "end_message",
+        "reward_description",
+        "redirect_url",
+        "primary_language",
+    }
+    _ = token
+
+
+def test_respondent_endpoint_404_for_unknown_campaign() -> None:
+    client, _, _ = _build_client()
+    assert client.get(f"/v1/campaigns/{uuid4()}/respondent").status_code == 404

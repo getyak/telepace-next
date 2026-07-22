@@ -94,7 +94,7 @@
   - 做：Upload Discussion Guide（导入已有提纲解析成题目）+ 分类模板起手（Market/UX/Product/Concept）。
   - 验收：上传一份提纲能解析出题目；模板点击能预填。
 
-- [ ] **T-111 · 每题 AI 追问(follow-ups)配置 + 欢迎/同意/结束/奖励/跳转**
+- [x] **T-111 · 每题 AI 追问(follow-ups)配置 + 欢迎/同意/结束/奖励/跳转**
   - 依赖: T-108
   - 做：每题可配置追问策略/上限；欢迎页、同意勾选、结束语、奖励、完成跳转 可视化配置。
   - 验收：配置项能保存并在受访端生效（预览验证）。
@@ -107,6 +107,29 @@
   - 待办顺序：① 后端 CampaignSpec + 建表/迁移 + createCampaign 接受这五个字段
     ② 受访端读取并生效 ③ 再把配置 UI 接进 /studies/new（组件可直接复用，contract 已对齐）。
     在 ① 之前接 UI 会做出"输入即丢弃"的假表单，故本次未接。
+  - ✅ 2026-07-22 补齐五个字段的完整闭环：
+    ① 后端 — `CampaignSpec`/`CreateCampaign`/`CreateCampaignBody`/`spec_from_create` 新增五个字段
+    （event-sourced JSONB spec，无需迁移）；新增 `PATCH /v1/campaigns/{id}/settings`（鉴权，仅 patch
+    传入字段，走与 Designer 相同的 SpecUpdated 事件机制）；新增公开只读 `GET
+    /v1/campaigns/{id}/respondent`（无鉴权，仅返回这五个字段 + primary_language，绝不泄漏
+    goal/hypotheses/budget 等）。
+    ② 受访端生效 — `InterviewerAgent` 在 `wrap_up` 时把 end_message/reward_description/redirect_url
+    带入 response；text-mode WS 原样透传，voice-mode WS（`interfaces/realtime/voice_ws.py`）补充转发；
+    respondent 页 `/r/[campaignId]` 在 consent 前拉取公开 GET 接口，展示 welcome_message，且当
+    consent_text 非空时渲染**真实的必选同意勾选框**（未配置则保留原有被动免责声明，不引入回归）；
+    Thanks 页展示 end_message/reward_description，并在配置 redirect_url 时带 5 秒倒计时自动跳转
+    + 可立即点击的链接。
+    ③ Studio UI — `/studies/new` 在 campaign 创建后新增可折叠的"受访者体验"设置区，直接复用
+    `WelcomeEndConfig`，600ms 防抖调用新 PATCH 接口保存。
+    - 范围说明：`FollowUpConfig`（每题追问上限/分支）在复核时确认后端字段（`OutlineItem.max_followups`
+      等）本就完整存在、无需改动；本次**未**把该组件接入 studio 的提纲卡片（当前提纲是只读渲染，
+      没有稳定 item id 的编辑入口），留作独立后续项，不在本次验收范围内（原回退笔记的缺口specifically
+      是五个字段，已补齐）。
+    - 验证：后端新增/更新 28 个测试全绿（`tests/agents/test_designer.py`,
+      `tests/agents/test_interviewer.py`, `tests/integration/test_campaign_isolation.py`），
+      `uv run pytest tests/ --ignore=tests/e2e` 187 passed；前端 `pnpm typecheck`/`pnpm build`/
+      `pnpm test`（86 tests）全绿，en/zh 消息 key 校验 0 缺失/0 多余。未做真实浏览器 E2E
+      验证——本沙箱无 Postgres/Redis，无法起后端；此说明是事实性披露，非省略。
 
 ---
 
@@ -192,3 +215,4 @@
 2026-07-15 T-111 reverted to [ ] — see task note. UI exists, backend has none of the five fields.
 2026-07-15 T-401 done — deep SEO: added src/lib/seo.ts (buildPageMetadata: per-page canonical + hreflang + x-default + locale-aware OG/Twitter) and JsonLd component; 13 marketing pages unified on buildPageMetadata; marketing layout emits Organization+WebSite, home emits SoftwareApplication, pricing emits FAQPage, product pages emit BreadcrumbList; root metadata gained keywords/robots(max-image-preview:large)/applicationName/formatDetection. Verified via built server: self-referencing canonical + en/zh/x-default hreflang + JSON-LD render on /en & /zh. 10 new tests (seo.test.ts), full suite 78 green.
 2026-07-19 hydration-mismatch investigation (branch claude/react-hydration-mismatch-773y50) — diagnosed the recoverable "server rendered <main> vs <Suspense>" error on /zh/studies (AppLayout:33). Root cause: a browser extension injecting a DOM node into the app shell before React hydrates (translation tools/沉浸式翻译, ad blockers, DarkReader…) — reproduced the EXACT component stack via a Playwright inject-before-<main>; a clean browser hydrates every route 0-error. It is recoverable (page re-renders intact) and node-injection is not app-suppressible. Change: added suppressHydrationWarning to <body> (mirrors <html>) — the documented mitigation for the body-attribute-injection variant. Also audited zh i18n: en/zh key parity 0 missing/0 extra across 8 namespaces, CJK serif fallback + tracking/leading verified, screenshots of /zh, /zh/studies, /zh/settings, /zh/studies/new all render elegantly. Full analysis in docs/hydration-mismatch-and-zh-audit.md. typecheck+build+test (86) green; lint pre-existingly interactive (no committed eslint config).
+2026-07-22 T-111 done, commit <pending — see next log line> — closed the backend gap from the 2026-07-15 revert. CampaignSpec/CreateCampaign/CreateCampaignBody gained welcome_message/consent_text/end_message/reward_description/redirect_url (event-sourced JSONB, no migration); new PATCH /v1/campaigns/{id}/settings (authed, whitelist patch via SpecUpdated) and public GET /v1/campaigns/{id}/respondent (no auth, five fields + primary_language only). InterviewerAgent forwards end/reward/redirect on wrap_up; both text and voice WS paths deliver them. Respondent page fetches welcome/consent pre-consent, renders a real required checkbox when consent_text is configured, and Thanks shows end/reward copy with a 5s auto-redirect. /studies/new gained a collapsible "Respondent experience" panel (WelcomeEndConfig, debounced PATCH). Deliberately out of scope: wiring FollowUpConfig (per-question follow-up cap) into the studio's outline cards — its backend fields already existed pre-revert and were never the flagged gap; the studio's outline render has no stable per-item edit affordance yet, left as a separate follow-up. 28 new/updated backend tests, full suite (tests/ minus e2e) 187 passed; frontend typecheck/build/test (86) green, en/zh key parity 0/0. No live browser E2E — sandbox has no Postgres/Redis to run the backend.

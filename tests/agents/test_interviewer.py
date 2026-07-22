@@ -71,6 +71,38 @@ async def test_reply_parses_action_block_and_emits_completed_on_wrap_up() -> Non
     assert r.response["kind"] == "wrap_up"
 
 
+async def test_wrap_up_response_includes_configured_completion_copy() -> None:
+    """T-111: end_message/reward_description/redirect_url ride along on wrap_up."""
+    canned = LLMResponse(
+        text=(
+            "Great, thanks for sharing.\n"
+            "<action>{\"kind\": \"wrap_up\", \"text\": \"Thanks!\"}</action>"
+        )
+    )
+    agent = InterviewerAgent(llm=MockLLM(canned=[canned]), max_tokens=800, temperature=0.5)
+    r = await agent.run(
+        _reply("done"),
+        context={
+            "spec": {
+                "end_message": "You're all set.",
+                "reward_description": "$20 gift card",
+                "redirect_url": "https://example.com/thanks",
+            }
+        },
+        harness=None,  # type: ignore[arg-type]
+    )
+    assert r.response["kind"] == "wrap_up"
+    assert r.response["end_message"] == "You're all set."
+    assert r.response["reward_description"] == "$20 gift card"
+    assert r.response["redirect_url"] == "https://example.com/thanks"
+
+
+async def test_non_wrap_up_response_omits_completion_copy() -> None:
+    agent = InterviewerAgent(llm=MockLLM(canned=[LLMResponse(text="Tell me more?")]), max_tokens=800, temperature=0.5)
+    r = await agent.run(_reply("hi"), context={"spec": {"end_message": "bye"}}, harness=None)  # type: ignore[arg-type]
+    assert "end_message" not in r.response
+
+
 async def test_reply_falls_back_when_action_block_json_is_broken() -> None:
     canned = LLMResponse(text="Prose then\n<action>{not json}</action>")
     agent = InterviewerAgent(llm=MockLLM(canned=[canned]), max_tokens=800, temperature=0.5)
