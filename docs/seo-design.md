@@ -147,20 +147,31 @@ SEO 按六层自下而上设计，每层是上层的前提：
 
 ### P0 — 技术收尾（1–2 天，无内容依赖）
 
-- [ ] **T-501 · 私有页 noindex 兜底**
+- [x] **T-501 · 私有页 noindex 兜底**
   - 背景：`(public)/r/[campaignId]/page.tsx` 无 metadata；robots.txt disallow 不保证去索引，受访者链接对外分发风险最高。
   - 做：`lib/seo.ts` 新增 `noindexMetadata()`；受访者页与 auth 页导出 `robots:{index:false,follow:false}`。
   - 验收：构建产物中上述页面 `<meta name="robots" content="noindex,nofollow">` 存在；单测覆盖 `noindexMetadata()`。
+  - ✅ 2026-07-22：`noindexMetadata()` 加入 `seo.ts`；`login`/`signup` 的 `generateMetadata` 展开它；
+    respondent 页（客户端组件，无法自身导出 metadata）新增 `(public)/r/[campaignId]/layout.tsx` 承载它。
+    生产构建 + `pnpm start` 实测 `/en/login`、`/en/signup`、`/en/r/<id>` 均且仅输出一条
+    `<meta name="robots" content="noindex, nofollow">`；`seo.test.ts` 新增覆盖。
 
-- [ ] **T-502 · demo 页补 metadata**
+- [x] **T-502 · demo 页补 metadata**
   - 背景：`(marketing)/demo/page.tsx` 缺 canonical/hreflang。
   - 做：接入 `buildPageMetadata`，新增 `metadata.marketing.demo` 命名空间（en/zh 键一致）。
   - 验收：`/en/demo`、`/zh/demo` 输出自指 canonical + 完整 hreflang；无 `MISSING_MESSAGE`。
+  - ✅ 已完成（复核确认）：`demo/layout.tsx` 早先已接入 `buildPageMetadata` + `metadata.marketing.demo`
+    命名空间（en/zh 均有对应 key），补此勾选而非重做。
 
-- [ ] **T-503 · sitemap 真实 lastmod**
+- [x] **T-503 · sitemap 真实 lastmod**
   - 背景：`sitemap.ts` 的 `lastModified` 恒为当前时间。
   - 做：改为从内容源/构建时 git 时间派生；营销静态页取内容修改时间。
   - 验收：`/sitemap.xml` 中不同页 `lastmod` 各异且与内容更新一致。
+  - ✅ 2026-07-22：`sitemap.ts` 新增 `PATH_SOURCE_FILE` 映射 + `lastModifiedFor()`，对每个营销页的
+    `page.tsx` 跑 `git log -1 --format=%cI`，取其真实最近提交时间；git 不可用时兜底一个固定日期
+    （避免无 `.git` 的构建环境报错）。生产构建后 curl `/sitemap.xml` 验证：不同页 lastmod 各异
+    （如 changelog `2026-07-13T02:36:26Z` vs. 其余页 `2026-07-15T14:08:49Z`），且与 `git log` 直接查询
+    结果一致。
 
 - [ ] **T-504 · 接入 Search Console + Bing**
   - 做：`app/layout.tsx` 加 verification；提交 sitemap；记录访问方式到本文件第 6 节。

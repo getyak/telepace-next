@@ -5,6 +5,7 @@ import {
   breadcrumbListSchema,
   faqPageSchema,
   languageAlternates,
+  noindexMetadata,
   ogLocale,
   organizationSchema,
   softwareApplicationSchema,
@@ -75,6 +76,12 @@ describe("faqPageSchema", () => {
       name: "Q1?",
       acceptedAnswer: { "@type": "Answer", text: "A1." },
     });
+  });
+});
+
+describe("noindexMetadata", () => {
+  it("marks the page index:false, follow:false", () => {
+    expect(noindexMetadata()).toEqual({ robots: { index: false, follow: false } });
   });
 });
 

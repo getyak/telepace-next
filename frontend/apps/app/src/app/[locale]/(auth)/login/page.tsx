@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { routes, siteConfig } from "@telepace/config";
 
+import { noindexMetadata } from "@/lib/seo";
 import { AuthCard } from "../_components/AuthCard";
 import { LoginForm } from "../_components/LoginForm";
 
@@ -14,7 +15,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "metadata.auth.login" });
-  return { title: t("title"), description: t("description") };
+  return { title: t("title"), description: t("description"), ...noindexMetadata() };
 }
 
 export default async function LoginPage() {
