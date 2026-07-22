@@ -22,6 +22,15 @@ export type ResearchTaskInput = {
   audience: string;
 };
 
+/** Respondent-facing welcome/consent/end/reward/redirect copy for a study. */
+export type RespondentExperienceSettings = {
+  welcome_message?: string;
+  consent_text?: string;
+  end_message?: string;
+  reward_description?: string;
+  redirect_url?: string;
+};
+
 export async function createCampaign(body: {
   title: string;
   goal: string;
@@ -31,11 +40,33 @@ export async function createCampaign(body: {
   channels?: string[];
   language?: string;
   research_task?: ResearchTaskInput;
-}): Promise<CampaignSummary> {
+} & RespondentExperienceSettings): Promise<CampaignSummary> {
   return apiFetch<CampaignSummary>(apiEndpoints.campaigns.root, {
     method: "POST",
     json: body,
   });
+}
+
+/** Patch a study's respondent-facing welcome/consent/end/reward/redirect copy. */
+export async function updateCampaignSettings(
+  campaignId: string,
+  patch: RespondentExperienceSettings,
+): Promise<{ campaign_id: string; spec: Record<string, unknown> }> {
+  return apiFetch(apiEndpoints.campaigns.settings(campaignId), {
+    method: "PATCH",
+    json: patch,
+  });
+}
+
+/** Public, auth-free: the minimal copy the anonymous respondent needs. */
+export type RespondentCampaignInfo = Required<RespondentExperienceSettings> & {
+  primary_language: string;
+};
+
+export async function getRespondentCampaign(
+  campaignId: string,
+): Promise<RespondentCampaignInfo> {
+  return apiFetch<RespondentCampaignInfo>(apiEndpoints.campaigns.respondent(campaignId));
 }
 
 /** A clarifying question the assessment agent asks when intent is unclear. */

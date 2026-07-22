@@ -120,7 +120,8 @@ class InterviewerAgent:
 
         state_delta: dict[str, Any] = {"interview_history": history}
 
-        if action.get("kind") == "wrap_up":
+        wrap_up = action.get("kind") == "wrap_up"
+        if wrap_up:
             coverage = self._avg_coverage(context.get("outline_coverage", {}))
             events.append(
                 InterviewCompleted(
@@ -144,19 +145,24 @@ class InterviewerAgent:
                     question_order = int(raw_order) if isinstance(raw_order, int | float) else None
                     break
 
-        return AgentResult(
-            events=events,
-            state_delta=state_delta,
-            response={
-                "text": interviewer_text,
-                "kind": action.get("kind", "ask"),
-                "outline_item_id": action.get("outline_item_id"),
-                "progress": {
-                    "question_order": question_order,
-                    "total_questions": len(outline),
-                },
+        response: dict[str, Any] = {
+            "text": interviewer_text,
+            "kind": action.get("kind", "ask"),
+            "outline_item_id": action.get("outline_item_id"),
+            "progress": {
+                "question_order": question_order,
+                "total_questions": len(outline),
             },
-        )
+        }
+        if wrap_up:
+            # The study's configured completion copy — read straight from the
+            # spec so the respondent client can show it without a separate
+            # round-trip. Empty strings mean "use the client's default copy".
+            response["end_message"] = spec_ctx.get("end_message", "") or ""
+            response["reward_description"] = spec_ctx.get("reward_description", "") or ""
+            response["redirect_url"] = spec_ctx.get("redirect_url", "") or ""
+
+        return AgentResult(events=events, state_delta=state_delta, response=response)
 
     @staticmethod
     def _parse_action(text: str) -> dict[str, Any]:

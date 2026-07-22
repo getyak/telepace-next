@@ -70,6 +70,31 @@ async def test_on_create_returns_events_and_state_delta() -> None:
     assert result.response["status"] == "draft"
 
 
+async def test_on_create_threads_respondent_experience_fields_into_spec() -> None:
+    """T-111: welcome/consent/end/reward/redirect must survive create -> spec."""
+    agent = DesignerAgent(llm=MockLLM(), max_tokens=1500, temperature=0.3)
+    cmd = CreateCampaign(
+        actor="user:x",
+        org_id=uuid4(),
+        author_id=uuid4(),
+        title="Pricing study",
+        goal="Learn PMM price sensitivity",
+        channels=[ChannelKind.WEB_TEXT],
+        welcome_message="Welcome!",
+        consent_text="I agree to be recorded.",
+        end_message="Thanks for your time.",
+        reward_description="$20 gift card",
+        redirect_url="https://example.com/thanks",
+    )
+    result = await agent.run(cmd, context={}, harness=None)  # type: ignore[arg-type]
+    spec_delta = result.state_delta["spec"]
+    assert spec_delta["welcome_message"] == "Welcome!"
+    assert spec_delta["consent_text"] == "I agree to be recorded."
+    assert spec_delta["end_message"] == "Thanks for your time."
+    assert spec_delta["reward_description"] == "$20 gift card"
+    assert spec_delta["redirect_url"] == "https://example.com/thanks"
+
+
 async def test_on_refine_parses_spec_patch_from_llm_text() -> None:
     canned = LLMResponse(
         text=(

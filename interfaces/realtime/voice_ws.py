@@ -178,14 +178,19 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
             return
 
         # 3. Broadcast the caption so the UI can show text alongside audio.
-        await _drain_send_json(
-            websocket,
-            {
-                "type": VoiceWSMessage.INTERVIEWER_TURN,
-                "text": reply_text,
-                "kind": resp.result.get("kind") if isinstance(resp.result, dict) else None,
-            },
-        )
+        result_kind = resp.result.get("kind") if isinstance(resp.result, dict) else None
+        turn_payload: dict = {
+            "type": VoiceWSMessage.INTERVIEWER_TURN,
+            "text": reply_text,
+            "kind": result_kind,
+        }
+        if result_kind == "wrap_up" and isinstance(resp.result, dict):
+            # The completion copy configured for this study — see
+            # agents/interviewer/main.py, which is where these are populated.
+            turn_payload["end_message"] = resp.result.get("end_message", "")
+            turn_payload["reward_description"] = resp.result.get("reward_description", "")
+            turn_payload["redirect_url"] = resp.result.get("redirect_url", "")
+        await _drain_send_json(websocket, turn_payload)
 
         # 4. Stream TTS bytes.
         await _drain_send_json(websocket, {"type": VoiceWSMessage.TTS_START})

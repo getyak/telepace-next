@@ -164,6 +164,12 @@ class CreateCampaignBody(BaseModel):
     # The distilled research task from the pre-creation assessment loop. None on
     # the legacy "create straight from goal" path.
     research_task: ResearchTaskBody | None = None
+    # Respondent-facing experience copy — see CampaignSpec for field meaning.
+    welcome_message: str = ""
+    consent_text: str = ""
+    end_message: str = ""
+    reward_description: str = ""
+    redirect_url: str = ""
 
 
 class RefineBody(BaseModel):
@@ -211,6 +217,11 @@ async def create_campaign(
         channels=body.channels,
         primary_language=body.language,
         research_task=research_task,
+        welcome_message=body.welcome_message,
+        consent_text=body.consent_text,
+        end_message=body.end_message,
+        reward_description=body.reward_description,
+        redirect_url=body.redirect_url,
     )
     resp = await harness.handle(cmd)
     if not resp.ok:
@@ -297,6 +308,82 @@ async def get_campaign(
             "avg_goal_coverage": progress.avg_goal_coverage,
             "spent_usd": progress.spent_usd,
         },
+    }
+
+
+class UpdateSettingsBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    # Every field optional + None-means-"leave unchanged" so the studio can
+    # save one field at a time (e.g. a single Textarea blur) without clobbering
+    # the others. Use "" explicitly to clear a field.
+    welcome_message: str | None = None
+    consent_text: str | None = None
+    end_message: str | None = None
+    reward_description: str | None = None
+    redirect_url: str | None = None
+
+
+@router.patch("/{campaign_id}/settings")
+async def update_campaign_settings(
+    campaign_id: UUID,
+    body: UpdateSettingsBody,
+    request: Request,
+    projector: CampaignProjector = Depends(get_projector),
+    settings: Settings = Depends(get_settings_dep),
+    user: AuthUser = Depends(require_current_user),
+) -> dict:
+    """Patch the respondent-facing welcome/consent/end/reward/redirect copy.
+
+    A thin, deterministic sibling of /refine (which goes through an LLM):
+    this endpoint writes exactly the fields the caller sent, verbatim, via a
+    SpecUpdated event — the same mechanism the Designer agent uses to persist
+    its own spec patches.
+    """
+    from core.events import SpecUpdated
+
+    campaign = await _load_owned_campaign(projector, campaign_id, user)
+    patch = {k: v for k, v in body.model_dump().items() if v is not None}
+    if patch:
+        state = get_state(request)
+        stored = await state.event_store.append(
+            SpecUpdated(
+                campaign_id=campaign_id,
+                actor=_actor_ref(settings, user),
+                patch=patch,
+                reason="respondent experience settings updated",
+            )
+        )
+        await state.projector.apply(stored.seq, stored.event)
+        campaign = await _load_owned_campaign(projector, campaign_id, user)
+    return {"campaign_id": str(campaign_id), "spec": campaign.spec.model_dump(mode="json")}
+
+
+@router.get("/{campaign_id}/respondent")
+async def get_campaign_for_respondent(
+    campaign_id: UUID,
+    projector: CampaignProjector = Depends(get_projector),
+) -> dict:
+    """Public, auth-free: the minimal copy an anonymous respondent needs.
+
+    Deliberately excludes everything else on the spec (goal, hypotheses,
+    budget, screener, outline...) — this is served to whoever holds the
+    shareable /r/{campaign_id} link, not just the study's own org.
+    """
+    campaign = await projector.get_campaign(campaign_id)
+    if campaign is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=ErrorMessages.CAMPAIGN_NOT_FOUND,
+        )
+    spec = campaign.spec
+    return {
+        "welcome_message": spec.welcome_message,
+        "consent_text": spec.consent_text,
+        "end_message": spec.end_message,
+        "reward_description": spec.reward_description,
+        "redirect_url": spec.redirect_url,
+        "primary_language": spec.primary_language,
     }
 
 

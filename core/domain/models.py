@@ -148,6 +148,15 @@ class CampaignSpec(_Base):
     # `languages`, which is the list of languages respondents may answer in
     # (used only by the /simulate endpoint today).
     primary_language: str = "en"
+    # Respondent-facing experience copy, configured per-study. All optional
+    # (empty string = fall back to the platform's default templated copy).
+    # Shown before the interview starts (welcome/consent) and after it ends
+    # (end message, any incentive, an optional external redirect).
+    welcome_message: str = ""
+    consent_text: str = ""
+    end_message: str = ""
+    reward_description: str = ""
+    redirect_url: str = ""
 
     @field_validator("primary_language", mode="before")
     @classmethod

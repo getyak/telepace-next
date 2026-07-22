@@ -27,14 +27,28 @@ import {
   wsEndpoints,
 } from "@telepace/config";
 
+import { getRespondentCampaign, type RespondentCampaignInfo } from "@/lib/api";
+
 type Params = { campaignId: string; locale: string };
 
 type Progress = { current: number | null; total: number };
+
+// The completion copy actually shown on "done" — WS wrap_up payload wins
+// (freshest, matches what this respondent just experienced); falls back to
+// the pre-fetched public campaign info when the WS never sent it.
+type CompletionCopy = {
+  end_message?: string;
+  reward_description?: string;
+  redirect_url?: string;
+};
 
 const WRAP_UP_LINGER_MS = 2400;
 // If the interviewer hasn't replied in this window, unlock the composer so a
 // slow/hung model can never trap the respondent.
 const REPLY_WATCHDOG_MS = 45000;
+// How long the "thanks" screen holds before following a configured redirect —
+// long enough to read the thank-you copy, short enough not to feel stuck.
+const THANKS_REDIRECT_DELAY_S = 5;
 
 export default function RespondentPage(props: { params: Promise<Params> }) {
   const t = useTranslations("respondent");
@@ -60,6 +74,14 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
   // silence or replay the interviewer's read-aloud.
   const [voicePhase, setVoicePhase] = useState<VoicePhase>("idle");
   const [readAloud, setReadAloud] = useState(true);
+  // The study's configured welcome/consent/end/reward/redirect copy, fetched
+  // once up front (public, no auth) so the consent screen can show it before
+  // any WS connects. null while loading/unavailable — components fall back
+  // to their default bilingual copy.
+  const [publicInfo, setPublicInfo] = useState<RespondentCampaignInfo | null>(null);
+  // The wrap_up turn's own end/reward/redirect fields, when the WS sent them —
+  // takes priority over publicInfo since it reflects this exact session.
+  const [completion, setCompletion] = useState<CompletionCopy>({});
   const answeredRef = useRef(0);
   const wsRef = useRef<WebSocket | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -82,6 +104,25 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
   useEffect(() => {
     voicePhaseRef.current = voicePhase;
   }, [voicePhase]);
+
+  // Fetch the study's respondent-facing copy once, up front — before the
+  // respondent has consented to anything, so this call carries no auth and
+  // reads only the public subset of the spec (see the backend endpoint).
+  // A failure (network hiccup, study not found) just leaves publicInfo null
+  // and every consumer below falls back to its default bilingual copy.
+  useEffect(() => {
+    let cancelled = false;
+    getRespondentCampaign(campaignId)
+      .then((info) => {
+        if (!cancelled) setPublicInfo(info);
+      })
+      .catch(() => {
+        /* default copy is a fine fallback */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [campaignId]);
 
   // --- Text-mode WS ---
   useEffect(() => {
@@ -114,6 +155,9 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
           text?: string;
           kind?: string;
           progress?: { question_order?: number | null; total_questions?: number };
+          end_message?: string;
+          reward_description?: string;
+          redirect_url?: string;
         };
       };
       try {
@@ -169,6 +213,11 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
         }
         window.setTimeout(() => setSpeaking(false), SPEAKING_INDICATOR_MS);
         if (msg.result?.kind === VoiceEventType.WrapUp) {
+          setCompletion({
+            end_message: msg.result.end_message,
+            reward_description: msg.result.reward_description,
+            redirect_url: msg.result.redirect_url,
+          });
           // Let the closing line land before the thank-you screen.
           window.setTimeout(() => setPhase("done"), WRAP_UP_LINGER_MS);
         }
@@ -297,6 +346,9 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
         kind?: string;
         is_final?: boolean;
         reason?: string;
+        end_message?: string;
+        reward_description?: string;
+        redirect_url?: string;
       };
       try {
         msg = JSON.parse(evt.data);
@@ -311,6 +363,11 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
               { id: crypto.randomUUID(), role: "interviewer", text: msg.text! },
             ]);
             if (msg.kind === VoiceEventType.WrapUp) {
+              setCompletion({
+                end_message: msg.end_message,
+                reward_description: msg.reward_description,
+                redirect_url: msg.redirect_url,
+              });
               window.setTimeout(() => setPhase("done"), WRAP_UP_LINGER_MS);
             }
           }
@@ -409,10 +466,20 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
           setMode(m);
           setPhase(m === "voice" ? "voice" : "chat");
         }}
+        welcomeMessage={publicInfo?.welcome_message}
+        consentText={publicInfo?.consent_text}
       />
     );
   }
-  if (phase === "done") return <Thanks answered={answeredRef.current} />;
+  if (phase === "done")
+    return (
+      <Thanks
+        answered={answeredRef.current}
+        endMessage={completion.end_message || publicInfo?.end_message}
+        rewardDescription={completion.reward_description || publicInfo?.reward_description}
+        redirectUrl={completion.redirect_url || publicInfo?.redirect_url}
+      />
+    );
 
   if (mode === "voice") {
     // The question is the interviewer's most recent line; before any line
@@ -567,16 +634,41 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
   );
 }
 
-function Consent({ onStart }: { onStart: (mode: "text" | "voice") => void }) {
+function Consent({
+  onStart,
+  welcomeMessage,
+  consentText,
+}: {
+  onStart: (mode: "text" | "voice") => void;
+  welcomeMessage?: string;
+  consentText?: string;
+}) {
   const t = useTranslations("respondent.consent");
+  // Only gate on an explicit checkbox when the researcher configured real
+  // consent copy — legacy/unconfigured studies keep the original passive
+  // disclaimer instead of gaining a new required step out of nowhere.
+  const requireConsent = !!consentText;
+  const [consented, setConsented] = useState(false);
+  const canStart = !requireConsent || consented;
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="tp-fade-in-up max-w-lg text-center">
         <p className="overline mb-4">{t("eyebrow")}</p>
         <h1 className="mb-6 font-display text-5xl leading-tight">{t("title")}</h1>
-        <p className="text-lg leading-relaxed text-body">{t("body")}</p>
+        <p className="text-lg leading-relaxed text-body">{welcomeMessage || t("body")}</p>
+        {requireConsent && (
+          <label className="mx-auto mt-6 flex max-w-sm items-start gap-3 text-left text-sm text-body">
+            <input
+              type="checkbox"
+              checked={consented}
+              onChange={(e) => setConsented(e.target.checked)}
+              className="mt-1 h-4 w-4 shrink-0 accent-accent"
+            />
+            <span>{consentText}</span>
+          </label>
+        )}
         <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-          <Button variant="primary" size="lg" onClick={() => onStart("text")}>
+          <Button variant="primary" size="lg" disabled={!canStart} onClick={() => onStart("text")}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
               <path
                 d="M4 6h16M4 12h16M4 18h10"
@@ -587,7 +679,7 @@ function Consent({ onStart }: { onStart: (mode: "text" | "voice") => void }) {
             </svg>
             {t("startWithText")}
           </Button>
-          <Button variant="secondary" size="lg" onClick={() => onStart("voice")}>
+          <Button variant="secondary" size="lg" disabled={!canStart} onClick={() => onStart("voice")}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
               <rect
                 x="9"
@@ -608,14 +700,38 @@ function Consent({ onStart }: { onStart: (mode: "text" | "voice") => void }) {
             {t("useVoice")}
           </Button>
         </div>
-        <p className="mx-auto mt-6 max-w-sm text-xs text-muted">{t("consentNotice")}</p>
+        <p className="mx-auto mt-6 max-w-sm text-xs text-muted">
+          {requireConsent ? t("consentCheckRequired") : t("consentNotice")}
+        </p>
       </div>
     </div>
   );
 }
 
-function Thanks({ answered }: { answered: number }) {
+function Thanks({
+  answered,
+  endMessage,
+  rewardDescription,
+  redirectUrl,
+}: {
+  answered: number;
+  endMessage?: string;
+  rewardDescription?: string;
+  redirectUrl?: string;
+}) {
   const t = useTranslations("respondent.thanks");
+  const [secondsLeft, setSecondsLeft] = useState(THANKS_REDIRECT_DELAY_S);
+
+  useEffect(() => {
+    if (!redirectUrl) return;
+    if (secondsLeft <= 0) {
+      window.location.href = redirectUrl;
+      return;
+    }
+    const timer = window.setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [redirectUrl, secondsLeft]);
+
   return (
     <div className="min-h-screen flex items-center justify-center px-6">
       <div className="max-w-lg text-center tp-fade-in-up">
@@ -627,9 +743,21 @@ function Thanks({ answered }: { answered: number }) {
         <p className="overline mb-4">{t("eyebrow")}</p>
         <h1 className="font-display text-5xl mb-6 leading-tight">{t("title")}</h1>
         <p className="text-body text-lg leading-relaxed">
-          {answered > 0 ? t("withAnswers", { count: answered }) : t("noAnswers")}
+          {endMessage || (answered > 0 ? t("withAnswers", { count: answered }) : t("noAnswers"))}
         </p>
-        <p className="text-xs text-muted mt-6">{t("canClose")}</p>
+        {rewardDescription && (
+          <p className="mt-4 text-body text-base">{t("reward", { reward: rewardDescription })}</p>
+        )}
+        {redirectUrl ? (
+          <p className="text-xs text-muted mt-6">
+            {t("redirecting", { seconds: secondsLeft })}{" "}
+            <a href={redirectUrl} className="text-accent underline">
+              {t("continueNow")}
+            </a>
+          </p>
+        ) : (
+          <p className="text-xs text-muted mt-6">{t("canClose")}</p>
+        )}
       </div>
     </div>
   );

@@ -5,7 +5,8 @@
     "body": "有一位研究者想听听你的想法。大约需要 15 分钟，你的回答会影响我们接下来要做的事。请选择你想要的交流方式：",
     "startWithText": "用文字开始",
     "useVoice": "使用语音",
-    "consentNotice": "继续即表示你同意你的回答将被记录并用于分析，以改进产品。"
+    "consentNotice": "继续即表示你同意你的回答将被记录并用于分析，以改进产品。",
+    "consentCheckRequired": "请勾选上方的复选框以继续。"
   },
   "masthead": {
     "title": "telepace · 用户研究",
@@ -16,7 +17,10 @@
     "title": "谢谢你。",
     "withAnswers": "你的 {count} 条回答正在送往研究团队 —— 每一句话都会被认真阅读。",
     "noAnswers": "你已经帮助我们规划了产品的方向，团队会认真阅读每一句话。",
-    "canClose": "现在可以关闭此页面了。"
+    "canClose": "现在可以关闭此页面了。",
+    "reward": "你的奖励：{reward}",
+    "redirecting": "{seconds} 秒后将带你继续前往…",
+    "continueNow": "立即继续"
   },
   "progress": {
     "questionOf": "第 {current} / {total} 题"

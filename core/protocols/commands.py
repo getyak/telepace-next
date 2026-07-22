@@ -38,6 +38,12 @@ class CreateCampaign(CommandBase):
     # (decision + objective + audience); it seeds the spec and sharpens the
     # Designer's draft. None on the legacy "create straight from goal" path.
     research_task: ResearchTask | None = None
+    # Respondent-facing experience copy — see CampaignSpec for field meaning.
+    welcome_message: str = ""
+    consent_text: str = ""
+    end_message: str = ""
+    reward_description: str = ""
+    redirect_url: str = ""
 
 
 class RefineOutline(CommandBase):
@@ -115,4 +121,9 @@ def spec_from_create(cmd: CreateCampaign) -> CampaignSpec:
         budget_usd=cmd.budget_usd,
         channels=[Channel(kind=ch) for ch in cmd.channels],
         outline=Outline(items=[], estimated_duration_minutes=_consts.DEFAULT_OUTLINE_DURATION_MIN),
+        welcome_message=cmd.welcome_message,
+        consent_text=cmd.consent_text,
+        end_message=cmd.end_message,
+        reward_description=cmd.reward_description,
+        redirect_url=cmd.redirect_url,
     )
