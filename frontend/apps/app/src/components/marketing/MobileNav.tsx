@@ -14,6 +14,7 @@ import { CloseIcon, MenuIcon } from "@telepace/icons";
 import { routes, siteConfig } from "@telepace/config";
 
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { LocaleSwitch } from "./LocaleSwitch";
 
 export type NavLink = { href: string; label: string };
 
@@ -26,6 +27,8 @@ export function MobileNav({
   signOutLabel,
   openMenuLabel,
   closeMenuLabel,
+  localeNavLabel,
+  localeSwitchLabels,
 }: {
   links: NavLink[];
   initialHasSession: boolean;
@@ -35,6 +38,8 @@ export function MobileNav({
   signOutLabel: string;
   openMenuLabel: string;
   closeMenuLabel: string;
+  localeNavLabel: string;
+  localeSwitchLabels: Record<string, string>;
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -103,6 +108,11 @@ export function MobileNav({
               </Link>
             ))}
           </nav>
+
+          {/* Language, on its own quiet shelf above the account actions. */}
+          <div className="container-content border-t border-hairline py-4">
+            <LocaleSwitch navLabel={localeNavLabel} switchLabels={localeSwitchLabels} />
+          </div>
 
           <div className="container-content flex items-center gap-3 border-t border-hairline py-6">
             {authed ? (

@@ -2,6 +2,7 @@ import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { routes, siteConfig } from "@telepace/config";
 
+import { LocaleSwitch } from "./LocaleSwitch";
 import { MobileNav, type NavLink } from "./MobileNav";
 import { MarketingUserMenu, type MarketingUserMenuLabels } from "./MarketingUserMenu";
 
@@ -42,7 +43,14 @@ export async function Nav({ hasSession = false }: { hasSession?: boolean }) {
             </Link>
           ))}
         </nav>
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-4">
+          {/* Language sits before the account cluster, separated by a
+              hairline — a utility, not a nav destination. */}
+          <LocaleSwitch
+            navLabel={t("language")}
+            switchLabels={{ en: t("switchToEn"), zh: t("switchToZh") }}
+          />
+          <span aria-hidden className="h-4 w-px bg-hairline" />
           <MarketingUserMenu initialHasSession={hasSession} labels={userMenuLabels} />
         </div>
         <MobileNav
@@ -54,6 +62,8 @@ export async function Nav({ hasSession = false }: { hasSession?: boolean }) {
           signOutLabel={t("signOut")}
           openMenuLabel={t("openMenu")}
           closeMenuLabel={t("closeMenu")}
+          localeNavLabel={t("language")}
+          localeSwitchLabels={{ en: t("switchToEn"), zh: t("switchToZh") }}
         />
       </div>
     </header>
