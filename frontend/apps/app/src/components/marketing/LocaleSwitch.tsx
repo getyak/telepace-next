@@ -31,8 +31,10 @@ export function LocaleSwitch({
   const locale = useLocale();
   const pathname = usePathname();
 
+  // tracking-wide from the token scale — no ad-hoc letterspacing values
+  // (DESIGN.md: the overline is the only letterspaced label style).
   return (
-    <nav aria-label={navLabel} className="flex items-center gap-2 text-xs tracking-[0.08em]">
+    <nav aria-label={navLabel} className="flex items-center gap-2 text-xs tracking-wide">
       {routing.locales.map((l, i) => (
         <span key={l} className="flex items-center gap-2">
           {i > 0 && (
