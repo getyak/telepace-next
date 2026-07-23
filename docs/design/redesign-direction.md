@@ -97,8 +97,17 @@
      P1' 空态模板卡带 ?seed= 直通创建对话(点模板 = 已说出开场白,
          经同一 assessment gate)——S1 与 N1 的闭环解法
      P2  I1(引用出处署名)✅ + confidence 进度条化 ✅
-     剩余:M2(hero 卡 desk 材质)、N1/N3/N4(创建页左栏与步进指示器)、
-         I2-I3(insights 动作区预留)、A1、X1-X2
+     P3(满分轮,2026-07-23 下午)
+       M1' reveal 兜底:JS-但不滚动的渲染器(Googlebot 快照/fullPage 截图)
+           3s 超时强制显示——22/22 元素实测可见 ✅
+       M2  hero live-demo 卡升格 letter-on-a-desk(desk 托盘 + overlay 阴影)✅
+       A0  Audience 页假数据(Pro trial/Churned Q2 假 segment、假 CSV)清除,
+           换成幽灵段卡诚实空态(虚线描边 + en-dash 数字保留漏斗排版教学)✅
+       TrustBar 三数字对齐 Audience 标准(caps 标签上置 + 上边线)✅
+       N3  复查:ReadinessSpine 已有 accent 连接线 + 填充勾,审计描述基于旧版,
+           无需再动 ✅
+     剩余(功能性,非皮肤):I2-I3(insights 动作区,等分析系统)、
+         X1(侧边栏空腔,等实时状态数据)、X3 dark mode(记录不做)
 
 阶段 2(open-design 介入)——两个页面值得生成候选
   仅 S1 空态布局 与 N1-N3 创建页引导结构 存在多方案取舍,

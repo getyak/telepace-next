@@ -55,7 +55,19 @@ export function Reveal({
       { rootMargin: "0px 0px -10% 0px", threshold: 0.1 },
     );
     observer.observe(el);
-    return () => observer.disconnect();
+    // Backstop: a renderer that runs JS but never scrolls (Googlebot's
+    // rendering snapshot, print, full-page screenshots) would otherwise
+    // capture below-the-fold content at opacity 0 forever. If the observer
+    // hasn't fired within a few seconds, show the content anyway — the
+    // animation is an enhancement, visibility is the contract.
+    const backstop = setTimeout(() => {
+      setVisible(true);
+      observer.disconnect();
+    }, 3000);
+    return () => {
+      clearTimeout(backstop);
+      observer.disconnect();
+    };
   }, []);
 
   return (

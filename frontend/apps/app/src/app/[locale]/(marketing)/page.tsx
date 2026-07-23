@@ -103,11 +103,14 @@ async function TrustBar() {
   ];
   return (
     <section className="border-y border-hairline bg-paper-elevated">
-      <div className="container-content py-10 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+      {/* House data style (the Audience-page standard): caption ABOVE the
+          numeral, small caps with a top rule — not a number with a footnote.
+          Left-aligned inside each cell so the rules read as one system. */}
+      <div className="container-content grid grid-cols-1 gap-8 py-10 sm:grid-cols-3">
         {stats.map((s, i) => (
           <Reveal key={s.id} delay={i * 80}>
+            <p className="overline mb-2 border-t border-ink/20 pt-2">{s.detail}</p>
             <p className="font-display text-3xl md:text-4xl">{s.value}</p>
-            <p className="overline mt-1.5">{s.detail}</p>
           </Reveal>
         ))}
       </div>
