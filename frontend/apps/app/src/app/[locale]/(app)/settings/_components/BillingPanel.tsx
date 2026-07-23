@@ -12,7 +12,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, Card, CardBody, CardFooter } from "@telepace/ui";
+import { Button, Card, CardBody, CardFooter, ProgressBar } from "@telepace/ui";
 
 import {
   createBillingPortal,
@@ -153,40 +153,47 @@ export function BillingPanel() {
         ) : null}
       </CardBody>
 
+      {/* Usage — held to the Audience-page standard (DESIGN.md "Data is
+          typography"): the quota number IS the layout, set in the display
+          serif with the remainder trailing in muted; captions are small caps
+          with a top rule; the quota bar is the accent bar on a hairline track,
+          readable even at 0/20 (an empty track must still read as a track —
+          this is the paid-conversion visual, it cannot vanish). Stats share
+          one surface separated by hairlines, no card-in-card. */}
       <CardFooter className="bg-paper-sunken/40">
-        <p className="overline mb-3">{t("usageTitle")}</p>
-        <div className="mb-4">
-          <div className="mb-1.5 flex items-baseline justify-between text-xs text-muted">
-            <span>{t("qualifiedInterviews")}</span>
-            <span>
-              {summary.qualified_used} / {summary.quota}
-            </span>
-          </div>
-          <div
-            className="h-1.5 overflow-hidden rounded-full bg-hairline"
-            role="progressbar"
-            aria-valuenow={summary.qualified_used}
-            aria-valuemin={0}
-            aria-valuemax={summary.quota}
-          >
-            <div
-              className={`h-full rounded-full ${atLimit ? "bg-terracotta" : "bg-ink"}`}
-              style={{ width: `${quotaPct}%` }}
-            />
-          </div>
+        <div className="mb-5">
+          <p className="overline mb-2 border-t border-ink/20 pt-2">
+            {t("qualifiedInterviews")}
+          </p>
+          <p className="font-display text-5xl leading-none text-ink">
+            {summary.qualified_used}
+            <span className="text-2xl text-muted"> / {summary.quota}</span>
+          </p>
+          <ProgressBar
+            value={summary.quota > 0 ? summary.qualified_used / summary.quota : 0}
+            tone={atLimit ? "muted" : "accent"}
+            label={t("qualifiedInterviews")}
+            className={`mt-3 h-1.5 ${atLimit ? "[&>div]:bg-terracotta" : ""}`}
+          />
+          <p className="mt-1.5 text-xs text-muted">{quotaPct}%</p>
         </div>
-        <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <dl className="grid grid-cols-2 gap-x-8 gap-y-4">
           <div>
-            <dt className="text-xs text-muted">{t("qualifiedInterviews")}</dt>
-            <dd className="mt-0.5 font-display text-2xl">{summary.qualified_used}</dd>
+            <dt className="overline mb-1 border-t border-ink/20 pt-2">
+              {t("disqualifiedInterviews")}
+            </dt>
+            <dd className="font-display text-3xl leading-none text-ink">
+              {summary.disqualified}
+            </dd>
           </div>
           <div>
-            <dt className="text-xs text-muted">{t("disqualifiedInterviews")}</dt>
-            <dd className="mt-0.5 font-display text-2xl">{summary.disqualified}</dd>
-          </div>
-          <div>
-            <dt className="text-xs text-muted">{t("voiceMinutes")}</dt>
-            <dd className="mt-0.5 font-display text-2xl">{voiceMinutes} min</dd>
+            <dt className="overline mb-1 border-t border-ink/20 pt-2">
+              {t("voiceMinutes")}
+            </dt>
+            <dd className="font-display text-3xl leading-none text-ink">
+              {voiceMinutes}
+              <span className="text-lg text-muted"> min</span>
+            </dd>
           </div>
         </dl>
       </CardFooter>

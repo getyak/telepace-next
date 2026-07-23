@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, Card, EmptyState, icons, toast } from "@telepace/ui";
+import { Button, Card, EmptyState, ProgressBar, icons, toast } from "@telepace/ui";
 
 export type ThemeDef = {
   id: string;
@@ -11,7 +11,14 @@ export type ThemeDef = {
   quoteCount: number;
   tagKey: string;
   tagStyle: string;
-  quoteKeys: string[];
+  /**
+   * Every verbatim quote carries its provenance — interview # and the
+   * speaker's role. DESIGN.md "Evidence and honesty": a quote without a
+   * source is not allowed in the UI, and the PRD's core critique of the
+   * category is untraceable evidence. Structure lives here so real analyst
+   * output slots in without a redesign.
+   */
+  quotes: Array<{ textKey: string; interview: number; roleKey: string }>;
 };
 
 /**
@@ -112,7 +119,20 @@ export function InsightsBoard({ themes }: { themes: ThemeDef[] }) {
                     >
                       {t(theme.tagKey)}
                     </span>
-                    <span className="text-xs text-muted">
+                    {/* Confidence as data-typography, not an annotation: the
+                        thin accent bar makes 0.74 vs 0.91 legible at a glance
+                        (the shared ProgressBar language — same as study
+                        completion and quota). */}
+                    <span className="flex items-center gap-2 text-xs text-muted">
+                      <ProgressBar
+                        value={theme.confidence}
+                        tone="accent"
+                        label={t("confidenceLabel", {
+                          value: theme.confidence.toFixed(2),
+                          count: theme.quoteCount,
+                        })}
+                        className="w-16"
+                      />
                       {t("confidenceLabel", {
                         value: theme.confidence.toFixed(2),
                         count: theme.quoteCount,
@@ -129,11 +149,23 @@ export function InsightsBoard({ themes }: { themes: ThemeDef[] }) {
                   </Button>
                 </div>
               </div>
-              <div className="space-y-3 border-l-2 border-accent pl-6">
-                {theme.quoteKeys.map((qk, i) => (
-                  <blockquote key={i} className="text-body italic leading-relaxed">
-                    {`“${t(qk)}”`}
-                  </blockquote>
+              <div className="space-y-5 border-l-2 border-accent pl-6">
+                {theme.quotes.map((q, i) => (
+                  <figure key={i}>
+                    <blockquote className="text-body italic leading-relaxed">
+                      {`“${t(q.textKey as Parameters<typeof t>[0])}”`}
+                    </blockquote>
+                    {/* Provenance line — the human moment. Terracotta marks a
+                        real person appearing (its second job in DESIGN.md),
+                        never generic emphasis. */}
+                    <figcaption className="mt-1.5 text-xs text-muted">
+                      <span className="font-medium text-terracotta">
+                        {t("quoteInterview", { number: q.interview })}
+                      </span>
+                      {" · "}
+                      {t(q.roleKey as Parameters<typeof t>[0])}
+                    </figcaption>
+                  </figure>
                 ))}
               </div>
             </Card>

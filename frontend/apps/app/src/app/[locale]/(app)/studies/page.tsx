@@ -97,10 +97,14 @@ export default function StudiesPage() {
       <PageHeader
         eyebrow={t("eyebrow")}
         title={t("title")}
+        // On the empty state the primary CTA lives inside the first-page card
+        // below — a second identical button up here would just be noise (S2).
         actions={
-          <Link href={routes.app.studies.new}>
-            <Button>{t("newStudy")}</Button>
-          </Link>
+          studies !== null && studies.length === 0 ? undefined : (
+            <Link href={routes.app.studies.new}>
+              <Button>{t("newStudy")}</Button>
+            </Link>
+          )
         }
       />
 
@@ -118,16 +122,7 @@ export default function StudiesPage() {
           <Skeleton className="h-[84px] w-full" />
         </div>
       ) : studies.length === 0 ? (
-        <EmptyState
-          icon={<StudiesIcon size={24} />}
-          title={t("emptyTitle")}
-          description={t("emptyDescription")}
-          action={
-            <Link href={routes.app.studies.new}>
-              <Button>{t("newStudyShort")}</Button>
-            </Link>
-          }
-        />
+        <StudiesFirstPage />
       ) : (
         <>
           {/* Overview band — three quiet counts that anchor a long list, the way
@@ -227,6 +222,64 @@ export default function StudiesPage() {
           </Card>
         </>
       )}
+    </div>
+  );
+}
+
+/**
+ * The empty state is the product's first impression — onboarding, not an
+ * apology (DESIGN.md "Voice of empty states"). Instead of a lone icon it
+ * renders the editor's first page: a display-serif sentence in the product's
+ * voice and three concrete study templates. Each template links to the studio
+ * with its goal as a ?seed= so one click starts the design conversation —
+ * example content over blank canvas, the same move Listen Labs' category
+ * templates make, in our editorial voice.
+ */
+const TEMPLATE_SEEDS = [
+  { id: "pricing", labelKey: "templatePricing", goalKey: "templatePricingGoal" },
+  { id: "churn", labelKey: "templateChurn", goalKey: "templateChurnGoal" },
+  { id: "concept", labelKey: "templateConcept", goalKey: "templateConceptGoal" },
+] as const;
+
+function StudiesFirstPage() {
+  const t = useTranslations("app.studies");
+  return (
+    <div className="rounded-card border border-dashed border-hairline px-8 py-14">
+      <div className="mx-auto max-w-2xl">
+        <p className="overline mb-3">{t("emptyEyebrow")}</p>
+        <h2 className="font-display text-3xl leading-tight">{t("emptyTitle")}</h2>
+        <p className="mt-3 max-w-lg text-body leading-relaxed">{t("emptyDescription")}</p>
+
+        {/* Three ways in — real research starters, not decoration. Clicking one
+            lands in the studio with the goal already spoken. */}
+        <div className="mt-8 grid gap-3 sm:grid-cols-3">
+          {TEMPLATE_SEEDS.map((tpl) => {
+            const goal = t(tpl.goalKey as Parameters<typeof t>[0]);
+            return (
+              <Link
+                key={tpl.id}
+                href={`${routes.app.studies.new}?seed=${encodeURIComponent(goal)}`}
+                className="tp-press tp-press-control group flex flex-col rounded-card border border-hairline bg-paper-elevated p-4 transition-[color,background-color,border-color,transform] duration-150 hover:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <span className="overline mb-2 text-[10px] group-hover:text-ink">
+                  {t(tpl.labelKey as Parameters<typeof t>[0])}
+                </span>
+                <span className="text-sm leading-relaxed text-body">{goal}</span>
+                <span aria-hidden className="mt-3 text-xs text-muted transition-colors group-hover:text-ink">
+                  {t("templateStart")} &rarr;
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+
+        <div className="mt-8 flex items-center gap-4 border-t border-hairline pt-6">
+          <Link href={routes.app.studies.new}>
+            <Button>{t("newStudyShort")}</Button>
+          </Link>
+          <p className="text-xs text-muted">{t("emptyOrBlank")}</p>
+        </div>
+      </div>
     </div>
   );
 }

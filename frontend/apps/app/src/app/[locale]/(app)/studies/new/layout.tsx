@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
@@ -22,5 +23,8 @@ export async function generateMetadata({
 }
 
 export default function NewStudyLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  // The page reads ?seed= via useSearchParams (template cards from the studies
+  // empty state arrive with a pre-spoken goal) — that requires a Suspense
+  // boundary above the client page or the build fails the CSR-bailout check.
+  return <Suspense>{children}</Suspense>;
 }

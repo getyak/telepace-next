@@ -79,7 +79,14 @@
     "notionCta": "Notion integration is not set up — configure it in Integrations first.",
     "dismissedEmpty": "All insights dismissed. Reload to bring them back.",
     "dismissedToast": "Insight dismissed.",
-    "restore": "Undo"
+    "restore": "Undo",
+    "quoteInterview": "Interview #{number}",
+    "roleEngLead": "Engineering lead",
+    "roleItAdmin": "IT admin",
+    "roleFounder": "Founder",
+    "rolePm": "Product manager",
+    "roleDesigner": "Designer",
+    "rolePmm": "Product marketing"
   },
   "integrations": {
     "eyebrow": "Integrations",
@@ -121,8 +128,8 @@
     "newStudyShort": "New study",
     "errorTitle": "Couldn't load your studies.",
     "retry": "Retry",
-    "emptyTitle": "No studies yet.",
-    "emptyDescription": "Describe what you want to learn — the Designer agent drafts the interview for you.",
+    "emptyTitle": "Your first study starts with a question.",
+    "emptyDescription": "Describe a decision you need to make — the Designer agent turns it into a ready-to-run interview.",
     "questionsUpdated": "{count} questions · updated {time}",
     "completedCount": "{completed} / {target} completed",
     "inProgressCount": "{count} in progress",
@@ -137,7 +144,16 @@
     "overviewTotal": "Total studies",
     "overviewLive": "Live",
     "overviewCompleted": "Completed interviews",
-    "duplicateTag": "Duplicate name · {index} of {total}"
+    "duplicateTag": "Duplicate name · {index} of {total}",
+    "emptyEyebrow": "Start here",
+    "emptyOrBlank": "…or start from a blank page and just describe your question.",
+    "templatePricing": "Pricing",
+    "templatePricingGoal": "Decide whether to gate SSO behind the enterprise tier — talk to buyers about willingness to pay.",
+    "templateChurn": "Churn",
+    "templateChurnGoal": "Understand why customers cancelled in the last 90 days and what would have kept them.",
+    "templateConcept": "Concept test",
+    "templateConceptGoal": "Test whether our new onboarding concept is clearer than the current flow before we build it.",
+    "templateStart": "Start from this"
   },
   "studyDetail": {
     "allStudies": "← All studies",

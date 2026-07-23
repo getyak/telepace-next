@@ -79,7 +79,14 @@
     "notionCta": "Notion 集成尚未配置——请先在「集成」中设置。",
     "dismissedEmpty": "已忽略全部洞察。刷新可恢复。",
     "dismissedToast": "洞察已忽略。",
-    "restore": "撤销"
+    "restore": "撤销",
+    "quoteInterview": "访谈 #{number}",
+    "roleEngLead": "工程负责人",
+    "roleItAdmin": "IT 管理员",
+    "roleFounder": "创始人",
+    "rolePm": "产品经理",
+    "roleDesigner": "设计师",
+    "rolePmm": "产品营销"
   },
   "integrations": {
     "eyebrow": "集成",
@@ -121,8 +128,8 @@
     "newStudyShort": "新建问卷",
     "errorTitle": "无法加载你的问卷。",
     "retry": "重试",
-    "emptyTitle": "暂无问卷。",
-    "emptyDescription": "描述你想了解的内容——设计师智能体会为你起草访谈提纲。",
+    "emptyTitle": "你的第一个研究，从一个问题开始。",
+    "emptyDescription": "描述一个你需要做的决策——设计师智能体会把它变成一份可直接开跑的访谈。",
     "questionsUpdated": "{count} 个问题 · 更新于{time}",
     "completedCount": "{completed} / {target} 已完成",
     "inProgressCount": "{count} 进行中",
@@ -137,7 +144,16 @@
     "overviewTotal": "问卷总数",
     "overviewLive": "进行中",
     "overviewCompleted": "已完成访谈",
-    "duplicateTag": "同名 · 第 {index} / {total} 个"
+    "duplicateTag": "同名 · 第 {index} / {total} 个",
+    "emptyEyebrow": "从这里开始",
+    "emptyOrBlank": "……或者从空白页开始，直接描述你的问题。",
+    "templatePricing": "定价",
+    "templatePricingGoal": "决定是否将 SSO 归入企业版——与买家聊聊付费意愿。",
+    "templateChurn": "流失",
+    "templateChurnGoal": "了解过去 90 天客户取消订阅的原因，以及什么能留住他们。",
+    "templateConcept": "概念测试",
+    "templateConceptGoal": "在动手开发前，验证新的引导流程概念是否比现有流程更清晰。",
+    "templateStart": "用这个开始"
   },
   "studyDetail": {
     "allStudies": "← 所有问卷",
