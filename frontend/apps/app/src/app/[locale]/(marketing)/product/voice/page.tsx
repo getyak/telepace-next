@@ -96,8 +96,10 @@ export default async function VoicePage({
             <Card className="mt-6 p-5">
               <dl className="space-y-2 text-sm">
                 {specs.map((s) => (
-                  <div key={s.k} className="flex justify-between border-b border-hairline py-2">
-                    <dt className="text-muted">{s.k}</dt>
+                  <div key={s.k} className="flex justify-between gap-6 border-b border-hairline py-2">
+                    {/* shrink-0: long values must not squeeze the label into a
+                        vertical stack of characters. */}
+                    <dt className="shrink-0 whitespace-nowrap text-muted">{s.k}</dt>
                     <dd className="text-body text-right">
                       {s.v}
                       <span className="block text-xs text-muted">{s.note}</span>
