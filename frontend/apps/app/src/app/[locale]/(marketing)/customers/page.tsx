@@ -53,10 +53,12 @@ export default async function CustomersPage() {
 
       <section className="section-padding border-b border-hairline">
         <div className="container-content grid grid-cols-2 md:grid-cols-4 gap-6">
+          {/* House data style (the Audience-page standard, see home TrustBar):
+              caption ABOVE the numeral, small caps with a top rule. */}
           {stats.map((s) => (
-            <div key={s.id} className="border-t border-ink pt-4">
+            <div key={s.id}>
+              <p className="overline mb-2 border-t border-ink/20 pt-2">{s.label}</p>
               <p className="font-display text-4xl">{s.value}</p>
-              <p className="text-sm text-muted mt-2">{s.label}</p>
             </div>
           ))}
         </div>
@@ -74,7 +76,9 @@ export default async function CustomersPage() {
                   {s.metric}
                 </div>
               </div>
-              <blockquote className="md:col-span-8 font-display text-2xl md:text-3xl leading-tight text-ink relative pl-8 border-l-2 border-accent">
+              {/* Contract verbatim-quote style: italic + hairline left rule.
+                  Sage is for action/coverage, not quote decoration. */}
+              <blockquote className="md:col-span-8 font-display italic text-2xl md:text-3xl leading-tight text-ink relative pl-8 border-l border-hairline">
                 {s.quote}
               </blockquote>
               {i < stories.length - 1 && (
