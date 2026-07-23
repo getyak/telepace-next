@@ -82,7 +82,9 @@ export function MobileNav({
 
       {open && (
         <div className="fixed inset-0 z-50 flex flex-col bg-paper">
-          <div className="container-content flex h-16 items-center justify-between border-b border-hairline">
+          {/* w-full: container-content's mx-auto cancels flex-column stretch,
+              collapsing children to fit-content — force full width explicitly. */}
+          <div className="container-content flex h-16 w-full items-center justify-between border-b border-hairline">
             <Link href={routes.home} className="font-display text-xl" onClick={() => setOpen(false)}>
               {siteConfig.brand.name}
             </Link>
@@ -96,7 +98,7 @@ export function MobileNav({
             </button>
           </div>
 
-          <nav className="container-content flex flex-1 flex-col gap-6 overflow-y-auto py-10">
+          <nav className="container-content flex w-full flex-1 flex-col gap-6 overflow-y-auto py-10">
             {links.map((l) => (
               <Link
                 key={l.href}
@@ -110,11 +112,11 @@ export function MobileNav({
           </nav>
 
           {/* Language, on its own quiet shelf above the account actions. */}
-          <div className="container-content border-t border-hairline py-4">
+          <div className="container-content w-full border-t border-hairline py-4">
             <LocaleSwitch navLabel={localeNavLabel} switchLabels={localeSwitchLabels} />
           </div>
 
-          <div className="container-content flex items-center gap-3 border-t border-hairline py-6">
+          <div className="container-content flex w-full items-center gap-3 border-t border-hairline py-6">
             {authed ? (
               <>
                 <Link href={routes.app.root} onClick={() => setOpen(false)} className="flex-1">
