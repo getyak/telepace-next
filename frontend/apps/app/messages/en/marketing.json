@@ -131,6 +131,14 @@
         "mcp": "MCP",
         "rest": "REST API",
         "skill": "Skill"
+      },
+      "insights": {
+        "mcp1": "\"$79 feels punitive without SSO\"",
+        "mcp2": "\"annual discount changes the calculus\"",
+        "mcp3": "\"usage-based would beat both tiers\"",
+        "skill1": "\"onboarding asks for a card too early\"",
+        "skill2": "\"empty workspace feels like homework\"",
+        "skill3": "\"invites are the real activation moment\""
       }
     },
     "useCases": {

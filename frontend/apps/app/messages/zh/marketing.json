@@ -131,6 +131,14 @@
         "mcp": "MCP",
         "rest": "REST API",
         "skill": "Skill"
+      },
+      "insights": {
+        "mcp1": "「不含 SSO 的 $79 有惩罚感」",
+        "mcp2": "「年付折扣改变了他们的算账方式」",
+        "mcp3": "「按量计费会胜过两档订阅」",
+        "skill1": "「onboarding 太早要银行卡」",
+        "skill2": "「空白工作区像是在布置作业」",
+        "skill3": "「邀请协作者才是真正的激活时刻」"
       }
     },
     "useCases": {
