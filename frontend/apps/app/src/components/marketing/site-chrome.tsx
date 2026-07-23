@@ -4,6 +4,7 @@ import { routes, siteConfig } from "@telepace/config";
 
 import { LocaleSwitch } from "./LocaleSwitch";
 import { MobileNav, type NavLink } from "./MobileNav";
+import { NavLinks } from "./NavLinks";
 import { MarketingUserMenu, type MarketingUserMenuLabels } from "./MarketingUserMenu";
 
 const NAV_ITEMS: { href: string; labelKey: "voice" | "agent" | "pricing" | "docs" | "mcp" }[] = [
@@ -36,13 +37,7 @@ export async function Nav({ hasSession = false }: { hasSession?: boolean }) {
         <Link href={routes.home} className="tp-press-text font-display text-xl rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">
           {siteConfig.brand.name}
         </Link>
-        <nav className="hidden md:flex items-center gap-8 text-sm text-body">
-          {navLinks.map((l) => (
-            <Link key={l.href} href={l.href} className="tp-press-text hover:text-ink transition-[color,opacity] rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">
-              {l.label}
-            </Link>
-          ))}
-        </nav>
+        <NavLinks links={navLinks} />
         <div className="hidden md:flex items-center gap-4">
           {/* Language sits before the account cluster, separated by a
               hairline — a utility, not a nav destination. */}
