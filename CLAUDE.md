@@ -10,6 +10,7 @@ AI-driven user research / intelligent interview platform. Voice-native, Agent-fi
 - **i18n**: next-intl (use-intl)
 - **Package Manager**: pnpm
 - **Frontend Path**: `frontend/apps/app/`
+- **Design contract**: read `frontend/DESIGN.md` before any UI change — it is the brand authority (tokens live in `frontend/packages/ui/src/tokens.ts`).
 
 ## Execution Discipline
 

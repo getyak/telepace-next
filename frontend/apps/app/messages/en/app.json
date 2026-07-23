@@ -237,6 +237,7 @@
     "voiceMinutes": "Voice minutes",
     "rotate": "Rotate",
     "createKey": "+ Create key",
+    "noKeysYet": "No API keys yet.",
     "mcpEndpointIntro": "Your workspace's MCP endpoint:",
     "mcpAuthHint": "Authenticate with your API key above. Compatible with Claude Desktop, Claude Code, Cursor, and Codex.",
     "deleteWorkspace": "Delete workspace",

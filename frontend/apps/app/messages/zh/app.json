@@ -237,6 +237,7 @@
     "voiceMinutes": "语音时长",
     "rotate": "轮换",
     "createKey": "+ 创建密钥",
+    "noKeysYet": "还没有 API 密钥。",
     "mcpEndpointIntro": "你的工作区 MCP 接入地址：",
     "mcpAuthHint": "使用上方的 API 密钥进行认证。兼容 Claude Desktop、Claude Code、Cursor 和 Codex。",
     "deleteWorkspace": "删除工作区",

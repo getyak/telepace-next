@@ -1,10 +1,14 @@
 "use client";
 
 /**
- * One-shot scroll reveal. Children start slightly lowered and transparent,
- * then ease in the first time they enter the viewport — and never animate
- * again (no scroll-linked loops; this is a fade-in-once, same philosophy
- * as tp-fade-in-up).
+ * One-shot scroll reveal, progressively enhanced. Server-rendered content is
+ * fully visible by default — crawlers, JS-off browsers, and failed script
+ * loads all get a complete page. On mount we stamp `tp-js` on <html>, which
+ * is what allows CSS to hide `.tp-reveal` content at all; elements already
+ * inside the viewport at that moment are marked visible in the same tick so
+ * nothing on screen blinks out. Below-the-fold elements then ease in the
+ * first time they enter the viewport — and never animate again (no
+ * scroll-linked loops; a fade-in-once, same philosophy as tp-fade-in-up).
  *
  * Reduced motion is handled in CSS: under prefers-reduced-motion the
  * .tp-reveal class has no transform/opacity offset at all, so content is
@@ -28,8 +32,16 @@ export function Reveal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // Client JS is live — from here on CSS may treat .tp-reveal as hidden.
+    document.documentElement.classList.add("tp-js");
     // No IntersectionObserver (very old browsers): just show the content.
     if (typeof IntersectionObserver === "undefined") {
+      setVisible(true);
+      return;
+    }
+    // Already on screen at hydration → visible immediately, no blink-out.
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
       setVisible(true);
       return;
     }
