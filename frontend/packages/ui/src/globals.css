@@ -51,8 +51,13 @@
   html:lang(zh) h2,
   html:lang(zh) h3,
   html:lang(zh) .font-display {
-    font-family: var(--font-display), var(--font-display-zh, "Songti SC"), "Songti SC",
-      "Noto Serif CJK SC", "Source Han Serif SC", serif;
+    /* CJK serif FIRST: when Instrument Serif leads the chain, latin digits,
+       brand words and full-width punctuation ("，。") take its narrow metrics
+       while the hanzi fall to the CJK face — two mismatched serifs inside one
+       heading. Noto Serif SC ships its own latin + punctuation, so leading
+       with it keeps the whole zh heading in one voice. */
+    font-family: var(--font-display-zh, "Songti SC"), "Songti SC",
+      "Noto Serif CJK SC", "Source Han Serif SC", var(--font-display), serif;
     letter-spacing: 0;
     line-height: 1.2;
   }
@@ -75,6 +80,17 @@
    tracking. Leading from the size utilities is fine for both scripts. */
 :lang(zh) :is(h1, h2, h3, .font-display) {
   letter-spacing: 0;
+}
+
+/* Italic is a latin emphasis convention with no CJK equivalent — Noto Serif SC
+   ships no drawn italic, so the browser shears a faux oblique that mangles
+   song-style strokes. In zh, emphasis inside a display heading is carried by
+   color (text-accent) alone; the slant is suppressed. Unlayered for the same
+   reason as above: Tailwind's `.italic` utility lives in the utilities layer
+   and would otherwise outrank a base-layer override. */
+:lang(zh) :is(h1, h2, h3, .font-display) :is(.italic, i, em),
+:lang(zh) :is(h1, h2, h3, .font-display):is(.italic) {
+  font-style: normal;
 }
 
 @layer components {
