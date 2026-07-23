@@ -51,7 +51,8 @@ export default function DemoPage() {
           <div className="md:col-span-8">
             <Card className="overflow-hidden flex flex-col h-[560px]">
               <div className="flex items-center gap-2 border-b border-hairline px-5 py-3 text-xs text-muted">
-                <div className="w-2 h-2 rounded-full bg-accent" />
+                {/* Same live-dot rendering as HeroInterview: one semantic, one style. */}
+                <div className="tp-pulse-slow h-2 w-2 rounded-pill bg-accent" aria-hidden />
                 {t("statusLine", {
                   status: done
                     ? t("statusWrapped")
