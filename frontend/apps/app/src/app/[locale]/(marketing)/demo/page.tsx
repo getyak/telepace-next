@@ -88,7 +88,7 @@ export default function DemoPage() {
               </ul>
             </Card>
             <Card className="bg-ink text-paper p-6">
-              <p className="overline text-paper/70 mb-3">{t("voice.eyebrow")}</p>
+              <p className="overline-inverse mb-3">{t("voice.eyebrow")}</p>
               <p className="text-sm mb-4">{t("voice.body")}</p>
               <Link href={routes.product.voice}>
                 <Button variant="inverse-outline">

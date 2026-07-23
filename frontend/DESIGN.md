@@ -73,8 +73,10 @@ insight confidence) must meet this bar:
   1px needs a reason (danger zone uses terracotta/30).
 - Motion is one-shot and restrained: `tp-reveal` fades in once, press
   feedback follows the graded-scale system in `tokens.press` (respond on the
-  way down; travel ≈ 0.85px regardless of element size). No loops, no
-  scroll-linked animation, and everything honors `prefers-reduced-motion`.
+  way down; travel ≈ 0.85px regardless of element size). Ambient loops are
+  allowed only as liveness signals (the pulse dot, resting waveform bars) —
+  never as decoration. No scroll-linked animation, and everything honors
+  `prefers-reduced-motion`.
 - Progressive enhancement is law: content must be fully visible without
   JavaScript. Animations may only hide content after client JS stamps
   `tp-js` on `<html>` (see `Reveal.tsx`) — never in default CSS.

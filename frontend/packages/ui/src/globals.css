@@ -98,6 +98,9 @@
   .section-padding { @apply py-20 md:py-32; }
   .hairline { @apply border border-hairline; }
   .overline { @apply text-xs font-medium uppercase tracking-[0.14em] text-muted; }
+  /* The same label style on ink/dark surfaces — one variant instead of
+     per-site text-paper/70 patches. */
+  .overline-inverse { @apply text-xs font-medium uppercase tracking-[0.14em] text-paper/70; }
 }
 
 /* ---------- Materials (translucent chrome) ------------------------------- */

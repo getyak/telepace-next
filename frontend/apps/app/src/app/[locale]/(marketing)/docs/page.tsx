@@ -113,7 +113,7 @@ export default async function DocsPage() {
             ))}
 
             <div className="rounded-card border border-hairline bg-ink text-paper p-8">
-              <p className="overline text-paper/70 mb-3">{t("support.eyebrow")}</p>
+              <p className="overline-inverse mb-3">{t("support.eyebrow")}</p>
               <p className="font-display text-2xl mb-4">{t("support.title")}</p>
               <div className="flex gap-3">
                 <Link href={`mailto:${siteConfig.contact.supportEmail}`}><Button variant="secondary" className="border-paper/30 text-paper hover:bg-paper/10">{t("support.emailSupport")}</Button></Link>

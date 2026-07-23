@@ -123,7 +123,7 @@ export default async function PricingPage() {
                     {t("tiers.pro.badge")}
                   </span>
                 )}
-                <p className={"overline " + (meta.highlight ? "text-paper/70" : "")}>
+                <p className={meta.highlight ? "overline-inverse" : "overline"}>
                   {t(`tiers.${id}.name`)}
                 </p>
                 <div className="mt-4 flex items-baseline gap-1">
