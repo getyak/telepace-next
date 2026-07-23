@@ -52,6 +52,10 @@ const preset: Partial<Config> = {
       // (CJK glyphs are full-width and never want negative tracking).
       fontSize: {
         xs: ["0.75rem", { lineHeight: "1.5", letterSpacing: "0.005em" }],
+        // Role sizes that recurred as one-off text-[13px]/text-[15px]:
+        // `code` for terminal/code panels, `chat` for conversation bodies.
+        code: ["0.8125rem", { lineHeight: "1.625", letterSpacing: "0" }],
+        chat: ["0.9375rem", { lineHeight: "1.5", letterSpacing: "0" }],
         sm: ["0.875rem", { lineHeight: "1.5", letterSpacing: "0" }],
         base: ["1rem", { lineHeight: "1.6", letterSpacing: "0" }],
         lg: ["1.125rem", { lineHeight: "1.55", letterSpacing: "-0.006em" }],

@@ -89,7 +89,7 @@ export default async function DocsPage() {
             <div>
               <p className="overline mb-4">{t("install.eyebrow")}</p>
               <h2 className="font-display text-2xl mb-6">{t("install.title")}</h2>
-              <pre className="rounded-card border border-hairline bg-ink text-paper font-mono text-[13px] leading-relaxed p-6 overflow-x-auto whitespace-pre">
+              <pre className="rounded-card border border-hairline bg-ink text-paper font-mono text-code leading-relaxed p-6 overflow-x-auto whitespace-pre">
 {codeSample}
               </pre>
             </div>

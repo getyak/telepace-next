@@ -430,7 +430,7 @@ export function ChatBubble({
             // Researcher's reply — a quotation slipped onto the page, not an IM
             // balloon: elevated paper, a hairline, no drop shadow. The softened
             // bottom-right corner keeps the "sent from here" direction cue.
-            ? "max-w-[82%] rounded-bubble rounded-br-btn border border-hairline bg-paper-elevated px-4 py-2.5 text-[15px] text-ink"
+            ? "max-w-[82%] rounded-bubble rounded-br-btn border border-hairline bg-paper-elevated px-4 py-2.5 text-chat text-ink"
             : isSystem
               // System line — a small centered tracked whisper. text-body (AA)
               // not text-muted since a system sentence carries meaning.
@@ -449,7 +449,7 @@ export function ChatBubble({
                 : isPast
                   // Already answered — dimmed marginalia via a compliant muted
                   // tone (not body+opacity, which crushed contrast); hover lifts.
-                  ? "max-w-[92%] border-l-2 border-hairline py-0.5 pl-4 pr-1 text-[15px] leading-relaxed text-muted transition-colors hover:text-ink"
+                  ? "max-w-[92%] border-l-2 border-hairline py-0.5 pl-4 pr-1 text-chat leading-relaxed text-muted transition-colors hover:text-ink"
                   // Any other interviewer line (rare) — quiet editorial default.
                   : "max-w-[92%] border-l-2 border-accent-soft py-0.5 pl-4 pr-1 text-[17px] leading-relaxed text-ink-soft",
         )}
@@ -466,7 +466,7 @@ export function ChatBubble({
         ) : lead ? (
           <>
             {/* Latin courtesy opener → a quiet aside above the real question. */}
-            <span className="mb-1.5 block font-sans text-[13px] leading-relaxed text-faint">
+            <span className="mb-1.5 block font-sans text-code leading-relaxed text-faint">
               {renderInlineMarkdown(lead)}
             </span>
             {renderInlineMarkdown(body)}
@@ -724,7 +724,7 @@ export function ChatComposer({
           rows={1}
           aria-label={textareaLabel ?? placeholder}
           aria-describedby={hintLabel ? hintId : undefined}
-          className="max-h-40 flex-1 resize-none bg-transparent px-1.5 py-1.5 text-[15px] leading-relaxed text-ink placeholder:text-muted focus:outline-none"
+          className="max-h-40 flex-1 resize-none bg-transparent px-1.5 py-1.5 text-chat leading-relaxed text-ink placeholder:text-muted focus:outline-none"
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
@@ -839,7 +839,7 @@ export function TextStage({
             competing with the hero. Re-keys per reply so it fades in fresh. */}
         {lastReply && (
           <div key={lastReply} className="tp-msg-in mb-8 flex flex-col items-start gap-1">
-            <p className="max-w-[38ch] text-[15px] leading-relaxed text-faint">
+            <p className="max-w-[38ch] text-chat leading-relaxed text-faint">
               <span className="mr-1.5 select-none text-muted">“</span>
               {lastReply}
               <span className="ml-0.5 select-none text-muted">”</span>
@@ -907,7 +907,7 @@ export function TextStage({
               )}
             >
               {lead && (
-                <span className="mb-3 block font-sans text-[13px] font-normal leading-relaxed tracking-normal text-muted">
+                <span className="mb-3 block font-sans text-code font-normal leading-relaxed tracking-normal text-muted">
                   {renderInlineMarkdown(lead)}
                 </span>
               )}

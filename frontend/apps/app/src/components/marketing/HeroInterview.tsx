@@ -89,7 +89,7 @@ export function HeroInterview() {
         {t("liveLabel")}
       </div>
 
-      <div className="space-y-3 p-5 text-[15px]" aria-live="polite">
+      <div className="space-y-3 p-5 text-chat" aria-live="polite">
         {messages.map((m, i) =>
           m.role === "interviewer" ? (
             <div

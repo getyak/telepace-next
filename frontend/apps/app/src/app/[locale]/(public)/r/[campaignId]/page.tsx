@@ -573,7 +573,7 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
       {/* Brand mark, top-left, whisper-quiet — presence without a masthead bar. */}
       <div className="pointer-events-none absolute left-6 top-5 z-10 flex items-center gap-2 sm:left-9 sm:top-7">
         <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-accent" />
-        <span className="font-display text-[15px] text-ink">{t("masthead.title")}</span>
+        <span className="font-display text-chat text-ink">{t("masthead.title")}</span>
       </div>
 
       {dropped && (

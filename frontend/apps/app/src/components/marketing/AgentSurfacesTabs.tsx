@@ -119,7 +119,7 @@ export function AgentSurfacesTabs() {
         role="tabpanel"
         id={`agent-surfaces-panel-${active}`}
         aria-labelledby={`agent-surfaces-tab-${active}`}
-        className="min-h-[340px] overflow-x-auto whitespace-pre-wrap p-6 font-mono text-[13px] leading-relaxed text-paper"
+        className="min-h-[340px] overflow-x-auto whitespace-pre-wrap p-6 font-mono text-code leading-relaxed text-paper"
       >
         {lines.map((line, i) => (
           <span

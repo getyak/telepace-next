@@ -139,7 +139,7 @@ export default async function McpPage() {
             <p className="text-body mb-6">{t("tryIt.body")}</p>
             <Link href={routes.docs}><Button>{t("tryIt.cta")}</Button></Link>
           </div>
-          <pre className="rounded-card border border-hairline bg-ink text-paper font-mono text-[13px] p-6 overflow-x-auto whitespace-pre-wrap">
+          <pre className="rounded-card border border-hairline bg-ink text-paper font-mono text-code p-6 overflow-x-auto whitespace-pre-wrap">
 {`# 1. Add the MCP server
 $ claude mcp add telepace https://mcp.telepace.io
 
