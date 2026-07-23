@@ -14,6 +14,7 @@ export type ErrorKind =
   | "NETWORK" //   fetch never reached server (offline, DNS, TLS, CORS)
   | "TIMEOUT" //   request sent but no response within the client deadline
   | "AUTH" //      401 — no/expired credentials
+  | "QUOTA" //     402 — plan quota exceeded, upgrade required
   | "FORBIDDEN" // 403 — logged in but not allowed
   | "NOT_FOUND" // 404
   | "VALIDATION" //422 or 400 with structured errors
@@ -45,6 +46,7 @@ export class ApiError extends Error {
 
 export function kindFromStatus(status: number): ErrorKind {
   if (status === 401) return "AUTH";
+  if (status === 402) return "QUOTA";
   if (status === 403) return "FORBIDDEN";
   if (status === 404) return "NOT_FOUND";
   if (status === 422 || status === 400) return "VALIDATION";
@@ -64,6 +66,7 @@ const KIND_TO_MESSAGE_KEY: Record<ErrorKind, string> = {
   NETWORK: "network",
   TIMEOUT: "timeout",
   AUTH: "auth",
+  QUOTA: "quota",
   FORBIDDEN: "forbidden",
   NOT_FOUND: "not_found",
   VALIDATION: "validation",

@@ -29,6 +29,12 @@ class ErrorMessages:
     VOICE_STT_FAILED = "stt_failed:{exc}"
     VOICE_TTS_FAILED = "tts_failed:{exc}"
 
+    # Billing
+    BILLING_UNAVAILABLE = "billing subsystem not configured"
+    QUOTA_EXCEEDED = "monthly qualified-interview quota exceeded"
+    INVALID_PLAN = "unknown or non-purchasable plan"
+    WEBHOOK_SIGNATURE_INVALID = "invalid webhook signature"
+
     # Dispatch
     NO_EMAIL_DISPATCHER = "no email dispatcher configured"
     NO_SMS_DISPATCHER = "no sms dispatcher configured"

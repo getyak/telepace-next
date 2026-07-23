@@ -262,7 +262,20 @@
     "deleteConfirmBody": "所有问卷、访谈记录和洞察将在 30 天宽限期后被永久删除。如需确认，请在下方输入工作区标识 {slug}。",
     "deleteConfirmLabel": "工作区标识",
     "deleteConfirmCta": "永久删除工作区",
-    "cancel": "取消"
+    "cancel": "取消",
+    "plans": {
+      "free": "免费版",
+      "pro": "Pro",
+      "team": "Team"
+    },
+    "upgradePro": "升级到 Pro",
+    "upgradeTeam": "升级到 Team",
+    "billingLoading": "正在加载账单信息…",
+    "billingUnavailable": "当前部署未配置计费功能。",
+    "billingRedirecting": "跳转中…",
+    "qualifiedInterviews": "达标访谈",
+    "disqualifiedInterviews": "未达质量线",
+    "quotaReached": "本月免费版的 {quota} 场达标访谈额度已用完。升级后可继续运行研究。"
   },
   "responses": {
     "title": "受访者数据",

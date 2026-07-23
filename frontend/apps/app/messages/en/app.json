@@ -262,7 +262,20 @@
     "deleteConfirmBody": "This deletes all studies, transcripts, and insights after a 30-day grace period. To confirm, type the workspace slug {slug} below.",
     "deleteConfirmLabel": "Workspace slug",
     "deleteConfirmCta": "Delete workspace permanently",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "plans": {
+      "free": "Free",
+      "pro": "Pro",
+      "team": "Team"
+    },
+    "upgradePro": "Upgrade to Pro",
+    "upgradeTeam": "Upgrade to Team",
+    "billingLoading": "Loading billing…",
+    "billingUnavailable": "Billing is not configured for this deployment.",
+    "billingRedirecting": "Redirecting…",
+    "qualifiedInterviews": "Qualified interviews",
+    "disqualifiedInterviews": "Below quality bar",
+    "quotaReached": "You've used all {quota} qualified interviews on the Free plan this month. Upgrade to keep running studies."
   },
   "responses": {
     "title": "Responses",

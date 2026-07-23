@@ -15,6 +15,9 @@ from agents.designer import DesignerAgent
 from agents.interviewer import InterviewerAgent
 from agents.orchestrator import OrchestratorAgent
 from agents.shared import build_llm_from_settings
+from core.billing import PlanKind, QualityGateConfig
+from core.billing.gateway import MockPaymentGateway, PaymentGateway, StripeGateway
+from core.billing.service import BillingService
 from harness import (
     BudgetPolicy,
     EscalationPolicy,
@@ -41,6 +44,7 @@ from interfaces.mcp_server.readers import (
 from interfaces.mcp_server.tools import TOOL_HANDLERS
 from interfaces.rest_api.auth.users_repo import USERS_SCHEMA_SQL, UsersRepo
 from interfaces.rest_api.config import Settings, get_settings
+from storage.billing import BILLING_SCHEMA_SQL, BillingRepo
 from storage.event_store import PostgresEventStore
 from storage.projections import CAMPAIGN_PROJECTION_SQL, CampaignProjector
 
@@ -64,6 +68,11 @@ class AppState:
     # these dependencies are process-wide singletons.
     insight_reader: object = None  # ProjectorInsightReader
     followup_service: object = None  # AnalystFollowupService
+    # Billing (T-621..T-624). None when billing_provider="disabled" — quota
+    # enforcement and /v1/billing/* degrade gracefully in that case.
+    billing: BillingService | None = None
+    billing_repo: BillingRepo | None = None
+    billing_gateway: PaymentGateway | None = None
 
 
 async def build_state() -> AppState:
@@ -85,8 +94,10 @@ async def build_state() -> AppState:
     async with pool.acquire() as conn:
         await conn.execute(CAMPAIGN_PROJECTION_SQL)
         await conn.execute(USERS_SCHEMA_SQL)
+        await conn.execute(BILLING_SCHEMA_SQL)
     projector = CampaignProjector(pool)
     users_repo = UsersRepo(pool)
+    billing_repo, billing_gateway, billing_service = _build_billing(settings, pool)
 
     redis_client = redis.from_url(settings.redis_url, decode_responses=False)
     memory = RedisMemory(redis_client, ttl_seconds=settings.memory_ttl_seconds)
@@ -166,7 +177,68 @@ async def build_state() -> AppState:
         memory=memory,
         insight_reader=insight_reader,
         followup_service=followup_service,
+        billing=billing_service,
+        billing_repo=billing_repo,
+        billing_gateway=billing_gateway,
     )
+
+
+def _build_billing(
+    settings: Settings, pool: asyncpg.Pool
+) -> tuple[BillingRepo | None, PaymentGateway | None, BillingService | None]:
+    """Wire the billing stack from Settings.
+
+    provider="stripe" needs a secret key + price ids; without them we fall
+    back to the mock gateway (usage metering + free-tier quota still work,
+    checkout returns mock URLs). provider="disabled" turns billing off.
+    """
+    provider = (settings.billing_provider or "stripe").lower()
+    if provider == "disabled":
+        return None, None, None
+
+    repo = BillingRepo(pool)
+    gateway: PaymentGateway
+    if (
+        provider == "stripe"
+        and settings.stripe_secret_key
+        and settings.stripe_price_pro
+        and settings.stripe_price_team
+    ):
+        overage_ids = {
+            kind: price
+            for kind, price in (
+                (PlanKind.PRO, settings.stripe_price_pro_overage),
+                (PlanKind.TEAM, settings.stripe_price_team_overage),
+            )
+            if price
+        }
+        gateway = StripeGateway(
+            secret_key=settings.stripe_secret_key,
+            webhook_secret=settings.stripe_webhook_secret or "",
+            price_ids={
+                PlanKind.PRO: settings.stripe_price_pro,
+                PlanKind.TEAM: settings.stripe_price_team,
+            },
+            meter_event_name=settings.stripe_meter_event_name,
+            overage_price_ids=overage_ids,
+        )
+    else:
+        gateway = MockPaymentGateway()
+
+    service = BillingService(
+        repo=repo,
+        gateway=gateway,
+        quality_config=QualityGateConfig(
+            min_duration_seconds=settings.quality_min_duration_seconds,
+            min_goal_coverage=settings.quality_min_goal_coverage,
+        ),
+        quota_overrides={
+            "free": settings.quota_free,
+            "pro": settings.quota_pro,
+            "team": settings.quota_team,
+        },
+    )
+    return repo, gateway, service
 
 
 def get_state(request: Request) -> AppState:

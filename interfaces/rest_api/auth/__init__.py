@@ -26,12 +26,12 @@ from interfaces.rest_api.auth.users_repo import (
 )
 
 __all__ = [
+    "USERS_SCHEMA_SQL",
     "AuthUser",
     "LoginRequest",
     "RegisterRequest",
     "TokenPair",
     "TokenResponse",
-    "USERS_SCHEMA_SQL",
     "UserAlreadyExistsError",
     "UserNotFoundError",
     "UserResponse",

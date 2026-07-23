@@ -39,5 +39,10 @@
   "unknown": {
     "title": "Something went wrong",
     "description": "An unexpected error occurred. Please try again shortly."
+  },
+  "quota": {
+    "title": "Monthly quota reached",
+    "description": "You've used all qualified interviews included in your plan this month. Upgrade in Settings → Billing to continue.",
+    "actionLabel": "View plans"
   }
 }
