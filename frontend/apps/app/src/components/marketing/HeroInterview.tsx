@@ -77,13 +77,19 @@ export function HeroInterview() {
         : [];
 
   return (
-    <Card className="overflow-hidden shadow-hairline">
+    // The letter-on-a-desk moment (M2): this card is the page's one
+    // interactive proof, so it earns the `desk` surface — a warm tray the
+    // lit card visibly rests ON — and the overlay shadow (the token
+    // ceiling; depth from the paper ladder, not blur). desk is reserved
+    // for exactly this metaphor in DESIGN.md; nowhere else on the page.
+    <div className="rounded-well bg-desk p-3 sm:p-4">
+      <Card className="overflow-hidden shadow-overlay">
       <div className="flex items-center gap-2 border-b border-hairline px-4 py-2 text-xs text-muted">
         <div className="tp-pulse-slow h-2 w-2 rounded-pill bg-accent" aria-hidden />
         {t("liveLabel")}
       </div>
 
-      <div className="space-y-3 p-5 text-[15px]" aria-live="polite">
+      <div className="space-y-3 p-5 text-chat" aria-live="polite">
         {messages.map((m, i) =>
           m.role === "interviewer" ? (
             <div
@@ -179,6 +185,7 @@ export function HeroInterview() {
           </form>
         </div>
       )}
-    </Card>
+      </Card>
+    </div>
   );
 }

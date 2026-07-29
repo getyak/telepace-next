@@ -9,19 +9,14 @@
     "opened": "Opened",
     "completed": "Completed",
     "uploads": "Uploads",
-    "peopleCount": "{count} people · {source}",
-    "rowsCount": "{count} rows",
-    "segProTrial": "Pro trial (last 30 days)",
-    "segChurnedQ2": "Churned in Q2",
-    "segBetaResearch": "Beta researchers",
-    "srcStripeSync": "Stripe · auto-sync",
-    "srcCsvUploaded": "CSV · uploaded 2026-06-01",
-    "srcManualVetted": "Manual · vetted",
-    "statusSynced": "synced",
     "colFilename": "Filename",
     "colRows": "Rows",
     "colDate": "Date",
-    "colStatus": "Status"
+    "colStatus": "Status",
+    "emptyTitle": "Your audience will live here.",
+    "emptyDescription": "Segments group the people telepace can reach — imported from a CSV, synced from your tools, or added by hand. Each one tracks its own delivery funnel.",
+    "emptyHowTo": "For now, respondents join through the share link on each published study — audience import lands with the contacts backend.",
+    "noUploadsYet": "No files imported yet."
   },
   "inbox": {
     "eyebrow": "Inbox",
@@ -79,7 +74,14 @@
     "notionCta": "Notion integration is not set up — configure it in Integrations first.",
     "dismissedEmpty": "All insights dismissed. Reload to bring them back.",
     "dismissedToast": "Insight dismissed.",
-    "restore": "Undo"
+    "restore": "Undo",
+    "quoteInterview": "Interview #{number}",
+    "roleEngLead": "Engineering lead",
+    "roleItAdmin": "IT admin",
+    "roleFounder": "Founder",
+    "rolePm": "Product manager",
+    "roleDesigner": "Designer",
+    "rolePmm": "Product marketing"
   },
   "integrations": {
     "eyebrow": "Integrations",
@@ -121,8 +123,8 @@
     "newStudyShort": "New study",
     "errorTitle": "Couldn't load your studies.",
     "retry": "Retry",
-    "emptyTitle": "No studies yet.",
-    "emptyDescription": "Describe what you want to learn — the Designer agent drafts the interview for you.",
+    "emptyTitle": "Your first study starts with a question.",
+    "emptyDescription": "Describe a decision you need to make — the Designer agent turns it into a ready-to-run interview.",
     "questionsUpdated": "{count} questions · updated {time}",
     "completedCount": "{completed} / {target} completed",
     "inProgressCount": "{count} in progress",
@@ -137,7 +139,16 @@
     "overviewTotal": "Total studies",
     "overviewLive": "Live",
     "overviewCompleted": "Completed interviews",
-    "duplicateTag": "Duplicate name · {index} of {total}"
+    "duplicateTag": "Duplicate name · {index} of {total}",
+    "emptyEyebrow": "Start here",
+    "emptyOrBlank": "…or start from a blank page and just describe your question.",
+    "templatePricing": "Pricing",
+    "templatePricingGoal": "Decide whether to gate SSO behind the enterprise tier — talk to buyers about willingness to pay.",
+    "templateChurn": "Churn",
+    "templateChurnGoal": "Understand why customers cancelled in the last 90 days and what would have kept them.",
+    "templateConcept": "Concept test",
+    "templateConceptGoal": "Test whether our new onboarding concept is clearer than the current flow before we build it.",
+    "templateStart": "Start from this"
   },
   "studyDetail": {
     "allStudies": "← All studies",
@@ -237,6 +248,7 @@
     "voiceMinutes": "Voice minutes",
     "rotate": "Rotate",
     "createKey": "+ Create key",
+    "noKeysYet": "No API keys yet.",
     "mcpEndpointIntro": "Your workspace's MCP endpoint:",
     "mcpAuthHint": "Authenticate with your API key above. Compatible with Claude Desktop, Claude Code, Cursor, and Codex.",
     "deleteWorkspace": "Delete workspace",
@@ -262,7 +274,20 @@
     "deleteConfirmBody": "This deletes all studies, transcripts, and insights after a 30-day grace period. To confirm, type the workspace slug {slug} below.",
     "deleteConfirmLabel": "Workspace slug",
     "deleteConfirmCta": "Delete workspace permanently",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "plans": {
+      "free": "Free",
+      "pro": "Pro",
+      "team": "Team"
+    },
+    "upgradePro": "Upgrade to Pro",
+    "upgradeTeam": "Upgrade to Team",
+    "billingLoading": "Loading billing…",
+    "billingUnavailable": "Billing is not configured for this deployment.",
+    "billingRedirecting": "Redirecting…",
+    "qualifiedInterviews": "Qualified interviews",
+    "disqualifiedInterviews": "Below quality bar",
+    "quotaReached": "You've used all {quota} qualified interviews on the Free plan this month. Upgrade to keep running studies."
   },
   "responses": {
     "title": "Responses",

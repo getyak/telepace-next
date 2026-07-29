@@ -17,7 +17,8 @@ from interfaces.rest_api.auth.oauth_google import router as oauth_google_router
 from interfaces.rest_api.auth.router import router as auth_router
 from interfaces.rest_api.config import get_settings
 from interfaces.rest_api.deps import AppState, build_state
-from interfaces.rest_api.routers import agent, campaigns, health, interviews
+from interfaces.rest_api.metering import meter_completion
+from interfaces.rest_api.routers import agent, billing, campaigns, health, interviews
 from interfaces.rest_api.worker import analyze_completion
 
 logger = logging.getLogger(__name__)
@@ -42,6 +43,10 @@ async def _tail_loop(state: AppState) -> None:
                 logger.exception(
                     "tail projection apply failed seq=%s type=%s", stored.seq, event.type
                 )
+        if isinstance(event, InterviewCompleted):
+            # Metering is awaited inline (fast: two indexed queries + one
+            # insert) so quota counts are consistent before the next event.
+            await meter_completion(state, event)
         if state.settings.embedded_worker and isinstance(event, InterviewCompleted):
             task = asyncio.create_task(analyze_completion(state, event))
             analysis_tasks.add(task)
@@ -86,6 +91,7 @@ def create_app() -> FastAPI:
     application.include_router(oauth_google_router)
     application.include_router(campaigns.router)
     application.include_router(interviews.router)
+    application.include_router(billing.router)
     application.include_router(agent.router)
     application.include_router(ws.router)
     application.include_router(voice_ws.router)

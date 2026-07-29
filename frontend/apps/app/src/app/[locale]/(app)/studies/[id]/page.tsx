@@ -518,7 +518,7 @@ function VerbatimCard({ item }: { item: InsightItem }) {
     <figure>
       <Card className="p-5">
       <Badge variant="neutral">{t("badgeVerbatim")}</Badge>
-      <blockquote className="mt-2 border-l-2 border-accent pl-4 text-[15px] leading-relaxed text-ink">
+      <blockquote className="mt-2 border-l-2 border-accent pl-4 text-chat leading-relaxed text-ink">
         &ldquo;{quote}&rdquo;
       </blockquote>
       {speaker && <figcaption className="mt-2 pl-4 text-xs text-muted">&mdash; {speaker}</figcaption>}

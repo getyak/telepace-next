@@ -43,6 +43,7 @@ from interfaces.rest_api.deps import (
     get_state,
 )
 from interfaces.rest_api.errors import ErrorMessages
+from interfaces.rest_api.quota import enforce_interview_quota
 from storage.projections import CampaignProjector
 
 _SIM_JSON_RE = re.compile(r"```json\s*(.*?)\s*```", re.DOTALL)
@@ -540,6 +541,7 @@ async def start_campaign(
     projector: CampaignProjector = Depends(get_projector),
     settings: Settings = Depends(get_settings_dep),
     user: AuthUser = Depends(require_current_user),
+    _quota: None = Depends(enforce_interview_quota),
 ) -> dict:
     await _load_owned_campaign(projector, campaign_id, user)
     cmd = StartCampaign(
@@ -590,6 +592,7 @@ async def dispatch_invites(
     projector: CampaignProjector = Depends(get_projector),
     settings: Settings = Depends(get_settings_dep),
     user: AuthUser = Depends(require_current_user),
+    _quota: None = Depends(enforce_interview_quota),
 ) -> dict:
     await _load_owned_campaign(projector, campaign_id, user)
     cmd = DispatchInvites(

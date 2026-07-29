@@ -131,6 +131,14 @@
         "mcp": "MCP",
         "rest": "REST API",
         "skill": "Skill"
+      },
+      "insights": {
+        "mcp1": "\"$79 feels punitive without SSO\"",
+        "mcp2": "\"annual discount changes the calculus\"",
+        "mcp3": "\"usage-based would beat both tiers\"",
+        "skill1": "\"onboarding asks for a card too early\"",
+        "skill2": "\"empty workspace feels like homework\"",
+        "skill3": "\"invites are the real activation moment\""
       }
     },
     "useCases": {
@@ -800,55 +808,36 @@
   "customers": {
     "hero": {
       "eyebrow": "Customers",
-      "title": "Teams that ship <accent>informed decisions.</accent>",
-      "lede": "A few product teams, a few agencies, a few solo founders. What they share: they refused to guess."
+      "title": "Real names, <accent>with real permission.</accent>",
+      "lede": "telepace is being built in the open. Until real customers agree to be named, this page carries no logo wall, no invented quotes, no imagined NPS — exactly the kind of research theater we help you avoid."
     },
     "stats": {
-      "interviewsRun": {
-        "label": "Interviews run",
-        "value": "18,412"
+      "channels": {
+        "label": "One interview",
+        "value": "5 channels"
       },
-      "companiesOnboarded": {
-        "label": "Companies onboarded",
-        "value": "127"
+      "launchTime": {
+        "label": "To launch a study",
+        "value": "< 60 sec"
       },
-      "avgTimeToInsight": {
-        "label": "Average time-to-insight",
-        "value": "38 hrs"
-      },
-      "nps": {
-        "label": "NPS",
-        "value": "72"
+      "surfaces": {
+        "label": "Wherever your agent runs",
+        "value": "MCP · Skill · REST"
       }
     },
-    "stories": {
-      "northstar": {
-        "company": "Northstar",
-        "role": "Series B fintech",
-        "quote": "We ran 68 interviews in four days before a pricing change. That would have been six weeks with a research agency — and we would have shipped the wrong tier.",
-        "person": "Head of Product",
-        "metric": "$1.2M ARR saved from a pricing mistake"
-      },
-      "radicle": {
-        "company": "Radicle",
-        "role": "Design agency",
-        "quote": "Our clients get insight decks now instead of survey CSVs. Telepace pays for itself on the first project.",
-        "person": "Managing Partner",
-        "metric": "3× faster from brief to insight"
-      },
-      "pentagramLabs": {
-        "company": "Pentagram Labs",
-        "role": "In-house R&D",
-        "quote": "The MCP integration means our team's Claude can actually do research now. It's a different kind of tool — an intern that never sleeps.",
-        "person": "Engineering Lead",
-        "metric": "40 hrs / month of PM time reclaimed"
-      }
+    "designPartner": {
+      "eyebrow": "Design partner program",
+      "title": "The first stories are yours to write.",
+      "lede": "We are looking for teams that make a real user decision every week: product teams, agencies, solo founders. As a design partner your research runs free on the top tier, your feedback lands directly on the roadmap — and when you are ready to be named, this page is yours.",
+      "point1": "Unlimited studies, full Pro feature set",
+      "point2": "A direct feedback line to the founders",
+      "point3": "New channels and integrations ahead of the roadmap"
     },
     "cta": {
-      "title": "Ready to write yours?",
-      "lede": "If you ship a decision this month, we'd like it to be an informed one.",
+      "title": "Ready to write your story?",
+      "lede": "If you are shipping a decision this month, we would like it to be the informed kind.",
       "startFree": "Start free",
-      "talkToFounder": "Talk to a founder →"
+      "talkToFounder": "Talk to the founders →"
     }
   },
   "security": {

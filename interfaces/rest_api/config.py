@@ -146,6 +146,33 @@ class Settings(BaseSettings):
     elevenlabs_connect_timeout_s: float = 5.0
     elevenlabs_stream_chunk_bytes: int = 4096
 
+    # --- Billing / Stripe (T-621..T-624). Empty secret key disables billing:
+    # quota enforcement no-ops, /v1/billing/* returns 503, and the metering
+    # hook still records usage locally when billing_metering_enabled is true.
+    stripe_secret_key: str | None = None
+    stripe_webhook_secret: str | None = None
+    # Price ids created by scripts/stripe_bootstrap.py (base subscription
+    # prices; each plan's metered overage price shares the billing meter).
+    stripe_price_pro: str | None = None
+    stripe_price_team: str | None = None
+    # Metered overage prices (same product, usage_type=metered). Attached as a
+    # second checkout line item so meter events bill against the subscription.
+    stripe_price_pro_overage: str | None = None
+    stripe_price_team_overage: str | None = None
+    stripe_meter_event_name: str = "qualified_interview_overage"
+    # Use the in-memory mock gateway even without a Stripe key (tests / demo).
+    billing_provider: str = "stripe"  # "stripe" | "mock" | "disabled"
+    # Record usage even when Stripe is not configured, so quota still works
+    # for the free tier in self-hosted deployments.
+    billing_metering_enabled: bool = True
+    # Quality gate (minimal T-613 rule; tighten when T-601 lands).
+    quality_min_duration_seconds: int = 60
+    quality_min_goal_coverage: float = 0.3
+    # Monthly qualified-interview quotas per plan (override the catalog).
+    quota_free: int = 20
+    quota_pro: int = 200
+    quota_team: int = 1000
+
     # --- Object storage
     s3_bucket: str | None = None
     s3_endpoint: str | None = None

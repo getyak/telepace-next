@@ -20,8 +20,11 @@ export async function generateMetadata({
   });
 }
 
-const storyIds = ["northstar", "radicle", "pentagramLabs"] as const;
-const statIds = ["interviewsRun", "companiesOnboarded", "avgTimeToInsight", "nps"] as const;
+// Honesty contract: no fabricated customers, quotes, or metrics. Until real
+// customers agree to be named, this page states that plainly and shows only
+// verifiable product facts (same policy as the home TrustBar).
+const statIds = ["channels", "launchTime", "surfaces"] as const;
+const partnerPointIds = ["point1", "point2", "point3"] as const;
 
 export default async function CustomersPage() {
   const t = await getTranslations("marketing.customers");
@@ -30,15 +33,6 @@ export default async function CustomersPage() {
     id,
     label: t(`stats.${id}.label`),
     value: t(`stats.${id}.value`),
-  }));
-
-  const stories = storyIds.map((id) => ({
-    id,
-    company: t(`stories.${id}.company`),
-    role: t(`stories.${id}.role`),
-    quote: t(`stories.${id}.quote`),
-    person: t(`stories.${id}.person`),
-    metric: t(`stories.${id}.metric`),
   }));
 
   return (
@@ -52,36 +46,36 @@ export default async function CustomersPage() {
       />
 
       <section className="section-padding border-b border-hairline">
-        <div className="container-content grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="container-content grid grid-cols-1 gap-8 sm:grid-cols-3">
+          {/* House data style (the Audience-page standard, see home TrustBar):
+              caption ABOVE the numeral, small caps with a top rule. */}
           {stats.map((s) => (
-            <div key={s.id} className="border-t border-ink pt-4">
+            <div key={s.id}>
+              <p className="overline mb-2 border-t border-ink/20 pt-2">{s.label}</p>
               <p className="font-display text-4xl">{s.value}</p>
-              <p className="text-sm text-muted mt-2">{s.label}</p>
             </div>
           ))}
         </div>
       </section>
 
       <section className="section-padding">
-        <div className="container-content space-y-16">
-          {stories.map((s, i) => (
-            <div key={s.id} className="grid md:grid-cols-12 gap-10 items-start">
-              <div className="md:col-span-4">
-                <p className="overline mb-2">{s.role}</p>
-                <p className="font-display text-4xl">{s.company}</p>
-                <p className="mt-6 text-sm text-muted">— {s.person}</p>
-                <div className="mt-3 inline-block px-3 py-1 rounded-pill bg-accent-soft text-accent text-xs">
-                  {s.metric}
-                </div>
-              </div>
-              <blockquote className="md:col-span-8 font-display text-2xl md:text-3xl leading-tight text-ink relative pl-8 border-l-2 border-accent">
-                {s.quote}
-              </blockquote>
-              {i < stories.length - 1 && (
-                <div className="md:col-span-12 border-b border-hairline mt-4" />
-              )}
-            </div>
-          ))}
+        <div className="container-content grid md:grid-cols-12 gap-10 items-start">
+          <div className="md:col-span-5">
+            <p className="overline mb-5">{t("designPartner.eyebrow")}</p>
+            <h2 className="font-display text-4xl md:text-5xl leading-tight">
+              {t("designPartner.title")}
+            </h2>
+          </div>
+          <div className="md:col-span-7 max-w-2xl">
+            <p className="text-body text-lg leading-relaxed">{t("designPartner.lede")}</p>
+            <ul className="mt-8 space-y-3">
+              {partnerPointIds.map((id) => (
+                <li key={id} className="border-t border-hairline pt-3 text-body">
+                  {t(`designPartner.${id}`)}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 

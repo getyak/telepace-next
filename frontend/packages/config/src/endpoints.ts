@@ -37,6 +37,11 @@ export const apiEndpoints = {
   agent: {
     chat: "/v1/agent/chat",
   },
+  billing: {
+    summary: "/v1/billing/summary",
+    checkout: "/v1/billing/checkout",
+    portal: "/v1/billing/portal",
+  },
 } as const;
 
 export const wsEndpoints = {

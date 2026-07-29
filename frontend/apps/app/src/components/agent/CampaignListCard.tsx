@@ -90,7 +90,7 @@ export function CampaignListCard({ campaigns }: { campaigns: CampaignSummary[] }
             <div className="flex items-start justify-between gap-2">
               <p
                 className={cn(
-                  "min-w-0 flex-1 truncate font-display text-[15px] leading-snug",
+                  "min-w-0 flex-1 truncate font-display text-chat leading-snug",
                   closed ? "text-muted" : "text-ink",
                 )}
               >

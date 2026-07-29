@@ -9,19 +9,14 @@
     "opened": "已打开",
     "completed": "已完成",
     "uploads": "上传记录",
-    "peopleCount": "{count} 人 · {source}",
-    "rowsCount": "{count} 行",
-    "segProTrial": "Pro 试用（近 30 天）",
-    "segChurnedQ2": "Q2 流失用户",
-    "segBetaResearch": "Beta 研究员",
-    "srcStripeSync": "Stripe · 自动同步",
-    "srcCsvUploaded": "CSV · 上传于 2026-06-01",
-    "srcManualVetted": "手动 · 已审核",
-    "statusSynced": "已同步",
     "colFilename": "文件名",
     "colRows": "行数",
     "colDate": "日期",
-    "colStatus": "状态"
+    "colStatus": "状态",
+    "emptyTitle": "你的受众会出现在这里。",
+    "emptyDescription": "分组用来组织 telepace 能触达的人——从 CSV 导入、从你的工具同步，或手动添加。每个分组都有自己的送达漏斗。",
+    "emptyHowTo": "目前受访者通过每个已发布研究的分享链接加入——受众导入将随通讯录后端一起上线。",
+    "noUploadsYet": "还没有导入过文件。"
   },
   "inbox": {
     "eyebrow": "收件箱",
@@ -79,7 +74,14 @@
     "notionCta": "Notion 集成尚未配置——请先在「集成」中设置。",
     "dismissedEmpty": "已忽略全部洞察。刷新可恢复。",
     "dismissedToast": "洞察已忽略。",
-    "restore": "撤销"
+    "restore": "撤销",
+    "quoteInterview": "访谈 #{number}",
+    "roleEngLead": "工程负责人",
+    "roleItAdmin": "IT 管理员",
+    "roleFounder": "创始人",
+    "rolePm": "产品经理",
+    "roleDesigner": "设计师",
+    "rolePmm": "产品营销"
   },
   "integrations": {
     "eyebrow": "集成",
@@ -121,8 +123,8 @@
     "newStudyShort": "新建问卷",
     "errorTitle": "无法加载你的问卷。",
     "retry": "重试",
-    "emptyTitle": "暂无问卷。",
-    "emptyDescription": "描述你想了解的内容——设计师智能体会为你起草访谈提纲。",
+    "emptyTitle": "你的第一个研究，从一个问题开始。",
+    "emptyDescription": "描述一个你需要做的决策——设计师智能体会把它变成一份可直接开跑的访谈。",
     "questionsUpdated": "{count} 个问题 · 更新于{time}",
     "completedCount": "{completed} / {target} 已完成",
     "inProgressCount": "{count} 进行中",
@@ -137,7 +139,16 @@
     "overviewTotal": "问卷总数",
     "overviewLive": "进行中",
     "overviewCompleted": "已完成访谈",
-    "duplicateTag": "同名 · 第 {index} / {total} 个"
+    "duplicateTag": "同名 · 第 {index} / {total} 个",
+    "emptyEyebrow": "从这里开始",
+    "emptyOrBlank": "……或者从空白页开始，直接描述你的问题。",
+    "templatePricing": "定价",
+    "templatePricingGoal": "决定是否将 SSO 归入企业版——与买家聊聊付费意愿。",
+    "templateChurn": "流失",
+    "templateChurnGoal": "了解过去 90 天客户取消订阅的原因，以及什么能留住他们。",
+    "templateConcept": "概念测试",
+    "templateConceptGoal": "在动手开发前，验证新的引导流程概念是否比现有流程更清晰。",
+    "templateStart": "用这个开始"
   },
   "studyDetail": {
     "allStudies": "← 所有问卷",
@@ -237,6 +248,7 @@
     "voiceMinutes": "语音时长",
     "rotate": "轮换",
     "createKey": "+ 创建密钥",
+    "noKeysYet": "还没有 API 密钥。",
     "mcpEndpointIntro": "你的工作区 MCP 接入地址：",
     "mcpAuthHint": "使用上方的 API 密钥进行认证。兼容 Claude Desktop、Claude Code、Cursor 和 Codex。",
     "deleteWorkspace": "删除工作区",
@@ -262,7 +274,20 @@
     "deleteConfirmBody": "所有问卷、访谈记录和洞察将在 30 天宽限期后被永久删除。如需确认，请在下方输入工作区标识 {slug}。",
     "deleteConfirmLabel": "工作区标识",
     "deleteConfirmCta": "永久删除工作区",
-    "cancel": "取消"
+    "cancel": "取消",
+    "plans": {
+      "free": "免费版",
+      "pro": "Pro",
+      "team": "Team"
+    },
+    "upgradePro": "升级到 Pro",
+    "upgradeTeam": "升级到 Team",
+    "billingLoading": "正在加载账单信息…",
+    "billingUnavailable": "当前部署未配置计费功能。",
+    "billingRedirecting": "跳转中…",
+    "qualifiedInterviews": "达标访谈",
+    "disqualifiedInterviews": "未达质量线",
+    "quotaReached": "本月免费版的 {quota} 场达标访谈额度已用完。升级后可继续运行研究。"
   },
   "responses": {
     "title": "受访者数据",

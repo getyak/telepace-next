@@ -45,7 +45,7 @@ export async function InsightsShowcase() {
               {THEME_KEYS.map((key) => (
                 <div key={key} className="px-5 py-4">
                   <div className="flex items-baseline justify-between gap-4">
-                    <p className="text-[15px] font-medium text-ink">
+                    <p className="text-chat font-medium text-ink">
                       {t(`panel.themes.${key}.title`)}
                     </p>
                     <p className="shrink-0 text-xs text-muted">

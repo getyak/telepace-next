@@ -116,12 +116,14 @@ export default async function PricingPage() {
                   (meta.highlight ? "border-ink bg-ink text-paper" : "")
                 }
               >
+                {/* Solid ink badge: it straddles the card's top edge, so a
+                    translucent fill turns invisible over the paper half. */}
                 {meta.highlight && (
-                  <span className="absolute -top-3 left-8 inline-block rounded-pill bg-paper/15 text-paper overline px-2.5 py-1">
+                  <span className="absolute -top-3 left-8 inline-block rounded-pill bg-ink text-paper overline px-2.5 py-1">
                     {t("tiers.pro.badge")}
                   </span>
                 )}
-                <p className={"overline " + (meta.highlight ? "text-paper/70" : "")}>
+                <p className={meta.highlight ? "overline-inverse" : "overline"}>
                   {t(`tiers.${id}.name`)}
                 </p>
                 <div className="mt-4 flex items-baseline gap-1">

@@ -320,3 +320,34 @@ export async function simulateInterview(
     json: body,
   });
 }
+
+// --- Billing (T-621..T-624) -------------------------------------------------
+
+export type BillingSummary = {
+  plan: "free" | "pro" | "team";
+  status: string;
+  quota: number;
+  qualified_used: number;
+  disqualified: number;
+  voice_seconds: number;
+  period_key: string;
+  current_period_end: string | null;
+  has_subscription: boolean;
+};
+
+export async function getBillingSummary(): Promise<BillingSummary> {
+  return apiFetch<BillingSummary>(apiEndpoints.billing.summary);
+}
+
+/** Start a Stripe Checkout for a paid plan. Returns the hosted page URL. */
+export async function createCheckout(plan: "pro" | "team"): Promise<{ url: string }> {
+  return apiFetch<{ url: string }>(apiEndpoints.billing.checkout, {
+    method: "POST",
+    json: { plan },
+  });
+}
+
+/** Open the Stripe Customer Portal (manage / cancel the subscription). */
+export async function createBillingPortal(): Promise<{ url: string }> {
+  return apiFetch<{ url: string }>(apiEndpoints.billing.portal, { method: "POST" });
+}

@@ -39,5 +39,10 @@
   "unknown": {
     "title": "出错了",
     "description": "发生了未预期的问题，请稍后再试。"
+  },
+  "quota": {
+    "title": "本月额度已用完",
+    "description": "当前套餐本月的达标访谈额度已全部用完。前往 设置 → 计费 升级后可继续。",
+    "actionLabel": "查看套餐"
   }
 }

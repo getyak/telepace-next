@@ -89,7 +89,7 @@ export default async function DocsPage() {
             <div>
               <p className="overline mb-4">{t("install.eyebrow")}</p>
               <h2 className="font-display text-2xl mb-6">{t("install.title")}</h2>
-              <pre className="rounded-card border border-hairline bg-ink text-paper font-mono text-[13px] leading-relaxed p-6 overflow-x-auto whitespace-pre">
+              <pre className="rounded-card border border-hairline bg-ink text-paper font-mono text-code leading-relaxed p-6 overflow-x-auto whitespace-pre">
 {codeSample}
               </pre>
             </div>
@@ -113,7 +113,7 @@ export default async function DocsPage() {
             ))}
 
             <div className="rounded-card border border-hairline bg-ink text-paper p-8">
-              <p className="overline text-paper/70 mb-3">{t("support.eyebrow")}</p>
+              <p className="overline-inverse mb-3">{t("support.eyebrow")}</p>
               <p className="font-display text-2xl mb-4">{t("support.title")}</p>
               <div className="flex gap-3">
                 <Link href={`mailto:${siteConfig.contact.supportEmail}`}><Button variant="secondary" className="border-paper/30 text-paper hover:bg-paper/10">{t("support.emailSupport")}</Button></Link>

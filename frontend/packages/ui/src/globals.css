@@ -51,8 +51,13 @@
   html:lang(zh) h2,
   html:lang(zh) h3,
   html:lang(zh) .font-display {
-    font-family: var(--font-display), var(--font-display-zh, "Songti SC"), "Songti SC",
-      "Noto Serif CJK SC", "Source Han Serif SC", serif;
+    /* CJK serif FIRST: when Instrument Serif leads the chain, latin digits,
+       brand words and full-width punctuation ("，。") take its narrow metrics
+       while the hanzi fall to the CJK face — two mismatched serifs inside one
+       heading. Noto Serif SC ships its own latin + punctuation, so leading
+       with it keeps the whole zh heading in one voice. */
+    font-family: var(--font-display-zh, "Songti SC"), "Songti SC",
+      "Noto Serif CJK SC", "Source Han Serif SC", var(--font-display), serif;
     letter-spacing: 0;
     line-height: 1.2;
   }
@@ -77,11 +82,25 @@
   letter-spacing: 0;
 }
 
+/* Italic is a latin emphasis convention with no CJK equivalent — Noto Serif SC
+   ships no drawn italic, so the browser shears a faux oblique that mangles
+   song-style strokes. In zh, emphasis inside a display heading is carried by
+   color (text-accent) alone; the slant is suppressed. Unlayered for the same
+   reason as above: Tailwind's `.italic` utility lives in the utilities layer
+   and would otherwise outrank a base-layer override. */
+:lang(zh) :is(h1, h2, h3, .font-display) :is(.italic, i, em),
+:lang(zh) :is(h1, h2, h3, .font-display):is(.italic) {
+  font-style: normal;
+}
+
 @layer components {
   .container-content { @apply mx-auto max-w-content px-6 md:px-8; }
   .section-padding { @apply py-20 md:py-32; }
   .hairline { @apply border border-hairline; }
   .overline { @apply text-xs font-medium uppercase tracking-[0.14em] text-muted; }
+  /* The same label style on ink/dark surfaces — one variant instead of
+     per-site text-paper/70 patches. */
+  .overline-inverse { @apply text-xs font-medium uppercase tracking-[0.14em] text-paper/70; }
 }
 
 /* ---------- Materials (translucent chrome) ------------------------------- */
@@ -256,14 +275,19 @@
 /* Scroll reveal — content eases in the FIRST time it enters the viewport,
    then rests forever (Reveal.tsx adds .is-visible via IntersectionObserver).
    Same fade-in-once philosophy as tp-fade-in-up, just scroll-triggered. */
-.tp-reveal {
+/* Progressive enhancement: content is visible by default (SSR, crawlers,
+   JS-off, script failures all get a complete page). The Reveal component
+   stamps `tp-js` on <html> once client JS is live — only then may content
+   start hidden and ease in. Elements already in the viewport at hydration
+   are marked visible immediately, so nothing on screen blinks out. */
+html.tp-js .tp-reveal {
   opacity: 0;
   transform: translateY(14px);
   transition:
     opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
     transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.tp-reveal.is-visible {
+html.tp-js .tp-reveal.is-visible {
   opacity: 1;
   transform: none;
 }
@@ -380,6 +404,8 @@ dialog.tp-dialog::backdrop {
   dialog.tp-dialog[open] {
     animation: none;
   }
+  /* Must out-rank `html.tp-js .tp-reveal` so reduced-motion always wins. */
+  html.tp-js .tp-reveal,
   .tp-reveal {
     opacity: 1;
     transform: none;

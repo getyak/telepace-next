@@ -52,6 +52,9 @@
       "terms": "服务条款",
       "copyright": "© {year} Telepace, Inc. 保留所有权利。",
       "madeInTheOpen": "在开放中构建。"
-    }
+    },
+    "language": "语言",
+    "switchToEn": "Switch to English",
+    "switchToZh": "切换到中文"
   }
 }

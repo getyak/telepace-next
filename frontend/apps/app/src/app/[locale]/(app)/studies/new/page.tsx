@@ -41,6 +41,7 @@ import {
 import { friendlyMessage } from "@/lib/errors";
 import { useErrorsCopy } from "@/components/app/ErrorsCopyContext";
 import { useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { WelcomeEndConfig } from "@/components/wizard/WelcomeEndConfig";
 
 type OutlineItem = {
@@ -273,6 +274,22 @@ export default function NewStudyPage() {
   const [readinessLiveSeq, setReadinessLiveSeq] = useState(0);
 
   const prefersReducedMotion = usePrefersReducedMotion();
+
+  // A template card on the studies empty state arrives with ?seed=<goal> —
+  // the researcher already "spoke" their opening line by choosing it, so we
+  // feed it straight into the design conversation (through the same
+  // assessment gate as a typed opener). Consumed exactly once per mount.
+  const searchParams = useSearchParams();
+  const seedConsumedRef = useRef(false);
+  useEffect(() => {
+    const seed = searchParams.get("seed")?.trim();
+    if (!seed || seedConsumedRef.current || campaignId || busy) return;
+    seedConsumedRef.current = true;
+    void handleSend(seed);
+    // handleSend is stable-enough for a run-once seed; listing it would force
+    // useCallback plumbing through half the component for no behavior change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const readiness = deriveReadiness(spec);
 
@@ -1435,24 +1452,28 @@ export default function NewStudyPage() {
 }
 
 /**
- * The canvas before any study exists — a calm, Claude-artifact-style "your
- * document will take shape here" state. Not a form of empty inputs: a centered,
- * neutral placeholder with a faint manuscript skeleton (a few ruled lines that
- * hint at the outline to come), a title, and one line of guidance. Everything
- * quiet — the real content earns the ink once the conversation produces it.
+ * The canvas before any study exists — a calm "your document will take shape
+ * here" state. Filled grey bars read as a skeleton, and skeletons mean
+ * *loading* (DESIGN.md "Voice of empty states") — nothing is loading here, the
+ * document simply isn't written yet. So the placeholder is a dashed-outline
+ * page: ruled lines drawn as underlines-to-be, not content-shaped blocks. The
+ * real content earns the ink once the conversation produces it.
  */
 function CanvasEmptyState({ title, body }: { title: string; body: string }) {
   return (
     <div className="flex h-full min-h-[60vh] flex-col items-center justify-center px-8 text-center">
       <div className="w-full max-w-sm">
-        {/* Faint manuscript skeleton — ruled lines of decreasing weight that
-            evoke a page waiting to be written, not a spinner or an icon. */}
-        <div aria-hidden className="mx-auto mb-8 flex w-40 flex-col gap-2.5 opacity-60">
-          <div className="h-2.5 w-2/3 rounded-pill bg-hairline" />
-          <div className="h-1.5 w-full rounded-pill bg-hairline" />
-          <div className="h-1.5 w-full rounded-pill bg-hairline" />
-          <div className="h-1.5 w-4/5 rounded-pill bg-hairline" />
-          <div className="mt-2 h-1.5 w-1/2 rounded-pill bg-hairline" />
+        {/* A not-yet-written page: a dashed sheet with faint rule lines —
+            "waiting for words", unmistakably distinct from a loading skeleton. */}
+        <div
+          aria-hidden
+          className="mx-auto mb-8 flex w-40 flex-col gap-3 rounded-card border border-dashed border-hairline px-5 pb-5 pt-4 opacity-70"
+        >
+          <div className="h-px w-2/3 bg-ink/20" />
+          <div className="h-px w-full bg-hairline" />
+          <div className="h-px w-full bg-hairline" />
+          <div className="h-px w-4/5 bg-hairline" />
+          <div className="mt-1.5 h-px w-1/2 bg-hairline" />
         </div>
         <p className="font-display text-xl leading-snug text-ink">{title}</p>
         <p className="mt-2 text-sm leading-relaxed text-muted">{body}</p>

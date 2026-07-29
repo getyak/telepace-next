@@ -71,7 +71,7 @@ export function CodeBlock({ code, language, title }: CodeBlockProps) {
           </button>
         )}
         <pre className="bg-[#141414] p-4 overflow-x-auto">
-          <code className="font-mono text-[13px] leading-relaxed text-[#D4D4D4] whitespace-pre">
+          <code className="font-mono text-code leading-relaxed text-[#D4D4D4] whitespace-pre">
             {code}
           </code>
         </pre>

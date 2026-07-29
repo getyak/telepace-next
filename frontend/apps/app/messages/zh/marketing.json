@@ -131,6 +131,14 @@
         "mcp": "MCP",
         "rest": "REST API",
         "skill": "Skill"
+      },
+      "insights": {
+        "mcp1": "「不含 SSO 的 $79 有惩罚感」",
+        "mcp2": "「年付折扣改变了他们的算账方式」",
+        "mcp3": "「按量计费会胜过两档订阅」",
+        "skill1": "「onboarding 太早要银行卡」",
+        "skill2": "「空白工作区像是在布置作业」",
+        "skill3": "「邀请协作者才是真正的激活时刻」"
       }
     },
     "useCases": {
@@ -799,50 +807,31 @@
   },
   "customers": {
     "hero": {
-      "eyebrow": "客户案例",
-      "title": "团队之选，<accent>做有依据的决策。</accent>",
-      "lede": "一些产品团队，一些代理机构，一些独立创业者。他们的共同点是：拒绝靠猜测做决定。"
+      "eyebrow": "客户",
+      "title": "真实的名字，<accent>等真实的许可。</accent>",
+      "lede": "telepace 正在开放中构建。在真实客户同意署名之前，这一页不会出现 logo 墙、编造的引言或想象中的 NPS——那正是我们帮你避免的那种研究。"
     },
     "stats": {
-      "interviewsRun": {
-        "label": "累计访谈次数",
-        "value": "18,412"
+      "channels": {
+        "label": "一次访谈",
+        "value": "5 种渠道"
       },
-      "companiesOnboarded": {
-        "label": "入驻企业数",
-        "value": "127"
+      "launchTime": {
+        "label": "即可发起一项研究",
+        "value": "< 60 秒"
       },
-      "avgTimeToInsight": {
-        "label": "平均洞察产出时长",
-        "value": "38 小时"
-      },
-      "nps": {
-        "label": "净推荐值 NPS",
-        "value": "72"
+      "surfaces": {
+        "label": "无论你的 Agent 运行在哪里",
+        "value": "MCP · Skill · REST"
       }
     },
-    "stories": {
-      "northstar": {
-        "company": "Northstar",
-        "role": "B 轮金融科技公司",
-        "quote": "在一次定价调整前，我们四天内完成了 68 场访谈。如果交给调研机构，这至少要花六周——而且我们很可能会推出错误的定价档位。",
-        "person": "产品负责人",
-        "metric": "避免了一次损失 120 万美元 ARR 的定价失误"
-      },
-      "radicle": {
-        "company": "Radicle",
-        "role": "设计代理机构",
-        "quote": "现在我们给客户交付的是洞察报告，而不是调研问卷的原始数据。Telepace 在第一个项目上就已经回本。",
-        "person": "执行合伙人",
-        "metric": "从需求简报到洞察产出快 3 倍"
-      },
-      "pentagramLabs": {
-        "company": "Pentagram Labs",
-        "role": "内部研发团队",
-        "quote": "有了 MCP 集成，我们团队的 Claude 现在真的能做研究了。这是一种全新的工具——一个从不休息的实习生。",
-        "person": "工程负责人",
-        "metric": "每月节省 40 小时的产品经理工作时间"
-      }
+    "designPartner": {
+      "eyebrow": "设计伙伴计划",
+      "title": "第一批故事，由你来写。",
+      "lede": "我们正在寻找每周真的要做用户决策的团队：产品团队、代理机构、独立创业者。作为设计伙伴，你的研究免费跑在最高档位上，你的反馈直接写进路线图——当你愿意署名时，这一页留给你。",
+      "point1": "研究项目不限量，专业版全部功能",
+      "point2": "与创始人直接的反馈通道",
+      "point3": "先于路线图体验新渠道与新集成"
     },
     "cta": {
       "title": "准备好写下你的故事了吗？",

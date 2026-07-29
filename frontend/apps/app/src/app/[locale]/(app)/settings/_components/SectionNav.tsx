@@ -76,11 +76,19 @@ export function SectionNav({
               "tp-press tp-press-row shrink-0 rounded-btn px-3 py-2 text-left text-sm",
               "transition-[background-color,color,transform] duration-150",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent",
+              // The current section reads like the current heading in a
+              // document's margin: a left accent rule (the house left-rail
+              // language — same family as the verbatim blockquote), not colour
+              // fill alone (T1: weight alone was too quiet, and colour alone
+              // would fail WCAG 1.4.1).
+              "border-l-2",
               isActive
-                ? "bg-paper-elevated font-medium text-ink"
+                ? `bg-paper-elevated font-medium text-ink ${
+                    isDanger ? "border-terracotta" : "border-accent"
+                  }`
                 : isDanger
-                  ? "text-body hover:bg-paper-elevated hover:text-terracotta"
-                  : "text-body hover:bg-paper-elevated hover:text-ink",
+                  ? "border-transparent text-body hover:bg-paper-elevated hover:text-terracotta"
+                  : "border-transparent text-body hover:bg-paper-elevated hover:text-ink",
             ].join(" ")}
           >
             {s.label}
