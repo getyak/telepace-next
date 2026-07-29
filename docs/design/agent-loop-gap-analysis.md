@@ -1,8 +1,4 @@
-# telepace Agent Loop 差距分析与演进设计稿
-
-> 对比对象:Manus(通用自主 agent)、OpenAI Codex(云端软件工程 agent)、Claude Code(终端 agent harness)。
-> 分析对象:telepace 现有的两层 agent 系统 —— `harness/`(命令编排层)+ `agents/orchestrator`(对话式 tool-calling loop)。
-> 日期:2026-07-23 · 状态:Draft v1
+# telepace Agent Loop 改进文档
 
 ---
 
@@ -13,12 +9,14 @@ telepace 的 agent 系统是一个**设计良好的"工作流引擎 + 浅层 too
 | # | 能力 | telepace 现状 | 前沿基线 |
 |---|------|--------------|----------|
 | 1 | **上下文工程**(context engineering) | 无状态、每轮全量重传、tool result 塞 user message | KV-cache 友好的 append-only 上下文、结构化 tool_result 块、自动压缩 |
-| 2 | **持久执行**(durable execution) | loop 活在一次 HTTP 请求里,断连即终止 | 任务可后台运行数十分钟~数小时,可恢复、可续跑 |
+| 2 | **持久执行**(durable execution) | loop 活在一次 HTTP 请求里,断连即终止 | + |
 | 3 | **计划与自我验证**(planning & verification) | 6 轮硬上限,无计划、无验证、无重试策略 | todo/plan 外化、act→verify→repair 闭环、失败保留在上下文中 |
 | 4 | **分层记忆**(memory hierarchy) | Redis TTL 1h 的 campaign dict,无文件系统式外部记忆 | 文件系统即记忆、可压缩可恢复、跨会话持久 |
 | 5 | **子 agent 与隔离**(sub-agents & sandbox) | 单 loop 单 agent,follow_up 递归无深度控制 | 子 agent fan-out、独立上下文、结果回传不污染主上下文 |
 
 好消息:harness 的**事件溯源底座**(events 表 + projection + tail loop)恰好是构建 durable agent loop 最难的那块地基,而且已经在生产路径上验证过。演进不需要推翻,只需要在其上补五层。
+
+
 
 ---
 
