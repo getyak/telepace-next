@@ -1,6 +1,7 @@
 export * from "./auth-schema";
 export * from "./channels";
 export * from "./endpoints";
+export * from "./embed-protocol";
 export * from "./env";
 export * from "./routes";
 export * from "./site";

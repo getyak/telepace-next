@@ -10,6 +10,7 @@
     "./env": "./src/env.ts",
     "./routes": "./src/routes.ts",
     "./endpoints": "./src/endpoints.ts",
+    "./embed-protocol": "./src/embed-protocol.ts",
     "./site": "./src/site.ts",
     "./storage-keys": "./src/storage-keys.ts",
     "./auth-schema": "./src/auth-schema.ts",

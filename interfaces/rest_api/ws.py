@@ -10,8 +10,14 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from core.constants import VoiceWSMessage
 from core.domain.models import ChannelKind
-from core.events import RespondentJoined
+from core.events import InterviewStarted, RespondentJoined
 from core.protocols.commands import ReplyInInterview
+from interfaces.rest_api.respondent_context import (
+    normalize_referrer_origin,
+    normalize_respondent_source,
+    query_flag,
+    respondent_campaign_state,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -77,8 +83,29 @@ async def interview_ws(websocket: WebSocket, campaign_id: UUID) -> None:
     state = websocket.app.state.telepace
     harness = state.harness
     settings = state.settings
+
+    _, access_error = await respondent_campaign_state(state.projector, campaign_id)
+    if access_error:
+        await websocket.send_bytes(
+            orjson.dumps(
+                {
+                    "type": VoiceWSMessage.ERROR,
+                    "reason": access_error,
+                    "recoverable": False,
+                }
+            )
+        )
+        await websocket.close(code=4404 if access_error == "campaign_not_found" else 4409)
+        return
+
     interview_id = uuid4()
     respondent_id = uuid4()
+    source = normalize_respondent_source(websocket.query_params.get("source"))
+    referrer_origin = normalize_referrer_origin(websocket.query_params.get("parent_origin"))
+    embedded = query_flag(websocket.query_params.get("embed"))
+    consent_method = (
+        "checkbox" if websocket.query_params.get("consent") == "checkbox" else "continue"
+    )
 
     await state.event_store.append(
         RespondentJoined(
@@ -87,6 +114,17 @@ async def interview_ws(websocket: WebSocket, campaign_id: UUID) -> None:
             interview_id=interview_id,
             respondent_id=respondent_id,
             channel=ChannelKind.WEB_TEXT.value,
+            source=source,
+            referrer_origin=referrer_origin,
+            embedded=embedded,
+            consent_method=consent_method,
+        )
+    )
+    await state.event_store.append(
+        InterviewStarted(
+            campaign_id=campaign_id,
+            actor=f"{settings.actor_prefix_interview}:{interview_id}",
+            interview_id=interview_id,
         )
     )
     opening_text, total_questions, language = await _opening_turn(state, campaign_id)

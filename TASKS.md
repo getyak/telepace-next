@@ -176,6 +176,15 @@
 
 ---
 
+## P4 — 分发 / 原生嵌入
+
+- [x] **T-701 · 可嵌入 AI 访谈运行时 + Blog About 原生集成**
+  - 做：提供轻量 `<telepace-interview>` Web Component、版本化 `postMessage` 协议、嵌入来源与同意事件字段、LIVE campaign 门禁；受访数据继续进入 campaign 事件流并触发 Analyst。
+  - 部署：Next.js 前端可独立部署到 Netlify，`NEXT_PUBLIC_API_BASE_URL` / `NEXT_PUBLIC_WS_BASE_URL` 指向长期运行的 FastAPI 服务；允许的父页面来源通过 `TELEPACE_EMBED_ALLOWED_ORIGINS` 配置。
+  - 验收：Blog About 可按需打开真实访谈；桌面/移动端、键盘、reduced-motion 可用；完整模拟访谈后 campaign completed + insights 均增长；前后端全绿，真实浏览器无 console/page error。
+
+---
+
 ## 进度记录（每完成一个任务在此追加一行）
 <!-- 例: 2026-07-08 T-001 done, commit abc1234 -->
 2026-07-09 T-103 done, commit 6094c9b — chart components (TpBarChart, CrossTab, ChartSection) with warm-beige theme

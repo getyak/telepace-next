@@ -24,7 +24,7 @@ from core.constants import (
     RESPONDENT_PATH_PREFIX,
     SSE_HEADERS,
 )
-from core.domain.models import ChannelKind, ResearchTask
+from core.domain.models import CampaignStatus, ChannelKind, ResearchTask
 from core.protocols.commands import (
     CreateCampaign,
     DispatchInvites,
@@ -385,6 +385,9 @@ async def get_campaign_for_respondent(
         "reward_description": spec.reward_description,
         "redirect_url": spec.redirect_url,
         "primary_language": spec.primary_language,
+        "status": campaign.status.value,
+        "accepting_responses": campaign.status == CampaignStatus.LIVE,
+        "estimated_duration_minutes": spec.outline.estimated_duration_minutes,
     }
 
 

@@ -5,9 +5,8 @@ import { useTranslations } from "next-intl";
 
 import { usePathname, useRouter } from "@/i18n/navigation";
 
-// Locales the respondent UI can render. The interview's content language (from
-// the WS hello) is authoritative; if the URL locale disagrees we switch to it
-// so greetings/progress/prompts match the question text instead of clashing.
+// Locales the respondent UI can render. The public campaign preflight aligns
+// the URL before consent, so switching language can never reset a live session.
 const SUPPORTED_LOCALES = ["en", "zh"] as const;
 import {
   Button,
@@ -19,9 +18,11 @@ import {
   type VoicePhase,
 } from "@telepace/ui";
 import {
+  createTelepaceEmbedMessage,
   env,
   OPUS_CHUNK_MS,
   SPEAKING_INDICATOR_MS,
+  type TelepaceEmbedEventType,
   VOICE_MIME,
   VoiceEventType,
   wsEndpoints,
@@ -30,8 +31,14 @@ import {
 import { getRespondentCampaign, type RespondentCampaignInfo } from "@/lib/api";
 
 type Params = { campaignId: string; locale: string };
+type SearchParams = {
+  embed?: string;
+  parentOrigin?: string;
+  source?: string;
+};
 
 type Progress = { current: number | null; total: number };
+type PublicInfoState = "loading" | "ready" | "unavailable";
 
 // The completion copy actually shown on "done" — WS wrap_up payload wins
 // (freshest, matches what this respondent just experienced); falls back to
@@ -50,9 +57,16 @@ const REPLY_WATCHDOG_MS = 45000;
 // long enough to read the thank-you copy, short enough not to feel stuck.
 const THANKS_REDIRECT_DELAY_S = 5;
 
-export default function RespondentPage(props: { params: Promise<Params> }) {
+export default function RespondentPage(props: {
+  params: Promise<Params>;
+  searchParams: Promise<SearchParams>;
+}) {
   const t = useTranslations("respondent");
   const { campaignId, locale } = use(props.params);
+  const query = use(props.searchParams);
+  const embedded = query.embed === "1" || query.embed === "true";
+  const embedSource = query.source || "direct";
+  const requestedParentOrigin = query.parentOrigin;
   const router = useRouter();
   const pathname = usePathname();
   // Guard so a locale switch fires at most once (it remounts the page).
@@ -79,6 +93,7 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
   // any WS connects. null while loading/unavailable — components fall back
   // to their default bilingual copy.
   const [publicInfo, setPublicInfo] = useState<RespondentCampaignInfo | null>(null);
+  const [publicInfoState, setPublicInfoState] = useState<PublicInfoState>("loading");
   // The wrap_up turn's own end/reward/redirect fields, when the WS sent them —
   // takes priority over publicInfo since it reflects this exact session.
   const [completion, setCompletion] = useState<CompletionCopy>({});
@@ -105,6 +120,50 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
     voicePhaseRef.current = voicePhase;
   }, [voicePhase]);
 
+  const postEmbedEvent = useCallback(
+    (type: TelepaceEmbedEventType, payload: Record<string, unknown> = {}) => {
+      if (!embedded || typeof window === "undefined" || window.parent === window) return;
+
+      let referrerOrigin = "";
+      let configuredOrigin = "";
+      try {
+        referrerOrigin = document.referrer ? new URL(document.referrer).origin : "";
+        configuredOrigin = requestedParentOrigin
+          ? new URL(requestedParentOrigin).origin
+          : "";
+      } catch {
+        return;
+      }
+      // A query string alone never decides where respondent data is posted.
+      // When both values exist they must agree with the browser referrer.
+      if (configuredOrigin && referrerOrigin && configuredOrigin !== referrerOrigin) return;
+      const targetOrigin = configuredOrigin || referrerOrigin;
+      if (!targetOrigin) return;
+      window.parent.postMessage(
+        createTelepaceEmbedMessage(type, campaignId, payload),
+        targetOrigin,
+      );
+    },
+    [campaignId, embedded, requestedParentOrigin],
+  );
+
+  useEffect(() => {
+    if (!embedded) return;
+    document.documentElement.dataset.telepaceEmbed = "true";
+    const reportSize = () => {
+      postEmbedEvent("telepace:resize", {
+        height: Math.ceil(document.documentElement.getBoundingClientRect().height),
+      });
+    };
+    const observer = new ResizeObserver(reportSize);
+    observer.observe(document.documentElement);
+    reportSize();
+    return () => {
+      observer.disconnect();
+      delete document.documentElement.dataset.telepaceEmbed;
+    };
+  }, [embedded, postEmbedEvent]);
+
   // Fetch the study's respondent-facing copy once, up front — before the
   // respondent has consented to anything, so this call carries no auth and
   // reads only the public subset of the spec (see the backend endpoint).
@@ -114,21 +173,93 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
     let cancelled = false;
     getRespondentCampaign(campaignId)
       .then((info) => {
-        if (!cancelled) setPublicInfo(info);
+        if (cancelled) return;
+        const studyLocale = info.primary_language;
+        if (
+          !localeAlignedRef.current &&
+          (SUPPORTED_LOCALES as readonly string[]).includes(studyLocale) &&
+          studyLocale !== locale
+        ) {
+          localeAlignedRef.current = true;
+          const preservedQuery = new URLSearchParams();
+          if (query.embed) preservedQuery.set("embed", query.embed);
+          if (query.source) preservedQuery.set("source", query.source);
+          if (query.parentOrigin) preservedQuery.set("parentOrigin", query.parentOrigin);
+          const search = preservedQuery.toString();
+          router.replace(search ? `${pathname}?${search}` : pathname, {
+            locale: studyLocale,
+          });
+          return;
+        }
+        setPublicInfo(info);
+        if (info.accepting_responses) {
+          setPublicInfoState("ready");
+          postEmbedEvent("telepace:ready", {
+            language: info.primary_language,
+            estimatedMinutes: info.estimated_duration_minutes,
+          });
+        } else {
+          setPublicInfoState("unavailable");
+          postEmbedEvent("telepace:error", {
+            code: "campaign_not_live",
+            recoverable: false,
+          });
+        }
       })
       .catch(() => {
-        /* default copy is a fine fallback */
+        if (cancelled) return;
+        setPublicInfoState("unavailable");
+        postEmbedEvent("telepace:error", {
+          code: "campaign_unavailable",
+          recoverable: true,
+        });
       });
     return () => {
       cancelled = true;
     };
-  }, [campaignId]);
+  }, [
+    campaignId,
+    locale,
+    pathname,
+    postEmbedEvent,
+    query.embed,
+    query.parentOrigin,
+    query.source,
+    router,
+  ]);
+
+  useEffect(() => {
+    if (!embedded || progress.total <= 0) return;
+    postEmbedEvent("telepace:progress", {
+      current: progress.current ?? 1,
+      total: progress.total,
+    });
+  }, [embedded, postEmbedEvent, progress]);
+
+  useEffect(() => {
+    if (phase !== "done") return;
+    postEmbedEvent("telepace:complete", {
+      answerCount: answeredRef.current,
+    });
+  }, [phase, postEmbedEvent]);
+
+  const interviewSocketUrl = useCallback(
+    (path: string) => {
+      const params = new URLSearchParams();
+      params.set("source", embedSource);
+      if (embedded) params.set("embed", "1");
+      if (requestedParentOrigin) params.set("parent_origin", requestedParentOrigin);
+      params.set("consent", publicInfo?.consent_text ? "checkbox" : "continue");
+      return `${env.wsBaseUrl}${path}?${params.toString()}`;
+    },
+    [embedSource, embedded, publicInfo?.consent_text, requestedParentOrigin],
+  );
 
   // --- Text-mode WS ---
   useEffect(() => {
     if (phase !== "chat") return;
     let closedByUs = false;
-    const ws = new WebSocket(`${env.wsBaseUrl}${wsEndpoints.interview(campaignId)}`);
+    const ws = new WebSocket(interviewSocketUrl(wsEndpoints.interview(campaignId)));
     wsRef.current = ws;
     ws.onopen = () => {
       setConnected(true);
@@ -148,6 +279,8 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
       const raw = typeof evt.data === "string" ? evt.data : await (evt.data as Blob).text();
       let msg: {
         type: string;
+        reason?: string;
+        recoverable?: boolean;
         opening?: string;
         language?: string;
         progress?: { question_order?: number | null; total_questions?: number };
@@ -166,20 +299,6 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
         return;
       }
       if (msg.type === VoiceEventType.Hello) {
-        // Align the page locale to the study's content language so the host's
-        // greeting, progress, and prompts speak the same language as the
-        // questions. Fires at most once; a no-op when they already agree.
-        const lang = msg.language;
-        if (
-          lang &&
-          !localeAlignedRef.current &&
-          (SUPPORTED_LOCALES as readonly string[]).includes(lang) &&
-          lang !== locale
-        ) {
-          localeAlignedRef.current = true;
-          router.replace(pathname, { locale: lang });
-          return;
-        }
         if (msg.progress?.total_questions) {
           setProgress({
             current: msg.progress.question_order ?? 1,
@@ -224,6 +343,10 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
       }
       if (msg.type === VoiceEventType.Error) {
         setAwaiting(false);
+        postEmbedEvent("telepace:error", {
+          code: msg.reason || "interview_error",
+          recoverable: msg.recoverable ?? true,
+        });
         setMessages((prev) => [
           ...prev.filter((m) => !m.pending),
           {
@@ -238,7 +361,17 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
       closedByUs = true;
       ws.close();
     };
-  }, [phase, campaignId, retryKey, locale, router, pathname]);
+  }, [
+    phase,
+    campaignId,
+    retryKey,
+    locale,
+    router,
+    pathname,
+    interviewSocketUrl,
+    postEmbedEvent,
+    t,
+  ]);
 
   // Watchdog: never leave the respondent stuck on a silent interviewer.
   useEffect(() => {
@@ -261,7 +394,7 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
   useEffect(() => {
     if (phase !== "voice") return;
     let cancelled = false;
-    const ws = new WebSocket(`${env.wsBaseUrl}${wsEndpoints.voice(campaignId)}`);
+    const ws = new WebSocket(interviewSocketUrl(wsEndpoints.voice(campaignId)));
     ws.binaryType = "arraybuffer";
     wsRef.current = ws;
 
@@ -390,6 +523,10 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
           break;
         case VoiceEventType.Error:
           console.error("voice ws error", msg.reason);
+          postEmbedEvent("telepace:error", {
+            code: msg.reason || "voice_error",
+            recoverable: true,
+          });
           break;
       }
     };
@@ -410,11 +547,15 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
       audioBusyRef.current = false;
       ws.close();
     };
-  }, [phase, campaignId]);
+  }, [phase, campaignId, interviewSocketUrl, postEmbedEvent, t]);
 
   function sendReply(text: string) {
     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "respondent", text }]);
     answeredRef.current += 1;
+    postEmbedEvent("telepace:answer", {
+      answerCount: answeredRef.current,
+      mode,
+    });
     // Text composer only makes sense in text mode; voice mode ignores it.
     if (mode === "text") {
       wsRef.current?.send(JSON.stringify({ type: VoiceEventType.Reply, text }));
@@ -445,10 +586,14 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
         /* not recording — ignore */
       }
       answeredRef.current += 1;
+      postEmbedEvent("telepace:answer", {
+        answerCount: answeredRef.current,
+        mode: "voice",
+      });
       // Wait for the STT transcript to flip us back to idle (see SttDelta).
       setVoicePhase("sending");
     }
-  }, []);
+  }, [postEmbedEvent]);
 
   // Replay the interviewer's last question: re-queue the saved clip and play,
   // even when read-aloud is toggled off (an explicit, on-demand listen).
@@ -459,15 +604,23 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
     playNextAudioRef.current?.();
   }, []);
 
+  if (publicInfoState === "loading") {
+    return <RespondentLoading embedded={embedded} />;
+  }
+  if (publicInfoState === "unavailable") {
+    return <RespondentUnavailable embedded={embedded} />;
+  }
   if (phase === "consent") {
     return (
       <Consent
         onStart={(m) => {
           setMode(m);
           setPhase(m === "voice" ? "voice" : "chat");
+          postEmbedEvent("telepace:started", { mode: m });
         }}
         welcomeMessage={publicInfo?.welcome_message}
         consentText={publicInfo?.consent_text}
+        embedded={embedded}
       />
     );
   }
@@ -490,8 +643,8 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
       t("chat.voiceIntro");
     const hasQuestion = messages.some((m) => m.role === "interviewer");
     return (
-      <div className="flex min-h-screen flex-col">
-        <ProgressBar progress={progress} />
+      <div className={cn("flex min-h-screen flex-col", embedded && "min-h-[100dvh]")}>
+        <ProgressBar progress={progress} embedded={embedded} />
         {micDenied && (
           <div
             role="alert"
@@ -561,7 +714,12 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
     // cold-blue reference never offers. No card, no chrome: nothing frames the
     // question, so it reads as the only thing in the room. A whisper of grain
     // gives the paper material presence across a wide desktop.
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-paper">
+    <div
+      className={cn(
+        "relative flex min-h-screen flex-col overflow-hidden bg-paper",
+        embedded && "min-h-[100dvh]",
+      )}
+    >
       <div
         aria-hidden
         className="pointer-events-none fixed inset-0 opacity-[0.35] mix-blend-multiply tp-paper-grain"
@@ -634,14 +792,55 @@ export default function RespondentPage(props: { params: Promise<Params> }) {
   );
 }
 
+function RespondentLoading({ embedded }: { embedded: boolean }) {
+  const t = useTranslations("respondent.availability");
+  return (
+    <main
+      aria-busy="true"
+      className={cn(
+        "flex min-h-screen items-center justify-center bg-paper px-6",
+        embedded && "min-h-[100dvh]",
+      )}
+    >
+      <div className="w-full max-w-md">
+        <p className="sr-only">{t("loading")}</p>
+        <div className="h-3 w-24 animate-pulse rounded-pill bg-hairline motion-reduce:animate-none" />
+        <div className="mt-8 h-12 w-4/5 animate-pulse rounded-btn bg-paper-sunken motion-reduce:animate-none" />
+        <div className="mt-4 h-4 w-full animate-pulse rounded-pill bg-hairline motion-reduce:animate-none" />
+        <div className="mt-2 h-4 w-3/4 animate-pulse rounded-pill bg-hairline motion-reduce:animate-none" />
+      </div>
+    </main>
+  );
+}
+
+function RespondentUnavailable({ embedded }: { embedded: boolean }) {
+  const t = useTranslations("respondent.availability");
+  return (
+    <main
+      className={cn(
+        "flex min-h-screen items-center justify-center bg-paper px-6",
+        embedded && "min-h-[100dvh]",
+      )}
+    >
+      <div className="max-w-md text-center">
+        <p className="overline mb-4">{t("eyebrow")}</p>
+        <h1 className="font-display text-4xl leading-tight text-ink">{t("title")}</h1>
+        <p className="mt-5 text-base leading-relaxed text-body">{t("body")}</p>
+      </div>
+    </main>
+  );
+}
+
 function Consent({
   onStart,
   welcomeMessage,
   consentText,
+  embedded,
 }: {
   onStart: (mode: "text" | "voice") => void;
   welcomeMessage?: string;
   consentText?: string;
+  embedded: boolean;
 }) {
   const t = useTranslations("respondent.consent");
   // Only gate on an explicit checkbox when the researcher configured real
@@ -651,11 +850,25 @@ function Consent({
   const [consented, setConsented] = useState(false);
   const canStart = !requireConsent || consented;
   return (
-    <div className="flex min-h-screen items-center justify-center px-6">
-      <div className="tp-fade-in-up max-w-lg text-center">
+    <div
+      className={cn(
+        "flex min-h-screen items-center justify-center bg-paper px-6",
+        embedded && "min-h-[100dvh] py-10",
+      )}
+    >
+      <div className={cn("tp-fade-in-up max-w-lg text-center", embedded && "max-w-md")}>
         <p className="overline mb-4">{t("eyebrow")}</p>
-        <h1 className="mb-6 font-display text-5xl leading-tight">{t("title")}</h1>
-        <p className="text-lg leading-relaxed text-body">{welcomeMessage || t("body")}</p>
+        <h1
+          className={cn(
+            "mb-6 font-display leading-tight",
+            embedded ? "text-4xl sm:text-5xl" : "text-5xl",
+          )}
+        >
+          {t("title")}
+        </h1>
+        <p className={cn("leading-relaxed text-body", embedded ? "text-base" : "text-lg")}>
+          {welcomeMessage || t("body")}
+        </p>
         {requireConsent && (
           <label className="mx-auto mt-6 flex max-w-sm items-start gap-3 text-left text-sm text-body">
             <input

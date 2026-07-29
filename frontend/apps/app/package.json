@@ -7,7 +7,7 @@
     "dev:webpack": "next dev -p 3300",
     "build": "next build",
     "start": "next start -p 3300",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

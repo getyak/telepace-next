@@ -14,14 +14,24 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import AsyncIterator
+from contextlib import suppress
 from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 import orjson
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from core.events import RespondentAudioTurn, RespondentJoined
+from core.constants import VOICE_AUDIO_QUEUE_MAX, VoiceWSMessage
+from core.domain.models import ChannelKind
+from core.events import InterviewStarted, RespondentAudioTurn, RespondentJoined
 from core.protocols.commands import ReplyInInterview
+from interfaces.rest_api.errors import ErrorMessages
+from interfaces.rest_api.respondent_context import (
+    normalize_referrer_origin,
+    normalize_respondent_source,
+    query_flag,
+    respondent_campaign_state,
+)
 from voice.stt import STT, DeepgramSTT, MockSTT, Transcript
 from voice.tts import TTS, ElevenLabsTTS, MockTTS
 
@@ -74,10 +84,8 @@ def _build_tts(state: AppState) -> tuple[TTS, str]:
 
 
 async def _drain_send_json(ws: WebSocket, payload: dict) -> None:
-    try:
+    with suppress(RuntimeError, WebSocketDisconnect):
         await ws.send_bytes(orjson.dumps(payload))
-    except (RuntimeError, WebSocketDisconnect):
-        pass
 
 
 @router.websocket("/ws/voice/{campaign_id}")
@@ -85,6 +93,20 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
     await websocket.accept()
     state: AppState = websocket.app.state.telepace
     harness = state.harness
+
+    _, access_error = await respondent_campaign_state(state.projector, campaign_id)
+    if access_error:
+        await _drain_send_json(
+            websocket,
+            {
+                "type": VoiceWSMessage.ERROR,
+                "reason": access_error,
+                "recoverable": False,
+            },
+        )
+        await websocket.close(code=4404 if access_error == "campaign_not_found" else 4409)
+        return
+
     interview_id = uuid4()
     respondent_id = uuid4()
 
@@ -92,6 +114,12 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
     tts, tts_name = _build_tts(state)
 
     settings = state.settings
+    source = normalize_respondent_source(websocket.query_params.get("source"))
+    referrer_origin = normalize_referrer_origin(websocket.query_params.get("parent_origin"))
+    embedded = query_flag(websocket.query_params.get("embed"))
+    consent_method = (
+        "checkbox" if websocket.query_params.get("consent") == "checkbox" else "continue"
+    )
     await state.event_store.append(
         RespondentJoined(
             campaign_id=campaign_id,
@@ -99,6 +127,17 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
             interview_id=interview_id,
             respondent_id=respondent_id,
             channel=ChannelKind.WEB_VOICE.value,
+            source=source,
+            referrer_origin=referrer_origin,
+            embedded=embedded,
+            consent_method=consent_method,
+        )
+    )
+    await state.event_store.append(
+        InterviewStarted(
+            campaign_id=campaign_id,
+            actor=f"{settings.actor_prefix_interview}:{interview_id}",
+            interview_id=interview_id,
         )
     )
     await _drain_send_json(
@@ -248,11 +287,7 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
         recv_task.cancel()
         stt_task.cancel()
         for t in (recv_task, stt_task):
-            try:
+            with suppress(asyncio.CancelledError, Exception):
                 await t
-            except (asyncio.CancelledError, Exception):
-                pass
-        try:
+        with suppress(RuntimeError):
             await websocket.close()
-        except RuntimeError:
-            pass

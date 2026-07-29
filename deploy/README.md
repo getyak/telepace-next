@@ -25,7 +25,7 @@ Optional Claude Desktop MCP config (add to `~/Library/Application Support/Claude
 }
 ```
 
-## Production (Fly.io)
+## Production API and workers (Fly.io)
 
 ```bash
 fly launch --copy-config --dockerfile deploy/Dockerfile.api
@@ -36,4 +36,35 @@ fly secrets set \
 fly deploy
 ```
 
-Frontend deploys on Vercel as a single project — `apps/app` — serving marketing (`/`), auth (`/login`, `/signup`), the dashboard (`/studies`, ...), and the respondent gateway (`/r/:campaignId`) from one Next.js app.
+Keep FastAPI, WebSockets, Postgres, Redis, and the analysis worker on a
+long-running service. The respondent interview uses persistent WebSockets and
+completion analysis runs after the request has ended, so these processes do not
+belong in Netlify Functions.
+
+## Frontend (Netlify)
+
+The root `netlify.toml` builds the single Next.js app in the pnpm monorepo. It
+serves marketing, auth, the research dashboard, respondent routes, and the
+versioned `/embed/telepace-interview.js` Web Component.
+
+Set these values in the Netlify project environment:
+
+```text
+NEXT_PUBLIC_API_BASE_URL=https://api.telepace.example
+NEXT_PUBLIC_WS_BASE_URL=wss://api.telepace.example
+TELEPACE_EMBED_ALLOWED_ORIGINS=https://your-site.example,https://deploy-preview.example
+```
+
+`NEXT_PUBLIC_*` values are public browser configuration, not secrets. Keep LLM
+keys, database credentials, and JWT secrets only on the API deployment. Add the
+final Netlify frontend origin to `TELEPACE_CORS_ALLOW_ORIGINS` on the API.
+
+For the cubxxw About integration, publish the study and set this environment
+value on the blog's Netlify project:
+
+```text
+HUGO_PARAMS_TELEPACEABOUTCAMPAIGNID=<published-campaign-uuid>
+```
+
+The blog loads only the small embed SDK near the interview section. The full
+Next.js respondent runtime is created after a visitor chooses a feedback angle.
