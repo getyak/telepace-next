@@ -187,6 +187,7 @@
 
 ## 进度记录（每完成一个任务在此追加一行）
 <!-- 例: 2026-07-08 T-001 done, commit abc1234 -->
+2026-07-30 T-701 done, commit f0c5fe5 — native lazy interview embed, provenance events, Netlify frontend contract, resilient Analyst, and real Blog About feedback loop
 2026-07-09 T-103 done, commit 6094c9b — chart components (TpBarChart, CrossTab, ChartSection) with warm-beige theme
 2026-07-09 T-104 done, commit 6094c9b — statistical annotations (small sample warning, multi-select tip, Top-2-Box, base N)
 2026-07-09 T-106 done, commit c4fc119 — response-level data table with search, filter, CSV export
