@@ -15,7 +15,7 @@ from interfaces.realtime import voice_ws
 from interfaces.rest_api import ws
 from interfaces.rest_api.auth.oauth_google import router as oauth_google_router
 from interfaces.rest_api.auth.router import router as auth_router
-from interfaces.rest_api.config import get_settings
+from interfaces.rest_api.config import cors_allow_origin_regex, get_settings
 from interfaces.rest_api.deps import AppState, build_state
 from interfaces.rest_api.metering import meter_completion
 from interfaces.rest_api.routers import agent, billing, campaigns, health, interviews
@@ -82,6 +82,7 @@ def create_app() -> FastAPI:
     application.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_allow_origins,
+        allow_origin_regex=cors_allow_origin_regex(settings.cors_allow_origins),
         allow_credentials=settings.cors_allow_credentials,
         allow_methods=settings.cors_allow_methods,
         allow_headers=settings.cors_allow_headers,

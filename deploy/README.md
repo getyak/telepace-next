@@ -65,6 +65,11 @@ TELEPACE_CORS_ALLOW_ORIGINS=https://telepace.example,https://your-blog.example
 TELEPACE_EMBED_ALLOWED_ORIGINS=https://your-blog.example
 ```
 
+For local development, `http://localhost:*` and
+`http://127.0.0.1:*` are supported explicitly so Hugo or Netlify Dev can select
+an available port. Do not use a wildcard for production hosts; configure each
+HTTPS origin exactly.
+
 The Headless SDK first requests a short-lived anonymous session over HTTPS,
 then opens the persistent WebSocket directly against the API. The token is sent
 in the socket's first authentication frame, never in the URL or access logs,
