@@ -26,6 +26,10 @@ class ErrorMessages:
     DESIGNER_AGENT_MISSING = "designer agent not registered"
 
     # Voice / WebSocket
+    EMBED_ORIGIN_NOT_ALLOWED = "embed origin is not allowed"
+    EMBED_SESSION_INVALID = "invalid or expired embed session"
+    RESPONDENT_ORIGIN_NOT_ALLOWED = "respondent origin is not allowed"
+    INTERVIEWER_UNAVAILABLE = "interviewer_unavailable"
     VOICE_EMPTY_REPLY = "empty_reply"
     VOICE_STT_FAILED = "stt_failed:{exc}"
     VOICE_TTS_FAILED = "tts_failed:{exc}"

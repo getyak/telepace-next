@@ -37,6 +37,8 @@ class Settings(BaseSettings):
             "http://localhost:3300",
             "http://localhost:3301",
             "http://localhost:3302",
+            "http://localhost:8888",
+            "http://127.0.0.1:8888",
         ]
     )
     cors_allow_credentials: bool = True
@@ -46,6 +48,22 @@ class Settings(BaseSettings):
     cors_allow_headers: list[str] = Field(
         default_factory=lambda: ["Authorization", "Content-Type", "X-Requested-With"]
     )
+
+    # --- Public headless SDK
+    # The browser SDK is anonymous by design, but a session is only minted for
+    # an explicitly trusted host origin and is bound to that origin in the JWT.
+    embed_allowed_origins: list[str] = Field(
+        default_factory=lambda: [
+            "https://cubxxw.com",
+            "https://www.cubxxw.com",
+            "http://localhost:8888",
+            "http://127.0.0.1:8888",
+            "http://localhost:1313",
+            "http://127.0.0.1:1313",
+        ]
+    )
+    embed_session_ttl_seconds: int = 10 * 60
+    embed_auth_timeout_seconds: int = 8
 
     # --- FastAPI metadata (shown in /docs)
     api_title: str = "telepace API"
@@ -224,7 +242,7 @@ class Settings(BaseSettings):
     analyst_max_tokens: int = 3000
     analyst_temperature: float = 0.3
 
-    @field_validator("cors_allow_origins", mode="before")
+    @field_validator("cors_allow_origins", "embed_allowed_origins", mode="before")
     @classmethod
     def _split_cors(cls, v: object) -> object:
         if isinstance(v, str):

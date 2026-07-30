@@ -73,10 +73,19 @@ class _FakeRedis:
     async def get(self, key: str) -> bytes | None:
         return self.store.get(key)
 
-    async def set(self, key: str, value: bytes, ex: int | None = None) -> None:
+    async def set(
+        self,
+        key: str,
+        value: bytes,
+        ex: int | None = None,
+        nx: bool = False,
+    ) -> bool:
+        if nx and key in self.store:
+            return False
         self.store[key] = value
         if ex is not None:
             self.ex[key] = ex
+        return True
 
     async def delete(self, key: str) -> None:
         self.store.pop(key, None)
@@ -127,6 +136,12 @@ async def test_redis_memory_load_parses_prewritten_value() -> None:
     fake.store[RedisMemory.KEY_TPL.format(cid=cid)] = orjson.dumps({"k": "v"})
     m = RedisMemory(fake, ttl_seconds=_TEST_TTL)
     assert await m.load(cid) == {"k": "v"}
+
+
+@pytest.mark.parametrize("memory", [InMemoryMemory(), RedisMemory(_FakeRedis(), ttl_seconds=60)])
+async def test_claim_once_accepts_a_key_only_once(memory) -> None:
+    assert await memory.claim_once("embed-session:abc", ttl_seconds=30)
+    assert not await memory.claim_once("embed-session:abc", ttl_seconds=30)
 
 
 @pytest.mark.parametrize("delta", [{}, {"a": None}, {"nested": {"deep": [1, 2]}}])
