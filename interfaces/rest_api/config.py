@@ -7,10 +7,39 @@ ports/URLs match `deploy/docker-compose.dev.yml` and `.env.example`.
 
 from __future__ import annotations
 
+import re
 from functools import lru_cache
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_LOCAL_ORIGIN_WILDCARD_BASES = {
+    "http://localhost:",
+    "http://127.0.0.1:",
+    "http://[::1]:",
+}
+
+
+def cors_allow_origin_regex(allowed_origins: list[str]) -> str | None:
+    """Translate explicit local ``:*`` entries into Starlette's CORS regex.
+
+    Production deployments replace the default allowlist with exact HTTPS
+    origins, so the local-port regex is enabled only when a local wildcard was
+    deliberately configured.
+    """
+
+    patterns: list[str] = []
+    for configured in allowed_origins:
+        candidate = configured.strip().rstrip("/")
+        if not candidate.endswith(":*"):
+            continue
+        base = candidate[:-1]
+        if base not in _LOCAL_ORIGIN_WILDCARD_BASES:
+            continue
+        patterns.append(f"{re.escape(base)}[0-9]+")
+    if not patterns:
+        return None
+    return f"^(?:{'|'.join(patterns)})$"
 
 
 class Settings(BaseSettings):
@@ -34,11 +63,8 @@ class Settings(BaseSettings):
     # marketing, auth, dashboard, and the respondent gateway all share one origin.
     cors_allow_origins: list[str] = Field(
         default_factory=lambda: [
-            "http://localhost:3300",
-            "http://localhost:3301",
-            "http://localhost:3302",
-            "http://localhost:8888",
-            "http://127.0.0.1:8888",
+            "http://localhost:*",
+            "http://127.0.0.1:*",
         ]
     )
     cors_allow_credentials: bool = True
@@ -56,10 +82,8 @@ class Settings(BaseSettings):
         default_factory=lambda: [
             "https://cubxxw.com",
             "https://www.cubxxw.com",
-            "http://localhost:8888",
-            "http://127.0.0.1:8888",
-            "http://localhost:1313",
-            "http://127.0.0.1:1313",
+            "http://localhost:*",
+            "http://127.0.0.1:*",
         ]
     )
     embed_session_ttl_seconds: int = 10 * 60

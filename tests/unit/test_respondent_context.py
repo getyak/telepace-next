@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from types import SimpleNamespace
 from uuid import uuid4
 
@@ -8,6 +9,7 @@ import pytest
 from core.domain.models import CampaignStatus
 from core.events import RespondentJoined
 from harness.memory import InMemoryMemory
+from interfaces.rest_api.config import cors_allow_origin_regex
 from interfaces.rest_api.embed_session import issue_embed_session
 from interfaces.rest_api.respondent_context import (
     hydrate_respondent_interview_context,
@@ -243,8 +245,29 @@ async def test_legacy_respondent_accepts_only_exact_public_frontend_origin() -> 
 
 def test_embed_origin_matching_supports_explicit_local_port_wildcard() -> None:
     assert respondent_origin_allowed("http://localhost:8888", ["http://localhost:*"])
+    assert respondent_origin_allowed("http://localhost:1314", ["http://localhost:*"])
+    assert respondent_origin_allowed("http://127.0.0.1:43117", ["http://127.0.0.1:*"])
     assert not respondent_origin_allowed("https://localhost:8888", ["http://localhost:*"])
     assert not respondent_origin_allowed("http://attacker.local:8888", ["http://localhost:*"])
+
+
+def test_cors_regex_is_derived_only_from_explicit_local_wildcards() -> None:
+    pattern = cors_allow_origin_regex(
+        [
+            "https://cubxxw.com",
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+            "https://example.com:*",
+        ]
+    )
+
+    assert pattern is not None
+    assert re.fullmatch(pattern, "http://localhost:1314")
+    assert re.fullmatch(pattern, "http://127.0.0.1:43117")
+    assert not re.fullmatch(pattern, "https://localhost:1314")
+    assert not re.fullmatch(pattern, "http://attacker.local:1314")
+    assert not re.fullmatch(pattern, "https://example.com:443")
+    assert cors_allow_origin_regex(["https://cubxxw.com"]) is None
 
 
 @pytest.mark.asyncio
