@@ -61,6 +61,9 @@ export async function updateCampaignSettings(
 /** Public, auth-free: the minimal copy the anonymous respondent needs. */
 export type RespondentCampaignInfo = Required<RespondentExperienceSettings> & {
   primary_language: string;
+  status: string;
+  accepting_responses: boolean;
+  estimated_duration_minutes: number;
 };
 
 export async function getRespondentCampaign(

@@ -8,6 +8,12 @@
     "consentNotice": "By continuing you consent to your responses being recorded and analyzed to improve the product.",
     "consentCheckRequired": "Check the box above to continue."
   },
+  "availability": {
+    "loading": "Preparing the interview",
+    "eyebrow": "interview status",
+    "title": "This conversation is not open right now.",
+    "body": "The interview may have ended or is still being prepared. Please check back later."
+  },
   "masthead": {
     "title": "telepace · User Research",
     "subtitle": "Text or voice · About 15 min"

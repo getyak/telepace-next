@@ -324,6 +324,9 @@ def test_update_settings_persists_and_respondent_endpoint_reflects_it() -> None:
         "reward_description": "$20 gift card",
         "redirect_url": "https://example.com/thanks",
         "primary_language": "en",
+        "status": "draft",
+        "accepting_responses": False,
+        "estimated_duration_minutes": 15,
     }
 
 
@@ -389,6 +392,9 @@ def test_respondent_endpoint_excludes_sensitive_spec_fields() -> None:
         "reward_description",
         "redirect_url",
         "primary_language",
+        "status",
+        "accepting_responses",
+        "estimated_duration_minutes",
     }
     _ = token
 

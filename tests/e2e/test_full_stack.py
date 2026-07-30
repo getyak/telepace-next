@@ -196,6 +196,8 @@ def test_respondent_link_renders(browser_ctx) -> None:
         timeout=30,
     )
     cid = r.json()["campaign_id"]
+    started = httpx.post(f"{API}/v1/campaigns/{cid}/start", timeout=30)
+    assert started.status_code == 200, started.text
 
     page = browser_ctx.new_page()
     # Retry once on macOS chromium App Nap IO_SUSPENDED after long test batches.
@@ -222,12 +224,12 @@ def test_respondent_link_renders(browser_ctx) -> None:
         try:
             page.wait_for_selector("textarea", state="attached", timeout=5000)
             break
-        except Exception:
+        except Exception as exc:
             if attempt == 2:
                 page.screenshot(path=str(SHOTS / "respondent_stuck.png"))
                 raise AssertionError(
                     "textarea never mounted after Start-with-text click; console: "
                     + "\n".join(console_msgs[-10:])
-                )
+                ) from exc
     page.screenshot(path=str(SHOTS / "respondent_text_mode.png"))
     page.close()

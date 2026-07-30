@@ -1,0 +1,21 @@
+[build]
+  base = "frontend"
+  command = "pnpm --filter @telepace/app build"
+  publish = "apps/app/.next"
+
+[build.environment]
+  NODE_VERSION = "22.22.0"
+  PNPM_VERSION = "9.14.0"
+  NPM_FLAGS = "--version"
+
+[dev]
+  base = "frontend"
+  command = "pnpm --filter @telepace/app dev"
+  targetPort = 3300
+  port = 8888
+
+# NEXT_PUBLIC_API_BASE_URL, NEXT_PUBLIC_WS_BASE_URL, and
+# TELEPACE_EMBED_ALLOWED_ORIGINS are intentionally not committed here. Set
+# context-specific values in Netlify so Deploy Previews can point at staging.
+# FastAPI, WebSockets, Postgres, Redis, and analysis workers remain on the
+# long-running API deployment; see deploy/README.md.

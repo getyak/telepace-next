@@ -27,7 +27,13 @@ def _create_campaign() -> str:
         timeout=30,
     )
     assert r.status_code == 200, r.text
-    return r.json()["campaign_id"]
+    campaign_id = r.json()["campaign_id"]
+    started = httpx.post(
+        f"{API}/v1/campaigns/{campaign_id}/start",
+        timeout=30,
+    )
+    assert started.status_code == 200, started.text
+    return campaign_id
 
 
 def test_join_returns_interview_and_respondent_ids() -> None:

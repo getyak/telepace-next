@@ -22,6 +22,7 @@ class ErrorMessages:
 
     # Campaigns
     CAMPAIGN_NOT_FOUND = "campaign not found"
+    CAMPAIGN_NOT_LIVE = "campaign is not accepting responses"
     DESIGNER_AGENT_MISSING = "designer agent not registered"
 
     # Voice / WebSocket

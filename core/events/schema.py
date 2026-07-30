@@ -64,6 +64,15 @@ class RespondentJoined(EventBase):
     interview_id: UUID
     respondent_id: UUID
     channel: str
+    # Distribution provenance for campaign segmentation. These defaults keep
+    # every previously stored event loadable after the schema grows.
+    source: str = "direct"
+    referrer_origin: str | None = None
+    embedded: bool = False
+    # The public runtime only opens a connection after the participant acts on
+    # the consent screen. Store how consent was expressed without storing the
+    # potentially sensitive consent copy itself.
+    consent_method: Literal["continue", "checkbox"] = "continue"
 
 
 class InterviewStarted(EventBase):
