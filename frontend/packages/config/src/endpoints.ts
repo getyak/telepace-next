@@ -31,6 +31,7 @@ export const apiEndpoints = {
     respondent: (id: string) => `/v1/campaigns/${id}/respondent`,
   },
   interviews: {
+    session: "/v1/interviews/session",
     join: "/v1/interviews/join",
     reply: "/v1/interviews/reply",
   },

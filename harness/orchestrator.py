@@ -98,7 +98,12 @@ class Harness:
                             cid = ev_cid
                             break
                 if cid is not None:
-                    await self._memory.update(cid, result.state_delta)
+                    # Campaign configuration is shared, but live interview
+                    # history must be isolated per respondent.
+                    memory_scope = getattr(command, "interview_id", None)
+                    if not isinstance(memory_scope, UUID):
+                        memory_scope = cid
+                    await self._memory.update(memory_scope, result.state_delta)
 
             post_events = await self._policies.observe_all(result)
             written += await self._persist_events(post_events)
@@ -116,7 +121,12 @@ class Harness:
         cid = self._campaign_id_of(command)
         if cid is None:
             return {}
-        return await self._memory.load(cid)
+        campaign_context = await self._memory.load(cid)
+        interview_id = getattr(command, "interview_id", None)
+        if not isinstance(interview_id, UUID):
+            return campaign_context
+        interview_context = await self._memory.load(interview_id)
+        return {**campaign_context, **interview_context}
 
     @staticmethod
     def _campaign_id_of(command: Any) -> UUID | None:

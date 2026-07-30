@@ -183,6 +183,12 @@
   - 部署：Next.js 前端可独立部署到 Netlify，`NEXT_PUBLIC_API_BASE_URL` / `NEXT_PUBLIC_WS_BASE_URL` 指向长期运行的 FastAPI 服务；允许的父页面来源通过 `TELEPACE_EMBED_ALLOWED_ORIGINS` 配置。
   - 验收：Blog About 可按需打开真实访谈；桌面/移动端、键盘、reduced-motion 可用；完整模拟访谈后 campaign completed + insights 均增长；前后端全绿，真实浏览器无 console/page error。
 
+- [ ] **T-702 · Headless Interview SDK + About 真原生访谈**
+  - 依赖：T-701。
+  - 做：提供不创建 DOM、不使用 iframe 的依赖零 Headless JavaScript SDK；把 campaign、consent、文本 WebSocket、进度、结束、错误和关闭生命周期暴露为状态订阅与命令 API；为 SDK 连接签发短期、Campaign 与 Origin 绑定的匿名 session token。
+  - 集成：Blog About 以自身 DOM 和设计系统渲染完整访谈，不加载 Telepace respondent 页面，不修改顶层 URL；保留显式、非自动跳转的兼容链接。
+  - 验收：页面运行时不存在 iframe；从 About 选择主题到完成访谈全程不发生导航；来源、同意、completed 与 Analyst insights 真实落库；SDK/backend/Blog 测试及构建全绿，桌面/移动端、键盘、深色、reduced-motion、断网与重试均通过真实浏览器验证。
+
 ---
 
 ## 进度记录（每完成一个任务在此追加一行）

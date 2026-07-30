@@ -13,6 +13,7 @@ Latency budget (P50 target ≤ 900 ms end-of-user-speech -> first assistant byte
 from __future__ import annotations
 
 import asyncio
+import logging
 from collections.abc import AsyncIterator
 from contextlib import suppress
 from typing import TYPE_CHECKING
@@ -27,10 +28,10 @@ from core.events import InterviewStarted, RespondentAudioTurn, RespondentJoined
 from core.protocols.commands import ReplyInInterview
 from interfaces.rest_api.errors import ErrorMessages
 from interfaces.rest_api.respondent_context import (
-    normalize_referrer_origin,
-    normalize_respondent_source,
-    query_flag,
+    hydrate_respondent_interview_context,
+    receive_headless_session_token,
     respondent_campaign_state,
+    respondent_connection_context,
 )
 from voice.stt import STT, DeepgramSTT, MockSTT, Transcript
 from voice.tts import TTS, ElevenLabsTTS, MockTTS
@@ -38,6 +39,7 @@ from voice.tts import TTS, ElevenLabsTTS, MockTTS
 if TYPE_CHECKING:
     from interfaces.rest_api.deps import AppState
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -94,6 +96,29 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
     state: AppState = websocket.app.state.telepace
     harness = state.harness
 
+    session_token = await receive_headless_session_token(
+        websocket,
+        timeout_seconds=state.settings.embed_auth_timeout_seconds,
+    )
+    respondent_context, context_error = await respondent_connection_context(
+        websocket,
+        campaign_id,
+        state.settings,
+        session_token=session_token,
+        memory=state.memory,
+    )
+    if context_error or respondent_context is None:
+        await _drain_send_json(
+            websocket,
+            {
+                "type": VoiceWSMessage.ERROR,
+                "reason": context_error or "embed_session_invalid",
+                "recoverable": False,
+            },
+        )
+        await websocket.close(code=4403)
+        return
+
     _, access_error = await respondent_campaign_state(state.projector, campaign_id)
     if access_error:
         await _drain_send_json(
@@ -110,16 +135,15 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
     interview_id = uuid4()
     respondent_id = uuid4()
 
+    await hydrate_respondent_interview_context(
+        state,
+        campaign_id,
+        interview_id,
+    )
     stt, stt_name = _build_stt(state)
     tts, tts_name = _build_tts(state)
 
     settings = state.settings
-    source = normalize_respondent_source(websocket.query_params.get("source"))
-    referrer_origin = normalize_referrer_origin(websocket.query_params.get("parent_origin"))
-    embedded = query_flag(websocket.query_params.get("embed"))
-    consent_method = (
-        "checkbox" if websocket.query_params.get("consent") == "checkbox" else "continue"
-    )
     await state.event_store.append(
         RespondentJoined(
             campaign_id=campaign_id,
@@ -127,10 +151,10 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
             interview_id=interview_id,
             respondent_id=respondent_id,
             channel=ChannelKind.WEB_VOICE.value,
-            source=source,
-            referrer_origin=referrer_origin,
-            embedded=embedded,
-            consent_method=consent_method,
+            source=respondent_context.source,
+            referrer_origin=respondent_context.referrer_origin,
+            embedded=respondent_context.embedded,
+            consent_method=respondent_context.consent_method,
         )
     )
     await state.event_store.append(
@@ -199,7 +223,23 @@ async def voice_ws(websocket: WebSocket, campaign_id: UUID) -> None:
             interview_id=interview_id,
             text=transcript.text,
         )
-        resp = await harness.handle(cmd)
+        try:
+            resp = await harness.handle(cmd)
+        except Exception:
+            logger.exception(
+                "voice interviewer turn failed for campaign=%s interview=%s",
+                campaign_id,
+                interview_id,
+            )
+            await _drain_send_json(
+                websocket,
+                {
+                    "type": VoiceWSMessage.ERROR,
+                    "reason": ErrorMessages.INTERVIEWER_UNAVAILABLE,
+                    "recoverable": True,
+                },
+            )
+            return
         if not resp.ok:
             await _drain_send_json(
                 websocket, {"type": VoiceWSMessage.ERROR, "reason": resp.reason}

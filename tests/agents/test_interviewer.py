@@ -71,6 +71,20 @@ async def test_reply_parses_action_block_and_emits_completed_on_wrap_up() -> Non
     assert r.response["kind"] == "wrap_up"
 
 
+async def test_structured_action_text_wins_over_transition_prose() -> None:
+    canned = LLMResponse(
+        text=(
+            "I will follow up on the trust concern.\n"
+            "<action>{\"kind\":\"ask\",\"text\":\"Which missing proof mattered most?\"}</action>"
+        )
+    )
+    agent = InterviewerAgent(llm=MockLLM(canned=[canned]), max_tokens=800, temperature=0.5)
+
+    result = await agent.run(_reply("I could not verify the claims."), context={}, harness=None)  # type: ignore[arg-type]
+
+    assert result.response["text"] == "Which missing proof mattered most?"
+
+
 async def test_wrap_up_response_includes_configured_completion_copy() -> None:
     """T-111: end_message/reward_description/redirect_url ride along on wrap_up."""
     canned = LLMResponse(

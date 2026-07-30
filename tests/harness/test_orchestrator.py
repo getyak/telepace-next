@@ -142,6 +142,29 @@ async def test_handle_loads_context_from_memory_and_passes_to_agent() -> None:
     assert designer.calls[0][1] == {"spent_usd": 42.0, "budget_usd": 100.0}
 
 
+async def test_interview_context_is_merged_and_written_in_its_own_scope() -> None:
+    cid = uuid4()
+    cmd = _reply_cmd(cid)
+    interviewer = _RecordingAgent(
+        "interviewer",
+        result=AgentResult(state_delta={"interview_history": [{"role": "respondent"}]}),
+    )
+    h, _, mem = _make_harness(interviewer=interviewer)
+    await mem.update(cid, {"spec": {"primary_language": "zh"}})
+    await mem.update(cmd.interview_id, {"interview_history": [{"role": "interviewer"}]})
+
+    await h.handle(cmd)
+
+    assert interviewer.calls[0][1] == {
+        "spec": {"primary_language": "zh"},
+        "interview_history": [{"role": "interviewer"}],
+    }
+    assert (await mem.load(cid)) == {"spec": {"primary_language": "zh"}}
+    assert (await mem.load(cmd.interview_id))["interview_history"] == [
+        {"role": "respondent"}
+    ]
+
+
 async def test_handle_returns_error_when_policy_denies() -> None:
     cid = uuid4()
     h, _, mem = _make_harness(policies=[BudgetPolicy()])

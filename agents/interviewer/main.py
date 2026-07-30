@@ -86,11 +86,11 @@ class InterviewerAgent:
 
         action = self._parse_action(resp.text)
         prose = _JSON_FENCE.sub("", _ACTION_BLOCK.sub("", resp.text)).strip()
-        # Guard against reasoning-model leakage: if the "prose" is an
-        # implausibly long analysis dump, prefer the action's own text.
+        # The structured action is the respondent-facing contract. Models may
+        # put internal transition prose before it ("I'll follow up on that")
+        # which is not a usable question, so never prefer that prose when the
+        # action already provides canonical display text.
         action_text = str(action.get("text", "") or "")
-        if action_text and len(prose) > INTERVIEWER_ACTION_TEXT_MAX:
-            prose = action_text
 
         events: list[EventBase] = [
             TurnRecorded(
@@ -104,7 +104,7 @@ class InterviewerAgent:
             )
         ]
 
-        interviewer_text = prose or action.get("text", "")
+        interviewer_text = action_text or prose
         history.append({"role": "interviewer", "text": interviewer_text})
         events.append(
             TurnRecorded(

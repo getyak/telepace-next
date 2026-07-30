@@ -12,11 +12,12 @@ from core.constants import VoiceWSMessage
 from core.domain.models import ChannelKind
 from core.events import InterviewStarted, RespondentJoined
 from core.protocols.commands import ReplyInInterview
+from interfaces.rest_api.errors import ErrorMessages
 from interfaces.rest_api.respondent_context import (
-    normalize_referrer_origin,
-    normalize_respondent_source,
-    query_flag,
+    hydrate_respondent_interview_context,
+    receive_headless_session_token,
     respondent_campaign_state,
+    respondent_connection_context,
 )
 
 logger = logging.getLogger(__name__)
@@ -48,7 +49,11 @@ _OPENING_TEMPLATES = {
 }
 
 
-async def _opening_turn(state, campaign_id: UUID) -> tuple[str, int, str]:
+async def _opening_turn(
+    state,
+    campaign_id: UUID,
+    interview_id: UUID,
+) -> tuple[str, int, str]:
     """Build the interviewer's opening line from the campaign outline.
 
     Returns (text, total_questions, language). The opening is language-matched
@@ -66,14 +71,19 @@ async def _opening_turn(state, campaign_id: UUID) -> tuple[str, int, str]:
         text = templates["with_question"].format(question=items[0].question)
     else:
         text = templates["no_question"]
-    if state.memory is not None:
-        try:
-            ctx = await state.memory.load(campaign_id)
-            history = list(ctx.get("interview_history", []))
-            history.append({"role": "interviewer", "text": text})
-            await state.memory.update(campaign_id, {"interview_history": history})
-        except Exception:
-            logger.exception("failed to seed interview history for %s", campaign_id)
+    try:
+        await hydrate_respondent_interview_context(
+            state,
+            campaign_id,
+            interview_id,
+            opening_text=text,
+        )
+    except Exception:
+        logger.exception(
+            "failed to hydrate interview context for campaign=%s interview=%s",
+            campaign_id,
+            interview_id,
+        )
     return text, total, language
 
 
@@ -83,6 +93,30 @@ async def interview_ws(websocket: WebSocket, campaign_id: UUID) -> None:
     state = websocket.app.state.telepace
     harness = state.harness
     settings = state.settings
+
+    session_token = await receive_headless_session_token(
+        websocket,
+        timeout_seconds=settings.embed_auth_timeout_seconds,
+    )
+    respondent_context, context_error = await respondent_connection_context(
+        websocket,
+        campaign_id,
+        settings,
+        session_token=session_token,
+        memory=state.memory,
+    )
+    if context_error or respondent_context is None:
+        await websocket.send_bytes(
+            orjson.dumps(
+                {
+                    "type": VoiceWSMessage.ERROR,
+                    "reason": context_error or "embed_session_invalid",
+                    "recoverable": False,
+                }
+            )
+        )
+        await websocket.close(code=4403)
+        return
 
     _, access_error = await respondent_campaign_state(state.projector, campaign_id)
     if access_error:
@@ -100,12 +134,6 @@ async def interview_ws(websocket: WebSocket, campaign_id: UUID) -> None:
 
     interview_id = uuid4()
     respondent_id = uuid4()
-    source = normalize_respondent_source(websocket.query_params.get("source"))
-    referrer_origin = normalize_referrer_origin(websocket.query_params.get("parent_origin"))
-    embedded = query_flag(websocket.query_params.get("embed"))
-    consent_method = (
-        "checkbox" if websocket.query_params.get("consent") == "checkbox" else "continue"
-    )
 
     await state.event_store.append(
         RespondentJoined(
@@ -114,10 +142,10 @@ async def interview_ws(websocket: WebSocket, campaign_id: UUID) -> None:
             interview_id=interview_id,
             respondent_id=respondent_id,
             channel=ChannelKind.WEB_TEXT.value,
-            source=source,
-            referrer_origin=referrer_origin,
-            embedded=embedded,
-            consent_method=consent_method,
+            source=respondent_context.source,
+            referrer_origin=respondent_context.referrer_origin,
+            embedded=respondent_context.embedded,
+            consent_method=respondent_context.consent_method,
         )
     )
     await state.event_store.append(
@@ -127,7 +155,11 @@ async def interview_ws(websocket: WebSocket, campaign_id: UUID) -> None:
             interview_id=interview_id,
         )
     )
-    opening_text, total_questions, language = await _opening_turn(state, campaign_id)
+    opening_text, total_questions, language = await _opening_turn(
+        state,
+        campaign_id,
+        interview_id,
+    )
     await websocket.send_bytes(
         orjson.dumps(
             {
@@ -158,7 +190,24 @@ async def interview_ws(websocket: WebSocket, campaign_id: UUID) -> None:
                 text=str(msg.get("text", "")),
                 audio_url=msg.get("audio_url"),
             )
-            resp = await harness.handle(cmd)
+            try:
+                resp = await harness.handle(cmd)
+            except Exception:
+                logger.exception(
+                    "interviewer turn failed for campaign=%s interview=%s",
+                    campaign_id,
+                    interview_id,
+                )
+                await websocket.send_bytes(
+                    orjson.dumps(
+                        {
+                            "type": VoiceWSMessage.ERROR,
+                            "reason": ErrorMessages.INTERVIEWER_UNAVAILABLE,
+                            "recoverable": True,
+                        }
+                    )
+                )
+                continue
             await websocket.send_bytes(
                 orjson.dumps(
                     {
