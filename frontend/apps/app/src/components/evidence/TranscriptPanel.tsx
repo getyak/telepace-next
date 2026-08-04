@@ -38,12 +38,20 @@ export function TranscriptPanel() {
   const respondent = graph?.respondents.find(
     (r) => r.id === citation?.respondent_id,
   );
+  const respondentIndex = graph?.respondents.findIndex(
+    (r) => r.id === citation?.respondent_id,
+  );
   const interview =
     graph && citation
       ? findInterview(graph.respondents, citation.interview_id)
       : undefined;
 
   const open = openCitationId !== null;
+  const roleLabel = {
+    interviewer: t("roleInterviewer"),
+    respondent: t("roleRespondent"),
+    system: t("roleSystem"),
+  };
 
   return (
     <Dialog
@@ -62,7 +70,11 @@ export function TranscriptPanel() {
                 {t("respondent")}
               </span>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="font-medium text-ink">{respondent.id}</span>
+                <span className="font-medium text-ink">
+                  {t("participant", {
+                    number: (respondentIndex ?? 0) + 1,
+                  })}
+                </span>
                 {Object.entries(respondent.segments).map(([key, val]) => (
                   <Badge key={key} variant="neutral">
                     {val}
@@ -100,7 +112,7 @@ export function TranscriptPanel() {
                     aria-current={isCited ? "true" : undefined}
                   >
                     <span className="mb-1 block text-xs uppercase tracking-wide text-muted">
-                      {t("turn", { number: turn.order })} · {turn.role}
+                      {t("turn", { number: turn.order })} · {roleLabel[turn.role]}
                     </span>
                     <p>{turn.text}</p>
                   </li>

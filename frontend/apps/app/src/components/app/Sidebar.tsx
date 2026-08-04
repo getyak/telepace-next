@@ -110,7 +110,7 @@ export function Sidebar() {
           for no visual effect; a flat elevated surface is correct here. */}
       <aside
         className={cn(
-          "bg-paper-elevated hidden shrink-0 flex-col border-r border-hairline md:sticky md:top-0 md:flex md:h-screen",
+          "bg-paper-elevated hidden shrink-0 flex-col border-r border-hairline print:!hidden md:sticky md:top-0 md:flex md:h-screen",
           // Width is the only animated property — the rail's own children are
           // laid out from it, so transitioning width alone keeps the collapse
           // reading as one continuous motion. Reduced-motion users get the end
@@ -177,7 +177,7 @@ export function Sidebar() {
 
       {/* Mobile top bar — sticky translucent chrome so the page content
           scrolls *under* it (where the material actually reads). */}
-      <div className="tp-chrome sticky top-0 z-30 flex h-14 items-center justify-between border-b border-hairline px-4 md:hidden">
+      <div className="tp-chrome sticky top-0 z-30 flex h-14 items-center justify-between border-b border-hairline px-4 print:hidden md:hidden">
         <Link href={routes.app.root} className="tp-press-text font-display text-lg">
           {siteConfig.brand.name}
         </Link>
@@ -194,7 +194,7 @@ export function Sidebar() {
 
       {/* Mobile full-screen overlay */}
       {open && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-paper md:hidden">
+        <div className="fixed inset-0 z-50 flex flex-col bg-paper print:hidden md:hidden">
           <div className="flex h-14 items-center justify-between border-b border-hairline px-4">
             <Link
               href={routes.app.root}

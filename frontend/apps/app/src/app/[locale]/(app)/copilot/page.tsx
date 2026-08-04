@@ -1,35 +1,59 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { EmptyState, icons } from "@telepace/ui";
+import { Button, EmptyState, Skeleton, icons } from "@telepace/ui";
 
 import { PageHeader } from "@/components/app/PageHeader";
 import { CopilotChat } from "@/components/copilot/CopilotChat";
-import { MemoExport } from "@/components/copilot/MemoExport";
-import { MOCK_STUDIES, StudySelector } from "@/components/copilot/StudySelector";
+import {
+  StudySelector,
+  type StudyOption,
+} from "@/components/copilot/StudySelector";
+import { getCampaigns } from "@/lib/api";
 
 export default function CopilotPage() {
   const t = useTranslations("app.copilot");
-  const [selectedIds, setSelectedIds] = useState<string[]>(
-    MOCK_STUDIES.map((s) => s.id),
-  );
+  const [studies, setStudies] = useState<StudyOption[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setLoadError(false);
+    try {
+      const rows = await getCampaigns();
+      const next = rows.map((study) => ({ id: study.id, name: study.title }));
+      setStudies(next);
+      setSelectedIds(next.map((study) => study.id));
+    } catch {
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   return (
     <div className="mx-auto max-w-content p-10">
-      <PageHeader
-        eyebrow={t("title")}
-        title={t("subtitle")}
-        actions={
-          <MemoExport
-            exportLabel={t("exportMemo")}
-            notionLabel={t("toNotion")}
-            linearLabel={t("toLinear")}
-          />
-        }
-      />
+      <PageHeader eyebrow={t("title")} title={t("subtitle")} />
 
-      {MOCK_STUDIES.length === 0 ? (
+      {loading ? (
+        <div className="space-y-6">
+          <Skeleton className="h-9 w-2/3" />
+          <Skeleton className="h-[560px] w-full" />
+        </div>
+      ) : loadError ? (
+        <EmptyState
+          icon={<icons.InsightsIcon size={28} />}
+          title={t("loadError")}
+          action={<Button onClick={() => void load()}>{t("retry")}</Button>}
+        />
+      ) : studies.length === 0 ? (
         <EmptyState
           icon={<icons.InsightsIcon size={28} />}
           title={t("noStudies")}
@@ -38,6 +62,7 @@ export default function CopilotPage() {
       ) : (
         <div className="space-y-6">
           <StudySelector
+            studies={studies}
             selectedIds={selectedIds}
             onChange={setSelectedIds}
             allLabel={t("allStudies")}

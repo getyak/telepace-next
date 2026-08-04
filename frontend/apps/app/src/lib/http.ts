@@ -20,7 +20,7 @@ import { ApiError, kindFromStatus } from "./errors";
 export { ApiError } from "./errors";
 export type { ErrorKind } from "./errors";
 
-type RequestInit_ = RequestInit & { json?: unknown };
+type RequestInit_ = RequestInit & { json?: unknown; timeoutMs?: number };
 
 // A non-streaming request that never returns leaves the UI stuck forever — the
 // audit hit exactly this: `POST /v1/campaigns` stayed pending and the "drafting
@@ -95,21 +95,22 @@ async function refreshOnce(): Promise<boolean> {
 
 // ---------- Core request ---------------------------------------------------
 
-function buildHeaders(init: RequestInit_): Headers {
-  const headers = new Headers(init.headers);
-  if (init.json !== undefined) {
-    headers.set("content-type", "application/json");
-  }
-  return headers;
-}
-
 function methodOf(init: RequestInit_): string {
   return (init.method || "GET").toUpperCase();
 }
 
 async function doFetch(path: string, init: RequestInit_): Promise<Response> {
-  const { json, headers: _h, signal: callerSignal, ...rest } = init;
-  const headers = buildHeaders(init);
+  const {
+    json,
+    headers: providedHeaders,
+    signal: callerSignal,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
+    ...rest
+  } = init;
+  const headers = new Headers(providedHeaders);
+  if (json !== undefined) {
+    headers.set("content-type", "application/json");
+  }
 
   // Only arm the default deadline when the caller didn't bring its own signal.
   // SSE streams and user-cancelable calls pass a signal and manage their own
@@ -122,7 +123,7 @@ async function doFetch(path: string, init: RequestInit_): Promise<Response> {
     timeoutId = setTimeout(() => {
       timedOut = true;
       controller.abort();
-    }, DEFAULT_TIMEOUT_MS);
+    }, timeoutMs);
     signal = controller.signal;
   }
 
@@ -144,7 +145,7 @@ async function doFetch(path: string, init: RequestInit_): Promise<Response> {
       kind,
       status: 0,
       detail: timedOut
-        ? `request timed out after ${DEFAULT_TIMEOUT_MS}ms`
+        ? `request timed out after ${timeoutMs}ms`
         : ((cause as Error)?.message ?? "fetch failed"),
     });
     emit({ type: "api:error", error: err, method: methodOf(init), path });

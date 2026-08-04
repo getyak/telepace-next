@@ -183,6 +183,13 @@ async def interview_ws(websocket: WebSocket, campaign_id: UUID) -> None:
             msg = orjson.loads(raw)
             if msg.get("type") != VoiceWSMessage.REPLY:
                 continue
+            # Refresh elapsed time in isolated interview memory before the
+            # Interviewer may emit InterviewCompleted on this turn.
+            await hydrate_respondent_interview_context(
+                state,
+                campaign_id,
+                interview_id,
+            )
             cmd = ReplyInInterview(
                 actor=f"{settings.actor_prefix_respondent}:{respondent_id}",
                 campaign_id=campaign_id,

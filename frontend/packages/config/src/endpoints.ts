@@ -27,6 +27,7 @@ export const apiEndpoints = {
     dispatch: (id: string) => `/v1/campaigns/${id}/dispatch`,
     simulate: (id: string) => `/v1/campaigns/${id}/simulate`,
     insights: (id: string) => `/v1/campaigns/${id}/insights`,
+    evidence: (id: string) => `/v1/campaigns/${id}/evidence`,
     settings: (id: string) => `/v1/campaigns/${id}/settings`,
     respondent: (id: string) => `/v1/campaigns/${id}/respondent`,
   },
@@ -37,6 +38,11 @@ export const apiEndpoints = {
   },
   agent: {
     chat: "/v1/agent/chat",
+    runs: "/v1/agent/runs",
+    run: (runId: string) => `/v1/agent/runs/${runId}`,
+    runEvents: (runId: string) => `/v1/agent/runs/${runId}/events`,
+    confirmation: (runId: string, confirmationId: string) =>
+      `/v1/agent/runs/${runId}/confirmations/${confirmationId}`,
   },
   billing: {
     summary: "/v1/billing/summary",

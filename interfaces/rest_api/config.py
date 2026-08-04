@@ -110,6 +110,12 @@ class Settings(BaseSettings):
     jwt_issuer: str = "telepace"
     jwt_audience: str = "telepace-api"
 
+    # --- MCP stdio authentication
+    # Codex passes this to its child MCP process via the environment. Keep the
+    # value out of .codex/config.toml so it cannot leak into repository state.
+    mcp_access_token: str = ""
+    mcp_require_auth: bool = False
+
     # --- Password policy
     password_min_length: int = 8
     # PBKDF2-SHA256 iteration count. OWASP-2023 recommends >= 600_000;
@@ -261,6 +267,10 @@ class Settings(BaseSettings):
     # --- Agent LLM tuning (max_tokens / temperature per agent)
     designer_max_tokens: int = 4000
     designer_temperature: float = 0.3
+    designer_assess_timeout_seconds: float = 12.0
+    # Keep interactive campaign creation below the browser's request deadline.
+    # A deterministic, usable discussion guide is returned when this expires.
+    designer_seed_timeout_seconds: float = 25.0
     interviewer_max_tokens: int = 1600
     interviewer_temperature: float = 0.5
     analyst_max_tokens: int = 3000

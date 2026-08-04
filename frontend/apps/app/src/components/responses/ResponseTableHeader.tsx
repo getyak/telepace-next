@@ -12,6 +12,8 @@ type ResponseTableHeaderProps = {
   onSourceFilter: (value: string | null) => void;
   availableChannels: string[];
   availableSources: string[];
+  channelLabel: (value: string) => string;
+  sourceLabel: (value: string) => string;
   onExport: () => void;
   totalCount: number;
   filteredCount: number;
@@ -26,6 +28,8 @@ export function ResponseTableHeader({
   onSourceFilter,
   availableChannels,
   availableSources,
+  channelLabel,
+  sourceLabel,
   onExport,
   totalCount,
   filteredCount,
@@ -53,7 +57,7 @@ export function ResponseTableHeader({
           <option value="">{t("allChannels")}</option>
           {availableChannels.map((ch) => (
             <option key={ch} value={ch}>
-              {ch.replace(/_/g, " ")}
+              {channelLabel(ch)}
             </option>
           ))}
         </select>
@@ -68,7 +72,7 @@ export function ResponseTableHeader({
           <option value="">{t("allSources")}</option>
           {availableSources.map((src) => (
             <option key={src} value={src}>
-              {src}
+              {sourceLabel(src)}
             </option>
           ))}
         </select>

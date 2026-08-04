@@ -1,31 +1,22 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { cn } from "@telepace/ui";
 
-export type StudyOption = { id: string; nameKey: string };
-
-export const MOCK_STUDIES: StudyOption[] = [
-  { id: "onboarding-q3", nameKey: "mockStudyOnboarding" },
-  { id: "pricing-sso", nameKey: "mockStudyPricing" },
-  { id: "mcp-expansion", nameKey: "mockStudyMcp" },
-  { id: "churn-winback", nameKey: "mockStudyChurn" },
-];
+export type StudyOption = { id: string; name: string };
 
 export function StudySelector({
-  studies = MOCK_STUDIES,
+  studies,
   selectedIds,
   onChange,
   allLabel,
   label,
 }: {
-  studies?: StudyOption[];
+  studies: StudyOption[];
   selectedIds: string[];
   onChange: (ids: string[]) => void;
   allLabel: string;
   label: string;
 }) {
-  const t = useTranslations("app.copilot");
   const allSelected = selectedIds.length === studies.length;
 
   function toggle(id: string) {
@@ -53,7 +44,7 @@ export function StudySelector({
             selected={selectedIds.includes(study.id)}
             onClick={() => toggle(study.id)}
           >
-            {t(study.nameKey)}
+            {study.name}
           </Pill>
         ))}
       </div>

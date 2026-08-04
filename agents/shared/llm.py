@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import json
 from collections.abc import AsyncIterator
+from contextlib import suppress
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from core.constants import DEFAULT_LLM_MAX_TOKENS, DEFAULT_LLM_TEMPERATURE
 
 if TYPE_CHECKING:
-    pass
+    from interfaces.rest_api.config import Settings
 
 
 class LLMConfigError(RuntimeError):
@@ -20,13 +21,14 @@ class LLMConfigError(RuntimeError):
 @dataclass(slots=True)
 class LLMMessage:
     role: str  # "system" | "user" | "assistant"
-    content: str
+    content: str | list[dict[str, Any]]
 
 
 @dataclass(slots=True)
 class LLMToolCall:
     name: str
     arguments: dict[str, Any]
+    id: str = ""
 
 
 @dataclass(slots=True)
@@ -150,7 +152,11 @@ class AnthropicLLM:
         max_tokens: int = DEFAULT_LLM_MAX_TOKENS,
         temperature: float = DEFAULT_LLM_TEMPERATURE,
     ) -> LLMResponse:
-        api_messages = [{"role": m.role, "content": m.content} for m in messages if m.role != "system"]
+        api_messages = [
+            {"role": m.role, "content": m.content}
+            for m in messages
+            if m.role != "system"
+        ]
         kwargs: dict[str, Any] = {
             "model": model or self._default_model,
             "system": system,
@@ -176,7 +182,13 @@ class AnthropicLLM:
                         args = json.loads(args)
                     except json.JSONDecodeError:
                         args = {}
-                calls.append(LLMToolCall(name=getattr(block, "name", ""), arguments=args))
+                calls.append(
+                    LLMToolCall(
+                        name=getattr(block, "name", ""),
+                        arguments=args,
+                        id=getattr(block, "id", "") or "",
+                    )
+                )
 
         usage = getattr(resp, "usage", None)
         return LLMResponse(
@@ -284,6 +296,72 @@ class OpenRouterLLM:
             )
         return out
 
+    @staticmethod
+    def _translate_messages(
+        system: str,
+        messages: list[LLMMessage],
+    ) -> list[dict[str, Any]]:
+        """Translate provider-neutral content blocks to OpenAI chat messages."""
+        out: list[dict[str, Any]] = []
+        if system:
+            out.append({"role": "system", "content": system})
+        for message in messages:
+            if message.role == "system":
+                continue
+            if isinstance(message.content, str):
+                out.append({"role": message.role, "content": message.content})
+                continue
+
+            text_parts = [
+                str(block.get("text", ""))
+                for block in message.content
+                if block.get("type") == "text" and block.get("text")
+            ]
+            if message.role == "assistant":
+                tool_calls = []
+                for block in message.content:
+                    if block.get("type") != "tool_use":
+                        continue
+                    tool_calls.append(
+                        {
+                            "id": str(block["id"]),
+                            "type": "function",
+                            "function": {
+                                "name": str(block["name"]),
+                                "arguments": json.dumps(
+                                    block.get("input", {}),
+                                    default=str,
+                                    separators=(",", ":"),
+                                ),
+                            },
+                        }
+                    )
+                assistant: dict[str, Any] = {
+                    "role": "assistant",
+                    "content": "\n".join(text_parts) or None,
+                }
+                if tool_calls:
+                    assistant["tool_calls"] = tool_calls
+                out.append(assistant)
+                continue
+
+            if text_parts:
+                out.append({"role": message.role, "content": "\n".join(text_parts)})
+            for block in message.content:
+                if block.get("type") != "tool_result":
+                    continue
+                content = block.get("content", "")
+                if not isinstance(content, str):
+                    content = json.dumps(content, default=str, separators=(",", ":"))
+                out.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": str(block["tool_use_id"]),
+                        "content": content,
+                    }
+                )
+        return out
+
     async def complete(
         self,
         *,
@@ -294,13 +372,7 @@ class OpenRouterLLM:
         max_tokens: int = DEFAULT_LLM_MAX_TOKENS,
         temperature: float = DEFAULT_LLM_TEMPERATURE,
     ) -> LLMResponse:
-        api_messages: list[dict[str, Any]] = []
-        if system:
-            api_messages.append({"role": "system", "content": system})
-        for m in messages:
-            if m.role == "system":
-                continue
-            api_messages.append({"role": m.role, "content": m.content})
+        api_messages = self._translate_messages(system, messages)
 
         kwargs: dict[str, Any] = {
             "model": model or self._default_model,
@@ -343,7 +415,13 @@ class OpenRouterLLM:
                 args = json.loads(raw) if isinstance(raw, str) else raw
             except json.JSONDecodeError:
                 args = {}
-            calls.append(LLMToolCall(name=getattr(fn, "name", ""), arguments=args or {}))
+            calls.append(
+                LLMToolCall(
+                    name=getattr(fn, "name", ""),
+                    arguments=args or {},
+                    id=getattr(tc, "id", "") or "",
+                )
+            )
 
         usage = getattr(resp, "usage", None)
         return LLMResponse(
@@ -364,13 +442,7 @@ class OpenRouterLLM:
         max_tokens: int = DEFAULT_LLM_MAX_TOKENS,
         temperature: float = DEFAULT_LLM_TEMPERATURE,
     ) -> AsyncIterator[StreamChunk]:
-        api_messages: list[dict[str, Any]] = []
-        if system:
-            api_messages.append({"role": "system", "content": system})
-        for m in messages:
-            if m.role == "system":
-                continue
-            api_messages.append({"role": m.role, "content": m.content})
+        api_messages = self._translate_messages(system, messages)
 
         kwargs: dict[str, Any] = {
             "model": model or self._default_model,
@@ -414,10 +486,8 @@ class OpenRouterLLM:
         finally:
             close = getattr(stream, "close", None)
             if close is not None:
-                try:
+                with suppress(Exception):
                     await close()
-                except Exception:
-                    pass
 
         for frag in tool_frags.values():
             try:

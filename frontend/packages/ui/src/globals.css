@@ -11,7 +11,10 @@
        Tailwind utilities read tokens.ts; plain CSS reads these vars). */
     --paper: #F8F6F1;
     --paper-elevated: #FAF8F3;
+    --paper-sunken: #EFEBE2;
     --ink: #141414;
+    --body: #4A4640;
+    --muted: #7A746C;
     --hairline: #E8E4DB;
     --desk: #E4DDCE;
     --accent: #4A5D3B;
@@ -132,6 +135,150 @@
     background-color: var(--paper-elevated);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+  }
+}
+
+/* ---------- Study manuscript --------------------------------------------- */
+
+/* The creation canvas is a desk, not another application panel. Its gradient
+   is almost imperceptible, but enough contrast remains around the sheet for
+   the page edge and depth to register at a glance. */
+.tp-study-desk {
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% -18%, rgba(250, 248, 243, 0.88), transparent 48%),
+    linear-gradient(145deg, #e9e3d8 0%, var(--desk) 100%);
+}
+.tp-study-desk::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  opacity: 0.018;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+/* One continuous sheet replaces a stack of bordered cards. The 2px radius is
+   intentionally paper-like rather than app-card-like; the shadow separates
+   material planes without making the document float theatrically. */
+.tp-study-sheet {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(122, 116, 108, 0.14);
+  border-radius: 2px;
+  background: var(--paper-elevated);
+  box-shadow:
+    0 1px 1px rgba(20, 20, 20, 0.035),
+    0 18px 52px rgba(77, 67, 52, 0.09);
+}
+.tp-study-sheet::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  opacity: 0.012;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
+}
+
+/* Chrome and manuscript labels have separate voices. Chrome stays compact;
+   document labels use sentence case and modest tracking instead of repeated
+   all-caps overlines and decorative mini-rules. */
+.tp-study-chrome-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.075em;
+}
+.tp-study-section-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.035em;
+  line-height: 1.45;
+}
+.tp-study-section {
+  position: relative;
+}
+.tp-study-section-lined {
+  border-top: 1px solid var(--hairline);
+  padding-top: 1.55rem;
+}
+
+/* The research task is the only callout surface in the manuscript. One leading
+   rule communicates hierarchy; there is no second outline competing with it. */
+.tp-study-callout {
+  border-left: 2px solid rgba(74, 93, 59, 0.68);
+  border-radius: 4px;
+  background: rgba(220, 228, 210, 0.42);
+}
+
+/* Questions behave like document rows. Resting dividers preserve scan rhythm;
+   the quiet wash and 2px nudge appear only when the row is actionable. */
+.tp-study-question-list {
+  border-top: 1px solid var(--hairline);
+}
+.tp-study-question {
+  border-bottom: 1px solid var(--hairline);
+  transition:
+    color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .tp-study-question:hover {
+    background: rgba(239, 235, 226, 0.54);
+    transform: translateX(2px);
+  }
+}
+
+/* Initial guide sections settle onto the page in reading order. Delays are
+   assigned by the component so this is a single orchestrated entrance, not a
+   set of unrelated animations. */
+@keyframes tp-study-emerge-kf {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tp-study-emerge {
+  animation: tp-study-emerge-kf 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Drafting state: ruled shapes form once in document order. Only the slim
+   insertion cursor loops, keeping the page alive without a shimmer sweep. */
+@keyframes tp-study-sketch-in-kf {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tp-study-sketch-in,
+.tp-study-sketch-line {
+  animation: tp-study-sketch-in-kf 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.tp-study-sketch-line {
+  border-radius: 999px;
+  background: rgba(122, 116, 108, 0.16);
+}
+@keyframes tp-study-cursor-kf {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+.tp-study-writing-cursor {
+  animation: tp-study-cursor-kf 1.45s ease-in-out infinite;
+}
+
+/* On phones the paper becomes the viewport. Removing the redundant desk edge
+   saves 24px and avoids a card-inside-screen composition. */
+@media (max-width: 639px) {
+  .tp-study-desk {
+    background: var(--paper-elevated);
+  }
+  .tp-study-desk::before {
+    display: none;
+  }
+  .tp-study-sheet {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 }
 
@@ -401,6 +548,10 @@ dialog.tp-dialog::backdrop {
   .tp-guide-grow,
   .tp-chip-in,
   .tp-msg-in,
+  .tp-study-emerge,
+  .tp-study-sketch-in,
+  .tp-study-sketch-line,
+  .tp-study-writing-cursor,
   dialog.tp-dialog[open] {
     animation: none;
   }

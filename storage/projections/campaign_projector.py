@@ -18,6 +18,7 @@ from core.events import (
     CampaignReady,
     EventBase,
     InsightGenerated,
+    InsightSetReplaced,
     InterviewAbandoned,
     InterviewCompleted,
     InterviewStarted,
@@ -128,11 +129,10 @@ class CampaignProjector:
         org_id: UUID | None = None,
         initial_spec: CampaignSpec | None = None,
     ) -> None:
-        async with self._pool.acquire() as conn:
-            async with conn.transaction():
-                if isinstance(event, StudyDrafted):
-                    assert initial_spec is not None and org_id is not None
-                    await conn.execute(
+        async with self._pool.acquire() as conn, conn.transaction():
+            if isinstance(event, StudyDrafted):
+                assert initial_spec is not None and org_id is not None
+                await conn.execute(
                         """
                         INSERT INTO campaigns
                           (id, org_id, author_id, title, status, spec, version, created_at, updated_at, last_event_seq)
@@ -147,52 +147,71 @@ class CampaignProjector:
                         orjson.dumps(initial_spec.model_dump(mode="json")).decode(),
                         event.ts,
                         seq,
-                    )
-                elif isinstance(event, SpecUpdated):
-                    await conn.execute(
+                )
+            elif isinstance(event, SpecUpdated):
+                # Title edits share the durable study-update event but are
+                # projected into the campaign column, never into CampaignSpec.
+                title = event.patch.get("title")
+                spec_patch = {
+                    key: value
+                    for key, value in event.patch.items()
+                    if key != "title"
+                }
+                await conn.execute(
                         """
                         UPDATE campaigns
-                        SET spec = spec || $2::jsonb,
-                            updated_at = $3,
-                            last_event_seq = $4,
+                        SET title = COALESCE($2, title),
+                            spec = spec || $3::jsonb,
+                            updated_at = $4,
+                            last_event_seq = $5,
                             version = version + 1
-                        WHERE id = $1
+                        WHERE id = $1 AND last_event_seq < $5
                         """,
                         event.campaign_id,
-                        orjson.dumps(event.patch).decode(),
+                        title if isinstance(title, str) else None,
+                        orjson.dumps(spec_patch).decode(),
                         event.ts,
                         seq,
-                    )
-                elif isinstance(event, CampaignReady | CampaignPublished | CampaignClosed):
-                    status = {
-                        CampaignReady: CampaignStatus.READY,
-                        CampaignPublished: CampaignStatus.LIVE,
-                        CampaignClosed: CampaignStatus.CLOSED,
-                    }[type(event)]
-                    await conn.execute(
-                        "UPDATE campaigns SET status=$2, updated_at=$3, last_event_seq=$4 WHERE id=$1",
+                )
+            elif isinstance(event, CampaignReady | CampaignPublished | CampaignClosed):
+                status = {
+                    CampaignReady: CampaignStatus.READY,
+                    CampaignPublished: CampaignStatus.LIVE,
+                    CampaignClosed: CampaignStatus.CLOSED,
+                }[type(event)]
+                await conn.execute(
+                        """
+                        UPDATE campaigns
+                        SET status=$2, updated_at=$3, last_event_seq=$4
+                        WHERE id=$1 AND last_event_seq < $4
+                        """,
                         event.campaign_id,
                         status.value,
                         event.ts,
                         seq,
-                    )
-                elif isinstance(event, InviteDispatched):
-                    await self._bump(conn, event.campaign_id, seq, invited=1)
-                elif isinstance(event, InterviewStarted):
-                    await self._bump(conn, event.campaign_id, seq, started=1)
-                elif isinstance(event, InterviewCompleted):
-                    await self._bump(
-                        conn,
-                        event.campaign_id,
-                        seq,
-                        completed=1,
-                        total_duration_seconds=event.duration_seconds,
-                        total_goal_coverage=event.goal_coverage,
-                    )
-                elif isinstance(event, InterviewAbandoned):
-                    await self._bump(conn, event.campaign_id, seq, abandoned=1)
-                elif isinstance(event, InsightGenerated):
-                    await conn.execute(
+                )
+            elif isinstance(event, InviteDispatched):
+                await self._bump(conn, event.campaign_id, seq, invited=1)
+            elif isinstance(event, InterviewStarted):
+                await self._bump(conn, event.campaign_id, seq, started=1)
+            elif isinstance(event, InterviewCompleted):
+                await self._bump(
+                    conn,
+                    event.campaign_id,
+                    seq,
+                    completed=1,
+                    total_duration_seconds=event.duration_seconds,
+                    total_goal_coverage=event.goal_coverage,
+                )
+            elif isinstance(event, InterviewAbandoned):
+                await self._bump(conn, event.campaign_id, seq, abandoned=1)
+            elif isinstance(event, InsightSetReplaced):
+                await conn.execute(
+                    "DELETE FROM insights WHERE campaign_id=$1",
+                    event.campaign_id,
+                )
+            elif isinstance(event, InsightGenerated):
+                await conn.execute(
                         """
                         INSERT INTO insights (id, campaign_id, kind, title, confidence, body, created_at)
                         VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7)
@@ -205,7 +224,7 @@ class CampaignProjector:
                         event.confidence,
                         orjson.dumps(event.body).decode(),
                         event.ts,
-                    )
+                )
 
     @staticmethod
     async def _bump(
@@ -283,8 +302,15 @@ class CampaignProjector:
             spent_usd=row["spent_usd"],
         )
 
-    async def list_campaigns(self, org_id: UUID) -> list[dict[str, Any]]:
-        """All campaigns for an org, newest first, with progress counters inlined."""
+    async def list_campaigns(
+        self,
+        org_id: UUID,
+        *,
+        query: str | None = None,
+        status: str | None = None,
+        limit: int | None = None,
+    ) -> list[dict[str, Any]]:
+        """Campaigns for an org, newest first, with optional bounded filters."""
         rows = await self._pool.fetch(
             """
             SELECT c.id, c.title, c.status, c.spec, c.created_at, c.updated_at,
@@ -295,9 +321,15 @@ class CampaignProjector:
             FROM campaigns c
             LEFT JOIN progress_snapshots p ON p.campaign_id = c.id
             WHERE c.org_id = $1
+              AND ($2::text IS NULL OR c.title ILIKE '%' || $2 || '%')
+              AND ($3::text IS NULL OR c.status = $3)
             ORDER BY c.updated_at DESC
+            LIMIT COALESCE($4, 2147483647)
             """,
             org_id,
+            query,
+            status,
+            limit,
         )
         out: list[dict[str, Any]] = []
         for row in rows:

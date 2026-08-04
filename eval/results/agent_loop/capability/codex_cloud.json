@@ -1,0 +1,31 @@
+{
+  "agent": "codex_cloud",
+  "as_of": "2026-07-31",
+  "checks": {
+    "C1": {"value": 0, "refs": [], "note": "Public docs do not expose the internal provider block representation."},
+    "C2": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/long-running-work"], "note": "Chats retain their own context and results."},
+    "C3": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/environments/cloud-environment"], "note": "A checked-out repository and container file system externalize working state."},
+    "C4": {"value": 1, "refs": ["https://learn.chatgpt.com/guides/best-practices"], "note": "Codex supports manual and automatic chat compaction."},
+    "D1": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/cloud"], "note": "Cloud work is delegated to an isolated hosted environment."},
+    "D2": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/environments/cloud-environment"], "note": "The agent runs remotely in a configured container."},
+    "D3": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/long-running-work"], "note": "Goals and chats can be paused, resumed, and steered."},
+    "P1": {"value": 1, "refs": ["https://learn.chatgpt.com/guides/best-practices"], "note": "Plan mode and execution-plan guidance are documented."},
+    "P2": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/long-running-work"], "note": "Goal mode treats the goal as completion criteria and asks for verification."},
+    "P3": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/environments/cloud-environment"], "note": "The cloud loop edits, runs checks, and tries to validate work."},
+    "P4": {"value": 0.75, "refs": ["https://learn.chatgpt.com/guides/best-practices"], "note": "Testing and review loops expose failures, but internal error-context semantics are not public."},
+    "P5": {"value": 0, "refs": [], "note": "No public per-tool circuit-breaker contract found."},
+    "M1": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/long-running-work"], "note": "Same-chat context persists through long work."},
+    "M2": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/environments/cloud-environment"], "note": "Cloud containers provide a repository workspace."},
+    "M3": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/agent-configuration/agents-md"], "note": "AGENTS.md carries durable project guidance."},
+    "S1": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/agent-configuration/subagents"], "note": "Independent subagent work can run in parallel."},
+    "S2": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/agent-configuration/subagents"], "note": "Subagents have separate threads and return summaries."},
+    "G1": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/sandboxing"], "note": "Sandbox and approval policy constrain actions."},
+    "G2": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/long-running-work"], "note": "Goals pause for decisions without broadening authorization."},
+    "G3": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/environments/cloud-environment"], "note": "Each cloud chat runs in an isolated environment."},
+    "X1": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/environments/cloud-environment"], "note": "Commands, answers, and diffs are inspectable."},
+    "X2": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/long-running-work"], "note": "Goal progress and steering are surfaced."},
+    "X3": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/long-running-work"], "note": "Running goals can be paused and resumed."},
+    "X4": {"value": 0.75, "refs": ["https://learn.chatgpt.com/guides/best-practices"], "note": "Session status and token-consuming subagents are visible; full cost telemetry varies by surface."},
+    "X5": {"value": 1, "refs": ["https://learn.chatgpt.com/docs/environments/cloud-environment"], "note": "Completion includes an answer, diff, and PR/follow-up handoff."}
+  }
+}

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 from typing import Any
 from uuid import uuid4
@@ -70,6 +71,21 @@ async def test_on_create_returns_events_and_state_delta() -> None:
     assert result.response["status"] == "draft"
 
 
+async def test_on_create_honors_caller_supplied_campaign_id_for_idempotency() -> None:
+    campaign_id = uuid4()
+    agent = DesignerAgent(llm=MockLLM(), max_tokens=1500, temperature=0.3)
+
+    result = await agent.run(
+        _create(campaign_id),
+        context={},
+        harness=None,  # type: ignore[arg-type]
+    )
+
+    assert result.events[0].campaign_id == campaign_id
+    assert result.events[1].campaign_id == campaign_id
+    assert result.response["campaign_id"] == str(campaign_id)
+
+
 async def test_on_create_threads_respondent_experience_fields_into_spec() -> None:
     """T-111: welcome/consent/end/reward/redirect must survive create -> spec."""
     agent = DesignerAgent(llm=MockLLM(), max_tokens=1500, temperature=0.3)
@@ -99,14 +115,12 @@ async def test_on_refine_parses_spec_patch_from_llm_text() -> None:
     canned = LLMResponse(
         text=(
             "Sure. I'll add a competitor question.\n"
-            "<spec_patch>{\"questions\": [\"Which competitors did you evaluate?\"]}</spec_patch>"
+            '<spec_patch>{"questions": ["Which competitors did you evaluate?"]}</spec_patch>'
         )
     )
     agent = DesignerAgent(llm=MockLLM(canned=[canned]), max_tokens=1500, temperature=0.3)
     cid = uuid4()
-    refine = RefineOutline(
-        actor="user:x", campaign_id=cid, instruction="Add competitor question."
-    )
+    refine = RefineOutline(actor="user:x", campaign_id=cid, instruction="Add competitor question.")
     result = await agent.run(refine, context={"spec": {"title": "t"}}, harness=None)  # type: ignore[arg-type]
     assert len(result.events) == 1
     assert result.events[0].type == "study.spec_updated"
@@ -122,10 +136,36 @@ async def test_on_refine_handles_missing_spec_patch_gracefully() -> None:
     assert result.response["patch"] == {}
 
 
-async def test_on_refine_handles_invalid_json_in_spec_patch() -> None:
-    canned = LLMResponse(
-        text="Broken:\n<spec_patch>{not json,,,}</spec_patch>"
+async def test_on_refine_adds_quoted_question_when_offline_model_returns_no_patch() -> None:
+    agent = DesignerAgent(llm=MockLLM(), max_tokens=1500, temperature=0.3)
+    cid = uuid4()
+    refine = RefineOutline(
+        actor="user:x",
+        campaign_id=cid,
+        instruction='Add the question "What makes pricing hard to understand?"',
     )
+    result = await agent.run(
+        refine,
+        context={
+            "spec": {
+                "primary_language": "en",
+                "outline": {
+                    "items": [],
+                    "estimated_duration_minutes": 10,
+                    "success_criteria": [],
+                },
+            }
+        },
+        harness=None,  # type: ignore[arg-type]
+    )
+
+    assert result.response["patch"]["outline"]["items"][0]["question"] == (
+        "What makes pricing hard to understand?"
+    )
+
+
+async def test_on_refine_handles_invalid_json_in_spec_patch() -> None:
+    canned = LLMResponse(text="Broken:\n<spec_patch>{not json,,,}</spec_patch>")
     agent = DesignerAgent(llm=MockLLM(canned=[canned]), max_tokens=1500, temperature=0.3)
     refine = RefineOutline(actor="user:x", campaign_id=uuid4(), instruction="X")
     result = await agent.run(refine, context={"spec": {}}, harness=None)  # type: ignore[arg-type]
@@ -189,6 +229,65 @@ async def test_explicit_language_survives_llm_failure() -> None:
     agent = DesignerAgent(llm=FailingLLM(), max_tokens=1500, temperature=0.3)  # type: ignore[arg-type]
     result = await agent.run(_create_zh(), context={}, harness=None)  # type: ignore[arg-type]
     assert result.state_delta["spec"]["primary_language"] == "zh"
+    assert len(result.state_delta["spec"]["outline"]["items"]) == 6
+    assert len(result.state_delta["spec"]["hypotheses"]) == 3
+    assert result.state_delta["spec"]["target_persona"]
+
+
+async def test_seed_timeout_returns_usable_fallback_without_waiting_for_model() -> None:
+    class SlowLLM:
+        async def complete(self, **kwargs: Any) -> LLMResponse:
+            await asyncio.sleep(10)
+            return LLMResponse(text="never reached")
+
+        async def stream(self, **kwargs: Any):
+            raise NotImplementedError
+
+    agent = DesignerAgent(
+        llm=SlowLLM(),  # type: ignore[arg-type]
+        max_tokens=1500,
+        temperature=0.3,
+        seed_timeout_seconds=0.01,
+    )
+    loop = asyncio.get_running_loop()
+    started = loop.time()
+
+    result = await agent.run(_create(), context={}, harness=None)  # type: ignore[arg-type]
+
+    assert loop.time() - started < 0.5
+    spec = result.state_delta["spec"]
+    assert len(spec["outline"]["items"]) == 6
+    assert len(spec["outline"]["success_criteria"]) == 2
+    assert spec["primary_language"] == "en"
+
+
+async def test_seed_hard_deadline_does_not_wait_for_cancellation_cleanup() -> None:
+    class CancellationResistantLLM:
+        async def complete(self, **kwargs: Any) -> LLMResponse:
+            try:
+                await asyncio.sleep(10)
+            except asyncio.CancelledError:
+                # Mirrors an upstream SDK unwinding an internal retry before
+                # acknowledging cancellation.
+                await asyncio.sleep(0.25)
+            return LLMResponse(text="too late")
+
+        async def stream(self, **kwargs: Any):
+            raise NotImplementedError
+
+    agent = DesignerAgent(
+        llm=CancellationResistantLLM(),  # type: ignore[arg-type]
+        max_tokens=1500,
+        temperature=0.3,
+        seed_timeout_seconds=0.01,
+    )
+    loop = asyncio.get_running_loop()
+    started = loop.time()
+
+    result = await agent.run(_create(), context={}, harness=None)  # type: ignore[arg-type]
+
+    assert loop.time() - started < 0.1
+    assert len(result.state_delta["spec"]["outline"]["items"]) == 6
 
 
 async def test_inferred_language_bootstraps_primary_language() -> None:
@@ -220,7 +319,9 @@ async def test_refine_injects_language_constraint_from_persisted_spec() -> None:
         actor="user:x", campaign_id=uuid4(), instruction="Add a pricing question."
     )
     await agent.run(
-        refine, context={"spec": {"primary_language": "zh"}}, harness=None  # type: ignore[arg-type]
+        refine,
+        context={"spec": {"primary_language": "zh"}},
+        harness=None,  # type: ignore[arg-type]
     )
     assert "LANGUAGE (already decided" in (llm.last_user_msg or "")
     assert ": zh" in (llm.last_user_msg or "")

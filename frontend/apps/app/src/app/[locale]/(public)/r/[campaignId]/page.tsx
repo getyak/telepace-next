@@ -37,7 +37,7 @@ type SearchParams = {
   source?: string;
 };
 
-type Progress = { current: number | null; total: number };
+type Progress = { current: number | null; total: number; probe: number };
 type PublicInfoState = "loading" | "ready" | "unavailable";
 
 // The completion copy actually shown on "done" — WS wrap_up payload wins
@@ -78,7 +78,11 @@ export default function RespondentPage(props: {
   const [dropped, setDropped] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
   const [speaking, setSpeaking] = useState(false);
-  const [progress, setProgress] = useState<Progress>({ current: null, total: 0 });
+  const [progress, setProgress] = useState<Progress>({
+    current: null,
+    total: 0,
+    probe: 0,
+  });
   const [awaiting, setAwaiting] = useState(false);
   // Set when the mic can't be accessed in voice mode — the orb alone leaves the
   // respondent stuck on "connecting…" with no visible reason or way out, so we
@@ -303,6 +307,7 @@ export default function RespondentPage(props: {
           setProgress({
             current: msg.progress.question_order ?? 1,
             total: msg.progress.total_questions,
+            probe: 0,
           });
         }
         const opening = msg.opening;
@@ -326,8 +331,16 @@ export default function RespondentPage(props: {
         const turnProgress = msg.result?.progress;
         if (turnProgress?.total_questions) {
           setProgress((p) => ({
-            current: turnProgress.question_order ?? p.current,
+            current:
+              msg.result?.kind === VoiceEventType.WrapUp
+                ? turnProgress.total_questions!
+                : (turnProgress.question_order ?? p.current),
             total: turnProgress.total_questions!,
+            probe:
+              msg.result?.kind === "probe" &&
+              (turnProgress.question_order ?? p.current) === p.current
+                ? p.probe + 1
+                : 0,
           }));
         }
         window.setTimeout(() => setSpeaking(false), SPEAKING_INDICATOR_MS);
@@ -343,10 +356,21 @@ export default function RespondentPage(props: {
       }
       if (msg.type === VoiceEventType.Error) {
         setAwaiting(false);
+        const recoverable = msg.recoverable ?? true;
         postEmbedEvent("telepace:error", {
           code: msg.reason || "interview_error",
-          recoverable: msg.recoverable ?? true,
+          recoverable,
         });
+        if (!recoverable) {
+          // A rejected handshake means no interview ever started, so showing
+          // "your previous answers are saved" would be both confusing and
+          // untrue. Move to the stable unavailable state before closing.
+          closedByUs = true;
+          setConnected(false);
+          setPublicInfoState("unavailable");
+          ws.close();
+          return;
+        }
         setMessages((prev) => [
           ...prev.filter((m) => !m.pending),
           {
@@ -620,6 +644,7 @@ export default function RespondentPage(props: {
         }}
         welcomeMessage={publicInfo?.welcome_message}
         consentText={publicInfo?.consent_text}
+        estimatedMinutes={publicInfo?.estimated_duration_minutes ?? 15}
         embedded={embedded}
       />
     );
@@ -781,10 +806,16 @@ export default function RespondentPage(props: {
       {progress.total > 0 && (
         <div className="pointer-events-none absolute bottom-6 right-6 z-10 sm:bottom-8 sm:right-9">
           <span className="font-mono text-[11px] tabular-nums text-muted">
-            {t("progress.questionOf", {
-              current: Math.min(progress.current ?? 1, progress.total),
-              total: progress.total,
-            })}
+            {progress.probe > 0
+              ? t("progress.questionOfWithProbe", {
+                  current: Math.min(progress.current ?? 1, progress.total),
+                  total: progress.total,
+                  probe: progress.probe,
+                })
+              : t("progress.questionOf", {
+                  current: Math.min(progress.current ?? 1, progress.total),
+                  total: progress.total,
+                })}
           </span>
         </div>
       )}
@@ -835,11 +866,13 @@ function Consent({
   onStart,
   welcomeMessage,
   consentText,
+  estimatedMinutes,
   embedded,
 }: {
   onStart: (mode: "text" | "voice") => void;
   welcomeMessage?: string;
   consentText?: string;
+  estimatedMinutes: number;
   embedded: boolean;
 }) {
   const t = useTranslations("respondent.consent");
@@ -867,7 +900,7 @@ function Consent({
           {t("title")}
         </h1>
         <p className={cn("leading-relaxed text-body", embedded ? "text-base" : "text-lg")}>
-          {welcomeMessage || t("body")}
+          {welcomeMessage || t("body", { minutes: estimatedMinutes })}
         </p>
         {requireConsent && (
           <label className="mx-auto mt-6 flex max-w-sm items-start gap-3 text-left text-sm text-body">
@@ -994,7 +1027,15 @@ function TopProgressRule({ progress }: { progress: Progress }) {
       aria-valuenow={current}
       aria-valuemin={1}
       aria-valuemax={progress.total}
-      aria-valuetext={t("questionOf", { current, total: progress.total })}
+      aria-valuetext={
+        progress.probe > 0
+          ? t("questionOfWithProbe", {
+              current,
+              total: progress.total,
+              probe: progress.probe,
+            })
+          : t("questionOf", { current, total: progress.total })
+      }
       className="fixed inset-x-0 top-0 z-30 h-[3px] bg-transparent"
     >
       <div
@@ -1021,7 +1062,15 @@ function ProgressBar({ progress, embedded }: { progress: Progress; embedded?: bo
       aria-valuenow={current}
       aria-valuemin={1}
       aria-valuemax={progress.total}
-      aria-valuetext={t("questionOf", { current, total: progress.total })}
+      aria-valuetext={
+        progress.probe > 0
+          ? t("questionOfWithProbe", {
+              current,
+              total: progress.total,
+              probe: progress.probe,
+            })
+          : t("questionOf", { current, total: progress.total })
+      }
       className={cn(
         // Standalone (voice mode): a sticky translucent bar over the page with
         // a rule. Embedded (stage card): NO bottom rule — the progress dissolves
@@ -1034,7 +1083,15 @@ function ProgressBar({ progress, embedded }: { progress: Progress; embedded?: bo
     >
       <div className={cn("w-full py-3.5", embedded ? "px-6 sm:px-8" : "mx-auto max-w-xl px-6")}>
         <div className="mb-2 flex items-baseline justify-between">
-          <p className="overline">{t("questionOf", { current, total: progress.total })}</p>
+          <p className="overline">
+            {progress.probe > 0
+              ? t("questionOfWithProbe", {
+                  current,
+                  total: progress.total,
+                  probe: progress.probe,
+                })
+              : t("questionOf", { current, total: progress.total })}
+          </p>
           <span className="font-mono text-[11px] tabular-nums text-muted">{pct}%</span>
         </div>
         {useSegments ? (

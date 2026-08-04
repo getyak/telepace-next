@@ -142,3 +142,52 @@ async def test_analyst_does_not_retry_valid_empty_insights() -> None:
 
     assert len(llm.calls) == 1
     assert result.events == []
+
+
+@pytest.mark.asyncio
+async def test_analyst_drops_quotes_not_present_in_respondent_turns() -> None:
+    interview_id = uuid4()
+    payload = {
+        "themes": [],
+        "verbatims": [
+            {
+                "quote": "This exact quote is grounded.",
+                "interview_id": str(interview_id),
+                "theme_label": "Trust",
+                "confidence": 0.9,
+            },
+            {
+                "quote": "The model invented this.",
+                "interview_id": str(interview_id),
+                "theme_label": "Trust",
+                "confidence": 0.9,
+            },
+        ],
+        "concerns": [],
+        "persona": None,
+    }
+    llm = _SequenceLLM(
+        [f"<insights>{json.dumps(payload, ensure_ascii=False)}</insights>"]
+    )
+    agent = AnalystAgent(llm=llm, max_tokens=1000, temperature=0.3)
+
+    result = await agent.synthesize(
+        campaign_id=uuid4(),
+        transcripts=[
+            TranscriptView(
+                interview_id=interview_id,
+                turns=[
+                    {"role": "interviewer", "text": "What happened?"},
+                    {
+                        "role": "respondent",
+                        "text": "This exact quote is grounded.",
+                    },
+                ],
+            )
+        ],
+    )
+
+    assert [item["quote"] for item in result.verbatims] == [
+        "This exact quote is grounded."
+    ]
+    assert len(result.events) == 1

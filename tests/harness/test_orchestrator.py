@@ -204,6 +204,22 @@ async def test_handle_chains_follow_up_commands() -> None:
     assert interviewer.calls[0][0] is followup
 
 
+async def test_follow_up_commands_stop_at_depth_limit() -> None:
+    followup = _create_cmd()
+    designer = _RecordingAgent(
+        "designer",
+        result=AgentResult(follow_up_commands=[followup]),
+    )
+    h, _, _ = _make_harness(designer=designer)
+
+    response = await h.handle(followup)
+
+    assert response.ok
+    # Initial command at depth 0 plus depths 1, 2, and 3. Depth 4 is rejected
+    # before routing back to the agent.
+    assert len(designer.calls) == 4
+
+
 async def test_dispatch_alias_delegates_to_handle() -> None:
     designer = _RecordingAgent("designer", result=AgentResult(response="d"))
     h, _, _ = _make_harness(designer=designer)

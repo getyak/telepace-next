@@ -10,6 +10,7 @@ import { type NextRequest } from "next/server";
 import { env } from "@telepace/config";
 
 import { ACCESS_COOKIE } from "@/lib/auth/cookies";
+import { buildProxyRequestHeaders } from "@/lib/proxyHeaders";
 
 export const dynamic = "force-dynamic";
 
@@ -19,13 +20,8 @@ async function handler(req: NextRequest, ctx: Ctx): Promise<Response> {
   const { path } = await ctx.params;
   const target = `${env.apiBaseUrl}/${path.map(encodeURIComponent).join("/")}${req.nextUrl.search}`;
 
-  const headers = new Headers();
-  const contentType = req.headers.get("content-type");
-  if (contentType) headers.set("content-type", contentType);
-  const accept = req.headers.get("accept");
-  if (accept) headers.set("accept", accept);
   const token = req.cookies.get(ACCESS_COOKIE)?.value;
-  if (token) headers.set("authorization", `Bearer ${token}`);
+  const headers = buildProxyRequestHeaders(req.headers, token);
 
   const body =
     req.method === "GET" || req.method === "HEAD"

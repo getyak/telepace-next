@@ -80,6 +80,30 @@ def _has_valid_insights_shape(payload: dict[str, Any] | None) -> bool:
     return persona is None or valid_item(persona)
 
 
+def _ground_verbatims(
+    verbatims: list[dict[str, Any]],
+    transcripts: list[TranscriptView],
+) -> list[dict[str, Any]]:
+    """Drop model-produced quotes that do not exist in respondent evidence."""
+
+    respondent_text_by_interview = {
+        str(transcript.interview_id): [
+            str(turn.get("text", ""))
+            for turn in transcript.turns
+            if turn.get("role") == "respondent"
+        ]
+        for transcript in transcripts
+    }
+    grounded: list[dict[str, Any]] = []
+    for verbatim in verbatims:
+        quote = str(verbatim.get("quote", "")).strip()
+        interview_id = str(verbatim.get("interview_id", ""))
+        respondent_turns = respondent_text_by_interview.get(interview_id, [])
+        if quote and any(quote in turn for turn in respondent_turns):
+            grounded.append(verbatim)
+    return grounded
+
+
 @dataclass(slots=True)
 class TranscriptView:
     interview_id: UUID
@@ -150,7 +174,7 @@ class AnalystAgent:
             parsed = {}
 
         themes = parsed.get("themes", []) or []
-        verbatims = parsed.get("verbatims", []) or []
+        verbatims = _ground_verbatims(parsed.get("verbatims", []) or [], transcripts)
         concerns = parsed.get("concerns", []) or []
         persona = parsed.get("persona")
 

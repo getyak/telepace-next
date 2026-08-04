@@ -10,6 +10,7 @@ import type { NextResponse } from "next/server";
 
 export const ACCESS_COOKIE = "tp_access";
 export const REFRESH_COOKIE = "tp_refresh";
+const LEGACY_REFRESH_PATH = "/api/auth";
 
 export type TokenPair = {
   access_token: string;
@@ -33,12 +34,23 @@ export function setSessionCookies(res: NextResponse, tokens: TokenPair): void {
     path: "/",
     maxAge: tokens.expires_in,
   });
-  // The refresh token is only ever needed by /api/auth/* — scope it there.
+  // Keep the refresh token httpOnly, but send it on same-origin page requests
+  // as well as /api/auth. Middleware must be able to see that a renewable
+  // session exists after the short-lived access cookie expires; otherwise a
+  // full-page navigation is redirected to login before the client can call
+  // the refresh endpoint.
+  res.cookies.set(REFRESH_COOKIE, "", {
+    httpOnly: true,
+    secure: isSecure(),
+    sameSite: "lax",
+    path: LEGACY_REFRESH_PATH,
+    maxAge: 0,
+  });
   res.cookies.set(REFRESH_COOKIE, tokens.refresh_token, {
     httpOnly: true,
     secure: isSecure(),
     sameSite: "lax",
-    path: "/api/auth",
+    path: "/",
     maxAge: REFRESH_MAX_AGE_S,
   });
 }
@@ -55,7 +67,15 @@ export function clearSessionCookies(res: NextResponse): void {
     httpOnly: true,
     secure: isSecure(),
     sameSite: "lax",
-    path: "/api/auth",
+    path: "/",
+    maxAge: 0,
+  });
+  // Remove sessions issued before refresh cookies moved to the root path.
+  res.cookies.set(REFRESH_COOKIE, "", {
+    httpOnly: true,
+    secure: isSecure(),
+    sameSite: "lax",
+    path: LEGACY_REFRESH_PATH,
     maxAge: 0,
   });
 }

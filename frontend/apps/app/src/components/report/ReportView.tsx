@@ -12,7 +12,13 @@
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Badge, Card } from "@telepace/ui";
-import type { Citation, EvidenceGraph, Insight } from "@/types/evidence";
+import { CitationLink } from "@/components/evidence/CitationLink";
+import {
+  buildReportCitationIndex,
+  getOrderedReportCitations,
+  getReportInsights,
+} from "@/lib/reportModel";
+import type { EvidenceGraph, Insight } from "@/types/evidence";
 
 // ---------------------------------------------------------------------------
 // Chapter model
@@ -33,34 +39,19 @@ export function buildChapters(
 ): ReportChapter[] {
   const chapters: ReportChapter[] = [
     { id: "executive", title: t("executive") },
+    { id: "methodology", title: t("methodology") },
     { id: "key-findings", title: t("keyFindings") },
   ];
   for (const theme of graph.themes) {
     chapters.push({ id: `theme-${theme.id}`, title: theme.label });
   }
-  chapters.push({ id: "recommendations", title: t("recommendations") });
+  if (graph.insights.some((insight) => Boolean(insight.recommendation))) {
+    chapters.push({ id: "recommendations", title: t("recommendations") });
+  }
   if (graph.citations.length > 0) {
     chapters.push({ id: "appendix", title: t("appendix") });
   }
   return chapters;
-}
-
-// ---------------------------------------------------------------------------
-// Citation numbering
-// ---------------------------------------------------------------------------
-
-/** Global citation index keyed by citation id, assigned in graph order. */
-function buildCitationIndex(graph: EvidenceGraph): Map<string, number> {
-  const index = new Map<string, number>();
-  let n = 1;
-  for (const theme of graph.themes) {
-    for (const insight of theme.insights) {
-      for (const cit of insight.supporting_evidence) {
-        if (!index.has(cit.id)) index.set(cit.id, n++);
-      }
-    }
-  }
-  return index;
 }
 
 function confidencePct(value: number): number {
@@ -73,24 +64,48 @@ function confidencePct(value: number): number {
 
 export function ReportView({ graph }: { graph: EvidenceGraph }) {
   const t = useTranslations("app.report");
-  const citationIndex = useMemo(() => buildCitationIndex(graph), [graph]);
-
-  const concernInsights = useMemo(
-    () =>
-      graph.themes
-        .flatMap((theme) => theme.insights)
-        .filter((insight) => insight.kind === "concern"),
+  const kindLabel: Record<Insight["kind"], string> = {
+    theme: t("kindTheme"),
+    verbatim: t("kindVerbatim"),
+    persona: t("kindPersona"),
+    metric: t("kindMetric"),
+    concern: t("kindConcern"),
+  };
+  const citationIndex = useMemo(
+    () => buildReportCitationIndex(graph),
     [graph],
   );
 
-  const orderedCitations = useMemo(() => {
-    const rows: Array<{ num: number; citation: Citation }> = [];
-    for (const [id, num] of citationIndex.entries()) {
-      const citation = graph.citations.find((c) => c.id === id);
-      if (citation) rows.push({ num, citation });
-    }
-    return rows.sort((a, b) => a.num - b.num);
-  }, [citationIndex, graph.citations]);
+  const keyInsights = useMemo(
+    () => getReportInsights(graph),
+    [graph],
+  );
+  const recommendationInsights = useMemo(
+    () => keyInsights.filter((insight) => Boolean(insight.recommendation)),
+    [keyInsights],
+  );
+  const interviews = useMemo(
+    () => graph.respondents.flatMap((respondent) => respondent.interviews),
+    [graph.respondents],
+  );
+  const completedCount = interviews.filter(
+    (interview) => interview.status === "completed",
+  ).length;
+  const participantLabels = useMemo(
+    () =>
+      new Map(
+        graph.respondents.map((respondent, index) => [
+          respondent.id,
+          t("participant", { number: index + 1 }),
+        ]),
+      ),
+    [graph.respondents, t],
+  );
+
+  const orderedCitations = useMemo(
+    () => getOrderedReportCitations(graph, citationIndex),
+    [citationIndex, graph],
+  );
 
   return (
     <article className="max-w-[68ch]">
@@ -109,24 +124,52 @@ export function ReportView({ graph }: { graph: EvidenceGraph }) {
         </ul>
       </Chapter>
 
+      <Chapter id="methodology" title={t("methodology")}>
+        {graph.research_goal && (
+          <div className="mb-5">
+            <p className="overline mb-1">{t("researchGoal")}</p>
+            <p className="leading-relaxed text-body">{graph.research_goal}</p>
+          </div>
+        )}
+        <div className="grid grid-cols-3 gap-3">
+          <MethodStat value={completedCount} label={t("completedInterviews")} />
+          <MethodStat value={graph.respondents.length} label={t("participants")} />
+          <MethodStat value={graph.citations.length} label={t("evidenceQuotes")} />
+        </div>
+        <p className="mt-4 text-sm leading-relaxed text-body">
+          {t("methodologyDescription")}
+        </p>
+        {completedCount < 3 && (
+          <p className="mt-3 border-l-2 border-warning pl-3 text-sm leading-relaxed text-body">
+            {t("smallSampleWarning", { count: completedCount })}
+          </p>
+        )}
+      </Chapter>
+
       {/* Key findings */}
       <Chapter id="key-findings" title={t("keyFindings")}>
         <div className="space-y-4">
-          {graph.insights.map((insight) => (
-            <Card key={insight.id} className="p-5">
+          {keyInsights.map((insight) => (
+            <Card
+              key={insight.id}
+              className="p-5 print:[break-inside:avoid]"
+            >
               <div className="flex items-start justify-between gap-4">
                 <p className="font-display text-lg leading-snug text-ink">
                   {insight.title}
                 </p>
                 <span className="shrink-0 font-mono text-[11px] text-muted">
-                  {t("confidence").replace(
-                    "{value}",
-                    `${confidencePct(insight.confidence)}%`,
-                  )}
+                  {t("confidence", {
+                    value: `${confidencePct(insight.confidence)}%`,
+                  })}
                 </span>
               </div>
               <p className="mt-2 text-sm leading-relaxed text-body">
-                {insight.body}
+                {insight.body}{" "}
+                <CitationMarkers
+                  insight={insight}
+                  citationIndex={citationIndex}
+                />
               </p>
             </Card>
           ))}
@@ -138,15 +181,19 @@ export function ReportView({ graph }: { graph: EvidenceGraph }) {
         <Chapter key={theme.id} id={`theme-${theme.id}`} title={theme.label}>
           <div className="space-y-6">
             {theme.insights.map((insight) => (
-              <div key={insight.id}>
-                <div className="mb-1.5 flex items-center gap-2">
-                  <Badge variant={insight.kind === "concern" ? "warning" : "accent"}>
-                    {insight.kind}
-                  </Badge>
-                  <span className="font-display text-base text-ink">
-                    {insight.title}
-                  </span>
-                </div>
+              <div key={insight.id} className="print:[break-inside:avoid]">
+                {(theme.insights.length > 1 || insight.title !== theme.label) && (
+                  <div className="mb-1.5 flex items-center gap-2">
+                    <Badge
+                      variant={insight.kind === "concern" ? "warning" : "accent"}
+                    >
+                      {kindLabel[insight.kind]}
+                    </Badge>
+                    <span className="font-display text-base text-ink">
+                      {insight.title}
+                    </span>
+                  </div>
+                )}
                 <p className="text-body leading-relaxed">
                   {insight.body}{" "}
                   <CitationMarkers
@@ -161,38 +208,50 @@ export function ReportView({ graph }: { graph: EvidenceGraph }) {
       ))}
 
       {/* Recommendations */}
-      <Chapter id="recommendations" title={t("recommendations")}>
-        {concernInsights.length === 0 ? (
-          <p className="text-body leading-relaxed">{t("noReportDescription")}</p>
-        ) : (
+      {recommendationInsights.length > 0 && (
+        <Chapter id="recommendations" title={t("recommendations")}>
           <ol className="space-y-4">
-            {concernInsights.map((insight, i) => (
-              <li key={insight.id} className="flex gap-4">
+            {recommendationInsights.map((insight, i) => (
+              <li
+                key={insight.id}
+                className="flex gap-4 print:[break-inside:avoid]"
+              >
                 <span className="mt-0.5 font-mono text-sm text-terracotta">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div>
-                  <p className="text-ink">{insight.title}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-body">
-                    {insight.body}
+                  <p className="leading-relaxed text-ink">
+                    {insight.recommendation}{" "}
+                    <CitationMarkers
+                      insight={insight}
+                      citationIndex={citationIndex}
+                    />
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted">
+                    {t("addressesConcern", { concern: insight.title })}
                   </p>
                 </div>
               </li>
             ))}
           </ol>
-        )}
-      </Chapter>
+        </Chapter>
+      )}
 
       {/* Appendix — citation list */}
       {orderedCitations.length > 0 && (
         <Chapter id="appendix" title={t("appendix")}>
           <ol className="space-y-3">
             {orderedCitations.map(({ num, citation }) => (
-              <li key={citation.id} className="flex gap-3 text-sm">
-                <span className="shrink-0 font-mono text-muted">[{num}]</span>
+              <li
+                key={citation.id}
+                className="flex gap-3 text-sm print:[break-inside:avoid]"
+              >
+                <CitationLink citationId={citation.id} index={num} />
                 <span className="leading-relaxed text-body">
                   &ldquo;{citation.quote_text}&rdquo;
-                  <span className="ml-1 text-muted">— {citation.respondent_id}</span>
+                  <span className="ml-1 text-muted">
+                    — {participantLabels.get(citation.respondent_id)}
+                  </span>
                 </span>
               </li>
             ))}
@@ -200,6 +259,15 @@ export function ReportView({ graph }: { graph: EvidenceGraph }) {
         </Chapter>
       )}
     </article>
+  );
+}
+
+function MethodStat({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="rounded-card border border-hairline bg-paper-sunken p-3">
+      <p className="font-display text-2xl text-ink">{value}</p>
+      <p className="mt-1 text-xs leading-tight text-muted">{label}</p>
+    </div>
   );
 }
 
@@ -221,7 +289,9 @@ function Chapter({
       id={id}
       className="scroll-mt-24 border-t border-hairline py-10 first:border-t-0 first:pt-0"
     >
-      <h2 className="mb-4 font-display text-2xl text-ink">{title}</h2>
+      <h2 className="mb-4 font-display text-2xl text-ink print:[break-after:avoid-page]">
+        {title}
+      </h2>
       {children}
     </section>
   );
@@ -242,8 +312,15 @@ function CitationMarkers({
   if (nums.length === 0) return null;
 
   return (
-    <span className="whitespace-nowrap font-mono text-xs text-accent">
-      {nums.map((n) => `[${n}]`).join("")}
+    <span className="whitespace-nowrap">
+      {nums.map((n) => {
+        const citation = insight.supporting_evidence.find(
+          (item) => citationIndex.get(item.id) === n,
+        );
+        return citation ? (
+          <CitationLink key={citation.id} citationId={citation.id} index={n} />
+        ) : null;
+      })}
     </span>
   );
 }

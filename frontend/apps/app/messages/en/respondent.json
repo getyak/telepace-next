@@ -2,7 +2,7 @@
   "consent": {
     "eyebrow": "a conversation, not a survey",
     "title": "Thanks for being here.",
-    "body": "A researcher would like to hear from you. It'll take about 15 minutes and your responses shape what gets built next. Choose how you'd like to talk:",
+    "body": "A researcher would like to hear from you. It'll take about {minutes} minutes and your responses shape what gets built next. Choose how you'd like to talk:",
     "startWithText": "Start with text",
     "useVoice": "Use voice",
     "consentNotice": "By continuing you consent to your responses being recorded and analyzed to improve the product.",
@@ -15,8 +15,9 @@
     "body": "The interview may have ended or is still being prepared. Please check back later."
   },
   "masthead": {
-    "title": "telepace · User Research",
-    "subtitle": "Text or voice · About 15 min"
+    "title": "telepace",
+    "metadataTitle": "User research",
+    "subtitle": "A text or voice interview with a researcher"
   },
   "thanks": {
     "eyebrow": "that's a wrap",
@@ -29,7 +30,8 @@
     "continueNow": "Continue now"
   },
   "progress": {
-    "questionOf": "Question {current} of {total}"
+    "questionOf": "Question {current} of {total}",
+    "questionOfWithProbe": "Question {current} of {total} · follow-up {probe}"
   },
   "chat": {
     "typing": "Thinking",

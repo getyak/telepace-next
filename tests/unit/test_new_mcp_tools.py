@@ -41,8 +41,10 @@ class _FakeProjector:
     def __init__(self, campaigns=None, campaign=None) -> None:
         self._campaigns = campaigns or []
         self._campaign = campaign
+        self.list_kwargs = None
 
-    async def list_campaigns(self, org_id):
+    async def list_campaigns(self, org_id, **kwargs):
+        self.list_kwargs = kwargs
         return self._campaigns
 
     async def get_campaign(self, campaign_id):
@@ -70,6 +72,22 @@ async def test_list_campaigns_maps_rows() -> None:
     assert c["title"] == "Onboarding"
     assert c["completed"] == 7
     assert c["target_completions"] == 20
+
+
+@pytest.mark.asyncio
+async def test_list_campaigns_passes_bounded_filters() -> None:
+    projector = _FakeProjector()
+    await list_campaigns(
+        {"query": "codex", "status": "draft", "limit": 3},
+        projector=projector,
+        org_id=uuid4(),
+    )
+
+    assert projector.list_kwargs == {
+        "query": "codex",
+        "status": "draft",
+        "limit": 3,
+    }
 
 
 @pytest.mark.asyncio
@@ -129,6 +147,46 @@ async def test_dispatch_invites_builds_invites() -> None:
     cmd = harness.commands[0]
     assert cmd.type == "dispatch_invites"
     assert len(cmd.invites) == 2
+
+
+@pytest.mark.asyncio
+async def test_dispatch_invites_reports_only_successful_sends() -> None:
+    harness = _FakeHarness(
+        _HarnessResp(ok=True, result={"sent": 1, "failed": [{"error": "provider down"}]})
+    )
+    out = await dispatch_invites(
+        {
+            "campaign_id": str(uuid4()),
+            "invites": [
+                {"address": "a@x.test", "channel": ChannelKind.EMAIL.value},
+                {"address": "b@x.test", "channel": ChannelKind.EMAIL.value},
+            ],
+        },
+        harness=harness,
+        author_id=uuid4(),
+    )
+
+    assert out["dispatched"] == 1
+
+
+@pytest.mark.asyncio
+async def test_dispatch_invites_accepts_email_convenience_field() -> None:
+    harness = _FakeHarness(_HarnessResp(ok=True, result={"sent": 1}))
+    await dispatch_invites(
+        {
+            "campaign_id": str(uuid4()),
+            "invites": [
+                {
+                    "email": "participant@example.test",
+                    "channel": ChannelKind.EMAIL.value,
+                }
+            ],
+        },
+        harness=harness,
+        author_id=uuid4(),
+    )
+
+    assert harness.commands[0].invites[0].address == "participant@example.test"
 
 
 @pytest.mark.asyncio

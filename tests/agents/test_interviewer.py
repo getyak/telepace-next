@@ -85,6 +85,44 @@ async def test_structured_action_text_wins_over_transition_prose() -> None:
     assert result.response["text"] == "Which missing proof mattered most?"
 
 
+async def test_bare_json_action_never_leaks_protocol_to_respondent() -> None:
+    item_id = uuid4()
+    canned = LLMResponse(
+        text=json.dumps(
+            {
+                "kind": "probe",
+                "outline_item_id": str(item_id),
+                "text": "What made you continue instead of leaving?",
+            }
+        )
+    )
+    agent = InterviewerAgent(llm=MockLLM(canned=[canned]), max_tokens=800, temperature=0.5)
+
+    result = await agent.run(_reply("I nearly left."), context={}, harness=None)  # type: ignore[arg-type]
+
+    assert result.response["kind"] == "probe"
+    assert result.response["text"] == "What made you continue instead of leaving?"
+    assert "outline_item_id" not in result.response["text"]
+    interviewer_event = result.events[1]
+    assert interviewer_event.text == "What made you continue instead of leaving?"
+
+
+async def test_malformed_protocol_uses_language_matched_safe_fallback() -> None:
+    canned = LLMResponse(
+        text='{"kind":"probe","outline_item_id":"internal-id","text":'
+    )
+    agent = InterviewerAgent(llm=MockLLM(canned=[canned]), max_tokens=800, temperature=0.5)
+
+    result = await agent.run(
+        _reply("继续"),
+        context={"spec": {"primary_language": "zh"}},
+        harness=None,  # type: ignore[arg-type]
+    )
+
+    assert result.response["text"] == "能再具体说说吗？"  # noqa: RUF001
+    assert "outline_item_id" not in result.response["text"]
+
+
 async def test_wrap_up_response_includes_configured_completion_copy() -> None:
     """T-111: end_message/reward_description/redirect_url ride along on wrap_up."""
     canned = LLMResponse(
@@ -122,6 +160,187 @@ async def test_reply_falls_back_when_action_block_json_is_broken() -> None:
     agent = InterviewerAgent(llm=MockLLM(canned=[canned]), max_tokens=800, temperature=0.5)
     r = await agent.run(_reply("hello"), context={}, harness=None)  # type: ignore[arg-type]
     assert r.response["kind"] == "ask"
+
+
+async def test_same_outline_item_is_normalized_to_a_counted_probe() -> None:
+    item_id = uuid4()
+    action = {
+        "kind": "ask",
+        "outline_item_id": str(item_id),
+        "text": "What made that risky?",
+    }
+    agent = InterviewerAgent(
+        llm=MockLLM(canned=[LLMResponse(text=json.dumps(action))]),
+        max_tokens=800,
+        temperature=0.5,
+    )
+
+    result = await agent.run(
+        _reply("The summary changed a decision."),
+        context={
+            "spec": {
+                "outline": {
+                    "items": [
+                        {
+                            "id": str(item_id),
+                            "order": 1,
+                            "question": "What went wrong?",
+                            "goal": "Find the failure.",
+                            "max_followups": 2,
+                        }
+                    ]
+                }
+            },
+            "current_outline_item_id": str(item_id),
+        },
+        harness=None,  # type: ignore[arg-type]
+    )
+
+    assert result.response["kind"] == "probe"
+    assert result.response["progress"]["question_order"] == 1
+    assert result.state_delta["outline_followups"][str(item_id)] == 1
+    assert result.state_delta["outline_coverage"][str(item_id)] == 0.5
+
+
+async def test_moving_forward_marks_previous_item_covered() -> None:
+    first_id = uuid4()
+    second_id = uuid4()
+    action = {
+        "kind": "ask",
+        "outline_item_id": str(second_id),
+        "text": "Who needs to approve it?",
+    }
+    agent = InterviewerAgent(
+        llm=MockLLM(canned=[LLMResponse(text=json.dumps(action))]),
+        max_tokens=800,
+        temperature=0.5,
+    )
+
+    result = await agent.run(
+        _reply("That is enough detail."),
+        context={
+            "spec": {
+                "outline": {
+                    "items": [
+                        {
+                            "id": str(first_id),
+                            "order": 1,
+                            "question": "What happened?",
+                            "goal": "Find the event.",
+                            "max_followups": 2,
+                        },
+                        {
+                            "id": str(second_id),
+                            "order": 2,
+                            "question": "Who needs to approve it?",
+                            "goal": "Find the owner.",
+                            "max_followups": 1,
+                        },
+                    ]
+                }
+            },
+            "current_outline_item_id": str(first_id),
+        },
+        harness=None,  # type: ignore[arg-type]
+    )
+
+    assert result.response["kind"] == "acknowledge_and_move"
+    assert result.response["progress"]["question_order"] == 2
+    assert result.state_delta["outline_coverage"][str(first_id)] == 1.0
+    assert result.state_delta["current_outline_item_id"] == str(second_id)
+
+
+async def test_followup_budget_forces_the_next_guide_item() -> None:
+    first_id = uuid4()
+    second_id = uuid4()
+    action = {
+        "kind": "probe",
+        "outline_item_id": str(first_id),
+        "text": "A third follow-up that must not be shown?",
+    }
+    agent = InterviewerAgent(
+        llm=MockLLM(canned=[LLMResponse(text=json.dumps(action))]),
+        max_tokens=800,
+        temperature=0.5,
+    )
+
+    result = await agent.run(
+        _reply("I already answered twice."),
+        context={
+            "spec": {
+                "outline": {
+                    "items": [
+                        {
+                            "id": str(first_id),
+                            "order": 1,
+                            "question": "What happened?",
+                            "goal": "Find the event.",
+                            "max_followups": 2,
+                        },
+                        {
+                            "id": str(second_id),
+                            "order": 2,
+                            "question": "What should change?",
+                            "goal": "Find the fix.",
+                            "max_followups": 1,
+                        },
+                    ]
+                }
+            },
+            "current_outline_item_id": str(first_id),
+            "outline_followups": {str(first_id): 2},
+        },
+        harness=None,  # type: ignore[arg-type]
+    )
+
+    assert result.response["kind"] == "acknowledge_and_move"
+    assert result.response["text"] == "What should change?"
+    assert result.response["progress"]["question_order"] == 2
+
+
+async def test_wrap_up_after_final_item_records_full_coverage() -> None:
+    first_id = uuid4()
+    second_id = uuid4()
+    action = {"kind": "wrap_up", "text": "Thank you."}
+    agent = InterviewerAgent(
+        llm=MockLLM(canned=[LLMResponse(text=json.dumps(action))]),
+        max_tokens=800,
+        temperature=0.5,
+    )
+
+    result = await agent.run(
+        _reply("That is my final answer."),
+        context={
+            "spec": {
+                "outline": {
+                    "items": [
+                        {
+                            "id": str(first_id),
+                            "order": 1,
+                            "question": "What happened?",
+                            "goal": "Find the event.",
+                            "max_followups": 1,
+                        },
+                        {
+                            "id": str(second_id),
+                            "order": 2,
+                            "question": "Anything else?",
+                            "goal": "Find missing context.",
+                            "max_followups": 1,
+                        },
+                    ]
+                }
+            },
+            "current_outline_item_id": str(second_id),
+            "outline_coverage": {str(first_id): 1.0, str(second_id): 0.5},
+        },
+        harness=None,  # type: ignore[arg-type]
+    )
+
+    completed = [event for event in result.events if event.type == "interview.completed"]
+    assert result.response["kind"] == "wrap_up"
+    assert len(completed) == 1
+    assert completed[0].goal_coverage == 1.0
 
 
 async def test_run_returns_error_for_unsupported_command() -> None:

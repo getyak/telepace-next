@@ -22,7 +22,13 @@ export async function generateMetadata({
   };
 }
 
-const SECTION_IDS = ["workspace", "members", "billing", "api-keys", "mcp", "danger"] as const;
+type SectionId =
+  | "workspace"
+  | "members"
+  | "billing"
+  | "api-keys"
+  | "mcp"
+  | "danger";
 
 // Until the org settings API lands, the delete confirmation asks for this
 // fixed word rather than a per-workspace slug (which the client derives from
@@ -41,7 +47,7 @@ export default async function SettingsPage() {
     { id: "danger", label: t("sections.danger"), description: t("sectionDesc.danger") },
   ];
 
-  const panels: Record<(typeof SECTION_IDS)[number], React.ReactNode> = {
+  const panels: Record<SectionId, React.ReactNode> = {
     workspace: (
       <WorkspacePanel
         labels={{

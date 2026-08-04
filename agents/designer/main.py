@@ -1,7 +1,11 @@
 """DesignerAgent: helps a researcher spec a study via natural language."""
 
+# Chinese fallback copy intentionally uses native full-width punctuation.
+# ruff: noqa: RUF001
+
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import re
@@ -25,6 +29,7 @@ _SPEC_PATCH = re.compile(r"<spec_patch>(.*?)</spec_patch>", re.DOTALL)
 _SPEC_PATCH_OPEN = "<spec_patch>"
 _SPEC_PATCH_CLOSE = "</spec_patch>"
 _JSON_BLOCK = re.compile(r"```json\s*(.*?)\s*```", re.DOTALL)
+_QUOTED_QUESTION = re.compile(r"[\"“](.+?)[\"”]")
 
 
 def _sanitize_patch(patch: dict[str, Any]) -> dict[str, Any]:
@@ -67,6 +72,44 @@ def _extract_json(text: str) -> dict[str, Any] | None:
     except json.JSONDecodeError:
         return None
     return val if isinstance(val, dict) else None
+
+
+def _fallback_refine_patch(
+    current_spec: dict[str, Any],
+    instruction: str,
+) -> dict[str, Any]:
+    """Apply the simplest safe outline edit when the configured LLM is offline.
+
+    Local/self-hosted Telepace defaults to ``MockLLM``. A precise instruction
+    to add one quoted question should still perform that edit instead of
+    returning a false ``refined`` success with an empty patch.
+    """
+
+    normalized = instruction.casefold()
+    wants_add = any(token in normalized for token in ("add", "append", "增加", "添加"))
+    mentions_question = any(token in normalized for token in ("question", "问题", "提问"))
+    match = _QUOTED_QUESTION.search(instruction)
+    if not (wants_add and mentions_question and match):
+        return {}
+
+    question = match.group(1).strip()
+    if not question:
+        return {}
+    raw_outline = current_spec.get("outline", {})
+    outline = dict(raw_outline) if isinstance(raw_outline, dict) else {}
+    raw_items = outline.get("items", [])
+    items = [dict(item) for item in raw_items if isinstance(item, dict)]
+    if any(str(item.get("question", "")).casefold() == question.casefold() for item in items):
+        return {}
+    items.append(
+        OutlineItem(
+            order=len(items) + 1,
+            question=question,
+            goal="Address the researcher's requested refinement.",
+        ).model_dump(mode="json")
+    )
+    outline["items"] = items
+    return {"outline": outline}
 
 
 def _apply_seed_to_spec(
@@ -155,10 +198,187 @@ def _apply_seed_to_spec(
     if isinstance(criteria, list) and all(isinstance(c, str) for c in criteria):
         outline_kwargs["success_criteria"] = criteria
     if outline_kwargs:
-        patch["outline"] = Outline(**outline_kwargs) if items else base.outline.model_copy(
-            update={k: v for k, v in outline_kwargs.items() if k != "items"}
+        patch["outline"] = (
+            Outline(**outline_kwargs)
+            if items
+            else base.outline.model_copy(
+                update={k: v for k, v in outline_kwargs.items() if k != "items"}
+            )
         )
     return base.model_copy(update=patch)
+
+
+def _fallback_seed_spec(cmd: CreateCampaign, base: CampaignSpec) -> CampaignSpec:
+    """Return a useful deterministic guide when model seeding is slow or offline."""
+
+    task = cmd.research_task
+    source_text = " ".join(
+        part
+        for part in (
+            cmd.title,
+            cmd.goal,
+            cmd.background,
+            task.decision if task else "",
+            task.objective if task else "",
+            task.audience if task else "",
+        )
+        if part
+    )
+    language = cmd.primary_language or (
+        "zh" if re.search(r"[\u3400-\u9fff]", source_text) else "en"
+    )
+    audience = task.audience.strip() if task and task.audience.strip() else ""
+    objective = task.objective.strip() if task and task.objective.strip() else cmd.goal.strip()
+
+    if language == "zh":
+        persona = audience or "过去 30 天内至少每周使用一次相关产品的中国目标用户"
+        seed: dict[str, Any] = {
+            "hypotheses": [
+                "当前流程的关键阻力集中在可控性与可信度",
+                "高频用户比低频用户更能识别真实的采用障碍",
+                "相反假设：问题来自组织流程，而非产品体验",
+            ],
+            "target_persona": persona,
+            "audience_screener": [
+                "过去 30 天使用过相关产品吗？",
+                "通常每周使用几次？",
+                f"你是否符合这类受众：{persona}？",
+            ],
+            "outline": [
+                {
+                    "question": "回想最近一次相关经历，当时要完成什么任务？",
+                    "goal": "建立具体使用情境，避免泛泛表态。",
+                    "max_followups": 2,
+                    "branch_if_positive": "是什么让这次经历顺利？",
+                    "branch_if_negative": "最先卡住的是哪一步？",
+                },
+                {
+                    "question": "从开始到结束，你实际采取了哪些步骤？",
+                    "goal": "还原真实行为与工作流。",
+                    "max_followups": 2,
+                    "branch_if_positive": None,
+                    "branch_if_negative": None,
+                },
+                {
+                    "question": "哪一个瞬间最让你犹豫、返工或需要人工确认？",
+                    "goal": "定位高摩擦与信任断点。",
+                    "max_followups": 2,
+                    "branch_if_positive": "你当时如何判断可以继续？",
+                    "branch_if_negative": "如果没有犹豫，什么给了你信心？",
+                },
+                {
+                    "question": "你如何判断结果准确、可靠并且可以对外使用？",
+                    "goal": "理解用户的质量判断标准。",
+                    "max_followups": 2,
+                    "branch_if_positive": None,
+                    "branch_if_negative": None,
+                },
+                {
+                    "question": "哪些隐私、权限或协作要求会阻止你继续使用？",
+                    "goal": "识别采用与推广风险。",
+                    "max_followups": 2,
+                    "branch_if_positive": None,
+                    "branch_if_negative": None,
+                },
+                {
+                    "question": f"要让你支持这个决策，必须先解决哪三件事：{objective}？",
+                    "goal": "形成可排序、可执行的决策输入。",
+                    "max_followups": 2,
+                    "branch_if_positive": None,
+                    "branch_if_negative": None,
+                },
+            ],
+            "success_criteria": [
+                "至少识别 3 个可由产品或流程解决的阻碍",
+                "每个关键阻碍均有至少 1 个具体行为案例支持",
+            ],
+            "estimated_duration_minutes": 18,
+            "languages": [language],
+            "recommendations": [
+                "采用 CIT 关键事件法，让受访者复盘最近一次真实经历而非抽象评价。",
+                "允许跳过敏感题；犹豫超过 5 秒时换一种问法。",
+                "使用移动端优先的短句与无术语表达，每题只问一件事。",
+                "每轮自动保存，并确保中断后仍能恢复分支与进度。",
+                "优先招募近期高频用户，同时纳入少量拒用者检查幸存者偏差。",
+            ],
+        }
+    else:
+        persona = (
+            audience or "target users who used the relevant product weekly in the past 30 days"
+        )
+        seed = {
+            "hypotheses": [
+                "The main friction sits in control and trust, not feature discovery.",
+                "Frequent users can identify adoption blockers more reliably than occasional users.",
+                "Rival hypothesis: organizational process, not product experience, causes the problem.",
+            ],
+            "target_persona": persona,
+            "audience_screener": [
+                "Have you used the relevant product in the past 30 days?",
+                "How many times do you typically use it each week?",
+                f"Do you match this audience: {persona}?",
+            ],
+            "outline": [
+                {
+                    "question": "Think about your most recent relevant experience. What were you trying to accomplish?",
+                    "goal": "Anchor the interview in a concrete situation.",
+                    "max_followups": 2,
+                    "branch_if_positive": "What made that experience work well?",
+                    "branch_if_negative": "Where did it first break down?",
+                },
+                {
+                    "question": "What steps did you actually take from start to finish?",
+                    "goal": "Reconstruct real behavior and workflow.",
+                    "max_followups": 2,
+                    "branch_if_positive": None,
+                    "branch_if_negative": None,
+                },
+                {
+                    "question": "Which moment caused the most hesitation, rework, or manual checking?",
+                    "goal": "Locate high-friction and low-trust moments.",
+                    "max_followups": 2,
+                    "branch_if_positive": "How did you decide it was safe to continue?",
+                    "branch_if_negative": "What gave you confidence without extra checking?",
+                },
+                {
+                    "question": "How do you decide whether the result is accurate and safe to use?",
+                    "goal": "Understand the user's quality bar.",
+                    "max_followups": 2,
+                    "branch_if_positive": None,
+                    "branch_if_negative": None,
+                },
+                {
+                    "question": "Which privacy, permission, or collaboration requirements could block adoption?",
+                    "goal": "Identify rollout and adoption risks.",
+                    "max_followups": 2,
+                    "branch_if_positive": None,
+                    "branch_if_negative": None,
+                },
+                {
+                    "question": f"What three things must change before you would support this decision: {objective}?",
+                    "goal": "Produce prioritized, actionable decision input.",
+                    "max_followups": 2,
+                    "branch_if_positive": None,
+                    "branch_if_negative": None,
+                },
+            ],
+            "success_criteria": [
+                "Identify at least 3 blockers addressable by product or process changes.",
+                "Support every critical blocker with at least 1 concrete behavior example.",
+            ],
+            "estimated_duration_minutes": 18,
+            "languages": [language],
+            "recommendations": [
+                "Use CIT to reconstruct the latest real experience instead of collecting abstract opinions.",
+                "Allow sensitive items to be skipped and rephrase after 5 seconds of hesitation.",
+                "Keep every mobile-first question short, plain, and focused on one idea.",
+                "Auto-save each turn and preserve branching and progress after interruption.",
+                "Recruit recent frequent users plus a few rejecters to check survivor bias.",
+            ],
+        }
+
+    return _apply_seed_to_spec(base, seed, forced_language=language)
+
 
 def _refine_language_constraint(current_spec: dict[str, Any]) -> str:
     """Build the hard language-constraint line injected into refine prompts.
@@ -178,34 +398,47 @@ def _refine_language_constraint(current_spec: dict[str, Any]) -> str:
 logger = logging.getLogger(__name__)
 
 
+def _consume_background_task(task: asyncio.Task[Any]) -> None:
+    """Consume a late model task so a hard-deadline fallback stays warning-free."""
+
+    if task.cancelled():
+        return
+    try:
+        task.result()
+    except asyncio.CancelledError:
+        return
+    except Exception as exc:
+        logger.debug("late designer seed task finished with an error: %s", exc)
+
+
 _SEED_INSTRUCTION = (
     "You are seeding a NEW study. This is a shipping-quality first draft: it "
     "must score 100/100 with a senior UX research director. Follow EVERY rule "
     "— each maps to a rubric line.\n\n"
     "1. LANGUAGE — Match the researcher's language exactly (detect from goal + "
     "   background). Never default to English when the goal is not in English.\n"
-    "2. HYPOTHESES (3–4) — Include at least one CONTRAPOSITIVE / rival "
+    "2. HYPOTHESES (3-4) — Include at least one CONTRAPOSITIVE / rival "
     "   hypothesis to guard against confirmation bias. Each ≤ 20 words / 40 "
     "   Chinese characters — sharp headline, not paragraph.\n"
     "3. TARGET_PERSONA — Concrete triple: BEHAVIOR + GEOGRAPHY + FREQUENCY "
     "   (e.g. 'past-90-day repeat customer in Chengdu, ≥ 3 visits'). "
     "   Never a generic demographic slice.\n"
-    "4. SCREENER (2–4) — Each question MUST validate the persona's "
+    "4. SCREENER (2-4) — Each question MUST validate the persona's "
     "   DISTINGUISHING trait, not a generic behavior. If the persona is "
     "   'cross-border shopper' then one screener MUST ask about cross-border "
     "   purchases specifically; if 'parent+child' then one MUST verify the "
     "   pairing. Each ≤ 25 characters.\n"
-    "5. OUTLINE (6–8) — Open-ended, sharp editorial voice. NO filler like "
+    "5. OUTLINE (6-8) — Open-ended, sharp editorial voice. NO filler like "
     "   '请' / 'please tell me a bit about' / '一下' / 'kindly' / 'as you know'. "
     "   Each question one specific probe with a per-item goal, each ≤ 30 words. "
     "   AT LEAST 2 items MUST have a non-null branch_if_positive OR "
     "   branch_if_negative — the AI moderator adapts in real time. Progress: "
     "   context → task → reflection.\n"
-    "6. SUCCESS_CRITERIA (2–3) — Each measurable (a number or a binary "
+    "6. SUCCESS_CRITERIA (2-3) — Each measurable (a number or a binary "
     "   condition).\n"
     "7. LANGUAGES — BCP-47 codes inferred from the goal text (e.g. ['zh'] for "
     "   Chinese, ['en','ja','pt-BR'] for a multi-market study). Never blank.\n"
-    "8. RECOMMENDATIONS (5–7) — Concrete methodology + UX affordance tips the "
+    "8. RECOMMENDATIONS (5-7) — Concrete methodology + UX affordance tips the "
     "   researcher did NOT ask for. This is where you prove consultant-level "
     "   thinking. EVERY draft MUST include ALL of:\n"
     "   (a) at least ONE named methodology tag (Mom Test / IPA / CIT / \n"
@@ -247,15 +480,17 @@ class DesignerAgent:
         max_tokens: int,
         temperature: float,
         prompt_version: str = "v1",
+        model: str | None = None,
+        seed_timeout_seconds: float = 25.0,
     ) -> None:
         self._llm = llm
         self._max_tokens = max_tokens
         self._temperature = temperature
+        self._model = model
+        self._seed_timeout_seconds = seed_timeout_seconds
         self._system = load_prompt("designer", prompt_version)
 
-    async def run(
-        self, command: Any, context: dict[str, Any], harness: Harness
-    ) -> AgentResult:
+    async def run(self, command: Any, context: dict[str, Any], harness: Harness) -> AgentResult:
         _ = harness
         if isinstance(command, CreateCampaign):
             return await self._on_create(command)
@@ -264,7 +499,7 @@ class DesignerAgent:
         return AgentResult(response={"error": f"unsupported command {type(command).__name__}"})
 
     async def _on_create(self, cmd: CreateCampaign) -> AgentResult:
-        campaign_id = uuid4()
+        campaign_id = cmd.campaign_id or uuid4()
         spec = spec_from_create(cmd)
         spec = await self._seed_spec_via_llm(cmd, spec)
         events: list[EventBase] = [
@@ -297,14 +532,12 @@ class DesignerAgent:
             },
         )
 
-    async def _seed_spec_via_llm(
-        self, cmd: CreateCampaign, base: CampaignSpec
-    ) -> CampaignSpec:
+    async def _seed_spec_via_llm(self, cmd: CreateCampaign, base: CampaignSpec) -> CampaignSpec:
         """Ask the LLM to fill in outline / hypotheses / persona / screener.
 
-        Any failure (network error, parse error, empty text) is logged and we
-        return `base` unchanged so create still succeeds — mirrors the historic
-        deterministic behavior for test-time MockLLM('ok').
+        Any failure (timeout, network error, parse error, empty text) is logged
+        and falls back to a deterministic, usable guide. Campaign creation
+        therefore remains bounded even when the configured model is degraded.
         """
         if cmd.primary_language is not None:
             # Apply immediately so an explicit language survives even if the
@@ -347,25 +580,45 @@ class DesignerAgent:
             f"{_SEED_INSTRUCTION}"
             f"{language_directive}"
         )
-        try:
-            resp = await self._llm.complete(
+        seed_task = asyncio.create_task(
+            self._llm.complete(
                 system=self._system,
                 messages=[LLMMessage(role="user", content=user_msg)],
+                model=self._model,
                 max_tokens=self._max_tokens,
                 temperature=self._temperature,
             )
+        )
+        try:
+            done, _ = await asyncio.wait(
+                {seed_task},
+                timeout=self._seed_timeout_seconds,
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+            if not done:
+                # Do not await cancellation here. Some HTTP/SDK layers defer
+                # cancellation while they unwind retries, which previously
+                # turned a 25-second timeout into a 60-second browser timeout.
+                seed_task.cancel()
+                seed_task.add_done_callback(_consume_background_task)
+                logger.warning(
+                    "designer seed llm call exceeded %.1fs; using fallback guide",
+                    self._seed_timeout_seconds,
+                )
+                return _fallback_seed_spec(cmd, base)
+            resp = seed_task.result()
         except Exception as exc:
             logger.warning("designer seed llm call failed: %s", exc)
-            return base
+            return _fallback_seed_spec(cmd, base)
         seed = _extract_json(resp.text)
         if not seed:
-            logger.info("designer seed: no valid JSON in llm response; using empty spec")
-            return base
+            logger.info("designer seed: no valid JSON in llm response; using fallback guide")
+            return _fallback_seed_spec(cmd, base)
         try:
             return _apply_seed_to_spec(base, seed, forced_language=cmd.primary_language)
         except Exception as exc:  # pydantic validation etc.
             logger.warning("designer seed apply failed: %s", exc)
-            return base
+            return _fallback_seed_spec(cmd, base)
 
     async def _on_refine(self, cmd: RefineOutline, context: dict[str, Any]) -> AgentResult:
         assert cmd.campaign_id is not None
@@ -380,6 +633,7 @@ class DesignerAgent:
         resp = await self._llm.complete(
             system=self._system,
             messages=[LLMMessage(role="user", content=user_msg)],
+            model=self._model,
             max_tokens=self._max_tokens,
             temperature=self._temperature,
         )
@@ -390,6 +644,8 @@ class DesignerAgent:
                 patch = _sanitize_patch(json.loads(m.group(1)))
             except json.JSONDecodeError:
                 patch = {}
+        if not patch:
+            patch = _fallback_refine_patch(current_spec, cmd.instruction)
         events: list[EventBase] = [
             SpecUpdated(
                 campaign_id=cmd.campaign_id,
@@ -437,6 +693,7 @@ class DesignerAgent:
         async for chunk in self._llm.stream(
             system=self._system,
             messages=[LLMMessage(role="user", content=user_msg)],
+            model=self._model,
             max_tokens=self._max_tokens,
             temperature=self._temperature,
         ):

@@ -64,10 +64,15 @@ async def lifespan(app: FastAPI):
     state = await build_state()
     app.state.telepace = state
     tail_task = asyncio.create_task(_tail_loop(state))
+    resumed = await agent.resume_incomplete_agent_runs(state)
+    if resumed:
+        logger.info("resumed %d agent runs after startup", resumed)
     try:
         yield
     finally:
         tail_task.cancel()
+        for task in state.agent_run_tasks or set():
+            task.cancel()
         await state.event_store.stop()
         await state.pool.close()
 

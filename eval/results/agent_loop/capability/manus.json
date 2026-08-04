@@ -1,0 +1,31 @@
+{
+  "agent": "manus",
+  "as_of": "2026-07-31",
+  "checks": {
+    "C1": {"value": 0, "refs": [], "note": "Public docs do not establish provider-native block pairing."},
+    "C2": {"value": 1, "refs": ["https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus"], "note": "Official loop description appends actions and observations and prioritizes KV cache stability."},
+    "C3": {"value": 1, "refs": ["https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus"], "note": "File system is used as restorable external context."},
+    "C4": {"value": 0.75, "refs": ["https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus"], "note": "Official material describes restorable compression, but not a user-visible compaction contract."},
+    "D1": {"value": 1, "refs": ["https://help.manus.im/en/articles/15392111-what-is-the-cloud-computer"], "note": "Cloud Computer continues independently of the client."},
+    "D2": {"value": 1, "refs": ["https://help.manus.im/en/articles/15392111-what-is-the-cloud-computer"], "note": "Persistent always-on cloud execution is documented."},
+    "D3": {"value": 0.75, "refs": ["https://manus.im/desktop"], "note": "Cross-device continuation is documented; step-level replay semantics are not."},
+    "P1": {"value": 1, "refs": ["https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus"], "note": "todo.md is updated and recited through long tasks."},
+    "P2": {"value": 0.75, "refs": ["https://manus.im/docs/features/wide-research"], "note": "Tasks are decomposed and synthesized, but explicit completion gates need live-run evidence."},
+    "P3": {"value": 0.5, "refs": ["https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus"], "note": "The loop consumes observations; independent output verification is not fully specified."},
+    "P4": {"value": 1, "refs": ["https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus"], "note": "Official guidance explicitly keeps failed actions and errors in context."},
+    "P5": {"value": 0, "refs": [], "note": "No public retry-budget contract found."},
+    "M1": {"value": 1, "refs": ["https://manus.im/desktop"], "note": "Tasks continue across devices with their progress."},
+    "M2": {"value": 1, "refs": ["https://help.manus.im/en/articles/15392111-what-is-the-cloud-computer"], "note": "Persistent file system is documented."},
+    "M3": {"value": 0.75, "refs": ["https://manus.im/docs/features/desktop"], "note": "Projects can use local knowledge; preference-memory semantics are not explicit."},
+    "S1": {"value": 1, "refs": ["https://manus.im/docs/features/wide-research"], "note": "Wide Research runs independent work concurrently."},
+    "S2": {"value": 1, "refs": ["https://manus.im/docs/features/wide-research"], "note": "Dedicated-context subagents and result synthesis are documented."},
+    "G1": {"value": 0.75, "refs": ["https://manus.im/docs/features/desktop"], "note": "Local actions are permissioned; uniform coverage across cloud tools is not established."},
+    "G2": {"value": 1, "refs": ["https://help.manus.im/en/articles/11711218-how-can-i-take-over-manus-browser-or-vs-code"], "note": "The user can take over when the agent needs assistance."},
+    "G3": {"value": 0.75, "refs": ["https://manus.im/docs/features/desktop"], "note": "Folder/path-scoped permission is documented."},
+    "X1": {"value": 0.75, "refs": ["https://help.manus.im/en/articles/11711218-how-can-i-take-over-manus-browser-or-vs-code"], "note": "Users can inspect and take over active work; exportable trace detail needs live evidence."},
+    "X2": {"value": 1, "refs": ["https://manus.im/desktop"], "note": "Task progress and continuation are product features."},
+    "X3": {"value": 1, "refs": ["https://manus.im/desktop"], "note": "Cross-device continuation is documented."},
+    "X4": {"value": 0.5, "refs": ["https://help.manus.im/en/articles/11960169-what-is-wide-research"], "note": "Credit caps are visible, but token/latency/failure telemetry is not fully documented."},
+    "X5": {"value": 0.75, "refs": ["https://manus.im/docs/features/wide-research"], "note": "Structured output and refinement are documented; task-level evidence remains necessary."}
+  }
+}

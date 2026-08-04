@@ -14,7 +14,6 @@ import {
 import { AgentMessage } from "@/components/agent/AgentMessage";
 import { ALL_CHANNELS, CHANNELS } from "@telepace/config";
 import {
-  deriveDecisionClarify,
   deriveAudienceClarify,
   deriveReadiness,
   readinessDelta,
@@ -54,6 +53,7 @@ type OutlineItem = {
 };
 
 type ChannelEntry = { kind: string; config?: Record<string, string> };
+type BusyPhase = "assessing" | "drafting" | "loading" | "refining";
 
 // The synthetic option id for "skip the gate and start drafting now", appended
 // to every gate clarify prompt. Recognized in handleClarifySelect to bypass the
@@ -178,6 +178,9 @@ export default function NewStudyPage() {
   const [spec, setSpec] = useState<Spec>(() => ({ ...INITIAL_SPEC, title: tc("untitledStudy") }));
   const [campaignId, setCampaignId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [busyPhase, setBusyPhase] = useState<BusyPhase | null>(null);
+  const [phaseStartedAt, setPhaseStartedAt] = useState<number | null>(null);
+  const [phaseElapsedSeconds, setPhaseElapsedSeconds] = useState(0);
   const [publishing, setPublishing] = useState(false);
   // Respondent-experience settings (welcome/consent/end/reward/redirect) are
   // collapsed by default — most studies never touch them, and showing five
@@ -201,6 +204,15 @@ export default function NewStudyPage() {
   // consecutive patches (moved.size alone would stay constant and React would
   // skip the remount, leaving the researcher's edit visually unacknowledged).
   const [patchSeq, setPatchSeq] = useState(0);
+
+  // Change rails are an acknowledgement, not permanent decoration. Keep the
+  // non-colour cue long enough to notice (including with reduced motion), then
+  // return the manuscript to its quiet resting state.
+  useEffect(() => {
+    if (changed.size === 0) return;
+    const timer = window.setTimeout(() => setChanged(new Set()), 1800);
+    return () => window.clearTimeout(timer);
+  }, [patchSeq, changed.size]);
   // Bumping this refocuses the composer when a researcher picks "Something
   // else…" on a clarify prompt — hands control back to free typing.
   const [composerFocusKey, setComposerFocusKey] = useState(0);
@@ -212,6 +224,10 @@ export default function NewStudyPage() {
   // ready-to-publish note. Consumed and cleared in the refine onDone.
   const nextStageRef = useRef<"audience" | "closure" | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  // A create request may finish on the server after the browser's 30-second
+  // deadline. Keep one key across timeout retries so the server returns the
+  // original campaign instead of creating a duplicate draft.
+  const createIdempotencyKeyRef = useRef<string | null>(null);
   // Anchor the conversation to its latest turn — the old ChatFeed auto-scrolled
   // internally; our own message list needs an explicit end sentinel to keep the
   // newest reply in view as the design chat grows.
@@ -274,6 +290,22 @@ export default function NewStudyPage() {
   const [readinessLiveSeq, setReadinessLiveSeq] = useState(0);
 
   const prefersReducedMotion = usePrefersReducedMotion();
+
+  function startBusyPhase(phase: BusyPhase) {
+    setBusyPhase(phase);
+    setPhaseStartedAt(Date.now());
+    setPhaseElapsedSeconds(0);
+  }
+
+  useEffect(() => {
+    if (!busy || phaseStartedAt === null) return;
+    const updateElapsed = () => {
+      setPhaseElapsedSeconds(Math.floor((Date.now() - phaseStartedAt) / 1000));
+    };
+    updateElapsed();
+    const timer = window.setInterval(updateElapsed, 1000);
+    return () => window.clearInterval(timer);
+  }, [busy, phaseStartedAt]);
 
   // A template card on the studies empty state arrives with ?seed=<goal> —
   // the researcher already "spoke" their opening line by choosing it, so we
@@ -488,22 +520,31 @@ export default function NewStudyPage() {
   // Shared by the "assessment says ready" and "researcher skipped the gate"
   // paths, so both produce a task-anchored study.
   async function createFromTask(agentId: string, goal: string, task: ResearchTask) {
+    startBusyPhase("drafting");
     const derivedTitle = deriveTitle(goal);
     const taskPayload: ResearchTaskInput | undefined =
       task.decision || task.objective || task.audience
         ? { decision: task.decision, objective: task.objective, audience: task.audience }
         : undefined;
-    const created = await createCampaign({
-      title: derivedTitle,
-      goal,
-      research_task: taskPayload,
-      // Content language follows the UI locale (fixes zh content on /en).
-      language: locale,
-      // Persist the delivery selection at create time — the pills used to be
-      // dead local state that never reached the server; now the choice is real
-      // and drives which channels are dispatchable after publish.
-      channels: spec.channels,
-    });
+    const idempotencyKey =
+      createIdempotencyKeyRef.current ?? crypto.randomUUID();
+    createIdempotencyKeyRef.current = idempotencyKey;
+    const created = await createCampaign(
+      {
+        title: derivedTitle,
+        goal,
+        research_task: taskPayload,
+        // Content language follows the UI locale (fixes zh content on /en).
+        language: locale,
+        // Persist the delivery selection at create time — the pills used to be
+        // dead local state that never reached the server; now the choice is real
+        // and drives which channels are dispatchable after publish.
+        channels: spec.channels,
+      },
+      { idempotencyKey },
+    );
+    createIdempotencyKeyRef.current = null;
+    startBusyPhase("loading");
     setCampaignId(created.campaign_id);
     setSpec((s) => ({
       ...s,
@@ -607,9 +648,13 @@ export default function NewStudyPage() {
   }
 
   async function handleSend(text: string) {
+    if (!campaignId && lastFailed && text !== lastFailed) {
+      createIdempotencyKeyRef.current = null;
+    }
     setLastFailed(null);
     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "respondent", text }]);
     setBusy(true);
+    startBusyPhase(campaignId ? "refining" : "assessing");
     // One pending interviewer bubble covers both paths: it shows typing dots
     // until the first token (or the seed summary) arrives.
     const agentId = crypto.randomUUID();
@@ -703,11 +748,14 @@ export default function NewStudyPage() {
       setLastFailed(text);
       patchMessage(agentId, {
         role: "system",
-        text: `${copy.title} — ${copy.description}`,
+        text: `${copy.title}: ${copy.description}`,
         pending: false,
       });
     } finally {
       setBusy(false);
+      setBusyPhase(null);
+      setPhaseStartedAt(null);
+      setPhaseElapsedSeconds(0);
     }
   }
 
@@ -718,6 +766,7 @@ export default function NewStudyPage() {
     setMessages((prev) => prev.map((m) => (m.id === promptId ? { ...m, clarify: undefined } : m)));
     if (busy) return;
     setBusy(true);
+    startBusyPhase("drafting");
     const agentId = crypto.randomUUID();
     setMessages((prev) => [...prev, { id: agentId, role: "interviewer", text: "", pending: true }]);
     try {
@@ -727,11 +776,14 @@ export default function NewStudyPage() {
       const copy = friendlyMessage(err, errorsCopy);
       patchMessage(agentId, {
         role: "system",
-        text: `${copy.title} — ${copy.description}`,
+        text: `${copy.title}: ${copy.description}`,
         pending: false,
       });
     } finally {
       setBusy(false);
+      setBusyPhase(null);
+      setPhaseStartedAt(null);
+      setPhaseElapsedSeconds(0);
     }
   }
 
@@ -773,7 +825,7 @@ export default function NewStudyPage() {
       <span className="sr-only">{tc("blockUpdated")}</span>
     ) : null;
     return {
-      className: isChanged ? "tp-diff-flash tp-diff-rail rounded-card" : "",
+      className: isChanged ? "tp-diff-flash tp-diff-rail" : "",
       key: `${section}-${isChanged ? patchSeq : "s"}`,
       badge,
     };
@@ -878,20 +930,35 @@ export default function NewStudyPage() {
         {
           id: crypto.randomUUID(),
           role: "system",
-          text: `${tc("publishFailed")} — ${copy.title}: ${copy.description}`,
+          text: `${tc("publishFailed")}: ${copy.title}. ${copy.description}`,
         },
       ]);
       setPublishing(false);
     }
   }
 
+  const guideMaterializing =
+    busy &&
+    spec.outline.length === 0 &&
+    (busyPhase === "assessing" || busyPhase === "drafting" || busyPhase === "loading");
+  const busyPhaseLabel = busyPhase
+    ? tc(
+        busyPhase === "assessing"
+          ? "phaseAssessing"
+          : busyPhase === "drafting"
+            ? "phaseDrafting"
+            : busyPhase === "loading"
+              ? "phaseLoading"
+              : "phaseRefining",
+      )
+    : "";
+
   // A fixed workbench: the root is pinned to <main> via `absolute inset-0` so
-  // it's exactly the viewport minus the sidebar, and scrolling happens ONLY
-  // inside each pane below. (An h-full + flex/overflow-y-auto chain leaks the
-  // canvas pane's content height up to <html>, letting the whole page drag into
-  // blank space — inset-0 clips it for good.)
+  // it's exactly the viewport minus the sidebar, and scrolling happens only
+  // inside each pane. On narrow screens the pre-creation chat owns the stage;
+  // after the guide exists it becomes a horizontal recall bar above the paper.
   return (
-    <div className="absolute inset-0 flex overflow-hidden">
+    <div className="absolute inset-0 flex flex-col overflow-hidden lg:flex-row">
       {/* The studio's visual title is the editable <textarea> below — a form
           control, so it gives screen readers no landmark to jump to and the
           page had no <h1> at all. This names the page for AT without putting a
@@ -904,8 +971,12 @@ export default function NewStudyPage() {
           chat stays mounted so messages, scroll, and composer focus survive a
           collapse and it's instantly re-grabbable. */}
       <div
-        className={`relative flex shrink-0 flex-col border-r border-hairline bg-paper transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
-          chatExpanded ? "w-[380px]" : "w-12"
+        className={`relative flex shrink-0 flex-col border-b border-hairline bg-paper transition-[width,height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none lg:h-auto lg:border-b-0 lg:border-r ${
+          chatExpanded
+            ? campaignId
+              ? "h-[42dvh] w-full lg:w-[380px]"
+              : "h-full w-full lg:w-[380px]"
+            : "h-12 w-full lg:w-12"
         }`}
       >
         {/* Collapsed strip — a quiet spine: expand affordance, a rotated
@@ -916,7 +987,7 @@ export default function NewStudyPage() {
             type="button"
             onClick={() => setChatExpandedOverride(true)}
             aria-label={tc("expandChat")}
-            className="group absolute inset-0 flex flex-col items-center gap-3 py-4 transition-colors hover:bg-paper-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+            className="group absolute inset-0 flex flex-row items-center gap-3 px-4 transition-colors hover:bg-paper-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent lg:flex-col lg:px-0 lg:py-4"
           >
             <span
               aria-hidden
@@ -926,14 +997,14 @@ export default function NewStudyPage() {
             </span>
             <span
               aria-hidden
-              className="overline whitespace-nowrap text-muted [writing-mode:vertical-rl]"
+              className="tp-study-chrome-label whitespace-nowrap text-muted lg:[writing-mode:vertical-rl]"
             >
               {tc("designChat")}
             </span>
             {(hasUnread || busy) && (
               <span
                 aria-hidden
-                className={`mt-1 h-1.5 w-1.5 rounded-full bg-accent ${busy ? "tp-pulse-slow" : ""}`}
+                className={`ml-auto h-1.5 w-1.5 rounded-full bg-accent lg:ml-0 lg:mt-1 ${busy ? "tp-pulse-slow" : ""}`}
               />
             )}
           </button>
@@ -943,7 +1014,7 @@ export default function NewStudyPage() {
             unmounted) when collapsed so its state is preserved. */}
         <section className={`flex min-h-0 flex-1 flex-col ${chatExpanded ? "" : "hidden"}`}>
         <header className="px-6 min-h-14 py-2.5 flex items-center justify-between border-b border-hairline">
-          <p className="overline">{tc("designChat")}</p>
+          <p className="tp-study-chrome-label">{tc("designChat")}</p>
           <div className="flex items-center gap-3">
           {busy && campaignId && (
             <button
@@ -967,6 +1038,43 @@ export default function NewStudyPage() {
           )}
           </div>
         </header>
+        {busy && busyPhase && (
+          <div className="border-b border-hairline bg-paper-sunken px-6 py-3">
+            <span className="sr-only" role="status" aria-live="polite">
+              {tc(
+                busyPhase === "assessing"
+                  ? "phaseAssessing"
+                  : busyPhase === "drafting"
+                    ? "phaseDrafting"
+                    : busyPhase === "loading"
+                      ? "phaseLoading"
+                      : "phaseRefining",
+              )}
+              {phaseElapsedSeconds >= 20 ? ` ${tc("phaseSlow")}` : ""}
+            </span>
+            <div aria-hidden className="flex items-center gap-2 text-xs text-muted">
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent tp-pulse-slow" />
+              <span className="text-body">
+                {tc(
+                  busyPhase === "assessing"
+                    ? "phaseAssessing"
+                    : busyPhase === "drafting"
+                      ? "phaseDrafting"
+                      : busyPhase === "loading"
+                        ? "phaseLoading"
+                        : "phaseRefining",
+                )}
+              </span>
+              <span>·</span>
+              <span>{tc("phaseElapsed", { seconds: phaseElapsedSeconds })}</span>
+            </div>
+            {phaseElapsedSeconds >= 20 && (
+              <p aria-hidden className="mt-1.5 text-xs leading-relaxed text-muted">
+                {tc("phaseSlow")}
+              </p>
+            )}
+          </div>
+        )}
         <div className="flex-1 overflow-y-auto px-6">
           {/* The design conversation — quiet copilot prose, NOT the interview
               ChatFeed's serif "hero" question. The designer agent's clarifying
@@ -1031,12 +1139,14 @@ export default function NewStudyPage() {
 
       {/* Right: canvas pane — the wide, elevated-paper research manuscript.
           It takes the full remaining stage (flex-1) — the star of the studio. */}
-      <section className="flex flex-1 min-w-0 flex-col overflow-hidden">
-        <header className="px-8 min-h-14 py-2.5 flex items-center justify-between gap-6 border-b border-hairline">
+      <section
+        className={`${campaignId ? "flex" : "hidden lg:flex"} min-h-0 min-w-0 flex-1 flex-col overflow-hidden`}
+      >
+        <header className="flex min-h-14 flex-col items-stretch justify-between gap-3 border-b border-hairline px-4 py-3 sm:flex-row sm:items-center sm:gap-6 sm:px-6 lg:px-8">
           <div className="min-w-0 flex flex-col gap-1.5">
             <div className="flex items-center gap-3">
-              <p className="overline">{tc("discussionGuide")}</p>
-              <span className="text-xs text-muted">
+              <p className="tp-study-chrome-label">{tc("discussionGuide")}</p>
+              <span className="hidden text-xs text-muted md:inline">
                 {tc("canvasMeta", {
                   minutes: spec.estimated_minutes,
                   completions: spec.target_completions,
@@ -1067,7 +1177,7 @@ export default function NewStudyPage() {
               action. Publishing lives at the end of the manuscript in the
               LaunchPanel — one honest launch moment, not a second CTA up here
               competing with it. */}
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center justify-end gap-2">
             <Button
               variant="ghost"
               size="sm"
@@ -1080,39 +1190,59 @@ export default function NewStudyPage() {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-8 bg-paper-elevated">
-          {!campaignId && !spec.goal ? (
+        <div className="tp-study-desk relative flex-1 overflow-y-auto px-3 py-4 sm:p-6 lg:p-8">
+          {guideMaterializing ? (
+            <GuideGeneratingState
+              title={spec.title !== tc("untitledStudy") ? spec.title : ""}
+              goal={spec.goal}
+              phase={busyPhaseLabel}
+              elapsed={tc("phaseElapsed", { seconds: phaseElapsedSeconds })}
+              slow={phaseElapsedSeconds >= 20 ? tc("phaseSlow") : ""}
+            />
+          ) : !campaignId && !spec.goal ? (
             <CanvasEmptyState
               title={tc("canvasEmptyTitle")}
               body={tc("canvasEmptyBody")}
             />
           ) : (
-          <div className="max-w-3xl mx-auto">
+          <article className="tp-study-sheet mx-auto min-h-full max-w-[860px] px-6 py-10 sm:px-10 sm:py-12 lg:px-14 lg:py-16">
             {/* Auto-growing title: a long zh goal-turned-title must wrap onto a
                 second line, never clip off the right edge (a single-line <input>
                 truncated it). rows=1 + height sync keeps it flush. */}
-            <textarea
-              value={spec.title}
-              aria-label={tc("untitledStudy")}
-              rows={1}
-              onChange={(e) => setSpec((s) => ({ ...s, title: e.target.value }))}
-              onInput={(e) => {
-                const el = e.currentTarget;
-                el.style.height = "auto";
-                el.style.height = `${el.scrollHeight}px`;
-              }}
-              ref={(el) => {
-                // Sync height on mount and whenever the seed sets a long title.
-                if (el) {
+            <div className="tp-study-emerge" style={{ animationDelay: "40ms" }}>
+              <textarea
+                value={spec.title}
+                aria-label={tc("untitledStudy")}
+                rows={1}
+                onChange={(e) => setSpec((s) => ({ ...s, title: e.target.value }))}
+                onBlur={(e) => {
+                  const title = e.currentTarget.value.trim();
+                  if (campaignId && title) {
+                    void updateCampaignSettings(campaignId, { title }).catch(() => {
+                      /* best-effort: the next blur retries */
+                    });
+                  }
+                }}
+                onInput={(e) => {
+                  const el = e.currentTarget;
                   el.style.height = "auto";
                   el.style.height = `${el.scrollHeight}px`;
-                }
-              }}
-              className="font-display text-4xl leading-tight bg-transparent w-full resize-none overflow-hidden outline-none border-b border-transparent focus:border-hairline pb-2"
-            />
-            {spec.goal && (
-              <p className="text-body mt-3 text-lg leading-relaxed max-w-2xl">{spec.goal}</p>
-            )}
+                }}
+                ref={(el) => {
+                  // Sync height on mount and whenever the seed sets a long title.
+                  if (el) {
+                    el.style.height = "auto";
+                    el.style.height = `${el.scrollHeight}px`;
+                  }
+                }}
+                className="w-full resize-none overflow-hidden border-b border-transparent bg-transparent pb-2 font-display text-3xl leading-tight outline-none transition-colors focus:border-hairline sm:text-4xl lg:text-[2.65rem]"
+              />
+              {spec.goal && (
+                <p className="mt-3 max-w-2xl text-base leading-[1.75] text-body sm:text-lg">
+                  {spec.goal}
+                </p>
+              )}
+            </div>
 
             {/* Research Task — the study's north star, a first-class editable
                 object. Distilled by the pre-creation gate; editing any facet
@@ -1121,8 +1251,11 @@ export default function NewStudyPage() {
               (spec.research_task.decision ||
                 spec.research_task.objective ||
                 spec.research_task.audience) && (
-                <div className="mt-6 rounded-card border border-accent/40 bg-accent-soft/40 p-5">
-                  <p className="overline mb-3 flex items-center gap-2 text-accent before:h-px before:w-4 before:bg-accent/40 before:content-['']">
+                <div
+                  className="tp-study-callout tp-study-emerge mt-8 p-5 sm:p-6"
+                  style={{ animationDelay: "120ms" }}
+                >
+                  <p className="tp-study-section-label mb-4 text-accent">
                     {tc("researchTask")}
                   </p>
                   <dl className="space-y-2.5">
@@ -1172,7 +1305,7 @@ export default function NewStudyPage() {
                                 type="button"
                                 disabled={busy}
                                 onClick={() => startEditTask(field)}
-                                className="group w-full text-left text-body leading-relaxed rounded-input px-1.5 py-1 -mx-1.5 transition-[color,background-color,border-color,transform] duration-150 hover:bg-paper disabled:cursor-not-allowed tp-press tp-press-control motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+                                className="group -mx-1.5 w-full rounded-input px-1.5 py-1 text-left leading-relaxed text-body transition-[color,background-color,border-color,transform] duration-150 hover:bg-paper/80 disabled:cursor-not-allowed tp-press tp-press-control motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
                                 aria-label={tc("taskEditAria", {
                                   facet: tc(`taskField_${field}` as Parameters<typeof tc>[0]),
                                 })}
@@ -1194,32 +1327,37 @@ export default function NewStudyPage() {
             {spec.target_persona && (() => {
               const d = diffMark("persona");
               return (
-                <Card
+                <div
                   key={d.key}
-                  className={`mt-6 p-4 ${d.className}`}
+                  className={`tp-study-section tp-study-section-lined tp-study-emerge mt-9 ${d.className}`}
+                  style={{ animationDelay: "180ms" }}
                 >
                   {d.badge}
-                  <p className="overline mb-2 flex items-center gap-2 before:h-px before:w-4 before:bg-hairline before:content-['']">{tc("targetPersona")}</p>
-                  <p className="text-body">{spec.target_persona}</p>
-                </Card>
+                  <p className="tp-study-section-label mb-3">{tc("targetPersona")}</p>
+                  <p className="max-w-2xl leading-[1.75] text-body">{spec.target_persona}</p>
+                </div>
               );
             })()}
 
             {spec.hypotheses.length > 0 && (() => {
               const d = diffMark("hypotheses");
               return (
-              <div key={d.key} className={`mt-8 ${d.className}`}>
+              <div
+                key={d.key}
+                className={`tp-study-section tp-study-emerge mt-9 ${d.className}`}
+                style={{ animationDelay: "240ms" }}
+              >
                 {d.badge}
-                <p className="overline mb-3 flex items-center gap-2 before:h-px before:w-4 before:bg-hairline before:content-['']">
+                <p className="tp-study-section-label mb-4">
                   {tc("hypotheses")}
                 </p>
-                <ul className="space-y-3">
+                <ul className="space-y-3.5">
                   {spec.hypotheses.map((h, i) => (
                     // H1/H2/H3 in a true aligned gutter. A wider 2.5rem track and
                     // tabular sans keep the "H" + digit from crowding (the serif
                     // face squeezed them together); sage accent for the marker.
                     <li key={i} className="grid grid-cols-[2.5rem_1fr] gap-3 text-body">
-                      <span className="font-medium text-sm tabular-nums leading-relaxed text-accent">
+                      <span className="pt-px text-xs font-semibold tabular-nums leading-relaxed text-accent">
                         H{i + 1}
                       </span>
                       <span className="leading-relaxed">{h}</span>
@@ -1233,14 +1371,18 @@ export default function NewStudyPage() {
             {spec.audience_screener.length > 0 && (() => {
               const d = diffMark("screener");
               return (
-              <div key={d.key} className={`mt-6 ${d.className}`}>
+              <div
+                key={d.key}
+                className={`tp-study-section tp-study-emerge mt-9 ${d.className}`}
+                style={{ animationDelay: "300ms" }}
+              >
                 {d.badge}
-                <p className="overline mb-3 flex items-center gap-2 before:h-px before:w-4 before:bg-hairline before:content-['']">{tc("audienceScreener")}</p>
+                <p className="tp-study-section-label mb-4">{tc("audienceScreener")}</p>
                 <div className="flex flex-wrap gap-2">
                   {spec.audience_screener.map((q, i) => (
                     <span
                       key={i}
-                      className="px-3 py-1.5 rounded-pill text-xs border border-hairline bg-paper text-body"
+                      className="rounded-pill border border-hairline bg-paper/70 px-3 py-1.5 text-xs leading-relaxed text-body"
                     >
                       {q}
                     </span>
@@ -1250,16 +1392,19 @@ export default function NewStudyPage() {
               );
             })()}
 
-            <div className="mt-10">
-              <p className="overline mb-4 flex items-center gap-2 before:h-px before:w-4 before:bg-hairline before:content-['']">{tc("questions")}</p>
+            <div
+              className="tp-study-section tp-study-section-lined tp-study-emerge mt-12"
+              style={{ animationDelay: "360ms" }}
+            >
+              <p className="tp-study-section-label mb-4">{tc("questions")}</p>
               {spec.outline.length === 0 ? (
-                <div className="rounded-card border border-dashed border-hairline p-8 text-center text-muted">
+                <div className="border-y border-dashed border-hairline py-8 text-center text-muted">
                   {tc("outlinePlaceholder")}
                 </div>
               ) : (
                 <ol
                   key={`outline-${changed.has("outline") ? patchSeq : "s"}`}
-                  className={`space-y-2.5 ${changed.has("outline") ? "tp-diff-flash tp-diff-rail rounded-card" : ""}`}
+                  className={`tp-study-question-list ${changed.has("outline") ? "tp-diff-flash tp-diff-rail" : ""}`}
                 >
                   {changed.has("outline") && <li className="sr-only">{tc("blockUpdated")}</li>}
                   {spec.outline.map((q, i) => (
@@ -1271,17 +1416,17 @@ export default function NewStudyPage() {
                       // Airy padding + a numbered gutter; the ONLY sage rail here
                       // is the transient diff-flash on the <ol> — resting cards
                       // stay quiet (a permanent accent bar would nag).
-                      className={`grid grid-cols-[2rem_1fr] gap-4 rounded-card border border-hairline bg-paper p-5 ${
+                      className={`tp-study-question grid grid-cols-[2rem_1fr] gap-4 px-3 py-5 ${
                         changed.has("outline") ? "tp-guide-grow" : ""
                       }`}
                       style={changed.has("outline") ? { animationDelay: `${i * 45}ms` } : undefined}
                     >
-                      <div className="font-mono text-sm text-muted pt-0.5">
+                      <div className="pt-0.5 font-mono text-xs tabular-nums text-muted">
                         {String(q.order).padStart(2, "0")}
                       </div>
                       <div>
-                        <p className="text-ink leading-relaxed">{q.question}</p>
-                        <p className="text-xs text-muted mt-1.5">{tc("goalPrefix")}{q.goal}</p>
+                        <p className="leading-[1.7] text-ink">{q.question}</p>
+                        <p className="mt-1.5 text-xs leading-relaxed text-muted">{tc("goalPrefix")}{q.goal}</p>
                       </div>
                     </li>
                   ))}
@@ -1292,14 +1437,20 @@ export default function NewStudyPage() {
             {spec.success_criteria.length > 0 && (() => {
               const d = diffMark("criteria");
               return (
-              <div key={d.key} className={`mt-10 ${d.className}`}>
+              <div
+                key={d.key}
+                className={`tp-study-section tp-study-emerge mt-10 ${d.className}`}
+                style={{ animationDelay: "430ms" }}
+              >
                 {d.badge}
-                <p className="overline mb-3 flex items-center gap-2 before:h-px before:w-4 before:bg-hairline before:content-['']">{tc("successCriteria")}</p>
-                <ul className="space-y-1.5">
+                <p className="tp-study-section-label mb-3">{tc("successCriteria")}</p>
+                <ul className="space-y-2">
                   {spec.success_criteria.map((c, i) => (
-                    <li key={i} className="flex gap-3 text-body">
-                      <span className="font-mono text-xs text-muted pt-0.5">·</span>
-                      <span>{c}</span>
+                    <li key={i} className="grid grid-cols-[2rem_1fr] gap-3 text-body">
+                      <span className="pt-0.5 font-mono text-xs tabular-nums text-muted">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span className="leading-relaxed">{c}</span>
                     </li>
                   ))}
                 </ul>
@@ -1311,15 +1462,20 @@ export default function NewStudyPage() {
                 Collapsed by default and placed just above Launch: it's part
                 of preparing to publish, not part of the outline itself. */}
             {campaignId && (
-              <div className="mt-10">
+              <div
+                className="tp-study-section tp-study-section-lined tp-study-emerge mt-12"
+                style={{ animationDelay: "500ms" }}
+              >
                 <button
                   type="button"
                   onClick={() => setSettingsOpen((v) => !v)}
-                  className="overline flex items-center gap-2 text-body before:h-px before:w-4 before:bg-hairline before:content-['']"
+                  className="group flex w-full items-center justify-between text-left tp-press tp-press-row focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                   aria-expanded={settingsOpen}
                 >
-                  {tc("respondentExperienceTitle")}
-                  <span className="text-muted">
+                  <span className="tp-study-section-label text-body">
+                    {tc("respondentExperienceTitle")}
+                  </span>
+                  <span className="text-xs text-muted transition-colors group-hover:text-ink">
                     {settingsOpen
                       ? tc("respondentExperienceCollapse")
                       : tc("respondentExperienceExpand")}
@@ -1368,7 +1524,7 @@ export default function NewStudyPage() {
                 openHint: (n) => tc("readinessOpenHint", { remaining: n }),
               }}
             />
-          </div>
+          </article>
           )}
         </div>
       </section>
@@ -1452,28 +1608,126 @@ export default function NewStudyPage() {
 }
 
 /**
- * The canvas before any study exists — a calm "your document will take shape
- * here" state. Filled grey bars read as a skeleton, and skeletons mean
- * *loading* (DESIGN.md "Voice of empty states") — nothing is loading here, the
- * document simply isn't written yet. So the placeholder is a dashed-outline
- * page: ruled lines drawn as underlines-to-be, not content-shaped blocks. The
- * real content earns the ink once the conversation produces it.
+ * The in-progress manuscript. It deliberately uses stable ruled shapes rather
+ * than a shimmer: each region arrives once, while one quiet cursor breathes to
+ * indicate that drafting is still active. The outline mirrors the final
+ * document, so the handoff from generation to content preserves spatial memory.
+ */
+function GuideGeneratingState({
+  title,
+  goal,
+  phase,
+  elapsed,
+  slow,
+}: {
+  title: string;
+  goal: string;
+  phase: string;
+  elapsed: string;
+  slow: string;
+}) {
+  return (
+    <div className="tp-study-sheet mx-auto min-h-full max-w-[860px] px-6 py-10 sm:px-10 sm:py-12 lg:px-14 lg:py-16">
+      <div role="status" aria-live="polite" className="mb-10 flex items-start justify-between gap-6">
+        <div>
+          <p className="tp-study-section-label text-accent">{phase}</p>
+          {slow && <p className="mt-2 max-w-lg text-xs leading-relaxed text-muted">{slow}</p>}
+        </div>
+        <span className="shrink-0 text-xs tabular-nums text-muted">{elapsed}</span>
+      </div>
+
+      <div aria-hidden className="max-w-2xl">
+        {title ? (
+          <p className="max-w-xl font-display text-3xl leading-tight text-ink sm:text-4xl">
+            {title}
+          </p>
+        ) : (
+          <div
+            className="tp-study-sketch-line h-9 w-[74%]"
+            style={{ animationDelay: "40ms" }}
+          />
+        )}
+        {goal ? (
+          <p className="mt-4 max-w-xl text-base leading-[1.75] text-body">{goal}</p>
+        ) : (
+          <div className="mt-5 space-y-2.5">
+            <div
+              className="tp-study-sketch-line h-2.5 w-full"
+              style={{ animationDelay: "100ms" }}
+            />
+            <div
+              className="tp-study-sketch-line h-2.5 w-[84%]"
+              style={{ animationDelay: "140ms" }}
+            />
+          </div>
+        )}
+
+        <div
+          className="tp-study-callout tp-study-sketch-in mt-9 p-5"
+          style={{ animationDelay: "180ms" }}
+        >
+          <div className="mb-5 flex items-center gap-2">
+            <span className="tp-study-writing-cursor h-3.5 w-0.5 bg-accent" />
+            <span className="h-2 w-24 rounded-pill bg-accent/25" />
+          </div>
+          <div className="space-y-4">
+            {[92, 76, 84].map((width, index) => (
+              <div key={width} className="grid grid-cols-[4rem_1fr] items-center gap-4">
+                <span className="h-2 w-10 rounded-pill bg-ink/10" />
+                <span
+                  className="tp-study-sketch-line h-2.5"
+                  style={{
+                    width: `${width}%`,
+                    animationDelay: `${240 + index * 55}ms`,
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {[0, 1, 2].map((section) => (
+          <div
+            key={section}
+            className={`tp-study-sketch-in mt-10 ${section === 2 ? "border-t border-hairline pt-7" : ""}`}
+            style={{ animationDelay: `${420 + section * 110}ms` }}
+          >
+            <div className="mb-5 h-2 w-20 rounded-pill bg-ink/10" />
+            <div className="space-y-3">
+              {[96, 88, 72].slice(0, section === 2 ? 3 : 2).map((width, index) => (
+                <div
+                  key={`${width}-${index}`}
+                  className="grid grid-cols-[2rem_1fr] items-center gap-4 border-b border-hairline/70 pb-3"
+                >
+                  <span className="h-2 w-4 rounded-pill bg-ink/10" />
+                  <span className="tp-study-sketch-line h-2.5" style={{ width: `${width}%` }} />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The canvas before any study exists. Filled bars would read as loading, so the
+ * unwritten state uses a real paper surface with a single insertion caret and
+ * faint rules. It promises a document without pretending work has begun.
  */
 function CanvasEmptyState({ title, body }: { title: string; body: string }) {
   return (
-    <div className="flex h-full min-h-[60vh] flex-col items-center justify-center px-8 text-center">
-      <div className="w-full max-w-sm">
-        {/* A not-yet-written page: a dashed sheet with faint rule lines —
-            "waiting for words", unmistakably distinct from a loading skeleton. */}
-        <div
-          aria-hidden
-          className="mx-auto mb-8 flex w-40 flex-col gap-3 rounded-card border border-dashed border-hairline px-5 pb-5 pt-4 opacity-70"
-        >
-          <div className="h-px w-2/3 bg-ink/20" />
-          <div className="h-px w-full bg-hairline" />
-          <div className="h-px w-full bg-hairline" />
-          <div className="h-px w-4/5 bg-hairline" />
-          <div className="mt-1.5 h-px w-1/2 bg-hairline" />
+    <div className="tp-study-sheet mx-auto flex min-h-full max-w-[860px] items-center px-6 py-14 sm:px-10 lg:px-14">
+      <div className="mx-auto w-full max-w-md text-center">
+        <div aria-hidden className="mx-auto mb-8 w-44 text-left opacity-70">
+          <span className="mb-4 block h-7 w-px bg-accent" />
+          <div className="space-y-3">
+            <div className="h-px w-2/3 bg-ink/20" />
+            <div className="h-px w-full bg-hairline" />
+            <div className="h-px w-[92%] bg-hairline" />
+            <div className="h-px w-4/5 bg-hairline" />
+          </div>
         </div>
         <p className="font-display text-xl leading-snug text-ink">{title}</p>
         <p className="mt-2 text-sm leading-relaxed text-muted">{body}</p>
@@ -1531,14 +1785,17 @@ function LaunchPanel({
   const hasDispatch = channels.some((c) => DISPATCH_CHANNELS.has(c));
 
   return (
-    <div className="mt-12 rounded-well border border-hairline bg-paper p-6">
-      <p className="overline mb-1 flex items-center gap-2 text-accent before:h-px before:w-4 before:bg-accent/40 before:content-['']">
+    <div
+      className="tp-study-section tp-study-section-lined tp-study-emerge mt-14"
+      style={{ animationDelay: "570ms" }}
+    >
+      <p className="tp-study-section-label mb-1 text-accent">
         {copy.title}
       </p>
       <p className="text-sm leading-relaxed text-muted">{copy.subtitle}</p>
 
       {/* Channels as a plan, each with its honest consequence line. */}
-      <ul className="mt-4 flex flex-col gap-2">
+      <ul className="mt-5 divide-y divide-hairline overflow-hidden rounded-button border border-hairline bg-paper-elevated">
         {ALL_CHANNELS.map((ch) => {
           const on = channels.includes(ch);
           const consequence = DISPATCH_CHANNELS.has(ch)
@@ -1550,16 +1807,16 @@ function LaunchPanel({
                 type="button"
                 aria-pressed={on}
                 onClick={() => onToggleChannel(ch)}
-                className={`flex w-full items-center gap-3 rounded-card border px-4 py-3 text-left transition-[color,background-color,border-color,transform] duration-150 tp-press tp-press-row motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
+                className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-[color,background-color,transform] duration-150 tp-press tp-press-row motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${
                   on
-                    ? "border-accent bg-accent-soft"
-                    : "border-hairline bg-paper hover:border-ink"
+                    ? "bg-accent-soft/80"
+                    : "bg-paper-elevated hover:bg-paper-sunken"
                 }`}
               >
                 {/* Checkbox affordance — a clear on/off, not a bare toggle. */}
                 <span
                   aria-hidden
-                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border text-[10px] ${
+                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border text-[10px] transition-colors ${
                     on ? "border-accent bg-accent text-paper" : "border-hairline text-transparent"
                   }`}
                 >
@@ -1618,6 +1875,10 @@ function usePrefersReducedMotion(): boolean {
 
 function deriveTitle(text: string) {
   const t = text.trim();
+  const firstSentenceEnd = t.search(/[。！？.!?]/u);
+  if (firstSentenceEnd >= 7 && firstSentenceEnd < 60) {
+    return t.slice(0, firstSentenceEnd + 1);
+  }
   const cut = t.slice(0, 60);
   return cut.length < t.length ? `${cut}…` : cut;
 }

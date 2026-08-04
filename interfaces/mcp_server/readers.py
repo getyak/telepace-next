@@ -141,18 +141,46 @@ class AnalystFollowupService:
         # supporting interview ids form one evidence row.
         evidence: list[dict[str, str]] = []
         answer_parts: list[str] = []
+        quote_by_interview = {
+            str(transcript.interview_id): next(
+                (
+                    str(turn.get("text", "")).strip()
+                    for turn in transcript.turns
+                    if turn.get("role") == "respondent"
+                    and str(turn.get("text", "")).strip()
+                ),
+                "",
+            )
+            for transcript in transcripts
+        }
+        covered_interviews: set[str] = set()
         for th in result.themes[:5]:
             label = str(th.get("label", "")).strip()
             if label:
                 answer_parts.append(label)
+                ids = [
+                    str(value)
+                    for value in th.get("supporting_interview_ids", []) or []
+                ]
+                covered_interviews.update(ids)
+                grounded_quote = next(
+                    (quote_by_interview[value] for value in ids if quote_by_interview.get(value)),
+                    label,
+                )
                 evidence.append(
                     {
-                        "quote": label,
-                        "interview_ids": ",".join(
-                            str(i) for i in th.get("supporting_interview_ids", []) or []
-                        ),
+                        "quote": grounded_quote,
+                        "interview_ids": ",".join(ids),
                     }
                 )
+        for interview_id, quote in quote_by_interview.items():
+            if not quote or interview_id in covered_interviews:
+                continue
+            evidence.append({"quote": quote, "interview_ids": interview_id})
+            if not answer_parts:
+                answer_parts.append(quote)
+            if len(evidence) >= 5:
+                break
         answer = (
             "; ".join(answer_parts)
             if answer_parts

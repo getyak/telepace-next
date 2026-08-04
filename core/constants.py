@@ -65,6 +65,8 @@ JWT_TOKEN_TYPE: str = "bearer"
 JWT_TYP_ACCESS: str = "access"
 JWT_TYP_REFRESH: str = "refresh"
 HTTP_AUTH_SCHEME: str = "bearer"
+MCP_READ_SCOPE: str = "mcp:read"
+MCP_WRITE_SCOPE: str = "mcp:write"
 
 # --- Auth field length caps
 EMAIL_MIN_LEN: int = 3

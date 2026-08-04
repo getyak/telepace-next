@@ -64,6 +64,8 @@ ignore = ["E501"]
 # ws.py holds Chinese respondent-facing copy; RUF001 flags legitimate fullwidth
 # CJK punctuation (——, ：) as "ambiguous", which it isn't in this context.
 "interfaces/rest_api/ws.py" = ["RUF001"]
+# constants.py contains intentional respondent-facing Chinese punctuation.
+"core/constants.py" = ["RUF001"]
 
 [tool.mypy]
 python_version = "3.12"

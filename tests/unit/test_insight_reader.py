@@ -165,7 +165,8 @@ async def test_followup_service_grounds_answer_in_themes() -> None:
 
     assert analyst.calls == 1
     assert "Pricing is the main blocker" in out["answer"]
-    assert out["evidence"][0]["quote"] == "Pricing is the main blocker"
+    assert out["evidence"][0]["quote"] == "too pricey"
+    assert out["evidence"][0]["interview_ids"] == str(iid)
 
 
 @pytest.mark.asyncio
@@ -179,3 +180,43 @@ async def test_followup_service_honest_when_no_transcripts() -> None:
     assert analyst.calls == 0
     assert "enough" in out["answer"].lower()
     assert out["evidence"] == []
+
+
+@pytest.mark.asyncio
+async def test_followup_falls_back_to_grounded_transcript_quotes() -> None:
+    cid = uuid4()
+    iid = uuid4()
+    analyst = _FakeAnalyst(SynthesisResult([], [], [], [], None))
+    reader = EventStoreTranscriptReader(
+        _FakeEventStore(
+            [
+                TurnRecorded(
+                    campaign_id=cid,
+                    interview_id=iid,
+                    order=1,
+                    role="respondent",
+                    text="The pricing tiers are hard to compare.",
+                ),
+                InterviewCompleted(
+                    campaign_id=cid,
+                    interview_id=iid,
+                    duration_seconds=120,
+                    goal_coverage=0.8,
+                ),
+            ]
+        )
+    )
+    service = AnalystFollowupService(analyst=analyst, transcript_reader=reader)
+
+    out = await service.answer(
+        campaign_id=cid,
+        question="What did respondents say about pricing?",
+    )
+
+    assert out["answer"] == "The pricing tiers are hard to compare."
+    assert out["evidence"] == [
+        {
+            "quote": "The pricing tiers are hard to compare.",
+            "interview_ids": str(iid),
+        }
+    ]

@@ -24,6 +24,11 @@ _ACTION_BLOCK = re.compile(r"<action>(.*?)</action>", re.DOTALL)
 # tags; both must be parsed and stripped so raw JSON never reaches the
 # respondent's chat bubble.
 _JSON_FENCE = re.compile(r"```json\s*(.*?)\s*```", re.DOTALL)
+_ACTION_KINDS = {"ask", "probe", "acknowledge_and_move", "wrap_up"}
+_PROTOCOL_MARKER = re.compile(
+    r'^\s*\{|\boutline_item_id\b|"<action>"|</?action>',
+    re.IGNORECASE,
+)
 
 
 class InterviewerAgent:
@@ -69,9 +74,16 @@ class InterviewerAgent:
             {
                 "outline": outline,
                 "coverage": context.get("outline_coverage", {}),
+                "followups": context.get("outline_followups", {}),
                 "history": history[-INTERVIEWER_HISTORY_WINDOW:],
                 "last_respondent_text": cmd.text,
                 "language": language,
+                "estimated_duration_minutes": (
+                    outline_ctx.get("estimated_duration_minutes")
+                    if isinstance(outline_ctx, dict)
+                    else None
+                ),
+                "elapsed_seconds": context.get("interview_seconds", 0),
             },
             ensure_ascii=False,
         )
@@ -85,7 +97,16 @@ class InterviewerAgent:
         )
 
         action = self._parse_action(resp.text)
+        action, coverage, followups, current_item_id = self._normalize_action(
+            action,
+            context=context,
+            outline=outline,
+            language=language,
+            respondent_text=cmd.text,
+        )
         prose = _JSON_FENCE.sub("", _ACTION_BLOCK.sub("", resp.text)).strip()
+        if self._looks_like_protocol(prose):
+            prose = ""
         # The structured action is the respondent-facing contract. Models may
         # put internal transition prose before it ("I'll follow up on that")
         # which is not a usable question, so never prefer that prose when the
@@ -104,7 +125,7 @@ class InterviewerAgent:
             )
         ]
 
-        interviewer_text = action_text or prose
+        interviewer_text = action_text or prose or self._fallback_question(language)
         history.append({"role": "interviewer", "text": interviewer_text})
         events.append(
             TurnRecorded(
@@ -118,18 +139,23 @@ class InterviewerAgent:
             )
         )
 
-        state_delta: dict[str, Any] = {"interview_history": history}
+        state_delta: dict[str, Any] = {
+            "interview_history": history,
+            "outline_coverage": coverage,
+            "outline_followups": followups,
+            "current_outline_item_id": current_item_id,
+        }
 
         wrap_up = action.get("kind") == "wrap_up"
         if wrap_up:
-            coverage = self._avg_coverage(context.get("outline_coverage", {}))
+            goal_coverage = self._avg_coverage(coverage)
             events.append(
                 InterviewCompleted(
                     campaign_id=cmd.campaign_id,
                     actor="agent:interviewer",
                     interview_id=cmd.interview_id,
                     duration_seconds=int(context.get("interview_seconds", 0)),
-                    goal_coverage=coverage,
+                    goal_coverage=goal_coverage,
                 )
             )
 
@@ -164,15 +190,281 @@ class InterviewerAgent:
 
         return AgentResult(events=events, state_delta=state_delta, response=response)
 
+    @classmethod
+    def _normalize_action(
+        cls,
+        action: dict[str, Any],
+        *,
+        context: dict[str, Any],
+        outline: list[dict[str, Any]],
+        language: str,
+        respondent_text: str,
+    ) -> tuple[dict[str, Any], dict[str, float], dict[str, int], str | None]:
+        """Make progress deterministic even when the model mislabels a turn.
+
+        The model still decides whether an answer deserves a probe, but it
+        cannot skip guide items, exceed ``max_followups``, or report zero
+        coverage after traversing the whole guide.
+        """
+
+        item_by_id = {
+            str(item.get("id")): item
+            for item in outline
+            if item.get("id") is not None
+        }
+        ordered_ids = [
+            str(item.get("id"))
+            for item in outline
+            if str(item.get("id")) in item_by_id
+        ]
+        coverage = cls._float_map(context.get("outline_coverage"))
+        followups = cls._int_map(context.get("outline_followups"))
+        stored_current = str(context.get("current_outline_item_id") or "")
+        current_id = stored_current if stored_current in item_by_id else None
+        if current_id is None and ordered_ids:
+            current_id = ordered_ids[0]
+        if current_id is not None:
+            coverage.setdefault(current_id, 0.0)
+            followups.setdefault(current_id, 0)
+
+        if not ordered_ids:
+            return action, coverage, followups, current_id
+
+        if cls._respondent_requested_stop(respondent_text):
+            return (
+                {
+                    "kind": "wrap_up",
+                    "text": cls._wrap_up_text(language),
+                    "outline_item_id": None,
+                },
+                coverage,
+                followups,
+                current_id,
+            )
+
+        requested_kind = str(action.get("kind", "ask"))
+        requested_id = str(action.get("outline_item_id") or "")
+        if requested_id not in item_by_id:
+            requested_id = ""
+
+        if requested_kind == "wrap_up":
+            if current_id is not None:
+                coverage[current_id] = 1.0
+            next_id = cls._next_uncovered_id(ordered_ids, current_id, coverage)
+            if next_id is None:
+                return action, coverage, followups, current_id
+            return (
+                cls._move_to_item(item_by_id[next_id]),
+                coverage,
+                followups,
+                next_id,
+            )
+
+        expected_next = cls._next_uncovered_id(
+            ordered_ids,
+            current_id,
+            coverage,
+            only_after_current=True,
+        )
+        if current_id is not None and requested_id and requested_id != current_id:
+            coverage[current_id] = 1.0
+            next_id = expected_next
+            if next_id is None:
+                return (
+                    {
+                        "kind": "wrap_up",
+                        "text": cls._wrap_up_text(language),
+                        "outline_item_id": None,
+                    },
+                    coverage,
+                    followups,
+                    current_id,
+                )
+            normalized = (
+                action
+                if requested_id == next_id
+                else cls._move_to_item(item_by_id[next_id])
+            )
+            normalized = {
+                **normalized,
+                "kind": "acknowledge_and_move",
+                "outline_item_id": next_id,
+            }
+            coverage.setdefault(next_id, 0.0)
+            followups.setdefault(next_id, 0)
+            return normalized, coverage, followups, next_id
+
+        if current_id is None:
+            current_id = ordered_ids[0]
+        current_item = item_by_id[current_id]
+        max_followups = cls._nonnegative_int(current_item.get("max_followups"), 0)
+        used_followups = followups.get(current_id, 0)
+        if used_followups >= max_followups:
+            coverage[current_id] = 1.0
+            next_id = cls._next_uncovered_id(
+                ordered_ids,
+                current_id,
+                coverage,
+                only_after_current=True,
+            )
+            if next_id is None:
+                return (
+                    {
+                        "kind": "wrap_up",
+                        "text": cls._wrap_up_text(language),
+                        "outline_item_id": None,
+                    },
+                    coverage,
+                    followups,
+                    current_id,
+                )
+            coverage.setdefault(next_id, 0.0)
+            followups.setdefault(next_id, 0)
+            return (
+                cls._move_to_item(item_by_id[next_id]),
+                coverage,
+                followups,
+                next_id,
+            )
+
+        followups[current_id] = used_followups + 1
+        coverage[current_id] = max(coverage.get(current_id, 0.0), 0.5)
+        return (
+            {
+                **action,
+                "kind": "probe",
+                "outline_item_id": current_id,
+            },
+            coverage,
+            followups,
+            current_id,
+        )
+
+    @staticmethod
+    def _move_to_item(item: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "kind": "acknowledge_and_move",
+            "outline_item_id": str(item.get("id")),
+            "text": str(item.get("question") or "").strip(),
+        }
+
+    @staticmethod
+    def _next_uncovered_id(
+        ordered_ids: list[str],
+        current_id: str | None,
+        coverage: dict[str, float],
+        *,
+        only_after_current: bool = False,
+    ) -> str | None:
+        try:
+            start = ordered_ids.index(current_id) + 1 if current_id else 0
+        except ValueError:
+            start = 0
+        for item_id in ordered_ids[start:]:
+            if coverage.get(item_id, 0.0) < 1.0:
+                return item_id
+        if only_after_current:
+            return None
+        for item_id in ordered_ids[:start]:
+            if coverage.get(item_id, 0.0) < 1.0:
+                return item_id
+        return None
+
+    @staticmethod
+    def _float_map(value: Any) -> dict[str, float]:
+        if not isinstance(value, dict):
+            return {}
+        result: dict[str, float] = {}
+        for key, raw in value.items():
+            if isinstance(raw, int | float):
+                result[str(key)] = min(1.0, max(0.0, float(raw)))
+        return result
+
+    @classmethod
+    def _int_map(cls, value: Any) -> dict[str, int]:
+        if not isinstance(value, dict):
+            return {}
+        return {
+            str(key): cls._nonnegative_int(raw, 0)
+            for key, raw in value.items()
+            if isinstance(raw, int | float)
+        }
+
+    @staticmethod
+    def _nonnegative_int(value: Any, default: int) -> int:
+        if not isinstance(value, int | float):
+            return default
+        return max(0, int(value))
+
+    @staticmethod
+    def _respondent_requested_stop(text: str) -> bool:
+        normalized = text.strip().lower()
+        chinese_stop_phrases = (
+            "停止访谈",
+            "结束访谈",
+            "不想继续",
+            "退出访谈",
+            "到这里吧",
+        )
+        if any(phrase in normalized for phrase in chinese_stop_phrases):
+            return True
+        return bool(
+            re.fullmatch(
+                r"(please\s+)?(stop|quit|end(?:\s+the)?\s+interview)"
+                r"(?:\s+now)?[.!]?",
+                normalized,
+            )
+            or "i don't want to continue" in normalized
+        )
+
+    @staticmethod
+    def _wrap_up_text(language: str) -> str:
+        if language.lower().startswith("zh"):
+            return "谢谢你分享这些具体反馈，今天的访谈就到这里。"  # noqa: RUF001
+        return "Thank you for sharing such specific feedback. That's everything for today."
+
     @staticmethod
     def _parse_action(text: str) -> dict[str, Any]:
-        m = _ACTION_BLOCK.search(text) or _JSON_FENCE.search(text)
-        if not m:
-            return {"kind": "ask", "text": text.strip()[:INTERVIEWER_ACTION_TEXT_MAX]}
-        try:
-            return json.loads(m.group(1))
-        except json.JSONDecodeError:
-            return {"kind": "ask", "text": text.strip()[:INTERVIEWER_ACTION_TEXT_MAX]}
+        candidates = [
+            *(match.group(1) for match in _ACTION_BLOCK.finditer(text)),
+            *(match.group(1) for match in _JSON_FENCE.finditer(text)),
+            text.strip(),
+        ]
+        first_brace = text.find("{")
+        if first_brace >= 0:
+            candidates.append(text[first_brace:])
+        for candidate in candidates:
+            try:
+                parsed, _ = json.JSONDecoder().raw_decode(candidate.strip())
+            except (json.JSONDecodeError, ValueError):
+                continue
+            if not isinstance(parsed, dict):
+                continue
+            kind = str(parsed.get("kind", "ask"))
+            action_text = parsed.get("text")
+            if kind not in _ACTION_KINDS or not isinstance(action_text, str):
+                continue
+            action_text = action_text.strip()[:INTERVIEWER_ACTION_TEXT_MAX]
+            if not action_text or InterviewerAgent._looks_like_protocol(action_text):
+                continue
+            return {
+                "kind": kind,
+                "text": action_text,
+                "outline_item_id": parsed.get("outline_item_id"),
+            }
+        return {"kind": "ask"}
+
+    @staticmethod
+    def _looks_like_protocol(text: str) -> bool:
+        return bool(_PROTOCOL_MARKER.search(text))
+
+    @staticmethod
+    def _fallback_question(language: str) -> str:
+        return (
+            "能再具体说说吗？"  # noqa: RUF001
+            if language.lower().startswith("zh")
+            else "Could you tell me more?"
+        )
 
     @staticmethod
     def _parse_uuid(v: Any) -> UUID | None:

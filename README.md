@@ -79,6 +79,10 @@ cd frontend && pnpm install && pnpm dev   # → http://localhost:3300
 > No migration step: the database schema is created automatically on backend
 > startup (`CREATE TABLE IF NOT EXISTS`), so there is no `alembic` to run.
 
+Codex users can authenticate the project MCP with
+`TELEPACE_MCP_ACCESS_TOKEN`; see the
+[Codex → Telepace login and acceptance guide](docs/codex-telepace.md).
+
 > **Behind a SOCKS proxy?** If your shell exports `ALL_PROXY`/`http_proxy`,
 > the LLM SDK crashes on startup with a missing-`socksio` error and local
 > `curl` hangs. Strip the proxy for the backend process (or install

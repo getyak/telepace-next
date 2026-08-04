@@ -28,9 +28,11 @@ class MockPhone:
         spec_id: UUID,
     ) -> DispatchReceipt:
         os.makedirs(self._log_dir, exist_ok=True)
+        provider_id = uuid.uuid4().hex
         record = {
             "ts": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             "channel": "phone_outbound",
+            "provider_id": provider_id,
             "to": invite.address,
             "name": invite.name,
             "opening_line": opening_line,
@@ -43,6 +45,5 @@ class MockPhone:
             encoding="utf-8",
         ) as f:
             f.write(json.dumps(record) + "\n")
-        provider_id = uuid.uuid4().hex
         logger.info("MockPhone placed id=%s to=<redacted>", provider_id)
         return DispatchReceipt(ok=True, provider="mock", provider_id=provider_id, error=None)

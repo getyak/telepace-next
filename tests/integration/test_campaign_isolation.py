@@ -195,6 +195,13 @@ class _FakeEventStore:
         self.appended.append(event)
         return _StoredEvent(seq=self._seq, event=event)
 
+    async def read_stream(self, campaign_id: UUID) -> list[_StoredEvent]:
+        return [
+            _StoredEvent(seq=index, event=event)
+            for index, event in enumerate(self.appended, start=1)
+            if getattr(event, "campaign_id", None) == campaign_id
+        ]
+
 
 def _build_client() -> tuple[TestClient, _MemUsersRepo, _FakeProjector]:
     app = FastAPI()
@@ -279,6 +286,9 @@ def test_cross_tenant_by_id_reads_return_404() -> None:
     assert client.get(f"/v1/campaigns/{cid}", headers=_auth(mia_token)).status_code == 404
     assert (
         client.get(f"/v1/campaigns/{cid}/insights", headers=_auth(mia_token)).status_code == 404
+    )
+    assert (
+        client.get(f"/v1/campaigns/{cid}/evidence", headers=_auth(mia_token)).status_code == 404
     )
 
 

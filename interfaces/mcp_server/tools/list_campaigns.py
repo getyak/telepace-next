@@ -19,8 +19,13 @@ async def list_campaigns(
     org_id: UUID,
     **_: Any,
 ) -> dict[str, Any]:
-    ListCampaignsInput.model_validate(input_data)
-    rows = await projector.list_campaigns(org_id)
+    parsed = ListCampaignsInput.model_validate(input_data)
+    rows = await projector.list_campaigns(
+        org_id,
+        query=parsed.query,
+        status=parsed.status,
+        limit=parsed.limit,
+    )
     summaries = [
         CampaignSummary(
             campaign_id=UUID(row["id"]),

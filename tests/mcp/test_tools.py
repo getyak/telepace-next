@@ -20,12 +20,14 @@ from core.protocols.mcp_tools import (
     GetCampaignProgressOutput,
     PushInsightsOutput,
 )
+from interfaces.mcp_server.auth import MCPSessionIdentity
 from interfaces.mcp_server.tools import (
     TOOL_HANDLERS,
     ask_followup,
     create_campaign,
     get_campaign_insights,
     get_campaign_progress,
+    get_session,
     push_insights,
 )
 
@@ -34,9 +36,32 @@ def test_registry_and_handlers_align_key_for_key() -> None:
     assert set(MCP_TOOL_REGISTRY.keys()) == set(TOOL_HANDLERS.keys())
 
 
+async def test_get_session_returns_verified_identity() -> None:
+    user_id = uuid4()
+    org_id = uuid4()
+    out = await get_session(
+        {},
+        mcp_session=MCPSessionIdentity(
+            user_id=user_id,
+            org_id=org_id,
+            email="codex@example.test",
+            scopes=("mcp:read", "mcp:write"),
+            authenticated=True,
+        ),
+    )
+
+    assert out == {
+        "authenticated": True,
+        "user_id": str(user_id),
+        "org_id": str(org_id),
+        "email": "codex@example.test",
+        "scopes": ["mcp:read", "mcp:write"],
+    }
+
+
 @pytest.mark.parametrize("tool_name", list(MCP_TOOL_REGISTRY.keys()))
 def test_registry_input_schema_is_valid_json_schema(tool_name: str) -> None:
-    input_cls, output_cls, desc = MCP_TOOL_REGISTRY[tool_name]
+    input_cls, _output_cls, desc = MCP_TOOL_REGISTRY[tool_name]
     schema = input_cls.model_json_schema()
     assert isinstance(schema, dict)
     assert schema.get("type") == "object"
@@ -172,7 +197,12 @@ class _FakeInsightReader:
     def __init__(self, items):
         self._items = items
 
-    async def list_insights(self, campaign_id, format, min_confidence):
+    async def list_insights(
+        self,
+        campaign_id,
+        format,  # noqa: A002 - mirrors the production protocol
+        min_confidence,
+    ):
         return self._items
 
 

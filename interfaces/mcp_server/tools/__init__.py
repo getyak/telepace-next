@@ -3,12 +3,14 @@ from interfaces.mcp_server.tools.create_campaign import create_campaign
 from interfaces.mcp_server.tools.dispatch_invites import dispatch_invites
 from interfaces.mcp_server.tools.get_campaign_insights import get_campaign_insights
 from interfaces.mcp_server.tools.get_campaign_progress import get_campaign_progress
+from interfaces.mcp_server.tools.get_session import get_session
 from interfaces.mcp_server.tools.list_campaigns import list_campaigns
 from interfaces.mcp_server.tools.push_insights import push_insights
 from interfaces.mcp_server.tools.refine_outline import refine_outline
 from interfaces.mcp_server.tools.start_campaign import start_campaign
 
 TOOL_HANDLERS = {
+    "get_session": get_session,
     "create_campaign": create_campaign,
     "get_campaign_progress": get_campaign_progress,
     "get_campaign_insights": get_campaign_insights,
@@ -27,6 +29,7 @@ __all__ = [
     "dispatch_invites",
     "get_campaign_insights",
     "get_campaign_progress",
+    "get_session",
     "list_campaigns",
     "push_insights",
     "refine_outline",

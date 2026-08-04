@@ -35,7 +35,7 @@ function turnId(interview: number, turn: number): string {
 // Citation factory (12 citations)
 // ---------------------------------------------------------------------------
 
-function buildCitations(_studyId: string): Citation[] {
+function buildCitations(): Citation[] {
   const data: Array<{
     interviewIdx: number;
     turnIdx: number;
@@ -250,7 +250,7 @@ function buildThemes(studyId: string, insights: Insight[]): Theme[] {
  *  - 5 insights (backed by 10 claims)
  */
 export function buildMockEvidenceGraph(studyId: string): EvidenceGraph {
-  const citations = buildCitations(studyId);
+  const citations = buildCitations();
   const claims = buildClaims(studyId);
   const insights = buildInsights(studyId, claims, citations);
   const respondents = buildRespondents(studyId);
@@ -258,6 +258,9 @@ export function buildMockEvidenceGraph(studyId: string): EvidenceGraph {
 
   return {
     study_id: studyId,
+    campaign_title: "Demo research",
+    research_goal: "Demonstrate the evidence graph in isolated component tests.",
+    generated_at: null,
     themes,
     respondents,
     citations,

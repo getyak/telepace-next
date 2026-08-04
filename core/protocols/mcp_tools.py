@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from core import constants as _consts
 from core.domain.models import ChannelKind
@@ -17,6 +17,18 @@ from core.domain.models import ChannelKind
 
 class _ToolBase(BaseModel):
     model_config = ConfigDict(extra="forbid")
+
+
+class GetSessionInput(_ToolBase):
+    pass
+
+
+class GetSessionOutput(_ToolBase):
+    authenticated: bool
+    user_id: UUID
+    org_id: UUID
+    email: str
+    scopes: list[str]
 
 
 class CreateCampaignInput(_ToolBase):
@@ -110,7 +122,21 @@ class PushInsightsOutput(_ToolBase):
 
 
 class ListCampaignsInput(_ToolBase):
-    pass
+    query: str | None = Field(
+        default=None,
+        max_length=200,
+        description="Optional case-insensitive title filter.",
+    )
+    status: Literal["draft", "ready", "live", "closed"] | None = Field(
+        default=None,
+        description="Optional exact lifecycle-status filter.",
+    )
+    limit: int = Field(
+        default=20,
+        ge=1,
+        le=100,
+        description="Maximum studies returned, newest first.",
+    )
 
 
 class CampaignSummary(_ToolBase):
@@ -151,10 +177,38 @@ class StartCampaignOutput(_ToolBase):
 
 
 class DispatchInviteItem(_ToolBase):
-    address: str
     channel: ChannelKind
+    address: str | None = Field(
+        default=None,
+        description=(
+            "Canonical recipient address. For email, put the email address here; "
+            "for SMS/phone, put the phone number here."
+        ),
+    )
+    email: str | None = Field(
+        default=None,
+        description="Email-channel convenience alias for address.",
+    )
+    phone_number: str | None = Field(
+        default=None,
+        description="SMS/phone-channel convenience alias for address.",
+    )
     name: str | None = None
     personalized_intro: str | None = None
+
+    @model_validator(mode="after")
+    def _resolve_address(self) -> DispatchInviteItem:
+        candidates = [
+            value.strip()
+            for value in (self.address, self.email, self.phone_number)
+            if isinstance(value, str) and value.strip()
+        ]
+        if not candidates:
+            raise ValueError("one of address, email, or phone_number is required")
+        if len(set(candidates)) > 1:
+            raise ValueError("address aliases must not conflict")
+        self.address = candidates[0]
+        return self
 
 
 class DispatchInvitesInput(_ToolBase):
@@ -169,6 +223,11 @@ class DispatchInvitesOutput(_ToolBase):
 
 
 MCP_TOOL_REGISTRY: dict[str, tuple[type[_ToolBase], type[_ToolBase], str]] = {
+    "get_session": (
+        GetSessionInput,
+        GetSessionOutput,
+        "Verify the authenticated Telepace user, tenant, and granted scopes.",
+    ),
     "create_campaign": (
         CreateCampaignInput,
         CreateCampaignOutput,
