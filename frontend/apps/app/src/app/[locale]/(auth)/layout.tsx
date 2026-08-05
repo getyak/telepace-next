@@ -3,7 +3,7 @@ import { routes } from "@telepace/config";
 import { colors } from "@telepace/ui/tokens";
 
 import { redirect } from "@/i18n/navigation";
-import { ACCESS_COOKIE } from "@/lib/auth/cookies";
+import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/auth/cookies";
 
 export default async function AuthLayout({
   children,
@@ -17,7 +17,10 @@ export default async function AuthLayout({
   // on the server with no flash of the login/signup form.
   const { locale } = await params;
   const cookieStore = await cookies();
-  if (cookieStore.has(ACCESS_COOKIE)) {
+  if (
+    cookieStore.has(ACCESS_COOKIE) ||
+    cookieStore.has(REFRESH_COOKIE)
+  ) {
     redirect({ href: routes.app.root, locale });
   }
 

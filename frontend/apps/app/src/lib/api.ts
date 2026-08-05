@@ -40,18 +40,30 @@ export async function createCampaign(body: {
   channels?: string[];
   language?: string;
   research_task?: ResearchTaskInput;
-} & RespondentExperienceSettings): Promise<CampaignSummary> {
+} & RespondentExperienceSettings, options: {
+  idempotencyKey?: string;
+} = {}): Promise<CampaignSummary> {
   return apiFetch<CampaignSummary>(apiEndpoints.campaigns.root, {
     method: "POST",
     json: body,
+    // Guide seeding is a single structured LLM call. Give it more room than
+    // ordinary reads while the Idempotency-Key still makes a timeout retry safe.
+    timeoutMs: 60_000,
+    headers: options.idempotencyKey
+      ? { "Idempotency-Key": options.idempotencyKey }
+      : undefined,
   });
 }
 
-/** Patch a study's respondent-facing welcome/consent/end/reward/redirect copy. */
+/** Patch editable study metadata or respondent-facing experience copy. */
 export async function updateCampaignSettings(
   campaignId: string,
-  patch: RespondentExperienceSettings,
-): Promise<{ campaign_id: string; spec: Record<string, unknown> }> {
+  patch: RespondentExperienceSettings & { title?: string },
+): Promise<{
+  campaign_id: string;
+  title: string;
+  spec: Record<string, unknown>;
+}> {
   return apiFetch(apiEndpoints.campaigns.settings(campaignId), {
     method: "PATCH",
     json: patch,
@@ -286,6 +298,45 @@ export type CampaignInsights = {
 
 export async function getCampaignInsights(id: string): Promise<CampaignInsights> {
   return apiFetch<CampaignInsights>(apiEndpoints.campaigns.insights(id));
+}
+
+export type EvidenceTurnDoc = {
+  id: string;
+  order: number;
+  role: "interviewer" | "respondent" | "system";
+  text: string;
+  started_at: string;
+  latency_ms: number | null;
+};
+
+export type EvidenceInterviewDoc = {
+  interview_id: string;
+  respondent_id: string;
+  source: string;
+  channel: string;
+  external_ref: string | null;
+  status: "in_progress" | "completed" | "abandoned";
+  started_at: string | null;
+  completed_at: string | null;
+  duration_seconds: number | null;
+  goal_coverage: number;
+  turns: EvidenceTurnDoc[];
+};
+
+export type CampaignEvidence = {
+  campaign_id: string;
+  campaign_title: string;
+  research_goal: string;
+  generated_at: string | null;
+  insights: InsightItem[];
+  interviews: EvidenceInterviewDoc[];
+};
+
+/** Authenticated, campaign-scoped evidence used by the response table and
+ * report. Unlike the old report fixture, every row comes from this campaign's
+ * durable event stream or insight projection. */
+export async function getCampaignEvidence(id: string): Promise<CampaignEvidence> {
+  return apiFetch<CampaignEvidence>(apiEndpoints.campaigns.evidence(id));
 }
 
 /** Publishing flips the campaign to live and returns which of its persisted

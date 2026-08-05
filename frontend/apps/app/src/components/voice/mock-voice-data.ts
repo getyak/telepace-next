@@ -96,7 +96,8 @@ const MOCK_METRICS: VoiceMetricsData = {
   ],
 };
 
-export function getMockVoiceData(_interviewId: string): MockVoiceData {
+export function getMockVoiceData(interviewId: string): MockVoiceData {
+  void interviewId;
   return {
     turns: MOCK_TURNS,
     metrics: MOCK_METRICS,
@@ -159,6 +160,7 @@ const MOCK_CLIPS: AudioClip[] = [
   },
 ];
 
-export function getMockClips(_studyId: string): AudioClip[] {
+export function getMockClips(studyId: string): AudioClip[] {
+  void studyId;
   return MOCK_CLIPS;
 }

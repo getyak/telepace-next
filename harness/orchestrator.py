@@ -16,6 +16,8 @@ from harness.router import IntentRouter
 if TYPE_CHECKING:
     from storage.event_store import EventStore, StoredEvent
 
+_MAX_FOLLOW_UP_DEPTH = 3
+
 
 @dataclass(slots=True)
 class AgentResult:
@@ -61,7 +63,12 @@ class Harness:
         self._agents = agents
         self._tracer = tracer or NullTracer()
 
-    async def handle(self, command: Any) -> HarnessResponse:
+    async def handle(self, command: Any, *, _follow_up_depth: int = 0) -> HarnessResponse:
+        if _follow_up_depth > _MAX_FOLLOW_UP_DEPTH:
+            return HarnessResponse(
+                ok=False,
+                reason=f"follow-up depth exceeded {_MAX_FOLLOW_UP_DEPTH}",
+            )
         cmd_type = getattr(command, "type", "unknown")
         async with self._tracer.span(f"harness.handle.{cmd_type}"):
             ctx = await self._load_context(command)
@@ -109,7 +116,7 @@ class Harness:
             written += await self._persist_events(post_events)
 
             for sub_cmd in result.follow_up_commands:
-                await self.handle(sub_cmd)
+                await self.handle(sub_cmd, _follow_up_depth=_follow_up_depth + 1)
 
             return HarnessResponse(ok=True, result=result.response, events_written=written)
 

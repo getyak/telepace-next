@@ -24,6 +24,20 @@ function guestRequest(url: string) {
   } as never;
 }
 
+function refreshOnlyRequest(url: string) {
+  return {
+    nextUrl: Object.assign(new URL(url), {
+      clone() {
+        return new URL(url);
+      },
+    }),
+    cookies: {
+      get: (name: string) =>
+        name === "tp_refresh" ? { value: "renewable-session" } : undefined,
+    },
+  } as never;
+}
+
 function nextParamOf(res: Response): string | null {
   const location = res.headers.get("location");
   if (!location) return null;
@@ -55,6 +69,14 @@ describe("session guard redirect", () => {
 
   it("lets unprotected routes through to the intl middleware", () => {
     const res = middleware(guestRequest("http://localhost/zh/pricing"));
+    expect(res.headers.get("location")).toBeNull();
+  });
+
+  it("lets a refresh-only session load the app for silent renewal", () => {
+    const res = middleware(
+      refreshOnlyRequest("http://localhost/zh/studies/campaign-1"),
+    );
+
     expect(res.headers.get("location")).toBeNull();
   });
 });

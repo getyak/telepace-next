@@ -1,0 +1,116 @@
+{
+  "version": 1,
+  "minimum_score": 99.0,
+  "stories": [
+    {
+      "id": "CX-01",
+      "title": "Log in and verify the Telepace tenant",
+      "required_tools": ["get_session"],
+      "assertions": [
+        "authenticated_session",
+        "identity_matches_token",
+        "required_scopes_visible",
+        "no_business_mutation"
+      ]
+    },
+    {
+      "id": "CX-02",
+      "title": "Create exactly one study and read it back",
+      "required_tools": ["create_campaign", "get_campaign_progress"],
+      "assertions": [
+        "exactly_one_campaign_created",
+        "durable_campaign_matches_request",
+        "immediate_progress_readback",
+        "no_duplicate_side_effect"
+      ]
+    },
+    {
+      "id": "CX-03",
+      "title": "Find a study without dumping the tenant",
+      "required_tools": ["list_campaigns", "get_campaign_progress"],
+      "assertions": [
+        "bounded_title_search",
+        "exact_campaign_found",
+        "progress_matches_projection",
+        "no_business_mutation"
+      ]
+    },
+    {
+      "id": "CX-04",
+      "title": "Refine the discussion outline",
+      "required_tools": ["refine_outline"],
+      "assertions": [
+        "exactly_one_refine",
+        "requested_question_persisted",
+        "projection_advanced_once",
+        "no_duplicate_side_effect"
+      ]
+    },
+    {
+      "id": "CX-05",
+      "title": "Publish the study and verify live status",
+      "required_tools": ["start_campaign", "get_campaign_progress"],
+      "assertions": [
+        "exactly_one_publish",
+        "status_live_readback",
+        "published_event_persisted",
+        "no_duplicate_side_effect"
+      ]
+    },
+    {
+      "id": "CX-06",
+      "title": "Dispatch invitations with PII-safe evidence",
+      "required_tools": ["dispatch_invites", "get_campaign_progress"],
+      "assertions": [
+        "exactly_two_invites_dispatched",
+        "progress_invited_two",
+        "addresses_redacted_in_events",
+        "delivery_artifacts_exist"
+      ]
+    },
+    {
+      "id": "CX-07",
+      "title": "Monitor completed interview progress",
+      "required_tools": ["get_campaign_progress"],
+      "assertions": [
+        "progress_counts_match_truth",
+        "averages_match_truth",
+        "lifecycle_remains_live",
+        "no_business_mutation"
+      ]
+    },
+    {
+      "id": "CX-08",
+      "title": "Retrieve grounded report insights",
+      "required_tools": ["get_campaign_insights"],
+      "assertions": [
+        "report_insight_returned",
+        "confidence_filter_honored",
+        "supporting_interviews_cited",
+        "no_business_mutation"
+      ]
+    },
+    {
+      "id": "CX-09",
+      "title": "Ask a transcript-grounded follow-up",
+      "required_tools": ["ask_followup"],
+      "assertions": [
+        "followup_answer_nonempty",
+        "evidence_contains_real_quote",
+        "evidence_cites_interview",
+        "no_business_mutation"
+      ]
+    },
+    {
+      "id": "CX-10",
+      "title": "Deliver verified insights and return a receipt",
+      "required_tools": ["push_insights"],
+      "assertions": [
+        "delivery_reported_true",
+        "external_reference_returned",
+        "notification_event_persisted",
+        "delivery_artifact_verified"
+      ]
+    }
+  ]
+}

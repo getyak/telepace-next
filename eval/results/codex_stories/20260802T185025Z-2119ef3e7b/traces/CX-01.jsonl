@@ -1,0 +1,7 @@
+{"type":"thread.started","thread_id":"019fc3d0-22f2-76b3-b541-50d18ff821c0"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"I’ll inspect the Telepace session once and make no business mutations."}}
+{"type":"item.started","item":{"id":"item_1","type":"mcp_tool_call","server":"telepace","tool":"get_session","arguments":{},"result":null,"error":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_1","type":"mcp_tool_call","server":"telepace","tool":"get_session","arguments":{},"result":{"content":[{"type":"text","text":"{\"authenticated\":true,\"user_id\":\"f7f0d090-da6a-4a2a-9dd0-b4694b92aaf0\",\"org_id\":\"ba5d0af4-393d-4319-b099-21358ac8566c\",\"email\":\"codex-2119ef3e7b@example.test\",\"scopes\":[\"mcp:read\",\"mcp:write\"]}"}],"structured_content":null},"error":null,"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"Authenticated Telepace session: **Yes**\n\n- `user_id`: `f7f0d090-da6a-4a2a-9dd0-b4694b92aaf0`\n- `org_id`: `ba5d0af4-393d-4319-b099-21358ac8566c`\n- `scopes`: `mcp:read`, `mcp:write`\n\nNo business mutation tools were called."}}
+{"type":"turn.completed","usage":{"input_tokens":49279,"cached_input_tokens":31232,"cache_write_input_tokens":0,"output_tokens":214,"reasoning_output_tokens":47}}

@@ -7,9 +7,13 @@ draft a study, and clarifies first when it is not.
 
 from __future__ import annotations
 
+import asyncio
+
+from agents.shared.llm import LLMResponse
 from interfaces.rest_api.routers.campaigns import (
     _assess_fallback,
     _clean_clarify_questions,
+    _complete_assessment_with_deadline,
     _parse_assessment,
 )
 
@@ -45,6 +49,29 @@ class TestAssessFallback:
         r = _assess_fallback("monitors", "understand buyer decisions")
         assert r["looks_like_research"] is True
         assert r["ready"] is True
+
+
+async def test_assessment_hard_deadline_does_not_wait_for_sdk_cleanup() -> None:
+    class CancellationResistantLLM:
+        async def complete(self, **kwargs) -> LLMResponse:
+            try:
+                await asyncio.sleep(10)
+            except asyncio.CancelledError:
+                await asyncio.sleep(0.25)
+            return LLMResponse(text="too late")
+
+    loop = asyncio.get_running_loop()
+    started = loop.time()
+    response = await _complete_assessment_with_deadline(
+        CancellationResistantLLM(),
+        "understand churn",
+        model="fast",
+        max_tokens=1200,
+        timeout_seconds=0.01,
+    )
+
+    assert response is None
+    assert loop.time() - started < 0.1
 
 
 class TestParseAssessment:

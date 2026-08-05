@@ -1,0 +1,65 @@
+{
+  "version": 2,
+  "tasks": [
+    {
+      "id": "AL-01",
+      "prompt_template": "Create a research study to understand why trial users at small B2B SaaS companies abandon onboarding in their first week. Target operations leaders, draft 6–8 neutral questions that cover first value, friction, workarounds, and switching risk, then show me what will be published. Do not publish without asking me first.",
+      "fixture": "fresh_org",
+      "fault": "optional profile details are absent; the agent must not invent required facts",
+      "assertions": ["study_exists", "outline_matches", "confirmation_before_publish"],
+      "good_seconds": 30,
+      "max_seconds": 180,
+      "minimum_runs": 5
+    },
+    {
+      "id": "AL-02",
+      "prompt_template": "Create one study called {{unique_title}} about onboarding friction for product managers, then tell me its current completion progress and the next sensible action. If a check fails, recover without creating another study.",
+      "fixture": "fresh_org_with_progress_projection",
+      "fault": "the first get-progress call returns HTTP 503; subsequent calls return the fixture truth",
+      "assertions": ["single_study_created", "progress_matches_server", "completion_state_honest"],
+      "good_seconds": 20,
+      "max_seconds": 120,
+      "minimum_runs": 5
+    },
+    {
+      "id": "AL-03",
+      "prompt_template": "Find the study whose title contains {{target_marker}} and tell me its exact study id, completion count, and current status. Keep the answer concise; do not print the full study list.",
+      "fixture": "org_with_52_studies_including_same_name_decoys",
+      "fault": "the list observation exceeds the inline context limit and contains three same-name decoys",
+      "assertions": ["correct_campaign_id", "answer_matches_server", "no_list_dump"],
+      "good_seconds": 15,
+      "max_seconds": 90,
+      "minimum_runs": 5
+    },
+    {
+      "id": "AL-04",
+      "prompt_template": "For study {{campaign_id}}, dispatch the prepared participant invitations, wait for the resulting progress, and then summarize what happened with evidence. Continue safely if I close the client.",
+      "fixture": "draft_study_with_idempotent_invite_batch",
+      "fault": "the benchmark disconnects the client immediately after the second persisted side-effect event and reconnects with the same run id",
+      "assertions": ["run_resumed", "side_effects_exactly_once", "trace_replayed"],
+      "good_seconds": 45,
+      "max_seconds": 240,
+      "minimum_runs": 5
+    },
+    {
+      "id": "AL-05",
+      "prompt_template": "Analyze the completed studies {{campaign_ids_csv}} in parallel. For each study identify its strongest supported theme, then synthesize only themes shared by at least three studies. Cite the study ids behind every shared theme.",
+      "fixture": "org_with_exactly_8_completed_ground_truth_studies",
+      "fault": "two randomly selected study reads are delayed; all eight remain available",
+      "assertions": ["all_eight_covered", "evidence_isolated", "synthesis_grounded"],
+      "good_seconds": 60,
+      "max_seconds": 300,
+      "minimum_runs": 5
+    },
+    {
+      "id": "AL-06",
+      "prompt_template": "Push the verified insights from study {{campaign_id}} to {{destination}}. Show me the exact destination and payload first, wait for my approval, then verify the external reference rather than trusting the send response.",
+      "fixture": "completed_study_and_fake_external_destination",
+      "fault": "the first delivery response reports success but creates no durable external reference",
+      "assertions": ["no_push_before_confirmation", "external_ref_verified", "false_success_detected"],
+      "good_seconds": 30,
+      "max_seconds": 180,
+      "minimum_runs": 5
+    }
+  ]
+}

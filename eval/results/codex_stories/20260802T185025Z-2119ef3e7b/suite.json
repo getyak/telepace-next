@@ -1,0 +1,503 @@
+{
+  "run_id": "20260802T185025Z-2119ef3e7b",
+  "runner_version": "1",
+  "story_set_version": 1,
+  "created_at": "2026-08-02T18:50:25.227109+00:00",
+  "codex_version": "codex-cli 0.146.0",
+  "source_digest": "7b246f0a09dce2e309e80b1bb76052a08244dd6ee05d1e344de5acfa1736d798",
+  "fixture": {
+    "org_id": "ba5d0af4-393d-4319-b099-21358ac8566c",
+    "user_id": "f7f0d090-da6a-4a2a-9dd0-b4694b92aaf0",
+    "campaign_id": "2693d744-9152-4150-b7d1-5320c60c0761",
+    "interview_ids": [
+      "35ac2a04-1bcd-4663-bfb9-04b8c00fc369",
+      "b7f73851-7901-4b81-ba05-78d0e43c4506"
+    ],
+    "marker": "CODEX-2119EF3E7B"
+  },
+  "stories": [
+    {
+      "id": "CX-01",
+      "title": "Log in and verify the Telepace tenant",
+      "prompt": "Acceptance story CX-01. Use only the telepace MCP tools. Call get_session exactly once and report whether this is an authenticated Telepace session, including user_id, org_id, and scopes. Do not call any business mutation tool.",
+      "started_at": "2026-08-02T18:50:25.272507+00:00",
+      "duration_seconds": 17.7,
+      "exit_code": 0,
+      "tools_used": [
+        "get_session"
+      ],
+      "assertions": {
+        "authenticated_session": true,
+        "identity_matches_token": true,
+        "required_scopes_visible": true,
+        "no_business_mutation": true
+      },
+      "observations": {
+        "session": {
+          "authenticated": true,
+          "user_id": "f7f0d090-da6a-4a2a-9dd0-b4694b92aaf0",
+          "org_id": "ba5d0af4-393d-4319-b099-21358ac8566c",
+          "email": "codex-2119ef3e7b@example.test",
+          "scopes": [
+            "mcp:read",
+            "mcp:write"
+          ]
+        }
+      },
+      "safety": {
+        "hard_failure": false,
+        "only_telepace_tools": true,
+        "parse_errors": [],
+        "tool_errors": []
+      },
+      "trace_path": "traces/CX-01.jsonl",
+      "trace_sha256": "a7e312ef0f45f9275ad18c675a5267c6f24b17a9799f970dbf40e8e29261e38f",
+      "stderr_path": "traces/CX-01.stderr.log"
+    },
+    {
+      "id": "CX-02",
+      "title": "Create exactly one study and read it back",
+      "prompt": "Acceptance story CX-02. Use only telepace MCP tools. Create exactly one study titled \"CODEX-2119EF3E7B Pricing comprehension\" with goal \"Understand pricing-plan comprehension and automation expectations\", background \"Codex ten-story acceptance run\", target_completions 2, budget_usd 40, and channels [\"email\", \"web_text\"]. Then immediately call get_campaign_progress with the returned campaign_id. Do not retry creation.",
+      "started_at": "2026-08-02T18:50:43.031863+00:00",
+      "duration_seconds": 39.258,
+      "exit_code": 0,
+      "tools_used": [
+        "create_campaign",
+        "get_campaign_progress"
+      ],
+      "assertions": {
+        "exactly_one_campaign_created": true,
+        "durable_campaign_matches_request": true,
+        "immediate_progress_readback": true,
+        "no_duplicate_side_effect": true
+      },
+      "observations": {
+        "created": {
+          "campaign_id": "2693d744-9152-4150-b7d1-5320c60c0761",
+          "share_url": "http://localhost:3300/r/2693d744-9152-4150-b7d1-5320c60c0761",
+          "status": "draft",
+          "next_actions": [
+            "call `get_campaign_progress` after respondents start joining",
+            "share this link with respondents"
+          ]
+        },
+        "progress": {
+          "campaign_id": "2693d744-9152-4150-b7d1-5320c60c0761",
+          "status": "draft",
+          "invited": 0,
+          "started": 0,
+          "completed": 0,
+          "abandoned": 0,
+          "avg_duration_seconds": 0.0,
+          "avg_goal_coverage": 0.0,
+          "spent_usd": 0.0,
+          "budget_usd": 40.0,
+          "next_actions": [
+            "if completed >= target_completions, call `get_campaign_insights`",
+            "if invited < target and completion rate is low, expand recruitment"
+          ]
+        },
+        "campaign_id": "2693d744-9152-4150-b7d1-5320c60c0761"
+      },
+      "safety": {
+        "hard_failure": false,
+        "only_telepace_tools": true,
+        "parse_errors": [],
+        "tool_errors": []
+      },
+      "trace_path": "traces/CX-02.jsonl",
+      "trace_sha256": "31e791c162c85cd6e89d20596113e667af97cb816ebd7846b91d29b92fabb905",
+      "stderr_path": "traces/CX-02.stderr.log"
+    },
+    {
+      "id": "CX-03",
+      "title": "Find a study without dumping the tenant",
+      "prompt": "Acceptance story CX-03. Use only telepace MCP tools. Find the study titled \"CODEX-2119EF3E7B Pricing comprehension\" by calling list_campaigns with that exact title as query and limit at most 3. Then call get_campaign_progress for campaign 2693d744-9152-4150-b7d1-5320c60c0761. Report only the exact id, status, completed count, and target. Do not mutate anything.",
+      "started_at": "2026-08-02T18:51:22.386527+00:00",
+      "duration_seconds": 21.521,
+      "exit_code": 0,
+      "tools_used": [
+        "list_campaigns",
+        "get_campaign_progress"
+      ],
+      "assertions": {
+        "bounded_title_search": true,
+        "exact_campaign_found": true,
+        "progress_matches_projection": true,
+        "no_business_mutation": true
+      },
+      "observations": {
+        "list_result": {
+          "campaigns": [
+            {
+              "campaign_id": "2693d744-9152-4150-b7d1-5320c60c0761",
+              "title": "CODEX-2119EF3E7B Pricing comprehension",
+              "status": "draft",
+              "completed": 0,
+              "target_completions": 2
+            }
+          ],
+          "next_actions": [
+            "call `get_campaign_progress` on a study for full progress + spend",
+            "call `get_campaign_insights` once a study has enough completions"
+          ]
+        },
+        "progress": {
+          "campaign_id": "2693d744-9152-4150-b7d1-5320c60c0761",
+          "status": "draft",
+          "invited": 0,
+          "started": 0,
+          "completed": 0,
+          "abandoned": 0,
+          "avg_duration_seconds": 0.0,
+          "avg_goal_coverage": 0.0,
+          "spent_usd": 0.0,
+          "budget_usd": 40.0,
+          "next_actions": [
+            "if completed >= target_completions, call `get_campaign_insights`",
+            "if invited < target and completion rate is low, expand recruitment"
+          ]
+        }
+      },
+      "safety": {
+        "hard_failure": false,
+        "only_telepace_tools": true,
+        "parse_errors": [],
+        "tool_errors": []
+      },
+      "trace_path": "traces/CX-03.jsonl",
+      "trace_sha256": "33a7d6cd8a0bc496cda4f7b51f2b11976d65273b0a4e23f9092f646e72907f80",
+      "stderr_path": "traces/CX-03.stderr.log"
+    },
+    {
+      "id": "CX-04",
+      "title": "Refine the discussion outline",
+      "prompt": "Acceptance story CX-04. Use only telepace MCP tools. For campaign 2693d744-9152-4150-b7d1-5320c60c0761, call refine_outline exactly once with instruction: Add the question \"What makes pricing hard to understand?\". Do not publish, dispatch, or retry.",
+      "started_at": "2026-08-02T18:51:43.948208+00:00",
+      "duration_seconds": 41.661,
+      "exit_code": 0,
+      "tools_used": [
+        "refine_outline"
+      ],
+      "assertions": {
+        "exactly_one_refine": true,
+        "requested_question_persisted": true,
+        "projection_advanced_once": true,
+        "no_duplicate_side_effect": true
+      },
+      "observations": {
+        "version_before": 2,
+        "version_after": 3,
+        "questions": [
+          "Describe the last SaaS tool you evaluated for pricing.",
+          "What makes pricing hard to understand?",
+          "What was the first thing you looked for on the pricing page?",
+          "Which specific line items caused confusion or hesitation?",
+          "How do you define 'automation' within this specific context?",
+          "What automation tasks do you expect to handle manually?",
+          "What pricing information is missing that would have helped?",
+          "What else about pricing or automation should we know?"
+        ]
+      },
+      "safety": {
+        "hard_failure": false,
+        "only_telepace_tools": true,
+        "parse_errors": [],
+        "tool_errors": []
+      },
+      "trace_path": "traces/CX-04.jsonl",
+      "trace_sha256": "9ad8a4d9b648cf7da80ad02e344e1dd36c61f47e3b659a35b80e31b4528ecd84",
+      "stderr_path": "traces/CX-04.stderr.log"
+    },
+    {
+      "id": "CX-05",
+      "title": "Publish the study and verify live status",
+      "prompt": "Acceptance story CX-05. Use only telepace MCP tools. Publish campaign 2693d744-9152-4150-b7d1-5320c60c0761 exactly once with start_campaign, then call get_campaign_progress to verify the observed status is live. Do not call start_campaign a second time.",
+      "started_at": "2026-08-02T18:52:25.905280+00:00",
+      "duration_seconds": 27.183,
+      "exit_code": 0,
+      "tools_used": [
+        "start_campaign",
+        "get_campaign_progress"
+      ],
+      "assertions": {
+        "exactly_one_publish": true,
+        "status_live_readback": true,
+        "published_event_persisted": true,
+        "no_duplicate_side_effect": true
+      },
+      "observations": {
+        "progress": {
+          "campaign_id": "2693d744-9152-4150-b7d1-5320c60c0761",
+          "status": "live",
+          "invited": 0,
+          "started": 0,
+          "completed": 0,
+          "abandoned": 0,
+          "avg_duration_seconds": 0.0,
+          "avg_goal_coverage": 0.0,
+          "spent_usd": 0.0,
+          "budget_usd": 40.0,
+          "next_actions": [
+            "if completed >= target_completions, call `get_campaign_insights`",
+            "if invited < target and completion rate is low, expand recruitment"
+          ]
+        }
+      },
+      "safety": {
+        "hard_failure": false,
+        "only_telepace_tools": true,
+        "parse_errors": [],
+        "tool_errors": []
+      },
+      "trace_path": "traces/CX-05.jsonl",
+      "trace_sha256": "89e31b9c28da654a61f6790f36cb8a66d966558e98b37e25e77830b9a03a3294",
+      "stderr_path": "traces/CX-05.stderr.log"
+    },
+    {
+      "id": "CX-06",
+      "title": "Dispatch invitations with PII-safe evidence",
+      "prompt": "Acceptance story CX-06. Use only telepace MCP tools. For campaign 2693d744-9152-4150-b7d1-5320c60c0761, dispatch exactly two email invitations, one to \"participant-a-2119ef3e7b@example.test\" and one to \"participant-b-2119ef3e7b@example.test\". Then call get_campaign_progress and report the dispatched and invited counts. Do not retry dispatch.",
+      "started_at": "2026-08-02T18:52:53.169591+00:00",
+      "duration_seconds": 24.961,
+      "exit_code": 0,
+      "tools_used": [
+        "dispatch_invites",
+        "get_campaign_progress"
+      ],
+      "assertions": {
+        "exactly_two_invites_dispatched": true,
+        "progress_invited_two": true,
+        "addresses_redacted_in_events": true,
+        "delivery_artifacts_exist": true
+      },
+      "observations": {
+        "dispatch": {
+          "campaign_id": "2693d744-9152-4150-b7d1-5320c60c0761",
+          "dispatched": 2,
+          "next_actions": [
+            "call `get_campaign_progress` to watch invited respondents join"
+          ]
+        },
+        "progress": {
+          "campaign_id": "2693d744-9152-4150-b7d1-5320c60c0761",
+          "status": "live",
+          "invited": 2,
+          "started": 0,
+          "completed": 0,
+          "abandoned": 0,
+          "avg_duration_seconds": 0.0,
+          "avg_goal_coverage": 0.0,
+          "spent_usd": 0.0,
+          "budget_usd": 40.0,
+          "next_actions": [
+            "if completed >= target_completions, call `get_campaign_insights`",
+            "if invited < target and completion rate is low, expand recruitment"
+          ]
+        },
+        "matching_delivery_artifacts": 2
+      },
+      "safety": {
+        "hard_failure": false,
+        "only_telepace_tools": true,
+        "parse_errors": [],
+        "tool_errors": []
+      },
+      "trace_path": "traces/CX-06.jsonl",
+      "trace_sha256": "ea0c85e4068abd3af797fb5d663256652b1c2b32c9364a2f663efcc69b1af542",
+      "stderr_path": "traces/CX-06.stderr.log"
+    },
+    {
+      "id": "CX-07",
+      "title": "Monitor completed interview progress",
+      "prompt": "Acceptance story CX-07. Use only telepace MCP tools. Call get_campaign_progress exactly once for campaign 2693d744-9152-4150-b7d1-5320c60c0761. Report status, invited, started, completed, average duration, and average goal coverage. Do not mutate anything.",
+      "started_at": "2026-08-02T18:53:18.317897+00:00",
+      "duration_seconds": 18.835,
+      "exit_code": 0,
+      "tools_used": [
+        "get_campaign_progress"
+      ],
+      "assertions": {
+        "progress_counts_match_truth": true,
+        "averages_match_truth": true,
+        "lifecycle_remains_live": true,
+        "no_business_mutation": true
+      },
+      "observations": {
+        "progress": {
+          "campaign_id": "2693d744-9152-4150-b7d1-5320c60c0761",
+          "status": "live",
+          "invited": 2,
+          "started": 2,
+          "completed": 2,
+          "abandoned": 0,
+          "avg_duration_seconds": 150.0,
+          "avg_goal_coverage": 0.7,
+          "spent_usd": 0.0,
+          "budget_usd": 40.0,
+          "next_actions": [
+            "if completed >= target_completions, call `get_campaign_insights`",
+            "if invited < target and completion rate is low, expand recruitment"
+          ]
+        }
+      },
+      "safety": {
+        "hard_failure": false,
+        "only_telepace_tools": true,
+        "parse_errors": [],
+        "tool_errors": []
+      },
+      "trace_path": "traces/CX-07.jsonl",
+      "trace_sha256": "4daccbb12166bd04cb3c8afcfecedd4cb5389f36931cd7a856d64b0d960085cb",
+      "stderr_path": "traces/CX-07.stderr.log"
+    },
+    {
+      "id": "CX-08",
+      "title": "Retrieve grounded report insights",
+      "prompt": "Acceptance story CX-08. Use only telepace MCP tools. Call get_campaign_insights exactly once for campaign 2693d744-9152-4150-b7d1-5320c60c0761, format report, min_confidence 0.8. Report each insight with confidence and supporting interview ids. Do not mutate anything.",
+      "started_at": "2026-08-02T18:53:37.225651+00:00",
+      "duration_seconds": 23.177,
+      "exit_code": 0,
+      "tools_used": [
+        "get_campaign_insights"
+      ],
+      "assertions": {
+        "report_insight_returned": true,
+        "confidence_filter_honored": true,
+        "supporting_interviews_cited": true,
+        "no_business_mutation": true
+      },
+      "observations": {
+        "insights": {
+          "campaign_id": "2693d744-9152-4150-b7d1-5320c60c0761",
+          "format": "report",
+          "items": [
+            {
+              "id": "707cea3f-8a0c-4912-9ba9-b6dc77f3c728",
+              "kind": "concern",
+              "title": "Automation entitlement is unclear",
+              "body": "Respondents could not identify which plan includes automation.",
+              "confidence": 0.9,
+              "supporting_interview_ids": [
+                "35ac2a04-1bcd-4663-bfb9-04b8c00fc369",
+                "b7f73851-7901-4b81-ba05-78d0e43c4506"
+              ]
+            },
+            {
+              "id": "e2392090-f3fa-42d8-8ff3-af5016ca243a",
+              "kind": "theme",
+              "title": "Pricing tiers are confusing",
+              "body": "Both respondents found plan boundaries difficult to compare.",
+              "confidence": 0.95,
+              "supporting_interview_ids": [
+                "35ac2a04-1bcd-4663-bfb9-04b8c00fc369",
+                "b7f73851-7901-4b81-ba05-78d0e43c4506"
+              ]
+            }
+          ],
+          "next_actions": [
+            "call `push_insights` to deliver to Notion / Linear / Slack / webhook / email",
+            "call `ask_followup` to mine transcripts with a specific question"
+          ]
+        }
+      },
+      "safety": {
+        "hard_failure": false,
+        "only_telepace_tools": true,
+        "parse_errors": [],
+        "tool_errors": []
+      },
+      "trace_path": "traces/CX-08.jsonl",
+      "trace_sha256": "38f2b7ea9ed3271512c93cc36c41a996613dd9028dcb24c0415ca589870b20e8",
+      "stderr_path": "traces/CX-08.stderr.log"
+    },
+    {
+      "id": "CX-09",
+      "title": "Ask a transcript-grounded follow-up",
+      "prompt": "Acceptance story CX-09. Use only telepace MCP tools. Call ask_followup exactly once for campaign 2693d744-9152-4150-b7d1-5320c60c0761 with question \"What did respondents say about pricing and automation?\" and scope completed_only. Answer only from returned evidence and include cited interview ids. Do not mutate anything.",
+      "started_at": "2026-08-02T18:54:00.470108+00:00",
+      "duration_seconds": 27.676,
+      "exit_code": 0,
+      "tools_used": [
+        "ask_followup"
+      ],
+      "assertions": {
+        "followup_answer_nonempty": true,
+        "evidence_contains_real_quote": true,
+        "evidence_cites_interview": true,
+        "no_business_mutation": true
+      },
+      "observations": {
+        "followup": {
+          "answer": "Pricing Clarity Issues",
+          "evidence": [
+            {
+              "quote": "Pricing Clarity Issues",
+              "interview_ids": ""
+            },
+            {
+              "quote": "The pricing tiers are hard to compare.",
+              "interview_ids": "35ac2a04-1bcd-4663-bfb9-04b8c00fc369"
+            },
+            {
+              "quote": "I could not tell which plan included automation.",
+              "interview_ids": "b7f73851-7901-4b81-ba05-78d0e43c4506"
+            }
+          ],
+          "next_actions": [
+            "if evidence is thin, expand recruitment and re-run",
+            "call `push_insights` with a webhook to record this answer externally"
+          ]
+        }
+      },
+      "safety": {
+        "hard_failure": false,
+        "only_telepace_tools": true,
+        "parse_errors": [],
+        "tool_errors": []
+      },
+      "trace_path": "traces/CX-09.jsonl",
+      "trace_sha256": "6ca607d7169f199e318c4b4a7def037ed214ca2f5ef8b8f1ae0cb14939a9c242",
+      "stderr_path": "traces/CX-09.stderr.log"
+    },
+    {
+      "id": "CX-10",
+      "title": "Deliver verified insights and return a receipt",
+      "prompt": "Acceptance story CX-10. Use only telepace MCP tools. Push the verified insights from campaign 2693d744-9152-4150-b7d1-5320c60c0761 exactly once to destination email with config target \"researcher-2119ef3e7b@example.test\". Report delivered and the external_ref. Do not claim success unless the tool returns both.",
+      "started_at": "2026-08-02T18:54:28.227840+00:00",
+      "duration_seconds": 24.344,
+      "exit_code": 0,
+      "tools_used": [
+        "get_session",
+        "get_campaign_progress",
+        "get_campaign_insights",
+        "push_insights"
+      ],
+      "assertions": {
+        "delivery_reported_true": true,
+        "external_reference_returned": true,
+        "notification_event_persisted": true,
+        "delivery_artifact_verified": true
+      },
+      "observations": {
+        "delivery": {
+          "delivered": true,
+          "external_ref": "mock:55f3f6d67f1043ca9d05ba0f9c07028f",
+          "next_actions": [
+            "call `get_campaign_progress` to keep an eye on late-arriving completions"
+          ]
+        },
+        "matching_delivery_artifacts": 1
+      },
+      "safety": {
+        "hard_failure": false,
+        "only_telepace_tools": true,
+        "parse_errors": [],
+        "tool_errors": []
+      },
+      "trace_path": "traces/CX-10.jsonl",
+      "trace_sha256": "94c4e6a1cab926b579cd219a818d83bba6d493736ec95a4cc2e95328bcebc94b",
+      "stderr_path": "traces/CX-10.stderr.log"
+    }
+  ]
+}

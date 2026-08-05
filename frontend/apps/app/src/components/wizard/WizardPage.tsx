@@ -62,7 +62,6 @@ export function WizardPage() {
     setPublishing(true);
     // Wiring to the campaign API is handled by the study creation flow;
     // the wizard collects the spec and hands it off here.
-    // eslint-disable-next-line no-console
     console.log("Publish study spec:", form);
     setPublishing(false);
   }

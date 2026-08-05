@@ -1,0 +1,7 @@
+{"type":"thread.started","thread_id":"019fc3d1-5630-7803-956b-73948e706bea"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"I’ll make the single requested outline refinement and stop—no publish, dispatch, or retry."}}
+{"type":"item.started","item":{"id":"item_1","type":"mcp_tool_call","server":"telepace","tool":"refine_outline","arguments":{"campaign_id":"2693d744-9152-4150-b7d1-5320c60c0761","instruction":"Add the question \"What makes pricing hard to understand?\"."},"result":null,"error":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_1","type":"mcp_tool_call","server":"telepace","tool":"refine_outline","arguments":{"campaign_id":"2693d744-9152-4150-b7d1-5320c60c0761","instruction":"Add the question \"What makes pricing hard to understand?\"."},"result":{"content":[{"type":"text","text":"{\"campaign_id\":\"2693d744-9152-4150-b7d1-5320c60c0761\",\"status\":\"refined\",\"next_actions\":[\"call `get_campaign_insights` after the outline stabilizes\",\"call `start_campaign` to publish once the outline is ready\"]}"}],"structured_content":null},"error":null,"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"Outline refined exactly once with the requested pricing question. No publish, dispatch, or retry performed."}}
+{"type":"turn.completed","usage":{"input_tokens":59294,"cached_input_tokens":54272,"cache_write_input_tokens":0,"output_tokens":360,"reasoning_output_tokens":123}}

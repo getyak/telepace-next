@@ -24,7 +24,7 @@ async def dispatch_invites(
         campaign_id=parsed.campaign_id,
         invites=[
             InviteInput(
-                address=i.address,
+                address=i.address or "",
                 channel=i.channel,
                 name=i.name,
                 personalized_intro=i.personalized_intro,
@@ -35,11 +35,9 @@ async def dispatch_invites(
     resp = await harness.handle(cmd)
     if not resp.ok:
         raise RuntimeError(f"dispatch_invites failed: {resp.reason}")
-    dispatched = (
-        resp.result.get("dispatched", len(parsed.invites))
-        if isinstance(resp.result, dict)
-        else len(parsed.invites)
-    )
+    dispatched = 0
+    if isinstance(resp.result, dict):
+        dispatched = int(resp.result.get("dispatched", resp.result.get("sent", 0)))
     return DispatchInvitesOutput(
         campaign_id=parsed.campaign_id,
         dispatched=dispatched,

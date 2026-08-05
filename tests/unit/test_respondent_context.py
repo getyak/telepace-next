@@ -224,10 +224,20 @@ async def test_blog_origin_cannot_downgrade_headless_connection_to_legacy(
 
 
 @pytest.mark.asyncio
-async def test_legacy_respondent_accepts_only_exact_public_frontend_origin() -> None:
+@pytest.mark.parametrize(
+    "origin",
+    [
+        "http://localhost:3300",
+        "http://127.0.0.1:3300",
+        "http://[::1]:3300",
+    ],
+)
+async def test_legacy_respondent_accepts_same_port_loopback_frontend_origin(
+    origin: str,
+) -> None:
     websocket = SimpleNamespace(
         query_params={"source": "respondent-page", "consent": "checkbox"},
-        headers={"origin": "http://localhost:3300"},
+        headers={"origin": origin},
     )
     settings = SimpleNamespace(public_base_url="http://localhost:3300")
 
@@ -249,6 +259,24 @@ def test_embed_origin_matching_supports_explicit_local_port_wildcard() -> None:
     assert respondent_origin_allowed("http://127.0.0.1:43117", ["http://127.0.0.1:*"])
     assert not respondent_origin_allowed("https://localhost:8888", ["http://localhost:*"])
     assert not respondent_origin_allowed("http://attacker.local:8888", ["http://localhost:*"])
+    assert not respondent_origin_allowed(
+        "http://localhost.attacker.example:8888",
+        ["http://localhost:*"],
+    )
+    assert not respondent_origin_allowed(
+        "https://example.com:443",
+        ["https://example.com:*"],
+    )
+
+
+def test_loopback_alias_matching_requires_same_scheme_and_port() -> None:
+    allowed = ["http://localhost:3300"]
+
+    assert respondent_origin_allowed("http://127.0.0.1:3300", allowed)
+    assert respondent_origin_allowed("http://[::1]:3300", allowed)
+    assert not respondent_origin_allowed("http://127.0.0.1:3301", allowed)
+    assert not respondent_origin_allowed("https://127.0.0.1:3300", allowed)
+    assert not respondent_origin_allowed("http://example.com:3300", allowed)
 
 
 def test_cors_regex_is_derived_only_from_explicit_local_wildcards() -> None:
@@ -300,6 +328,10 @@ async def test_hydrate_restores_campaign_spec_and_isolates_interview_history() -
     assert (await memory.load(interview_id))["interview_history"] == [
         {"role": "interviewer", "text": "第一个问题"}
     ]
+    assert isinstance(
+        (await memory.load(interview_id))["interview_started_at"],
+        float,
+    )
 
 
 @pytest.mark.asyncio

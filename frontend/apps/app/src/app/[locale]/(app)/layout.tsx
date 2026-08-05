@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { getMessages } from "next-intl/server";
 
 import { AuthProvider } from "@/lib/auth/AuthProvider";
-import { ACCESS_COOKIE } from "@/lib/auth/cookies";
+import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/auth/cookies";
 import { Sidebar } from "@/components/app/Sidebar";
 import { AgentDock } from "@/components/agent/AgentDock";
 import { ErrorsCopyProvider } from "@/components/app/ErrorsCopyContext";
@@ -14,7 +14,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Server can read the httpOnly cookie — hand it in so a cookie-less visitor
   // resolves as guest without a doomed /me probe (see AuthProvider).
   const cookieStore = await cookies();
-  const hasSession = cookieStore.has(ACCESS_COOKIE);
+  const hasSession =
+    cookieStore.has(ACCESS_COOKIE) || cookieStore.has(REFRESH_COOKIE);
 
   return (
     <AuthProvider initialHasSession={hasSession}>
@@ -28,9 +29,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             the viewport with `absolute inset-0` and scroll only *inside* their
             own panes — a flex/`overflow-y-auto` chain otherwise leaks a scroll
             pane's content height up to <html>, letting the whole page drag. */}
-        <div className="flex h-screen flex-col overflow-hidden md:flex-row">
+        <div className="flex h-screen flex-col overflow-hidden print:block print:h-auto print:overflow-visible md:flex-row">
           <Sidebar />
-          <main className="relative min-h-0 min-w-0 flex-1 overflow-y-auto">{children}</main>
+          <main className="relative min-h-0 min-w-0 flex-1 overflow-y-auto print:overflow-visible">
+            {children}
+          </main>
           <AgentDock />
         </div>
       </ErrorsCopyProvider>

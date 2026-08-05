@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
-import { routes, siteConfig } from "@telepace/config";
+import { routes } from "@telepace/config";
 
 import { noindexMetadata } from "@/lib/seo";
 import { AuthCard } from "../_components/AuthCard";

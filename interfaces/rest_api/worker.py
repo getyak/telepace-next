@@ -4,42 +4,72 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections import defaultdict
+from typing import Any
+from uuid import UUID
 
-from core.events import InterviewCompleted, TurnRecorded
+from core.events import (
+    InsightSetReplaced,
+    InterviewCompleted,
+    TurnRecorded,
+)
 from interfaces.rest_api.deps import AppState, build_state
 from storage.event_store import StoredEvent
 
 logger = logging.getLogger(__name__)
 
 
+def _completed_transcripts(all_events: list[Any]):
+    """Rebuild every completed interview for campaign-level synthesis."""
+
+    from agents.analyst.main import TranscriptView
+
+    completed: set[UUID] = set()
+    turns_by_interview: dict[UUID, list[dict[str, str]]] = defaultdict(list)
+    for stored in all_events:
+        event = getattr(stored, "event", stored)
+        if isinstance(event, TurnRecorded):
+            turns_by_interview[event.interview_id].append(
+                {"role": event.role, "text": event.text}
+            )
+        elif isinstance(event, InterviewCompleted):
+            completed.add(event.interview_id)
+    return [
+        TranscriptView(interview_id=interview_id, turns=turns_by_interview[interview_id])
+        for interview_id in sorted(completed, key=str)
+        if turns_by_interview[interview_id]
+    ]
+
+
 async def analyze_completion(state: AppState, ev: InterviewCompleted) -> None:
-    """Synthesize insights for one completed interview and persist them.
+    """Replace campaign insights with a synthesis of all completed interviews.
 
     Shared by the standalone worker process and the API's embedded tail
-    loop. Appends InsightGenerated events to the store and applies them to
-    the insights projection so they are immediately readable.
+    loop. The reset marker makes the latest batch replay-safe: rebuilding the
+    projection from the append-only stream yields exactly one current insight
+    set instead of accumulating duplicate per-respondent themes.
     """
     all_events = await state.event_store.read_stream(ev.campaign_id)
-    turns: list[dict[str, str]] = []
-    for se in all_events:
-        e = se.event
-        if isinstance(e, TurnRecorded) and getattr(e, "interview_id", None) == ev.interview_id:
-            turns.append({"role": e.role, "text": e.text})
-    if not turns:
+    transcripts = _completed_transcripts(all_events)
+    if not transcripts:
         return
-    from agents.analyst.main import TranscriptView
 
     campaign = await state.projector.get_campaign(ev.campaign_id)
     language = campaign.spec.primary_language if campaign else "en"
 
     result = await state.analyst.synthesize(
         campaign_id=ev.campaign_id,
-        transcripts=[TranscriptView(interview_id=ev.interview_id, turns=turns)],
+        transcripts=transcripts,
         language=language,
     )
-    if not result.events:
-        return
-    stored_list = await state.event_store.append_many(result.events)
+    events = [
+        InsightSetReplaced(
+            campaign_id=ev.campaign_id,
+            actor="agent:analyst",
+        ),
+        *result.events,
+    ]
+    stored_list = await state.event_store.append_many(events)
     for stored in stored_list:
         try:
             await state.projector.apply(stored.seq, stored.event)

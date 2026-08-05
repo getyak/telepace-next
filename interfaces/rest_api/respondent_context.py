@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import ipaddress
 import json
 import re
 from dataclasses import dataclass
@@ -49,17 +50,71 @@ def query_flag(value: str | None) -> bool:
     return (value or "").strip().lower() in {"1", "true", "yes"}
 
 
+def _origin_parts(value: str) -> tuple[str, str, int] | None:
+    normalized = normalize_referrer_origin(value)
+    if not normalized:
+        return None
+    parsed = urlsplit(normalized)
+    if not parsed.hostname:
+        return None
+    default_port = 443 if parsed.scheme == "https" else 80
+    return parsed.scheme, parsed.hostname.rstrip(".").lower(), parsed.port or default_port
+
+
+def _is_loopback_host(hostname: str) -> bool:
+    if hostname == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(hostname).is_loopback
+    except ValueError:
+        return False
+
+
+def _same_loopback_origin(left: str, right: str) -> bool:
+    left_parts = _origin_parts(left)
+    right_parts = _origin_parts(right)
+    if left_parts is None or right_parts is None:
+        return False
+    left_scheme, left_host, left_port = left_parts
+    right_scheme, right_host, right_port = right_parts
+    return (
+        _is_loopback_host(left_host)
+        and _is_loopback_host(right_host)
+        and left_scheme == right_scheme
+        and left_port == right_port
+    )
+
+
 def respondent_origin_allowed(origin: str | None, allowed_origins: list[str]) -> bool:
-    """Match an exact origin or a local-development ``:*`` port wildcard."""
+    """Match an exact origin or a tightly scoped local-development equivalent."""
 
     normalized = normalize_referrer_origin(origin)
     if not normalized:
         return False
     for configured in allowed_origins:
         candidate = configured.strip().rstrip("/")
-        if candidate == normalized:
+        candidate_normalized = normalize_referrer_origin(candidate)
+        if candidate_normalized == normalized:
             return True
-        if candidate.endswith(":*") and normalized.startswith(candidate[:-1]):
+        if candidate.endswith(":*"):
+            wildcard_parts = _origin_parts(candidate[:-2])
+            normalized_parts = _origin_parts(normalized)
+            if wildcard_parts is not None and normalized_parts is not None:
+                wildcard_scheme, wildcard_host, _ = wildcard_parts
+                normalized_scheme, normalized_host, _ = normalized_parts
+                if (
+                    _is_loopback_host(wildcard_host)
+                    and wildcard_scheme == normalized_scheme
+                    and wildcard_host == normalized_host
+                ):
+                    return True
+        elif candidate_normalized and _same_loopback_origin(
+            normalized, candidate_normalized
+        ):
+            # Browsers treat localhost, 127.0.0.1, and ::1 as distinct origins,
+            # but they are interchangeable preview hosts on the same machine.
+            # Matching the scheme and effective port keeps this dev convenience
+            # from weakening production origin checks.
             return True
     return False
 
@@ -123,8 +178,17 @@ async def hydrate_respondent_interview_context(
                 "interview_history": history,
                 "outline_coverage": {},
                 "interview_seconds": 0,
+                "interview_started_at": datetime.now(UTC).timestamp(),
             },
         )
+    else:
+        started_at = interview_context.get("interview_started_at")
+        if isinstance(started_at, int | float):
+            elapsed = int(datetime.now(UTC).timestamp() - started_at)
+            await state.memory.update(
+                interview_id,
+                {"interview_seconds": max(0, elapsed)},
+            )
     return campaign
 
 

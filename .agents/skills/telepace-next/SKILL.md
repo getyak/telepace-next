@@ -1,4 +1,8 @@
-```markdown
+---
+name: telepace-next
+description: Repository-specific development patterns for the Telepace Next codebase.
+---
+
 # telepace-next Development Patterns
 
 > Auto-generated skill from repository analysis
@@ -92,4 +96,3 @@ test('getUser returns correct user', () => {
 | /add-module    | Scaffold and integrate a new module       |
 | /write-test    | Create and run tests for a module         |
 | /refactor      | Refactor code while following conventions |
-```

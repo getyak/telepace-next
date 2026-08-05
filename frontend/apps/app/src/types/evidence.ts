@@ -25,7 +25,10 @@ export type RespondentSource =
   | "panel"
   | "link"
   | "import"
-  | "api";
+  | "api"
+  | "direct"
+  | "respondent-page"
+  | (string & {});
 
 /** Communication channel used for the interview. */
 export type ChannelKind =
@@ -98,7 +101,7 @@ export type ResponseRow = {
   source: RespondentSource;
   channel: ChannelKind;
   duration_seconds?: number;
-  quality_score?: number;
+  goal_coverage?: number;
   segments: Record<string, string>;
   bullet_summary: string;
   exclusion_reason?: string;
@@ -137,6 +140,8 @@ export type Insight = {
   kind: InsightKind;
   title: string;
   body: string;
+  /** Analyst-authored action linked to a concern; never inferred in the UI. */
+  recommendation?: string;
   claims: Claim[];
   confidence: number;
   supporting_evidence: Citation[];
@@ -172,6 +177,9 @@ export type Respondent = {
  */
 export type EvidenceGraph = {
   study_id: string;
+  campaign_title: string;
+  research_goal: string;
+  generated_at: string | null;
   themes: Theme[];
   respondents: Respondent[];
   citations: Citation[];

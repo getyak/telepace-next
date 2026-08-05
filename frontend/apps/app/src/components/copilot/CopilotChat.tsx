@@ -10,11 +10,11 @@ import { GlobalAgentPanel } from "@/components/agent/GlobalAgentPanel";
  * selector context above it scopes which studies the researcher is thinking
  * about; the agent's own list_campaigns / analyze tools do the real work.
  *
- * `selectedStudyIds` is retained for API compatibility with the copilot page
- * (and future scoping), but the shared panel drives the conversation.
+ * Selected study ids are added to the agent's hidden task context while the
+ * chat bubble continues to show only what the researcher typed.
  */
 export function CopilotChat({
-  selectedStudyIds: _selectedStudyIds,
+  selectedStudyIds,
 }: {
   selectedStudyIds: string[];
   placeholder?: string;
@@ -23,7 +23,10 @@ export function CopilotChat({
 }) {
   return (
     <Card className="flex h-[560px] flex-col overflow-hidden">
-      <GlobalAgentPanel className="min-h-0 flex-1" />
+      <GlobalAgentPanel
+        className="min-h-0 flex-1"
+        scopeStudyIds={selectedStudyIds}
+      />
     </Card>
   );
 }

@@ -1,0 +1,31 @@
+{
+  "agent": "telepace",
+  "as_of": "2026-07-31",
+  "checks": {
+    "C1": {"value": 1, "refs": ["agents/orchestrator/main.py:assistant_blocks", "agents/shared/llm.py:OpenRouterLLM._translate_messages"], "note": "Provider tool ids are preserved through native assistant tool_use and user tool_result blocks."},
+    "C2": {"value": 1, "refs": ["agents/orchestrator/main.py:convo.append"], "note": "Tool definitions stay stable and each native action/observation pair is appended without rewriting history."},
+    "C3": {"value": 1, "refs": ["storage/agent_runs.py:agent_artifacts", "agents/orchestrator/main.py:_render_for_context", "agents/orchestrator/main.py:_read_artifact"], "note": "Large observations become run-scoped artifacts with head/tail previews and bounded range reads."},
+    "C4": {"value": 1, "refs": ["agents/orchestrator/main.py:_compact_context", "agents/orchestrator/main.py:_context_chars"], "note": "Context over budget is automatically summarized by the fast model while recent native blocks and persisted run evidence remain."},
+    "D1": {"value": 1, "refs": ["interfaces/rest_api/routers/agent.py:_drive_run"], "note": "The run driver is an application task independent of the SSE subscriber."},
+    "D2": {"value": 1, "refs": ["interfaces/rest_api/routers/agent.py:_start_run", "interfaces/rest_api/routers/agent.py:resume_incomplete_agent_runs"], "note": "Runs execute independently of subscribers and running work is scanned on API startup."},
+    "D3": {"value": 1, "refs": ["storage/agent_runs.py:agent_run_events", "interfaces/rest_api/routers/agent.py:_rebuild_conversation", "interfaces/rest_api/routers/agent.py:resume_incomplete_agent_runs"], "note": "Persisted native action/result blocks rebuild model context after restart; unobserved side effects stop as incomplete instead of unsafe retry."},
+    "P1": {"value": 1, "refs": ["agents/orchestrator/main.py:_UPDATE_PLAN_TOOL", "agents/orchestrator/main.py:plan_items"], "note": "Multi-step work has a validated plan tool, update events, and end-of-context recitation."},
+    "P2": {"value": 0.75, "refs": ["agents/orchestrator/main.py:turn_budget_exhausted", "agents/orchestrator/prompts/v1.md"], "note": "Plans track step state and budget exhaustion is explicit; arbitrary user completion assertions are not yet machine-bound."},
+    "P3": {"value": 1, "refs": ["agents/orchestrator/main.py:_verify", "agents/orchestrator/main.py:_verify_event_side_effect"], "note": "Create/publish use projection read-back; push/dispatch verify durable delivery events and recipient hashes."},
+    "P4": {"value": 1, "refs": ["agents/orchestrator/main.py:_ToolOutcome"], "note": "Tool errors remain in the next model observation."},
+    "P5": {"value": 1, "refs": ["agents/orchestrator/main.py:_MAX_CONSECUTIVE_TOOL_FAILURES"], "note": "A tool is disabled after three consecutive failures."},
+    "M1": {"value": 0.5, "refs": ["storage/agent_runs.py:agent_runs.messages", "harness/memory.py:HarnessMemory"], "note": "Run input and campaign memory persist, but follow-up chat still sends full history."},
+    "M2": {"value": 1, "refs": ["storage/agent_runs.py:agent_artifacts"], "note": "Each run owns a durable, tenant-scoped artifact workspace."},
+    "M3": {"value": 1, "refs": ["storage/agent_runs.py:agent_memories", "agents/orchestrator/main.py:_remember", "agents/orchestrator/main.py:_forget"], "note": "Explicitly approved org preferences persist across sessions, are PII-redacted, injectable, and deletable."},
+    "S1": {"value": 1, "refs": ["agents/orchestrator/main.py:asyncio.gather"], "note": "Same-turn independent tool calls execute concurrently."},
+    "S2": {"value": 1, "refs": ["agents/orchestrator/main.py:_DELEGATE_TOOL", "agents/orchestrator/main.py:_delegate"], "note": "Read-only subagents use isolated context/budget/tool allowlists and return only a bounded summary plus step metadata."},
+    "G1": {"value": 1, "refs": ["harness/policies/base.py:PolicyStack", "agents/orchestrator/main.py:_CONFIRMATION_REQUIRED_TOOLS"], "note": "Every mutating tool enters Harness policies; outward actions additionally stop at a durable confirmation boundary."},
+    "G2": {"value": 1, "refs": ["storage/agent_runs.py:agent_run_confirmations", "interfaces/rest_api/routers/agent.py:resolve_agent_run_confirmation"], "note": "Risky actions create tenant-scoped pending confirmations; the durable run pauses and continues only after approval."},
+    "G3": {"value": 1, "refs": ["interfaces/rest_api/auth/deps.py:require_current_user"], "note": "REST tool dependencies are scoped by authenticated org and author."},
+    "X1": {"value": 1, "refs": ["agents/orchestrator/main.py:chat"], "note": "SSE emits structured tool_call, tool_result, tool_error, and done events."},
+    "X2": {"value": 1, "refs": ["frontend/apps/app/src/components/agent/GlobalAgentPanel.tsx:PlanCard", "frontend/apps/app/src/components/agent/GlobalAgentPanel.tsx:VerificationCard", "frontend/apps/app/src/components/agent/GlobalAgentPanel.tsx:ToolActivityCard"], "note": "The live run surface shows the execution plan, tool phases, independent verification outcomes, confirmation gates, and terminal state."},
+    "X3": {"value": 1, "refs": ["frontend/apps/app/src/lib/agentChat.ts:watchAgentRun", "frontend/apps/app/src/components/agent/GlobalAgentPanel.tsx:ACTIVE_RUN_KEY", "interfaces/rest_api/routers/agent.py:get_agent_run"], "note": "The UI stores the active run id, restores its original turns after refresh, replays events from sequence zero, then reconnects from the last accepted monotonic cursor without duplicating work."},
+    "X4": {"value": 0.75, "refs": ["agents/orchestrator/main.py:usage", "storage/agent_runs.py:agent_run_events"], "note": "Per-turn/cumulative tokens, LLM latency, elapsed time, and failures persist in the run trace; normalized provider cost remains."},
+    "X5": {"value": 1, "refs": ["agents/orchestrator/main.py:turn_budget_exhausted", "frontend/apps/app/src/components/agent/GlobalAgentPanel.tsx:RunStatusBar"], "note": "Completion, failure, and incomplete handoffs are distinct; the durable run id, completed tool evidence, verification results, and remaining incomplete state stay visible."}
+  }
+}

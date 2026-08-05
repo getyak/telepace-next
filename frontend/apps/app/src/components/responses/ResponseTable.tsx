@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Badge, Card, cn } from "@telepace/ui";
 import { useTranslations } from "next-intl";
 import type { ResponseRow } from "@/types/evidence";
@@ -11,7 +11,7 @@ type SortKey =
   | "respondent"
   | "channel"
   | "duration"
-  | "quality"
+  | "coverage"
   | "completed_at";
 
 type ResponseTableProps = {
@@ -26,19 +26,37 @@ function formatDuration(seconds: number | undefined): string {
   return m > 0 ? `${m}m ${String(s).padStart(2, "0")}s` : `${s}s`;
 }
 
-function qualityColor(score: number): string {
+function coverageColor(score: number): string {
   if (score >= 0.7) return "text-accent";
   if (score >= 0.3) return "text-warning";
   return "text-terracotta";
 }
 
-function displayName(row: ResponseRow): string {
-  return row.external_ref ?? row.respondent_id.slice(0, 8);
+function displayName(
+  row: ResponseRow,
+  participantNumbers: Map<string, number>,
+  participantLabel: (number: number) => string,
+): string {
+  return (
+    row.external_ref ??
+    participantLabel(participantNumbers.get(row.respondent_id) ?? 1)
+  );
 }
 
-function matchesSearch(row: ResponseRow, query: string): boolean {
+function matchesSearch(
+  row: ResponseRow,
+  query: string,
+  participantNumbers: Map<string, number>,
+  participantLabel: (number: number) => string,
+): boolean {
   const q = query.toLowerCase();
-  if (displayName(row).toLowerCase().includes(q)) return true;
+  if (
+    displayName(row, participantNumbers, participantLabel)
+      .toLowerCase()
+      .includes(q)
+  ) {
+    return true;
+  }
   if (row.bullet_summary.toLowerCase().includes(q)) return true;
   for (const v of Object.values(row.segments)) {
     if (v.toLowerCase().includes(q)) return true;
@@ -46,18 +64,28 @@ function matchesSearch(row: ResponseRow, query: string): boolean {
   return false;
 }
 
-function compareFn(key: SortKey, dir: "asc" | "desc") {
+function compareFn(
+  key: SortKey,
+  dir: "asc" | "desc",
+  participantNumbers: Map<string, number>,
+  participantLabel: (number: number) => string,
+) {
   const mul = dir === "asc" ? 1 : -1;
   return (a: ResponseRow, b: ResponseRow): number => {
     switch (key) {
       case "respondent":
-        return mul * displayName(a).localeCompare(displayName(b));
+        return (
+          mul *
+          displayName(a, participantNumbers, participantLabel).localeCompare(
+            displayName(b, participantNumbers, participantLabel),
+          )
+        );
       case "channel":
         return mul * a.channel.localeCompare(b.channel);
       case "duration":
         return mul * ((a.duration_seconds ?? 0) - (b.duration_seconds ?? 0));
-      case "quality":
-        return mul * ((a.quality_score ?? 0) - (b.quality_score ?? 0));
+      case "coverage":
+        return mul * ((a.goal_coverage ?? 0) - (b.goal_coverage ?? 0));
       case "completed_at": {
         const da = a.completed_at ?? "";
         const db = b.completed_at ?? "";
@@ -76,6 +104,18 @@ export function ResponseTable({ rows, className }: ResponseTableProps) {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [channelFilter, setChannelFilter] = useState<string | null>(null);
   const [sourceFilter, setSourceFilter] = useState<string | null>(null);
+  const participantNumbers = useMemo(
+    () => new Map(rows.map((row, index) => [row.respondent_id, index + 1])),
+    [rows],
+  );
+  const participantLabel = useCallback(
+    (number: number) => t("participant", { number }),
+    [t],
+  );
+  const channelLabel = (value: string) =>
+    t.has(`channel.${value}`) ? t(`channel.${value}`) : value.replace(/_/g, " ");
+  const sourceLabel = (value: string) =>
+    t.has(`source.${value}`) ? t(`source.${value}`) : value.replace(/[-_]/g, " ");
 
   const availableChannels = useMemo(
     () => Array.from(new Set(rows.map((r) => r.channel))).sort(),
@@ -88,11 +128,26 @@ export function ResponseTable({ rows, className }: ResponseTableProps) {
 
   const filtered = useMemo(() => {
     let result = rows;
-    if (search) result = result.filter((r) => matchesSearch(r, search));
+    if (search) {
+      result = result.filter((r) =>
+        matchesSearch(r, search, participantNumbers, participantLabel),
+      );
+    }
     if (channelFilter) result = result.filter((r) => r.channel === channelFilter);
     if (sourceFilter) result = result.filter((r) => r.source === sourceFilter);
-    return [...result].sort(compareFn(sortKey, sortDir));
-  }, [rows, search, channelFilter, sourceFilter, sortKey, sortDir]);
+    return [...result].sort(
+      compareFn(sortKey, sortDir, participantNumbers, participantLabel),
+    );
+  }, [
+    rows,
+    search,
+    channelFilter,
+    sourceFilter,
+    sortKey,
+    sortDir,
+    participantNumbers,
+    participantLabel,
+  ]);
 
   function handleSort(key: SortKey) {
     if (sortKey === key) {
@@ -114,7 +169,7 @@ export function ResponseTable({ rows, className }: ResponseTableProps) {
     { key: "respondent", label: t("colRespondent") },
     { key: "channel", label: t("colChannel") },
     { key: "duration", label: t("colDuration") },
-    { key: "quality", label: t("colQuality") },
+    { key: "coverage", label: t("colGoalCoverage") },
     { key: null, label: t("colSegments") },
     { key: null, label: t("colSummary") },
     { key: null, label: t("colExclusion") },
@@ -131,6 +186,8 @@ export function ResponseTable({ rows, className }: ResponseTableProps) {
         onSourceFilter={setSourceFilter}
         availableChannels={availableChannels}
         availableSources={availableSources}
+        channelLabel={channelLabel}
+        sourceLabel={sourceLabel}
         onExport={handleExport}
         totalCount={rows.length}
         filteredCount={filtered.length}
@@ -178,20 +235,20 @@ export function ResponseTable({ rows, className }: ResponseTableProps) {
                 className="tp-press tp-press-row transition-[color,background-color,transform] hover:bg-paper"
               >
                 <td className="px-4 py-3 text-sm font-medium text-ink">
-                  {displayName(row)}
+                  {displayName(row, participantNumbers, participantLabel)}
                 </td>
                 <td className="px-4 py-3">
                   <Badge variant="neutral">
-                    {row.channel.replace(/_/g, " ")}
+                    {channelLabel(row.channel)}
                   </Badge>
                 </td>
                 <td className="px-4 py-3 font-mono text-sm text-body">
                   {formatDuration(row.duration_seconds)}
                 </td>
                 <td className="px-4 py-3">
-                  {row.quality_score != null ? (
-                    <span className={cn("font-mono text-sm", qualityColor(row.quality_score))}>
-                      {row.quality_score.toFixed(2)}
+                  {row.goal_coverage != null ? (
+                    <span className={cn("font-mono text-sm", coverageColor(row.goal_coverage))}>
+                      {Math.round(row.goal_coverage * 100)}%
                     </span>
                   ) : (
                     <span className="text-sm text-muted">--</span>

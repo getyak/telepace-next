@@ -144,6 +144,12 @@ class InsightGenerated(EventBase):
     body: dict[str, object] = Field(default_factory=dict)
 
 
+class InsightSetReplaced(EventBase):
+    """Marks the start of a complete, newer campaign insight snapshot."""
+
+    type: Literal["analysis.insight_set_replaced"] = "analysis.insight_set_replaced"
+
+
 class NotificationSent(EventBase):
     type: Literal["coord.notification_sent"] = "coord.notification_sent"
     to: str
@@ -185,6 +191,7 @@ Event = Annotated[
         | InterviewAbandoned
         | TranscriptEmbedded
         | ThemeClusterUpdated
+        | InsightSetReplaced
         | InsightGenerated
         | NotificationSent
         | BudgetThresholdCrossed
@@ -212,6 +219,7 @@ event_type_registry: dict[str, type[EventBase]] = {
         InterviewAbandoned,
         TranscriptEmbedded,
         ThemeClusterUpdated,
+        InsightSetReplaced,
         InsightGenerated,
         NotificationSent,
         BudgetThresholdCrossed,

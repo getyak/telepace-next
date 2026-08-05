@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass
 from uuid import UUID
 
@@ -44,6 +45,14 @@ from interfaces.mcp_server.readers import (
 from interfaces.mcp_server.tools import TOOL_HANDLERS
 from interfaces.rest_api.auth.users_repo import USERS_SCHEMA_SQL, UsersRepo
 from interfaces.rest_api.config import Settings, get_settings
+from storage.agent_runs import (
+    AGENT_RUNS_SCHEMA_SQL,
+    AgentArtifactStore,
+    AgentConfirmationStore,
+    AgentMemoryStore,
+    AgentRunStore,
+    PostgresAgentRunStore,
+)
 from storage.billing import BILLING_SCHEMA_SQL, BillingRepo
 from storage.event_store import PostgresEventStore
 from storage.projections import CAMPAIGN_PROJECTION_SQL, CampaignProjector
@@ -73,6 +82,11 @@ class AppState:
     billing: BillingService | None = None
     billing_repo: BillingRepo | None = None
     billing_gateway: PaymentGateway | None = None
+    agent_runs: AgentRunStore | None = None
+    agent_artifacts: AgentArtifactStore | None = None
+    agent_memories: AgentMemoryStore | None = None
+    agent_confirmations: AgentConfirmationStore | None = None
+    agent_run_tasks: set[asyncio.Task[None]] | None = None
 
 
 async def build_state() -> AppState:
@@ -95,6 +109,7 @@ async def build_state() -> AppState:
         await conn.execute(CAMPAIGN_PROJECTION_SQL)
         await conn.execute(USERS_SCHEMA_SQL)
         await conn.execute(BILLING_SCHEMA_SQL)
+        await conn.execute(AGENT_RUNS_SCHEMA_SQL)
     projector = CampaignProjector(pool)
     users_repo = UsersRepo(pool)
     billing_repo, billing_gateway, billing_service = _build_billing(settings, pool)
@@ -135,6 +150,10 @@ async def build_state() -> AppState:
                 llm=llm,
                 max_tokens=settings.designer_max_tokens,
                 temperature=settings.designer_temperature,
+                # Creating/refining a guide is interactive; use the fast model
+                # and let the strict seed schema preserve output quality.
+                model=settings.llm_model_fast,
+                seed_timeout_seconds=settings.designer_seed_timeout_seconds,
             ),
             "interviewer": InterviewerAgent(
                 llm=llm,
@@ -145,7 +164,10 @@ async def build_state() -> AppState:
                 # content comes back empty — pin the fast non-reasoning model.
                 model=settings.llm_model_fast,
             ),
-            "coordinator": CoordinatorAgent(),
+            "coordinator": CoordinatorAgent(
+                insight_email=email_dispatcher,
+                public_base_url=settings.public_base_url,
+            ),
             "dispatch": dispatch_handler,
         },
         tracer=NullTracer(),
@@ -162,6 +184,7 @@ async def build_state() -> AppState:
         transcript_reader=EventStoreTranscriptReader(store),
     )
 
+    agent_run_store = PostgresAgentRunStore(pool)
     return AppState(
         settings=settings,
         event_store=store,
@@ -180,6 +203,11 @@ async def build_state() -> AppState:
         billing=billing_service,
         billing_repo=billing_repo,
         billing_gateway=billing_gateway,
+        agent_runs=agent_run_store,
+        agent_artifacts=agent_run_store,
+        agent_memories=agent_run_store,
+        agent_confirmations=agent_run_store,
+        agent_run_tasks=set(),
     )
 
 
@@ -257,7 +285,13 @@ def get_settings_dep(request: Request) -> Settings:
     return get_state(request).settings
 
 
-def build_orchestrator_for(state: AppState, *, org_id: UUID, author_id: UUID) -> OrchestratorAgent:
+def build_orchestrator_for(
+    state: AppState,
+    *,
+    org_id: UUID,
+    author_id: UUID,
+    run_id: UUID | None = None,
+) -> OrchestratorAgent:
     """Construct a conversational agent scoped to one caller.
 
     The Orchestrator is per-request because tool calls that create resources
@@ -274,6 +308,16 @@ def build_orchestrator_for(state: AppState, *, org_id: UUID, author_id: UUID) ->
         org_id=org_id,
         author_id=author_id,
         public_base_url=state.settings.public_base_url,
+        event_store=getattr(state, "event_store", None),
+        artifact_store=getattr(state, "agent_artifacts", None),
+        memory_store=getattr(state, "agent_memories", None),
+        confirmation_store=getattr(
+            state,
+            "agent_confirmations",
+            getattr(state, "agent_runs", None),
+        ),
+        run_id=run_id,
+        compaction_model=getattr(state.settings, "llm_model_fast", None),
     )
 
 

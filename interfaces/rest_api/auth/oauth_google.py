@@ -27,6 +27,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, ConfigDict
 
+from core.constants import MCP_READ_SCOPE, MCP_WRITE_SCOPE
 from interfaces.rest_api.auth.jwt import issue_token_pair
 from interfaces.rest_api.auth.models import TokenResponse
 from interfaces.rest_api.auth.users_repo import UserAlreadyExistsError, UsersRepo
@@ -232,7 +233,7 @@ async def exchange(
         user_id=user.id,
         org_id=user.org_id,
         email=user.email,
-        scopes=None,
+        scopes=[MCP_READ_SCOPE, MCP_WRITE_SCOPE],
         secret=settings.jwt_secret,
         algorithm=settings.jwt_algorithm,
         access_ttl_seconds=settings.jwt_access_ttl_seconds,

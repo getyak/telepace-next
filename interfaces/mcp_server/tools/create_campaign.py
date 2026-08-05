@@ -18,6 +18,7 @@ async def create_campaign(
     author_id: UUID,
     public_base_url: str,
     actor_prefix_user: str = ACTOR_USER,
+    **_: Any,
 ) -> dict[str, Any]:
     parsed = CreateCampaignInput.model_validate(input_data)
     cmd = CreateCampaign(

@@ -2,7 +2,7 @@ import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { routing } from "./i18n/routing";
-import { ACCESS_COOKIE } from "./lib/auth/cookies";
+import { ACCESS_COOKIE, REFRESH_COOKIE } from "./lib/auth/cookies";
 
 /**
  * Session guard for the app surface. Anything under these prefixes
@@ -35,7 +35,11 @@ export default function middleware(req: NextRequest) {
     (p) => logicalPath === p || logicalPath.startsWith(`${p}/`),
   );
 
-  if (isProtected && !req.cookies.get(ACCESS_COOKIE)?.value) {
+  const hasRenewableSession = Boolean(
+    req.cookies.get(ACCESS_COOKIE)?.value ||
+      req.cookies.get(REFRESH_COOKIE)?.value,
+  );
+  if (isProtected && !hasRenewableSession) {
     const url = req.nextUrl.clone();
     url.pathname = `/${locale}/login`;
     // `next` carries the locale-stripped path: the login form pushes it through

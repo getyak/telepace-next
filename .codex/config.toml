@@ -28,6 +28,14 @@ args = ["-y", "@playwright/mcp@latest", "--extension"]
 command = "npx"
 args = ["-y", "@modelcontextprotocol/server-sequential-thinking"]
 
+[mcp_servers.telepace]
+command = "uv"
+args = ["run", "python", "-m", "interfaces.mcp_server.server"]
+startup_timeout_sec = 30
+tool_timeout_sec = 120
+env = { TELEPACE_MCP_REQUIRE_AUTH = "true" }
+env_vars = ["TELEPACE_MCP_ACCESS_TOKEN"]
+
 [features]
 multi_agent = true
 

@@ -20,9 +20,9 @@ const GlobalAgentPanel = dynamic(
  * The always-present global agent affordance: a floating trigger bottom-right
  * that opens a right-side chat drawer.
  *
- * apple-design notes:
- * - The drawer is a translucent material (backdrop-blur) floating over the app,
- *   not an opaque strip — content behind it stays perceptible (§12).
+ * Interaction notes:
+ * - The drawer is an opaque work surface so dense mobile pages cannot bleed
+ *   through and reduce chat contrast.
  * - Open/close use an iOS-sheet cubic-bezier that reads as a spring settle, and
  *   the panel scales from its trigger origin (bottom-right) so the spatial
  *   relationship button→panel is obvious (§7). Enter and exit share the path.
@@ -34,6 +34,9 @@ export function AgentDock() {
   const t = useTranslations("app.agent");
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const drawerRef = React.useRef<HTMLElement>(null);
+  const closeRef = React.useRef<HTMLButtonElement>(null);
 
   // The full-screen study studio (/studies/new*) is the deep-authoring surface
   // (方案 B): it already owns the whole viewport with its own chat rail, so the
@@ -42,15 +45,41 @@ export function AgentDock() {
   // everywhere else.
   const hidden = pathname.startsWith("/studies/new");
 
-  // Close on Escape whenever open (never trap the user).
+  const closePanel = React.useCallback(() => {
+    setOpen(false);
+    window.requestAnimationFrame(() => triggerRef.current?.focus());
+  }, []);
+
+  // Keep keyboard focus inside the modal drawer and restore it to the trigger
+  // when the researcher closes the assistant.
   React.useEffect(() => {
     if (!open) return;
+    window.requestAnimationFrame(() => closeRef.current?.focus());
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        closePanel();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const focusable = Array.from(
+        drawerRef.current?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]),a[href],textarea:not([disabled]),input:not([disabled]),[tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
+  }, [closePanel, open]);
 
   if (hidden) return null;
 
@@ -58,12 +87,14 @@ export function AgentDock() {
     <>
       {/* Floating trigger — responds on press (scale), lives out of content flow. */}
       <button
+        ref={triggerRef}
         type="button"
         aria-haspopup="dialog"
         aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
+        tabIndex={open ? -1 : 0}
+        onClick={() => setOpen(true)}
         className={cn(
-          "fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full",
+          "fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full print:hidden",
           "bg-ink text-paper shadow-overlay",
           "transition-[transform,opacity] duration-200 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)]",
           "tp-press tp-press-icon hover:scale-105",
@@ -79,46 +110,44 @@ export function AgentDock() {
       {/* Scrim: dims to focus, click to dismiss. Fades only (no transform). */}
       <div
         aria-hidden={!open}
-        onClick={() => setOpen(false)}
+        onClick={closePanel}
         className={cn(
-          "fixed inset-0 z-40 bg-ink/20 transition-opacity duration-200",
+          "fixed inset-0 z-40 bg-ink/20 transition-opacity duration-200 print:hidden",
           open ? "opacity-100" : "opacity-0 pointer-events-none",
         )}
       />
 
-      {/* Drawer: translucent material, springs in from the trigger origin. */}
-      <aside
-        role="dialog"
-        aria-modal="true"
-        aria-label={t("panelLabel")}
-        className={cn(
-          "tp-chrome fixed bottom-0 right-0 top-0 z-50 flex w-full max-w-[420px] flex-col",
-          "border-l border-hairline shadow-overlay",
-          "origin-bottom-right transition-[transform,opacity] duration-300 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)]",
-          "motion-reduce:transition-opacity",
-          open
-            ? "translate-x-0 opacity-100"
-            : "translate-x-3 scale-[0.98] opacity-0 pointer-events-none motion-reduce:translate-x-0 motion-reduce:scale-100",
-        )}
-      >
-        <header className="flex min-h-14 items-center justify-between border-b border-hairline px-4">
-          <div className="flex items-center gap-2">
-            <SparkIcon className="text-accent" />
-            <p className="font-serif text-lg text-ink">{t("title")}</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            aria-label={t("closeLabel")}
-            className="tp-press tp-press-icon rounded-input px-2 py-1 text-sm text-muted transition-[color,transform] hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
-          >
-            ✕
-          </button>
-        </header>
-        {/* Mount the panel only while open so a closed drawer holds no live
-            stream; the conversation resets between sessions (MVP). */}
-        {open && <GlobalAgentPanel className="min-h-0 flex-1" />}
-      </aside>
+      {/* Do not leave a hidden aria-modal dialog in the accessibility tree. */}
+      {open && (
+        <aside
+          ref={drawerRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("panelLabel")}
+          className={cn(
+            "fixed bottom-0 right-0 top-0 z-50 flex w-full max-w-[420px] flex-col bg-paper print:hidden",
+            "border-l border-hairline shadow-overlay",
+            "origin-bottom-right tp-fade-in-up motion-reduce:animate-none",
+          )}
+        >
+          <header className="flex min-h-14 items-center justify-between border-b border-hairline px-4">
+            <div className="flex items-center gap-2">
+              <SparkIcon className="text-accent" />
+              <p className="font-serif text-lg text-ink">{t("title")}</p>
+            </div>
+            <button
+              ref={closeRef}
+              type="button"
+              onClick={closePanel}
+              aria-label={t("closeLabel")}
+              className="tp-press tp-press-icon rounded-input px-2 py-1 text-sm text-muted transition-[color,transform] hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+            >
+              ✕
+            </button>
+          </header>
+          <GlobalAgentPanel className="min-h-0 flex-1" />
+        </aside>
+      )}
     </>
   );
 }

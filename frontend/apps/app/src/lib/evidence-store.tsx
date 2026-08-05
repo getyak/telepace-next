@@ -3,8 +3,8 @@
 /**
  * Evidence-graph React context.
  *
- * Wraps children with a provider that loads (currently mock) evidence data
- * and exposes it via the `useEvidence()` hook.
+ * Wraps children with a provider that loads campaign-scoped evidence data and
+ * exposes it via the `useEvidence()` hook.
  *
  * Design tokens referenced in sibling components:
  *   paper   #F8F6F1
@@ -13,6 +13,7 @@
  */
 
 import {
+  useCallback,
   createContext,
   useContext,
   useEffect,
@@ -21,7 +22,8 @@ import {
 } from "react";
 
 import type { EvidenceGraph } from "@/types/evidence";
-import { buildMockEvidenceGraph } from "@/lib/mock-evidence";
+import { getCampaignEvidence } from "@/lib/api";
+import { buildEvidenceGraph } from "@/lib/evidenceGraph";
 
 // ---------------------------------------------------------------------------
 // Context
@@ -30,6 +32,8 @@ import { buildMockEvidenceGraph } from "@/lib/mock-evidence";
 type EvidenceContextValue = {
   graph: EvidenceGraph | null;
   loading: boolean;
+  error: unknown;
+  reload: () => void;
 };
 
 const EvidenceContext = createContext<EvidenceContextValue | undefined>(
@@ -40,37 +44,44 @@ const EvidenceContext = createContext<EvidenceContextValue | undefined>(
 // Provider
 // ---------------------------------------------------------------------------
 
-const DEFAULT_STUDY_ID = "study-001";
-const SIMULATED_DELAY_MS = 200;
-
 export function EvidenceProvider({
   children,
-  studyId = DEFAULT_STUDY_ID,
+  studyId,
 }: {
   children: ReactNode;
-  studyId?: string;
+  studyId: string;
 }) {
   const [graph, setGraph] = useState<EvidenceGraph | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<unknown>(null);
+  const [revision, setRevision] = useState(0);
+  const reload = useCallback(() => setRevision((value) => value + 1), []);
 
   useEffect(() => {
     let cancelled = false;
-
-    const timer = setTimeout(() => {
-      if (!cancelled) {
-        setGraph(buildMockEvidenceGraph(studyId));
-        setLoading(false);
-      }
-    }, SIMULATED_DELAY_MS);
+    setLoading(true);
+    setError(null);
+    getCampaignEvidence(studyId)
+      .then((doc) => {
+        if (!cancelled) setGraph(buildEvidenceGraph(doc));
+      })
+      .catch((reason) => {
+        if (!cancelled) {
+          setGraph(null);
+          setError(reason);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
 
     return () => {
       cancelled = true;
-      clearTimeout(timer);
     };
-  }, [studyId]);
+  }, [studyId, revision]);
 
   return (
-    <EvidenceContext.Provider value={{ graph, loading }}>
+    <EvidenceContext.Provider value={{ graph, loading, error, reload }}>
       {children}
     </EvidenceContext.Provider>
   );

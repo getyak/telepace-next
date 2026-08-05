@@ -29,9 +29,11 @@ class MockEmail:
     ) -> DispatchReceipt:
         _ = body_html
         os.makedirs(self._log_dir, exist_ok=True)
+        provider_id = uuid.uuid4().hex
         record = {
             "ts": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             "channel": "email",
+            "provider_id": provider_id,
             "to": invite.address,
             "name": invite.name,
             "subject": subject,
@@ -44,6 +46,5 @@ class MockEmail:
             encoding="utf-8",
         ) as f:
             f.write(json.dumps(record) + "\n")
-        provider_id = uuid.uuid4().hex
         logger.info("MockEmail sent id=%s to=<redacted>", provider_id)
         return DispatchReceipt(ok=True, provider="mock", provider_id=provider_id, error=None)

@@ -12,29 +12,15 @@ import type { ResponseRow } from "@/types/evidence";
 import {
   closeCampaign,
   getCampaign,
+  getCampaignEvidence,
   getCampaignInsights,
   startCampaign,
   type CampaignDetail,
+  type CampaignEvidence,
   type CampaignInsights,
   type InsightItem,
 } from "@/lib/api";
-import dynamic from "next/dynamic";
-// Import from the concrete files, NOT the charts barrel (@/components/charts):
-// the barrel re-exports TpBarChart, so importing anything through it drags
-// recharts (~120kB) into this page's first-load bundle. ChartSection and
-// CrossTab are plain markup (no recharts) and stay synchronous.
-import { ChartSection } from "@/components/charts/ChartSection";
-import { CrossTab } from "@/components/charts/CrossTab";
-import type { CrossTabRow } from "@/types/evidence";
-
-// Only TpBarChart pulls in recharts, and it renders further down the page (and
-// only when the study has data). Load it lazily so study-detail first paint
-// ships no charting library — this route was the app's heaviest (249kB First
-// Load JS vs ~135kB elsewhere), all of it recharts.
-const TpBarChart = dynamic(
-  () => import("@/components/charts/TpBarChart").then((m) => m.TpBarChart),
-  { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> },
-);
+import { buildResponseRows } from "@/lib/evidenceGraph";
 import { friendlyMessage } from "@/lib/errors";
 import { useErrorsCopy } from "@/components/app/ErrorsCopyContext";
 
@@ -81,6 +67,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
 
   const [detail, setDetail] = useState<CampaignDetail | null>(null);
   const [insights, setInsights] = useState<CampaignInsights | null>(null);
+  const [evidence, setEvidence] = useState<CampaignEvidence | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -89,9 +76,14 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
   const copiedTimer = useRef<number | null>(null);
 
   const refresh = useCallback(async () => {
-    const [d, i] = await Promise.all([getCampaign(id), getCampaignInsights(id)]);
+    const [d, i, e] = await Promise.all([
+      getCampaign(id),
+      getCampaignInsights(id),
+      getCampaignEvidence(id),
+    ]);
     setDetail(d);
     setInsights(i);
+    setEvidence(e);
   }, [id]);
 
   useEffect(() => {
@@ -102,7 +94,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
     return () => {
       cancelled = true;
     };
-  }, [refresh]);
+  }, [refresh, errorsCopy]);
 
   // Live studies keep themselves fresh: interviews land and insights appear
   // without a manual reload.
@@ -116,6 +108,11 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
     }, POLL_MS);
     return () => window.clearInterval(timer);
   }, [status, refresh]);
+
+  useEffect(() => {
+    const title = detail?.campaign.title;
+    if (title) document.title = t("documentTitle", { study: title });
+  }, [detail?.campaign.title, t]);
 
   async function handleCopy() {
     if (!detail) return;
@@ -288,8 +285,6 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
 
       <InsightsSection insights={insights} isLive={isLive} completed={progress.completed} />
 
-      <AnalysisSection />
-
       <section className="grid gap-10 md:grid-cols-12">
         <div className="md:col-span-7">
           <p className="overline mb-4">{t("discussionGuide")}</p>
@@ -358,7 +353,7 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
         </aside>
       </section>
 
-      <ResponsesSection />
+      <ResponsesSection rows={buildResponseRows(evidence)} />
 
       <Dialog open={confirmClose} onClose={() => setConfirmClose(false)} title={t("closeDialogTitle")}>
         <p className="text-sm leading-relaxed text-body">
@@ -539,85 +534,10 @@ function PersonaCard({ item }: { item: InsightItem }) {
   );
 }
 
-const MOCK_RESPONSES: ResponseRow[] = [
-  {
-    respondent_id: "resp-001",
-    external_ref: "P-2847",
-    source: "csv",
-    channel: "web_text",
-    duration_seconds: 847,
-    quality_score: 0.92,
-    segments: { age: "25-34", role: "UX Designer", frequency: "Daily" },
-    bullet_summary:
-      "Strongly values color accuracy for client work. Willing to pay premium for factory-calibrated displays. Currently uses Dell UltraSharp.",
-    completed_at: "2026-07-07T14:23:00Z",
-  },
-  {
-    respondent_id: "resp-002",
-    external_ref: "P-3102",
-    source: "link",
-    channel: "web_voice",
-    duration_seconds: 1234,
-    quality_score: 0.78,
-    segments: { age: "35-44", role: "Product Manager", frequency: "Weekly" },
-    bullet_summary:
-      "Prioritizes multi-monitor setups for dashboard workflows. Finds current market options too expensive for team-wide deployment.",
-    completed_at: "2026-07-07T15:45:00Z",
-  },
-  {
-    respondent_id: "resp-003",
-    external_ref: "P-1590",
-    source: "crm",
-    channel: "phone_outbound",
-    duration_seconds: 602,
-    quality_score: 0.45,
-    segments: { age: "18-24", role: "Student", frequency: "Rarely" },
-    bullet_summary:
-      "Budget-conscious buyer. Uses laptop screen for most tasks. Would consider external monitor only if under $200.",
-    completed_at: "2026-07-06T09:12:00Z",
-  },
-  {
-    respondent_id: "resp-004",
-    source: "api",
-    channel: "email",
-    duration_seconds: 390,
-    quality_score: 0.21,
-    segments: { age: "45-54", role: "CTO" },
-    bullet_summary:
-      "Responses were vague and off-topic. Could not articulate specific display needs beyond general preference for larger screens.",
-    exclusion_reason: "Low engagement — single-word answers",
-    completed_at: "2026-07-05T18:30:00Z",
-  },
-  {
-    respondent_id: "resp-005",
-    external_ref: "P-4421",
-    source: "csv",
-    channel: "web_text",
-    duration_seconds: 1580,
-    quality_score: 0.88,
-    segments: { age: "25-34", role: "Software Engineer", frequency: "Daily" },
-    bullet_summary:
-      "Heavy multitasker who uses tiling window managers. Wants ultrawide curved displays with high refresh rate for coding and gaming.",
-    completed_at: "2026-07-08T11:05:00Z",
-  },
-  {
-    respondent_id: "resp-006",
-    external_ref: "P-5003",
-    source: "link",
-    channel: "sms",
-    duration_seconds: 455,
-    quality_score: 0.65,
-    segments: { age: "55-64", role: "Freelance Writer", frequency: "Monthly" },
-    bullet_summary:
-      "Eye strain is the primary concern. Wants flicker-free, blue-light-filter displays. Not interested in high resolution beyond readability.",
-    completed_at: "2026-07-08T16:40:00Z",
-  },
-];
-
-function ResponsesSection() {
+function ResponsesSection({ rows }: { rows: ResponseRow[] }) {
   const t = useTranslations("app.responses");
 
-  if (MOCK_RESPONSES.length === 0) {
+  if (rows.length === 0) {
     return (
       <section className="mt-14">
         <p className="overline mb-4">{t("title")}</p>
@@ -632,55 +552,7 @@ function ResponsesSection() {
   return (
     <section className="mt-14">
       <p className="overline mb-4">{t("title")}</p>
-      <ResponseTable rows={MOCK_RESPONSES} />
-    </section>
-  );
-}
-
-function AnalysisSection() {
-  const tCharts = useTranslations("app.charts");
-  const t = useTranslations("app.studyDetail");
-
-  const sentiment: Array<{ label: string; value: number }> = [
-    { label: t("likertVerySatisfied"), value: 42 },
-    { label: t("likertSatisfied"), value: 31 },
-    { label: t("likertNeutral"), value: 15 },
-    { label: t("likertDissatisfied"), value: 8 },
-    { label: t("likertVeryDissatisfied"), value: 4 },
-  ];
-
-  const crossTabRows: CrossTabRow[] = [
-    { metric: t("likertVerySatisfied"), values: [50, 36, 30], counts: [12, 5, 3] },
-    { metric: t("likertSatisfied"),     values: [29, 36, 30], counts: [7, 5, 3] },
-    { metric: t("likertNeutral"),       values: [13, 14, 20], counts: [3, 2, 2] },
-    { metric: t("likertDissatisfied"),  values: [8, 14, 20],  counts: [2, 2, 2] },
-  ];
-
-  return (
-    <section className="mb-14">
-      <p className="overline mb-6">{tCharts("analysis")}</p>
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="p-6">
-          <ChartSection baseN={48} showTop2Box>
-            <TpBarChart
-              data={sentiment}
-              baseN={48}
-              title={t("chartOverallSatisfaction")}
-            />
-          </ChartSection>
-        </Card>
-        <Card className="p-6">
-          <ChartSection baseN={48}>
-            <CrossTab
-              title={t("chartSatisfactionByChannel")}
-              segmentLabel={t("chartSegmentSatisfaction")}
-              bucketLabels={[t("channelWebText"), t("channelWebVoice"), t("channelPhone")]}
-              rows={crossTabRows}
-              baseNPerBucket={[24, 14, 10]}
-            />
-          </ChartSection>
-        </Card>
-      </div>
+      <ResponseTable rows={rows} />
     </section>
   );
 }

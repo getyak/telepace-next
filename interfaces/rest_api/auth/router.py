@@ -12,6 +12,7 @@ from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
+from core.constants import MCP_READ_SCOPE, MCP_WRITE_SCOPE
 from interfaces.rest_api.auth.deps import require_current_user
 from interfaces.rest_api.auth.jwt import (
     TokenError,
@@ -61,7 +62,7 @@ def _issue_pair_for(user_id: UUID, org_id: UUID, email: str, settings: Settings)
         user_id=user_id,
         org_id=org_id,
         email=email,
-        scopes=None,
+        scopes=[MCP_READ_SCOPE, MCP_WRITE_SCOPE],
         secret=settings.jwt_secret,
         algorithm=settings.jwt_algorithm,
         access_ttl_seconds=settings.jwt_access_ttl_seconds,

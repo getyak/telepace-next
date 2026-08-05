@@ -10,27 +10,48 @@ Run:
 from __future__ import annotations
 
 import os
+from functools import lru_cache
+from uuid import uuid4
 
 import httpx
 
 API = os.environ.get("TELEPACE_API_BASE_URL", "http://localhost:8010")
 
 
+@lru_cache(maxsize=1)
+def _auth_headers() -> dict[str, str]:
+    """Create an isolated owner for campaign-management E2E calls."""
+    registered = httpx.post(
+        f"{API}/auth/register",
+        json={
+            "email": f"interview-e2e-{uuid4().hex}@example.test",
+            "password": "telepace-e2e-password",
+        },
+        timeout=30,
+    )
+    assert registered.status_code == 201, registered.text
+    return {"Authorization": f"Bearer {registered.json()['access_token']}"}
+
+
+@lru_cache(maxsize=1)
 def _create_campaign() -> str:
+    headers = _auth_headers()
     r = httpx.post(
         f"{API}/v1/campaigns",
+        headers=headers,
         json={
             "title": "Interview E2E",
             "goal": "test interview join/reply",
             "channels": ["web_text"],
         },
-        timeout=30,
+        timeout=120,
     )
     assert r.status_code == 200, r.text
     campaign_id = r.json()["campaign_id"]
     started = httpx.post(
         f"{API}/v1/campaigns/{campaign_id}/start",
-        timeout=30,
+        headers=headers,
+        timeout=60,
     )
     assert started.status_code == 200, started.text
     return campaign_id

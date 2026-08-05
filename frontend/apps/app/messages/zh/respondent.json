@@ -2,7 +2,7 @@
   "consent": {
     "eyebrow": "一次对话，而非问卷",
     "title": "感谢你的到来。",
-    "body": "有一位研究者想听听你的想法。大约需要 15 分钟，你的回答会影响我们接下来要做的事。请选择你想要的交流方式：",
+    "body": "有一位研究者想听听你的想法。大约需要 {minutes} 分钟，你的回答会影响我们接下来要做的事。请选择你想要的交流方式：",
     "startWithText": "用文字开始",
     "useVoice": "使用语音",
     "consentNotice": "继续即表示你同意你的回答将被记录并用于分析，以改进产品。",
@@ -15,8 +15,9 @@
     "body": "访谈可能已经结束，或仍在准备中。请稍后再来看看。"
   },
   "masthead": {
-    "title": "telepace · 用户研究",
-    "subtitle": "文字或语音皆可 · 约 15 分钟"
+    "title": "telepace",
+    "metadataTitle": "用户研究",
+    "subtitle": "与研究者进行文字或语音访谈"
   },
   "thanks": {
     "eyebrow": "圆满结束",
@@ -29,7 +30,8 @@
     "continueNow": "立即继续"
   },
   "progress": {
-    "questionOf": "第 {current} / {total} 题"
+    "questionOf": "第 {current} / {total} 题",
+    "questionOfWithProbe": "第 {current} / {total} 题 · 追问 {probe}"
   },
   "chat": {
     "typing": "正在输入",

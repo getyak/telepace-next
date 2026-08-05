@@ -7,14 +7,14 @@ import json
 import logging
 import re
 from typing import Any
-from uuid import UUID
+from uuid import NAMESPACE_URL, UUID, uuid5
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from agents.designer import DesignerAgent
-from agents.shared.llm import LLMMessage
+from agents.shared.llm import LLMMessage, LLMResponse
 from core.constants import (
     API_VERSION_PREFIX,
     DEFAULT_BUDGET_USD,
@@ -35,6 +35,7 @@ from core.protocols.commands import (
 from harness import Harness
 from interfaces.rest_api.auth.deps import require_current_user
 from interfaces.rest_api.auth.models import AuthUser
+from interfaces.rest_api.campaign_evidence import build_campaign_evidence
 from interfaces.rest_api.config import Settings
 from interfaces.rest_api.deps import (
     get_harness,
@@ -54,9 +55,7 @@ _SIM_JSON_RE = re.compile(r"```json\s*(.*?)\s*```", re.DOTALL)
 _ASSESS_READY_CLARITY = 60
 
 
-async def _load_owned_campaign(
-    projector: CampaignProjector, campaign_id: UUID, user: AuthUser
-):
+async def _load_owned_campaign(projector: CampaignProjector, campaign_id: UUID, user: AuthUser):
     """Fetch a campaign and enforce that the caller's org owns it.
 
     Any campaign the caller cannot own is reported as 404 (not 403) so an
@@ -101,7 +100,7 @@ _ASSESS_SYSTEM = (
     '  "objective": string,            // "" if unknown\n'
     '  "audience": string,             // "" if unknown\n'
     '  "missing": [string, ...],       // slot names still unknown\n'
-    '  "suggested_title": string,      // short study title, in input language\n'
+    '  "suggested_title": string,      // concise noun phrase: <= 28 Chinese chars or 60 Latin chars\n'
     '  "clarifying_questions": [\n'
     '    { "id": string, "prompt": string, "multi": bool,\n'
     '      "options": [{"id": string, "label": string}, ...],\n'
@@ -130,6 +129,56 @@ _SIMULATE_PERSONA_HINTS = [
 ]
 
 logger = logging.getLogger(__name__)
+
+
+def _consume_late_assessment(task: asyncio.Task[Any]) -> None:
+    if task.cancelled():
+        return
+    try:
+        task.result()
+    except asyncio.CancelledError:
+        return
+    except Exception as exc:
+        logger.debug("late assessment task finished with an error: %s", exc)
+
+
+async def _complete_assessment_with_deadline(
+    llm: Any,
+    user_msg: str,
+    *,
+    model: str | None,
+    max_tokens: int,
+    timeout_seconds: float,
+) -> LLMResponse | None:
+    """Use the fast model for intake and return None at a hard deadline."""
+
+    task = asyncio.create_task(
+        llm.complete(
+            system=_ASSESS_SYSTEM,
+            messages=[LLMMessage(role="user", content=user_msg)],
+            model=model,
+            max_tokens=max_tokens,
+            temperature=0.2,
+        )
+    )
+    try:
+        done, _ = await asyncio.wait(
+            {task},
+            timeout=timeout_seconds,
+            return_when=asyncio.FIRST_COMPLETED,
+        )
+        if not done:
+            task.cancel()
+            task.add_done_callback(_consume_late_assessment)
+            logger.warning(
+                "assess llm call exceeded %.1fs — using fallback",
+                timeout_seconds,
+            )
+            return None
+        return task.result()
+    except Exception as exc:
+        logger.warning("assess llm call failed: %s — using fallback", exc)
+        return None
 
 
 def _actor_ref(settings: Settings, user: AuthUser) -> str:
@@ -194,9 +243,37 @@ async def create_campaign(
     body: CreateCampaignBody,
     request: Request,
     harness: Harness = Depends(get_harness),
+    projector: CampaignProjector = Depends(get_projector),
     settings: Settings = Depends(get_settings_dep),
     user: AuthUser = Depends(require_current_user),
+    idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
 ) -> dict:
+    campaign_id: UUID | None = None
+    if idempotency_key is not None:
+        if not re.fullmatch(r"[A-Za-z0-9._:-]{8,128}", idempotency_key):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="invalid Idempotency-Key",
+            )
+        campaign_id = uuid5(
+            NAMESPACE_URL,
+            f"telepace:create:{user.org_id}:{idempotency_key}",
+        )
+        existing = await projector.get_campaign(campaign_id)
+        if existing is not None:
+            if existing.title != body.title or existing.spec.goal != body.goal:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Idempotency-Key was already used with a different payload",
+                )
+            return {
+                "campaign_id": str(existing.id),
+                "share_url": (
+                    f"{settings.public_base_url.rstrip('/')}{RESPONDENT_PATH_PREFIX}{existing.id}"
+                ),
+                "status": existing.status.value,
+            }
+
     research_task = (
         ResearchTask(
             decision=body.research_task.decision,
@@ -207,6 +284,7 @@ async def create_campaign(
         else None
     )
     cmd = CreateCampaign(
+        campaign_id=campaign_id,
         actor=_actor_ref(settings, user),
         org_id=user.org_id,
         author_id=user.id,
@@ -276,7 +354,9 @@ async def _apply_pending_to_projection(request: Request, campaign_id: UUID) -> N
             else:
                 await state.projector.apply(stored.seq, stored.event)
         except Exception as exc:  # projector is idempotent + append-only
-            logger.warning("projector apply failed seq=%s type=%s: %s", stored.seq, stored.event.type, exc)
+            logger.warning(
+                "projector apply failed seq=%s type=%s: %s", stored.seq, stored.event.type, exc
+            )
 
 
 @router.get("")
@@ -318,6 +398,7 @@ class UpdateSettingsBody(BaseModel):
     # Every field optional + None-means-"leave unchanged" so the studio can
     # save one field at a time (e.g. a single Textarea blur) without clobbering
     # the others. Use "" explicitly to clear a field.
+    title: str | None = Field(default=None, min_length=1, max_length=120)
     welcome_message: str | None = None
     consent_text: str | None = None
     end_message: str | None = None
@@ -334,7 +415,7 @@ async def update_campaign_settings(
     settings: Settings = Depends(get_settings_dep),
     user: AuthUser = Depends(require_current_user),
 ) -> dict:
-    """Patch the respondent-facing welcome/consent/end/reward/redirect copy.
+    """Patch editable study metadata and respondent-facing experience copy.
 
     A thin, deterministic sibling of /refine (which goes through an LLM):
     this endpoint writes exactly the fields the caller sent, verbatim, via a
@@ -352,12 +433,16 @@ async def update_campaign_settings(
                 campaign_id=campaign_id,
                 actor=_actor_ref(settings, user),
                 patch=patch,
-                reason="respondent experience settings updated",
+                reason="study metadata or respondent experience updated",
             )
         )
         await state.projector.apply(stored.seq, stored.event)
         campaign = await _load_owned_campaign(projector, campaign_id, user)
-    return {"campaign_id": str(campaign_id), "spec": campaign.spec.model_dump(mode="json")}
+    return {
+        "campaign_id": str(campaign_id),
+        "title": campaign.title,
+        "spec": campaign.spec.model_dump(mode="json"),
+    }
 
 
 @router.get("/{campaign_id}/respondent")
@@ -421,6 +506,31 @@ async def get_campaign_insights(
         "generated_at": rows[0]["created_at"] if rows else None,
         **grouped,
     }
+
+
+@router.get("/{campaign_id}/evidence")
+async def get_campaign_evidence(
+    campaign_id: UUID,
+    request: Request,
+    projector: CampaignProjector = Depends(get_projector),
+    user: AuthUser = Depends(require_current_user),
+) -> dict:
+    """Return only durable evidence belonging to the requested campaign."""
+
+    campaign = await _load_owned_campaign(projector, campaign_id, user)
+    state = get_state(request)
+    events, insights = await asyncio.gather(
+        state.event_store.read_stream(campaign_id),
+        projector.list_insights(campaign_id),
+    )
+    return build_campaign_evidence(
+        campaign_id,
+        events,
+        insights,
+        campaign_title=campaign.title,
+        research_goal=campaign.spec.goal,
+        outline_item_ids=[str(item.id) for item in campaign.spec.outline.items],
+    )
 
 
 @router.post("/{campaign_id}/close")
@@ -691,15 +801,10 @@ async def simulate_interview(
         idx = (body.seed or 0) % len(_SIMULATE_PERSONA_HINTS)
         persona = _SIMULATE_PERSONA_HINTS[idx]
 
-    outline_json = [
-        {"order": q.order, "question": q.question, "goal": q.goal}
-        for q in outline
-    ]
+    outline_json = [{"order": q.order, "question": q.question, "goal": q.goal} for q in outline]
     languages = campaign.spec.languages or []
     language_hint = (
-        f"Answer in the same language(s) as the study: {languages}. "
-        if languages
-        else ""
+        f"Answer in the same language(s) as the study: {languages}. " if languages else ""
     )
     user_msg = (
         f"Persona: {persona}\n\n"
@@ -723,7 +828,8 @@ async def simulate_interview(
         resp = await llm.complete(  # type: ignore[attr-defined]
             system=_SIMULATE_SYSTEM,
             messages=[LLMMessage(role="user", content=user_msg)],
-            max_tokens=state.settings.designer_max_tokens,
+            model=state.settings.llm_model_fast,
+            max_tokens=min(state.settings.designer_max_tokens, 1200),
             temperature=0.7,
         )
     except Exception as exc:
@@ -814,9 +920,7 @@ def _clean_clarify_questions(raw: Any) -> list[dict[str, Any]]:
                 if not isinstance(label, str) or not label.strip():
                     continue
                 oid = o.get("id")
-                options.append(
-                    {"id": str(oid) if oid else f"opt-{i}-{j}", "label": label.strip()}
-                )
+                options.append({"id": str(oid) if oid else f"opt-{i}-{j}", "label": label.strip()})
         out.append(
             {
                 "id": str(q.get("id") or f"q-{i}"),
@@ -891,9 +995,7 @@ async def assess_task(
     """
     goal = body.goal.strip()
     if not goal:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="goal is required"
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="goal is required")
 
     state = get_state(request)
     llm = state.llm
@@ -910,27 +1012,21 @@ async def assess_task(
     user_msg = (
         f"{language_hint}"
         f"Researcher's opening line:\n{goal}\n\n"
+        + (f"Background: {body.background}\n\n" if body.background.strip() else "")
         + (
-            f"Background: {body.background}\n\n"
-            if body.background.strip()
-            else ""
-        )
-        + (
-            f"Clarification so far (their answers to earlier questions):\n"
-            f"{body.prior_context}\n\n"
+            f"Clarification so far (their answers to earlier questions):\n{body.prior_context}\n\n"
             if body.prior_context.strip()
             else ""
         )
     )
-    try:
-        resp = await llm.complete(  # type: ignore[attr-defined]
-            system=_ASSESS_SYSTEM,
-            messages=[LLMMessage(role="user", content=user_msg)],
-            max_tokens=state.settings.designer_max_tokens,
-            temperature=0.2,
-        )
-    except Exception as exc:
-        logger.warning("assess llm call failed: %s — using fallback", exc)
+    resp = await _complete_assessment_with_deadline(
+        llm,
+        user_msg,
+        model=state.settings.llm_model_fast,
+        max_tokens=min(state.settings.designer_max_tokens, 1200),
+        timeout_seconds=state.settings.designer_assess_timeout_seconds,
+    )
+    if resp is None:
         return _assess_fallback(goal, body.prior_context)
 
     return _parse_assessment(resp.text, goal=goal, prior_context=body.prior_context)

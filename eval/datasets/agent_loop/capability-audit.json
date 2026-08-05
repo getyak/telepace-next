@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "checks": [
+    {"id": "C1", "dimension": "Context", "weight": 4, "description": "Provider-native tool call/result pairing is preserved."},
+    {"id": "C2", "dimension": "Context", "weight": 3, "description": "History is append-only with a stable cache-friendly prefix."},
+    {"id": "C3", "dimension": "Context", "weight": 4, "description": "Large observations can be externalized and restored on demand."},
+    {"id": "C4", "dimension": "Context", "weight": 4, "description": "Long sessions compact automatically without silently losing task state."},
+
+    {"id": "D1", "dimension": "Durability", "weight": 6, "description": "Execution survives client disconnect."},
+    {"id": "D2", "dimension": "Durability", "weight": 5, "description": "Long tasks can run in a background or hosted environment."},
+    {"id": "D3", "dimension": "Durability", "weight": 4, "description": "A run can resume or replay from persisted state."},
+
+    {"id": "P1", "dimension": "PlanVerify", "weight": 5, "description": "Multi-step work externalizes and updates a plan."},
+    {"id": "P2", "dimension": "PlanVerify", "weight": 4, "description": "The loop tracks explicit completion criteria and reports incomplete work honestly."},
+    {"id": "P3", "dimension": "PlanVerify", "weight": 5, "description": "Side effects or artifacts are verified by an independent observation."},
+    {"id": "P4", "dimension": "PlanVerify", "weight": 3, "description": "Failures remain visible to the model so it can adapt."},
+    {"id": "P5", "dimension": "PlanVerify", "weight": 3, "description": "Repeated failures have a retry budget or circuit breaker."},
+
+    {"id": "M1", "dimension": "Memory", "weight": 4, "description": "Conversation working memory persists across turns."},
+    {"id": "M2", "dimension": "Memory", "weight": 3, "description": "The agent has a task workspace for durable artifacts or scratch state."},
+    {"id": "M3", "dimension": "Memory", "weight": 3, "description": "Approved preferences or project knowledge persist across sessions."},
+
+    {"id": "S1", "dimension": "Scale", "weight": 4, "description": "Independent actions can execute concurrently."},
+    {"id": "S2", "dimension": "Scale", "weight": 6, "description": "Subagents run with isolated context and return bounded summaries."},
+
+    {"id": "G1", "dimension": "Safety", "weight": 4, "description": "Policy is enforced at each action boundary."},
+    {"id": "G2", "dimension": "Safety", "weight": 3, "description": "Risky actions support confirmation followed by continuation."},
+    {"id": "G3", "dimension": "Safety", "weight": 3, "description": "Execution and data are isolated to the authorized scope."},
+
+    {"id": "X1", "dimension": "Experience", "weight": 4, "description": "A structured action/result trace is inspectable."},
+    {"id": "X2", "dimension": "Experience", "weight": 4, "description": "The user can see meaningful progress during long work."},
+    {"id": "X3", "dimension": "Experience", "weight": 4, "description": "The UI reconnects to an in-progress run without losing history."},
+    {"id": "X4", "dimension": "Experience", "weight": 4, "description": "Per-run token, cost, latency, and failure telemetry are visible."},
+    {"id": "X5", "dimension": "Experience", "weight": 4, "description": "Completion or handoff clearly states outcome, evidence, and remaining work."}
+  ]
+}

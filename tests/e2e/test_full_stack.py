@@ -18,7 +18,14 @@ from pathlib import Path
 
 import httpx
 import pytest
-from playwright.sync_api import Page, expect, sync_playwright
+
+playwright_sync = pytest.importorskip(
+    "playwright.sync_api",
+    reason="optional full-stack browser suite requires the Python Playwright package",
+)
+Page = playwright_sync.Page
+expect = playwright_sync.expect
+sync_playwright = playwright_sync.sync_playwright
 
 API = os.environ.get("TELEPACE_API_BASE_URL", "http://localhost:8010")
 MARKETING = os.environ.get("TELEPACE_MARKETING_URL", "http://localhost:3300")
