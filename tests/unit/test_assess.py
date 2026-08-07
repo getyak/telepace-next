@@ -12,6 +12,7 @@ import asyncio
 from agents.shared.llm import LLMResponse
 from interfaces.rest_api.routers.campaigns import (
     _assess_fallback,
+    _assess_vertical_fast_path,
     _clean_clarify_questions,
     _complete_assessment_with_deadline,
     _parse_assessment,
@@ -21,16 +22,17 @@ from interfaces.rest_api.routers.campaigns import (
 class TestAssessFallback:
     """The deterministic gate used when no real LLM is available."""
 
-    def test_substantive_research_goal_is_ready(self) -> None:
+    def test_substantive_research_goal_still_requires_a_decision(self) -> None:
         r = _assess_fallback("understand why trial users churn", "")
         assert r["looks_like_research"] is True
-        assert r["ready"] is True
+        assert r["ready"] is False
         assert r["objective"] == "understand why trial users churn"
+        assert r["clarifying_questions"][0]["id"] == "release_decision"
 
-    def test_chinese_research_goal_is_ready(self) -> None:
+    def test_chinese_research_goal_still_requires_a_decision(self) -> None:
         r = _assess_fallback("了解用户为什么在升级前流失", "")
         assert r["looks_like_research"] is True
-        assert r["ready"] is True
+        assert r["ready"] is False
 
     def test_greeting_is_not_research(self) -> None:
         r = _assess_fallback("hi there", "")
@@ -45,10 +47,55 @@ class TestAssessFallback:
         assert r["looks_like_research"] is False
         assert r["ready"] is False
 
-    def test_prior_context_tips_a_bare_topic_into_ready(self) -> None:
-        r = _assess_fallback("monitors", "understand buyer decisions")
+    def test_labeled_decision_and_authority_make_the_fallback_ready(self) -> None:
+        r = _assess_fallback(
+            "Evaluate monitor advice agent safety",
+            (
+                "Question (release_decision): What decision?\n"
+                "Answer: Ship candidate B\n"
+                "Question (correctness_authority): Who defines correctness?\n"
+                "Answer: Display policy owner"
+            ),
+        )
         assert r["looks_like_research"] is True
         assert r["ready"] is True
+
+
+class TestVerticalAssessFastPath:
+    def test_refund_failure_collects_only_decision_then_authority(self) -> None:
+        first = _assess_vertical_fast_path(
+            "Our support agent promised a refund outside policy",
+            "",
+        )
+        assert first is not None
+        assert first["clarifying_questions"][0]["id"] == "release_decision"
+
+        second = _assess_vertical_fast_path(
+            "Our support agent promised a refund outside policy",
+            (
+                "Question (release_decision): What decision?\n"
+                "Answer: Ship a new agent version to production"
+            ),
+        )
+        assert second is not None
+        assert second["decision"] == "Ship a new agent version to production"
+        assert second["clarifying_questions"][0]["id"] == "correctness_authority"
+
+        ready = _assess_vertical_fast_path(
+            "Our support agent promised a refund outside policy",
+            (
+                "Question (release_decision): What decision?\n"
+                "Answer: Ship a new agent version to production\n"
+                "Question (correctness_authority): Who defines correctness?\n"
+                "Answer: Company refund policy team"
+            ),
+        )
+        assert ready is not None
+        assert ready["ready"] is True
+        assert ready["audience"] == "Company refund policy team"
+
+    def test_uncovered_domain_still_uses_general_assessment(self) -> None:
+        assert _assess_vertical_fast_path("Understand why trial users churn", "") is None
 
 
 async def test_assessment_hard_deadline_does_not_wait_for_sdk_cleanup() -> None:
@@ -119,7 +166,8 @@ class TestParseAssessment:
         r = _parse_assessment("not json at all", goal="understand user churn", prior_context="")
         # Falls back to the rule-based gate, which finds this research-shaped.
         assert r["looks_like_research"] is True
-        assert r["ready"] is True
+        assert r["ready"] is False
+        assert r["clarifying_questions"][0]["id"] == "release_decision"
 
     def test_suggested_title_defaults_to_goal_prefix(self) -> None:
         text = """```json

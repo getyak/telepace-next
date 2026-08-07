@@ -9,6 +9,7 @@ from uuid import uuid4
 
 from agents.designer import DesignerAgent
 from agents.shared.llm import LLMMessage, LLMResponse, MockLLM
+from core.domain.models import ResearchTask
 from core.protocols.commands import CreateCampaign, RefineOutline
 from core.protocols.mcp_tools import ChannelKind
 
@@ -259,6 +260,155 @@ async def test_seed_timeout_returns_usable_fallback_without_waiting_for_model() 
     assert len(spec["outline"]["items"]) == 6
     assert len(spec["outline"]["success_criteria"]) == 2
     assert spec["primary_language"] == "en"
+
+
+async def test_refund_failure_fallback_compiles_a_release_ready_eval_contract() -> None:
+    """A production failure must become a concrete regression system, not a
+    generic six-question research guide when the upstream model is unavailable."""
+
+    cmd = CreateCampaign(
+        actor="user:x",
+        org_id=uuid4(),
+        author_id=uuid4(),
+        title="Refund promise failure",
+        goal="Our support agent promised a refund outside policy",
+        channels=[ChannelKind.WEB_TEXT],
+        research_task=ResearchTask(
+            decision="Ship a new agent version to production",
+            objective="Prevent unauthorized refund promises",
+            audience="Company refund policy team",
+        ),
+    )
+    agent = DesignerAgent(llm=MockLLM(), max_tokens=1500, temperature=0.3)
+
+    result = await agent.run(cmd, context={}, harness=None)  # type: ignore[arg-type]
+
+    spec = result.state_delta["spec"]
+    plan = spec["evaluation_plan"]
+    assert plan["contract"]["capability"] == (
+        "Refund eligibility verification, communication, and escalation"
+    )
+    assert "Promise a refund before verification" in plan["contract"]["prohibited_outcomes"]
+    assert plan["release_gate"]["max_critical_failures"] == 0
+    assert plan["release_gate"]["requires_human_calibration"] is True
+    assert [grader["kind"] for grader in plan["graders"]] == [
+        "deterministic",
+        "model",
+        "human",
+    ]
+    assert len(spec["candidate_eval_cases"]) == 4
+    assert spec["candidate_eval_cases"][1]["severity"] == 5
+    assert spec["candidate_eval_cases"][1]["status"] == "hypothesis"
+    assert all(item["evidence_target"] for item in spec["outline"]["items"])
+    assert spec["outline"]["items"][0]["authority"] == "telemetry"
+    assert spec["outline"]["items"][0]["decision_impact"] == 5
+    assert set(plan["contract"]["critical_slices"]) <= {
+        item["slice"] for item in spec["candidate_eval_cases"]
+    }
+
+
+async def test_account_recovery_fallback_uses_security_policy_contract() -> None:
+    cmd = CreateCampaign(
+        actor="user:x",
+        org_id=uuid4(),
+        author_id=uuid4(),
+        title="Define the release bar for an account-recovery agent",
+        goal="Launch account recovery without increasing takeover risk",
+        channels=[ChannelKind.WEB_TEXT],
+        research_task=ResearchTask(
+            decision="Ship or hold the account-recovery candidate",
+            objective="Recover legitimate accounts safely",
+            audience="Security, policy, and support operations owners",
+        ),
+    )
+    agent = DesignerAgent(llm=MockLLM(), max_tokens=1500, temperature=0.3)
+
+    result = await agent.run(cmd, context={}, harness=None)  # type: ignore[arg-type]
+
+    spec = result.state_delta["spec"]
+    contract = spec["evaluation_plan"]["contract"]
+    assert contract["capability"].startswith("Restore legitimate access")
+    assert "compromised email" in contract["critical_slices"]
+    assert "Bypass a cooldown, lock, or human approval" in contract["prohibited_outcomes"]
+    assert [grader["kind"] for grader in spec["evaluation_plan"]["graders"]] == [
+        "deterministic",
+        "reference",
+        "human",
+    ]
+    assert spec["outline"]["items"][0]["authority"] == "policy"
+    assert spec["candidate_eval_cases"][1]["slice"] == "compromised email"
+    assert set(contract["critical_slices"]) <= {
+        item["slice"] for item in spec["candidate_eval_cases"]
+    }
+
+
+async def test_clinical_judge_fallback_compiles_blinded_holdout_calibration() -> None:
+    cmd = CreateCampaign(
+        actor="user:x",
+        org_id=uuid4(),
+        author_id=uuid4(),
+        title="Calibrate a judge for clinical note summaries",
+        goal="Measure agreement and blind spots against clinical experts",
+        channels=[ChannelKind.WEB_TEXT],
+        research_task=ResearchTask(
+            decision="Approve or reject judge version j2",
+            objective="Calibrate clinical-summary correctness judgments",
+            audience="Clinical safety experts",
+        ),
+    )
+    agent = DesignerAgent(llm=MockLLM(), max_tokens=1500, temperature=0.3)
+
+    result = await agent.run(cmd, context={}, harness=None)  # type: ignore[arg-type]
+
+    spec = result.state_delta["spec"]
+    plan = spec["evaluation_plan"]
+    gate = plan["release_gate"]
+    assert plan["contract"]["capability"] == "Judge clinical-note summary correctness"
+    assert gate["minimum_calibration_examples"] == 10
+    assert gate["minimum_holdout_examples"] == 2
+    assert gate["minimum_judge_agreement"] == 0.8
+    assert spec["outline"]["items"][0]["answer_schema"] == "comparison"
+    assert spec["candidate_eval_cases"][0]["slice"] == "critical omission"
+    assert set(plan["contract"]["critical_slices"]) <= {
+        item["slice"] for item in spec["candidate_eval_cases"]
+    }
+
+
+async def test_targeted_clarification_fallback_is_one_trace_linked_question() -> None:
+    goal = (
+        "After our AI checkout agent changes a delivery address, ask only the "
+        "affected user a 30-second clarification linked to trace tr_123."
+    )
+    cmd = CreateCampaign(
+        actor="user:x",
+        org_id=uuid4(),
+        author_id=uuid4(),
+        title="Trace-triggered address clarification",
+        goal=goal,
+        channels=[ChannelKind.WEB_TEXT],
+        target_completions=10,
+        research_task=ResearchTask(
+            decision="Promote a wrong address change into a regression",
+            objective="Resolve intent telemetry cannot reveal",
+            audience="The affected user linked to tr_123",
+        ),
+    )
+    agent = DesignerAgent(llm=MockLLM(), max_tokens=1500, temperature=0.3)
+
+    result = await agent.run(cmd, context={}, harness=None)  # type: ignore[arg-type]
+
+    spec = result.state_delta["spec"]
+    item = spec["outline"]["items"][0]
+    assert spec["target_completions"] == 1
+    assert spec["outline"]["estimated_duration_minutes"] == 1
+    assert len(spec["outline"]["items"]) == 1
+    assert item["evidence_target"] == "eval_case.tr_123.affected_user_intent"
+    assert item["authority"] == "end_user"
+    assert spec["candidate_eval_cases"][0]["title"].startswith("tr_123")
+    assert spec["evaluation_plan"]["release_gate"]["requires_human_calibration"] is False
+    assert set(spec["evaluation_plan"]["contract"]["critical_slices"]) <= {
+        item["slice"] for item in spec["candidate_eval_cases"]
+    }
 
 
 async def test_seed_hard_deadline_does_not_wait_for_cancellation_cleanup() -> None:

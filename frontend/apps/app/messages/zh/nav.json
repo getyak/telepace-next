@@ -1,11 +1,11 @@
 {
   "app": {
     "sidebar": {
-      "studies": "问卷",
-      "inbox": "收件箱",
-      "audience": "受众",
-      "insights": "洞察",
-      "copilot": "Copilot",
+      "studies": "评测项目",
+      "inbox": "证据收件箱",
+      "audience": "权威来源",
+      "insights": "Eval 用例库",
+      "copilot": "裁判 Copilot",
       "workspaceLabel": "工作区",
       "integrations": "集成",
       "settings": "设置",
@@ -25,20 +25,20 @@
     }
   },
   "marketing": {
-    "voice": "语音",
-    "agent": "智能体",
+    "voice": "证据",
+    "agent": "评测 Agent",
     "pricing": "定价",
     "docs": "文档",
     "mcp": "MCP",
     "signIn": "登录",
-    "startFree": "免费开始",
+    "startFree": "创建 Eval Pack",
     "dashboard": "进入工作台",
     "settings": "设置",
     "signOut": "退出登录",
     "signedInAs": "当前登录账号",
     "openMenu": "打开菜单",
     "closeMenu": "关闭菜单",
-    "tagline": "为智能体时代打造的语音原生用户研究。",
+    "tagline": "从用户证据到生产级 AI 评测。",
     "footer": {
       "product": "产品",
       "company": "公司",

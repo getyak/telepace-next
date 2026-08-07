@@ -1,13 +1,13 @@
 {
   "home": {
     "hero": {
-      "eyebrow": "Voice-native, agent-first",
-      "titleLine1": "Understand what people",
-      "titleEmphasis": "actually want, and why.",
-      "subtitle": "telepace runs voice interviews with your users on autopilot — and hands the structured insights back to your agent, so it can act on them.",
-      "ctaPrimary": "Start free",
-      "ctaSecondary": "Try a live 60-sec interview →",
-      "footnote": "Free tier includes 3 studies / month. No credit card."
+      "eyebrow": "Evidence to evals",
+      "titleLine1": "Teach your AI",
+      "titleEmphasis": "what correct means.",
+      "subtitle": "Telepace turns production failures, expert judgment, policies, and user evidence into eval cases, calibrated judges, and release gates.",
+      "ctaPrimary": "Build an Eval Pack",
+      "ctaSecondary": "See the refund failure →",
+      "footnote": "Start with one costly failure. No survey-scale dataset required."
     },
     "heroDemo": {
       "liveLabel": "live · try answering",
@@ -28,147 +28,168 @@
       "send": "Send",
       "ctaFull": "Try the full 60-sec interview",
       "restart": "Restart"
+      ,"candidate": "candidate B · release check",
+      "decision": "Hold",
+      "releaseScore": "Release score",
+      "delta": "+9 vs production",
+      "slicesLabel": "Evaluation slices",
+      "slice_overall": "overall",
+      "slice_refund": "refund",
+      "slice_missing": "missing info",
+      "slice_escalation": "escalation",
+      "blocker": "Critical blocker",
+      "caseId": "CASE-042",
+      "blockerText": "The agent promises a refund before verifying policy eligibility.",
+      "blockerMeta": "1 critical failure · ambiguous refund slice · zero tolerance",
+      "evidenceLabel": "source",
+      "evidenceQuote": "If eligibility is unclear, do not promise. Escalate with the order context.",
+      "evidenceSource": "Refund policy v12 · owner approved",
+      "gateRule": "Any critical policy breach blocks release",
+      "gateResult": "HOLD"
     },
     "trustBar": {
       "stats": {
         "channels": {
-          "value": "5 channels",
-          "detail": "one interview"
+          "value": "1 failure",
+          "detail": "enough to start"
         },
         "launchTime": {
-          "value": "< 60s",
-          "detail": "to launch a study"
+          "value": "< 3 min",
+          "detail": "to a first eval contract"
         },
         "surfaces": {
-          "value": "MCP · Skill · REST",
-          "detail": "wherever your agent lives"
+          "value": "JSON · MCP · CI",
+          "detail": "where releases happen"
         }
       }
     },
     "howItWorks": {
       "eyebrow": "How it works",
-      "title": "From idea to insight in a single conversation.",
+      "title": "From one bad outcome to a permanent release gate.",
       "steps": {
         "design": {
-          "title": "Design in chat",
-          "description": "Describe what you want to learn. Our Designer agent proposes an outline in seconds — you refine it in conversation."
+          "title": "Define the task contract",
+          "description": "Name the release decision, expected outcome, prohibited outcomes, tools, and critical slices."
         },
         "send": {
-          "title": "Send by voice, phone, or link",
-          "description": "Push to email, drop a share URL, or place outbound calls. Same interview, five channels."
+          "title": "Map the evidence gaps",
+          "description": "Telepace shows what is unknown, who can resolve it, and why each question is worth asking."
         },
         "moderate": {
-          "title": "AI moderates the interview",
-          "description": "Every session gets the same careful researcher: warm probing, coverage tracking, escalation when it matters."
+          "title": "Collect only what is missing",
+          "description": "Attach traces, policies, tickets, expert corrections, or a short user clarification to the same evidence graph."
         },
         "insights": {
-          "title": "Insights, ready to act",
-          "description": "Themes, verbatims, personas — piped back into your agent, Notion, or Linear. No dashboard-scrolling required."
+          "title": "Compile and gate",
+          "description": "Export replayable Eval Cases, rubric anchors, layered graders, and a ship or hold decision."
         }
       }
     },
     "insights": {
-      "eyebrow": "What you get back",
-      "title": "Insights that read like a researcher wrote them.",
-      "description": "Not transcripts to wade through — ranked themes with confidence scores, each backed by verbatim quotes you can trace to the source. This is what a finished study looks like.",
-      "cta": "See it live in the demo →",
+      "eyebrow": "The compounding artifact",
+      "title": "Evidence that can protect the next release.",
+      "description": "A quote is not the finish line. Telepace compiles accepted evidence into a versioned task contract, regression case, scoring rubric, judge plan, and release gate.",
+      "cta": "Create your first Eval Pack →",
       "panel": {
-        "study": "Pricing study — Q3",
-        "meta": "24 interviews · 3 themes · synthesis complete",
+        "study": "Refund policy regression",
+        "meta": "1 production failure · policy v12 · owner calibrated",
+        "sourceLabel": "Real evidence",
+        "compiledLabel": "Compiled output",
+        "trace": "trace_8f21 · turn 14 · policy_refund_v12",
         "themes": {
           "t1": {
-            "title": "Price anchors to missing enterprise features",
-            "count": "14 / 24 interviews"
+            "title": "Task contract",
+            "count": "Verify eligibility before committing"
           },
           "t2": {
-            "title": "Annual discount changes the calculus",
-            "count": "11 / 24 interviews"
+            "title": "Critical Eval Case",
+            "count": "Ambiguous refund must escalate"
           },
           "t3": {
-            "title": "Usage-based pricing would beat both tiers",
-            "count": "9 / 24 interviews"
+            "title": "Release gate",
+            "count": "0 policy breaches allowed"
           }
         },
         "quote": {
-          "text": "Seventy-nine a month is fine — until I realized SSO wasn't included. That's when it started feeling punitive.",
-          "attribution": "Interview #17 · Head of Product, B2B SaaS · 14:32"
+          "text": "The bot said the refund was approved, then support told me I was not eligible.",
+          "attribution": "Support ticket #1842 · linked to production trace · verified"
         },
-        "exportHint": "Piped automatically to wherever your team works"
+        "exportHint": "telepace.eval-pack.v1 · provenance preserved"
       }
     },
     "channels": {
-      "eyebrow": "Five channels, one interview",
-      "title": "Meet respondents where they already are.",
+      "eyebrow": "One evidence graph",
+      "title": "Use the source with authority, not the source with volume.",
       "items": {
         "link": {
-          "name": "Shareable link",
-          "meta": "seconds to launch"
+          "name": "Production traces",
+          "meta": "what actually happened"
         },
         "browserVoice": {
-          "name": "Browser voice",
-          "meta": "real-time · low latency"
+          "name": "Support tickets",
+          "meta": "costly failures in context"
         },
         "phone": {
-          "name": "Outbound phone call",
-          "meta": "Vapi + human warmth"
+          "name": "Domain experts",
+          "meta": "quality bars and boundaries"
         },
         "hotline": {
-          "name": "Inbound hotline",
-          "meta": "your own number"
+          "name": "Policies and specs",
+          "meta": "deterministic hard gates"
         },
         "email": {
-          "name": "Email invite",
-          "meta": "async · batch friendly"
+          "name": "User clarification",
+          "meta": "only when intent is missing"
         }
       }
     },
     "agentSurfaces": {
-      "eyebrow": "Agent-first",
-      "title": "Your agent gets a user researcher.",
-      "description": "telepace ships as an MCP server, a Skill, and a REST API. Wherever your agents live — Claude Desktop, Cursor, Codex, a custom orchestrator — they can now design studies, dispatch interviews, and read back structured insights.",
-      "cta": "Browse MCP tools →",
+      "eyebrow": "Agent-native",
+      "title": "Your coding agent can build. Telepace tells it what must never break.",
+      "description": "Use MCP, Skill, REST, or versioned JSON to create evals from production evidence and carry the exact release gate into your existing runner and CI.",
+      "cta": "Browse integration surfaces →",
       "tabs": {
         "mcp": "MCP",
         "rest": "REST API",
         "skill": "Skill"
       },
       "insights": {
-        "mcp1": "\"$79 feels punitive without SSO\"",
-        "mcp2": "\"annual discount changes the calculus\"",
-        "mcp3": "\"usage-based would beat both tiers\"",
-        "skill1": "\"onboarding asks for a card too early\"",
-        "skill2": "\"empty workspace feels like homework\"",
-        "skill3": "\"invites are the real activation moment\""
+        "mcp1": "trace linked to policy v12",
+        "mcp2": "ambiguous request becomes Eval Case",
+        "mcp3": "zero-tolerance release gate preserved",
+        "skill1": "1 critical policy breach",
+        "skill2": "3 repetitions captured",
+        "skill3": "expert calibration required"
       }
     },
     "useCases": {
-      "eyebrow": "Made for",
-      "title": "Built for the people who ask why.",
+      "eyebrow": "A clear budget owner",
+      "title": "Built for teams accountable for AI behavior.",
       "items": {
         "pm": {
-          "role": "Product Managers",
-          "description": "Get customer voice into every roadmap review."
+          "role": "AI Product Leads",
+          "description": "Make a defensible ship, hold, or rollback decision."
         },
         "researchers": {
-          "role": "UX Researchers",
-          "description": "Scale 1:1 depth without hiring an army."
+          "role": "Eval Engineers",
+          "description": "Turn real failures into durable regression coverage."
         },
         "growth": {
-          "role": "Growth",
-          "description": "Interview churned users before they forget why they left."
+          "role": "Domain Experts",
+          "description": "Encode judgment once, then measure judge agreement."
         },
         "founders": {
-          "role": "Founders",
-          "description": "Run 30 interviews the week you're building the MVP."
+          "role": "Risk and Operations",
+          "description": "Make policy boundaries observable and release-blocking."
         }
       }
     },
     "finalCta": {
-      "titleLine1": "Stop guessing.",
-      "titleEmphasis": "Start listening.",
-      "subtitle": "Every product decision deserves a hundred users behind it.",
-      "ctaPrimary": "Start free",
-      "ctaSecondary": "Try a live 60-sec interview →"
+      "titleLine1": "Do not ship",
+      "titleEmphasis": "undefined correctness.",
+      "subtitle": "Start with the failure your team cannot afford to repeat.",
+      "ctaPrimary": "Build an Eval Pack",
+      "ctaSecondary": "Inspect the workflow →"
     }
   },
   "pricing": {

@@ -19,44 +19,49 @@ const TABS: TabKey[] = ["mcp", "rest", "skill"];
 
 function buildSamples(ins: (id: string) => string): Record<TabKey, string> {
   return {
-    mcp: `// Claude Code
-claude> use the telepace mcp to launch a pricing study
+    mcp: `// Codex
+codex> compile this refund failure into an eval
 
 // telepace.create_campaign
 ✓ campaign_id: 4f2b…9c1
-✓ share_url: telepace.io/r/4f2b9c1
+✓ task_contract: refund eligibility
 
-// 3 days later
-claude> get insights for the pricing study
+// telepace.get_eval_pack
+✓ 3 candidate cases
+✓ 1 critical policy gate
+✓ judge order: deterministic → model → human
 
-// telepace.get_campaign_insights
-✓ 3 themes surfaced (confidence ≥ 0.7)
+// evidence compiled
   · ${ins("mcp1")}
   · ${ins("mcp2")}
   · ${ins("mcp3")}`,
     rest: `$ curl -X POST https://api.telepace.io/v1/campaigns \\
     -H "Authorization: Bearer $TELEPACE_KEY" \\
-    -d '{ "goal": "Understand pricing objections" }'
+    -d '{ "goal": "Gate refund promises against policy" }'
 
 {
   "campaign_id": "4f2b…9c1",
-  "share_url": "https://telepace.io/r/4f2b9c1",
-  "status": "live"
+  "status": "draft"
 }
 
-$ curl https://api.telepace.io/v1/campaigns/4f2b…9c1/insights
+$ curl https://api.telepace.io/v1/campaigns/4f2b…9c1/eval-pack
 
-{ "themes": 3, "interviews": 24, "confidence": ">= 0.7" }`,
-    skill: `# Claude Code — Skill
-/telepace study "Why do trials stall before activation?"
+{
+  "schema_version": "telepace.eval-pack.v1",
+  "critical_cases": 1,
+  "max_critical_failures": 0
+}`,
+    skill: `# Claude Code · Skill
+/telepace eval "Support agent promised an ineligible refund"
 
-✓ outline drafted · 6 questions
-✓ campaign live: telepace.io/r/8a41c22
+✓ correctness contract drafted
+✓ 1 unresolved policy boundary
+✓ asking the policy owner, not 100 users
 
-# later that week
-/telepace insights 8a41c22
+# after calibration
+/telepace gate 8a41c22 candidate-b
 
-→ 3 themes · 24 interviews · confidence ≥ 0.7
+→ HOLD · refund slice 42/100
   · ${ins("skill1")}
   · ${ins("skill2")}
   · ${ins("skill3")}`,

@@ -14,11 +14,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Server can read the httpOnly cookie — hand it in so a cookie-less visitor
   // resolves as guest without a doomed /me probe (see AuthProvider).
   const cookieStore = await cookies();
-  const hasSession =
-    cookieStore.has(ACCESS_COOKIE) || cookieStore.has(REFRESH_COOKIE);
+  const hasAccess = cookieStore.has(ACCESS_COOKIE);
+  const hasRefresh = cookieStore.has(REFRESH_COOKIE);
+  const hasSession = hasAccess || hasRefresh;
 
   return (
-    <AuthProvider initialHasSession={hasSession}>
+    <AuthProvider
+      initialHasSession={hasSession}
+      initialNeedsRefresh={!hasAccess && hasRefresh}
+    >
       <ErrorsCopyProvider copy={errorsCopy}>
         {/* Lock the shell to the viewport and let <main> own the scroll, so the
             sticky sidebar can never be scrolled away (a page that sets its own

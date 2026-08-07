@@ -52,7 +52,7 @@ test("the sidebar reaches every app surface", async ({ page }) => {
 
   // Each sidebar destination must resolve — an orphaned page (shipped but
   // unreachable) has happened here before.
-  for (const name of ["问卷", "收件箱", "受众", "洞察", "集成", "设置"]) {
+  for (const name of ["评测项目", "证据收件箱", "权威来源", "Eval 用例库", "集成", "设置"]) {
     const link = nav.getByRole("link", { name, exact: true });
     await expect(link, `sidebar link: ${name}`).toHaveCount(1);
   }

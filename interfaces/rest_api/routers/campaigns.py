@@ -6,6 +6,7 @@ import asyncio
 import json
 import logging
 import re
+from datetime import UTC, datetime
 from typing import Any
 from uuid import NAMESPACE_URL, UUID, uuid5
 
@@ -25,6 +26,7 @@ from core.constants import (
     SSE_HEADERS,
 )
 from core.domain.models import CampaignStatus, ChannelKind, ResearchTask
+from core.domain.release import compute_release_decision
 from core.protocols.commands import (
     CreateCampaign,
     DispatchInvites,
@@ -74,19 +76,26 @@ async def _load_owned_campaign(projector: CampaignProjector, campaign_id: UUID, 
 
 
 _ASSESS_SYSTEM = (
-    "You are the intake analyst for a user-research platform. A researcher "
-    "types an opening line. Your ONLY job is to decide whether their intent is "
-    "clear enough to draft a study, and if not, what single most useful "
-    "question to ask next. You NEVER draft the study itself.\n\n"
-    "A study is ready to create only when three things are known:\n"
-    "  - decision:  the concrete decision this research will inform\n"
-    "  - objective: the one-sentence research goal\n"
-    "  - audience:  who we listen to\n\n"
+    "You are the intake analyst for an evidence-to-eval compiler. A user types "
+    "an AI behavior, a release question, or a production failure. Your ONLY job "
+    "is to decide whether the intent is clear enough to draft an evaluation "
+    "program and, if not, ask the single highest-information question. You "
+    "NEVER draft the evaluation itself.\n\n"
+    "An evaluation is ready when these are clear enough for a first draft:\n"
+    "  - decision: the concrete ship/hold/change decision the eval will gate\n"
+    "  - objective: the AI behavior, outcome, or failure class being evaluated\n"
+    "  - audience: the authority or evidence source that can define correctness\n\n"
     "Judge honestly:\n"
-    "  - If the text is not a research need at all (a speech script, marketing "
-    "copy, a random paste, a greeting), set looks_like_research=false.\n"
-    "  - If it is research but vague, extract whatever you can and ask for the "
-    "MOST decision-relevant missing piece. Prefer decision, then audience.\n"
+    "  - Production traces, support failures, policy questions, judge "
+    "calibration, and launch criteria are valid evaluation needs.\n"
+    "  - If the text is unrelated (a speech script, random paste, or greeting), "
+    "set looks_like_research=false.\n"
+    "  - If it is valid but vague, extract whatever is known and ask for the "
+    "MOST decision-relevant missing piece. Prefer release decision, then the "
+    "authority qualified to define the boundary.\n"
+    "  - Prior context contains labeled Question/Answer pairs. Treat an answer "
+    "as filling that exact field and NEVER repeat a semantically equivalent "
+    "question.\n"
     "  - Only set ready=true when decision AND objective are known and "
     "clarity_score >= 60.\n\n"
     "clarifying_questions: at most 2, each with 3-4 concrete options DRAWN FROM "
@@ -533,6 +542,125 @@ async def get_campaign_evidence(
     )
 
 
+@router.get("/{campaign_id}/eval-pack")
+async def get_campaign_eval_pack(
+    campaign_id: UUID,
+    request: Request,
+    projector: CampaignProjector = Depends(get_projector),
+    user: AuthUser = Depends(require_current_user),
+) -> dict:
+    """Export a versioned, provenance-preserving evaluation program.
+
+    Hypothesis cases stay visibly distinct from evidence-backed regressions.
+    Consumers can feed this JSON into their runner without losing the release
+    gate or the question-to-evidence contract.
+    """
+
+    campaign = await _load_owned_campaign(projector, campaign_id, user)
+    state = get_state(request)
+    events, insights = await asyncio.gather(
+        state.event_store.read_stream(campaign_id),
+        projector.list_insights(campaign_id),
+    )
+    evidence = build_campaign_evidence(
+        campaign_id,
+        events,
+        insights,
+        campaign_title=campaign.title,
+        research_goal=campaign.spec.goal,
+        outline_item_ids=[str(item.id) for item in campaign.spec.outline.items],
+    )
+    release_decision = compute_release_decision(
+        campaign.spec,
+        gate_version=campaign.version,
+        computed_by="system:eval-pack-export",
+    )
+    workspace = campaign.spec.evaluation_workspace
+    return {
+        "schema_version": "telepace.eval-pack.v1",
+        "exported_at": datetime.now(UTC).isoformat(),
+        "evaluation_program": {
+            "id": str(campaign.id),
+            "version": campaign.version,
+            "title": campaign.title,
+            "status": campaign.status.value,
+            "goal": campaign.spec.goal,
+            "research_task": (
+                campaign.spec.research_task.model_dump(mode="json")
+                if campaign.spec.research_task
+                else None
+            ),
+        },
+        "evaluation_plan": (
+            campaign.spec.evaluation_plan.model_dump(mode="json")
+            if campaign.spec.evaluation_plan
+            else None
+        ),
+        "release_readiness": {
+            "decision": release_decision.decision.value,
+            "state": release_decision.state.value,
+            "blocker_codes": release_decision.blocker_codes,
+            "blockers": release_decision.blockers,
+            "evaluated_cases": release_decision.evaluated_cases,
+            "critical_failures": release_decision.critical_failures,
+            "overall_score": release_decision.overall_score,
+            "baseline_score": release_decision.baseline_score,
+            "candidate_delta": release_decision.candidate_delta,
+            "score_standard_deviation": release_decision.score_standard_deviation,
+            "confidence_low_95": release_decision.confidence_low_95,
+            "confidence_high_95": release_decision.confidence_high_95,
+            "slice_scores": release_decision.slice_scores,
+            "judge_agreement": release_decision.judge_agreement,
+            "computed_at": release_decision.computed_at.isoformat(),
+        },
+        "candidate_eval_cases": [
+            case.model_dump(mode="json") for case in campaign.spec.candidate_eval_cases
+        ],
+        "evaluation_workspace": {
+            "evidence_artifacts": [
+                artifact.model_dump(mode="json", exclude={"raw_content"})
+                for artifact in workspace.evidence_artifacts
+            ],
+            "evidence_claims": [
+                claim.model_dump(mode="json")
+                for claim in workspace.evidence_claims
+            ],
+            "case_promotions": [
+                promotion.model_dump(mode="json")
+                for promotion in workspace.case_promotions
+            ],
+            "bindings": (
+                workspace.bindings.model_dump(mode="json")
+                if workspace.bindings
+                else None
+            ),
+            "trial_runs": [
+                trial.model_dump(mode="json")
+                for trial in workspace.trial_runs
+            ],
+            "judge_calibrations": [
+                {
+                    **calibration.model_dump(mode="json"),
+                    "agreement_rate": calibration.agreement_rate,
+                }
+                for calibration in workspace.judge_calibrations
+            ],
+            "release_decisions": [
+                decision.model_dump(mode="json")
+                for decision in workspace.release_decisions
+            ],
+        },
+        "evidence_questions": [
+            {
+                **item.model_dump(mode="json"),
+                "priority_score": item.priority_score,
+            }
+            for item in campaign.spec.outline.items
+        ],
+        "evidence": evidence,
+    }
+
+
 @router.post("/{campaign_id}/close")
 async def close_campaign(
     campaign_id: UUID,
@@ -868,10 +996,137 @@ async def simulate_interview(
 # fallback (when the LLM is a mock or unreachable), never as the primary judge.
 _RESEARCH_SIGNAL = re.compile(
     r"understand|learn|why|research|study|interview|feedback|user|customer|"
-    r"survey|explore|discover|reaction|decide|了解|调研|研究|访谈|反馈|用户|"
-    r"客户|为什么|流失|留存|偏好|体验|决策|洞察",
+    r"survey|explore|discover|reaction|decide|eval|agent|model|release|ship|"
+    r"judge|trace|policy|production|baseline|candidate|correct|safety|"
+    r"了解|调研|研究|访谈|反馈|用户|客户|为什么|流失|留存|偏好|体验|"
+    r"决策|洞察|评测|评估|智能体|模型|发布|上线|裁判|轨迹|政策|正确|安全",
     re.IGNORECASE,
 )
+_REFUND_FAILURE_SIGNAL = re.compile(
+    r"refund|unauthori[sz]ed promise|退款|越权承诺|违反政策",
+    re.IGNORECASE,
+)
+
+
+def _prior_answers(prior_context: str) -> dict[str, str]:
+    """Read the frontend's labeled Question/Answer transcript.
+
+    IDs are stable product contracts. Parsing them locally lets a validated
+    vertical intake respond in milliseconds and prevents an upstream model
+    from asking the same gap twice.
+    """
+
+    pairs = re.findall(
+        r"Question\s*\(([^)]+)\):[^\n]*\nAnswer:\s*([^\n]+)",
+        prior_context,
+        flags=re.IGNORECASE,
+    )
+    return {question_id.strip().casefold(): answer.strip() for question_id, answer in pairs}
+
+
+def _assess_vertical_fast_path(goal: str, prior_context: str) -> dict[str, Any] | None:
+    """Return a deterministic intake step for a validated domain recipe."""
+
+    if not _REFUND_FAILURE_SIGNAL.search(goal):
+        return None
+
+    zh = bool(re.search(r"[\u3400-\u9fff]", goal))
+    answers = _prior_answers(prior_context)
+    decision = answers.get("release_decision", "")
+    authority = answers.get("correctness_authority", "")
+    suggested_title = "退款政策发布门禁" if zh else "Refund policy release gate"
+
+    if not decision:
+        prompt = (
+            "这套评测最终要卡住哪个决策？"  # noqa: RUF001
+            if zh
+            else "What decision is this evaluation intended to gate?"
+        )
+        labels = (
+            [
+                ("ship", "将新版 Agent 发布到生产环境"),
+                ("hold", "暂停或回滚现有 Agent"),
+                ("change", "修改退款政策或 Agent 训练"),
+                ("audit", "只审计这一次事故"),
+            ]
+            if zh
+            else [
+                ("ship", "Ship a new agent version to production"),
+                ("hold", "Hold or roll back an existing agent"),
+                ("change", "Change the refund policy or agent training"),
+                ("audit", "Audit or investigate this specific incident"),
+            ]
+        )
+        return {
+            "looks_like_research": True,
+            "clarity_score": 52,
+            "decision": "",
+            "objective": goal.strip(),
+            "audience": "",
+            "missing": ["decision", "audience"],
+            "suggested_title": suggested_title,
+            "clarifying_questions": [
+                {
+                    "id": "release_decision",
+                    "prompt": prompt,
+                    "multi": False,
+                    "options": [{"id": option_id, "label": label} for option_id, label in labels],
+                    "allow_freeform": True,
+                }
+            ],
+            "ready": False,
+        }
+
+    if not authority:
+        prompt = (
+            "谁或什么有资格定义这次退款承诺的正确行为？"  # noqa: RUF001
+            if zh
+            else "Who or what defines the correct behavior for this refund promise?"
+        )
+        labels = (
+            [
+                ("policy", "公司退款政策团队"),
+                ("legal", "法务 / 合规团队"),
+                ("support", "客服负责人"),
+            ]
+            if zh
+            else [
+                ("policy", "Company refund policy team"),
+                ("legal", "Legal/compliance team"),
+                ("support", "Customer support leadership"),
+            ]
+        )
+        return {
+            "looks_like_research": True,
+            "clarity_score": 74,
+            "decision": decision,
+            "objective": goal.strip(),
+            "audience": "",
+            "missing": ["audience"],
+            "suggested_title": suggested_title,
+            "clarifying_questions": [
+                {
+                    "id": "correctness_authority",
+                    "prompt": prompt,
+                    "multi": False,
+                    "options": [{"id": option_id, "label": label} for option_id, label in labels],
+                    "allow_freeform": True,
+                }
+            ],
+            "ready": False,
+        }
+
+    return {
+        "looks_like_research": True,
+        "clarity_score": 94,
+        "decision": decision,
+        "objective": goal.strip(),
+        "audience": authority,
+        "missing": [],
+        "suggested_title": suggested_title,
+        "clarifying_questions": [],
+        "ready": True,
+    }
 
 
 def _assess_fallback(goal: str, prior_context: str) -> dict[str, Any]:
@@ -884,17 +1139,54 @@ def _assess_fallback(goal: str, prior_context: str) -> dict[str, Any]:
     """
     combined = f"{goal} {prior_context}".strip()
     looks_like_research = bool(_RESEARCH_SIGNAL.search(combined))
-    long_enough = len(combined) >= 8
-    ready = looks_like_research and long_enough
+    long_enough = len(goal.strip()) >= 8
+    answers = _prior_answers(prior_context)
+    decision = answers.get("release_decision", "")
+    audience = answers.get("correctness_authority", "")
+    zh = bool(re.search(r"[\u3400-\u9fff]", goal))
+    questions: list[dict[str, Any]] = []
+    if looks_like_research and long_enough and not decision:
+        questions = [
+            {
+                "id": "release_decision",
+                "prompt": (
+                    "这套评测最终要支持哪个发布或变更决策？"  # noqa: RUF001
+                    if zh
+                    else "Which release or change decision must this evaluation support?"
+                ),
+                "multi": False,
+                "options": [],
+                "allow_freeform": True,
+            }
+        ]
+    elif looks_like_research and long_enough and not audience:
+        questions = [
+            {
+                "id": "correctness_authority",
+                "prompt": (
+                    "谁或哪份政策有权定义这个场景中的正确行为？"  # noqa: RUF001
+                    if zh
+                    else "Who or which policy has authority to define correct behavior here?"
+                ),
+                "multi": False,
+                "options": [],
+                "allow_freeform": True,
+            }
+        ]
+    ready = looks_like_research and long_enough and bool(decision) and bool(audience)
     return {
         "looks_like_research": looks_like_research,
-        "clarity_score": 70 if ready else 30,
-        "decision": "",
-        "objective": goal.strip() if ready else "",
-        "audience": "",
-        "missing": [] if ready else ["decision", "audience"],
+        "clarity_score": 90 if ready else 50 if looks_like_research else 20,
+        "decision": decision,
+        "objective": goal.strip() if looks_like_research and long_enough else "",
+        "audience": audience,
+        "missing": [
+            field
+            for field, value in (("decision", decision), ("audience", audience))
+            if not value
+        ],
         "suggested_title": goal.strip()[:60],
-        "clarifying_questions": [],
+        "clarifying_questions": questions,
         "ready": ready,
     }
 
@@ -960,20 +1252,25 @@ def _parse_assessment(text: str, *, goal: str, prior_context: str) -> dict[str, 
     looks_like_research = bool(val.get("looks_like_research", True))
     missing = [str(x) for x in val.get("missing", []) if isinstance(x, str)]
     questions = _clean_clarify_questions(val.get("clarifying_questions"))
-    # Authoritative ready rule (server-side, not the LLM's own boolean): needs a
-    # decision + objective, real research, and clarity above the bar.
+    audience = _str("audience")
+    # Authoritative ready rule (server-side, not the LLM's own boolean): needs
+    # decision, objective, and correctness authority above the clarity bar.
     ready = (
         looks_like_research
         and clarity >= _ASSESS_READY_CLARITY
         and bool(decision)
         and bool(objective)
+        and bool(audience)
     )
+    if not ready and not questions:
+        fallback = _assess_fallback(goal, prior_context)
+        questions = fallback["clarifying_questions"]
     return {
         "looks_like_research": looks_like_research,
         "clarity_score": clarity,
         "decision": decision,
         "objective": objective,
-        "audience": _str("audience"),
+        "audience": audience,
         "missing": missing,
         "suggested_title": _str("suggested_title") or goal.strip()[:60],
         "clarifying_questions": [] if ready else questions,
@@ -996,6 +1293,10 @@ async def assess_task(
     goal = body.goal.strip()
     if not goal:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="goal is required")
+
+    vertical = _assess_vertical_fast_path(goal, body.prior_context)
+    if vertical is not None:
+        return vertical
 
     state = get_state(request)
     llm = state.llm

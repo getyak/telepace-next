@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter } from "@/i18n/navigation";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { routes } from "@telepace/config";
 
-import { onHttpEvent } from "../http";
+import { ApiError, onHttpEvent } from "../http";
 import { fetchMe, login as loginApi, logout as logoutApi, registerUser, type AuthUser } from "./client";
 
 type AuthStatus = "loading" | "authenticated" | "guest";
@@ -24,6 +24,7 @@ export function AuthProvider({
   children,
   redirectOnExpiry = true,
   initialHasSession,
+  initialNeedsRefresh = false,
 }: {
   children: React.ReactNode;
   /**
@@ -43,6 +44,9 @@ export function AuthProvider({
    * expired, which only /me can confirm).
    */
   initialHasSession?: boolean;
+  /** The server saw a refresh cookie but no access cookie. Renew first so the
+   * initial `/me` request does not intentionally produce a noisy 401. */
+  initialNeedsRefresh?: boolean;
 }) {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -51,10 +55,13 @@ export function AuthProvider({
   // start as a settled guest; otherwise start "loading" and resolve via /me.
   const knownGuest = initialHasSession === false;
   const [status, setStatus] = useState<AuthStatus>(knownGuest ? "guest" : "loading");
+  const retryCount = useRef(0);
+  const retryTimer = useRef<number | null>(null);
 
   const refresh = useCallback(async () => {
     try {
       const me = await fetchMe();
+      retryCount.current = 0;
       setUser({
         id: me.id,
         email: me.email,
@@ -62,17 +69,61 @@ export function AuthProvider({
         org_id: me.org_id,
       });
       setStatus("authenticated");
-    } catch {
-      setUser(null);
-      setStatus("guest");
+    } catch (error) {
+      if (error instanceof ApiError && error.kind === "AUTH") {
+        retryCount.current = 0;
+        setUser(null);
+        setStatus("guest");
+        return;
+      }
+      // A database restart, proxy timeout, or offline transition does not prove
+      // the session expired. Preserve an authenticated shell and retry a few
+      // times instead of turning a transient 5xx into a false sign-out.
+      setStatus((current) =>
+        current === "authenticated" ? "authenticated" : "loading",
+      );
+      if (retryCount.current < 3) {
+        const wait = 1000 * 2 ** retryCount.current;
+        retryCount.current += 1;
+        if (retryTimer.current !== null) window.clearTimeout(retryTimer.current);
+        retryTimer.current = window.setTimeout(() => {
+          void refresh();
+        }, wait);
+      }
     }
   }, []);
 
   useEffect(() => {
     // No cookie means no session to resolve — don't fire a doomed /me probe.
     if (knownGuest) return;
-    void refresh();
-  }, [refresh, knownGuest]);
+    if (!initialNeedsRefresh) {
+      void refresh();
+      return;
+    }
+    void fetch("/api/auth/refresh", { method: "POST" })
+      .then(async (response) => {
+        if (response.ok) {
+          await refresh();
+          return;
+        }
+        if (response.status === 401) {
+          setUser(null);
+          setStatus("guest");
+          return;
+        }
+        await refresh();
+      })
+      .catch(() => {
+        void refresh();
+      });
+  }, [initialNeedsRefresh, knownGuest, refresh]);
+
+  useEffect(
+    () => () => {
+      if (retryTimer.current !== null) window.clearTimeout(retryTimer.current);
+    },
+    [],
+  );
 
   useEffect(() => {
     return onHttpEvent((evt) => {

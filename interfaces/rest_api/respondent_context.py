@@ -14,6 +14,7 @@ from uuid import UUID
 from starlette.websockets import WebSocketDisconnect
 
 from core.domain.models import CampaignStatus
+from core.events import InterviewStarted, TurnRecorded
 from interfaces.rest_api.embed_session import EmbedSessionError, decode_embed_session
 
 _SOURCE_RE = re.compile(r"[^a-z0-9._-]+")
@@ -145,6 +146,45 @@ async def receive_headless_session_token(websocket, *, timeout_seconds: int) -> 
     return str(message.get("session_token") or "")
 
 
+async def receive_interview_handshake(
+    websocket,
+    *,
+    timeout_seconds: int,
+) -> tuple[str, str]:
+    """Read authentication and continuation secrets from the first frame.
+
+    Existing non-handshake clients keep their immediate-HELLO behavior. The
+    first-party respondent page opts into ``handshake=1`` so its continuation
+    token never appears in a URL, referrer, or access log.
+    """
+
+    if websocket.query_params.get("client") == "headless":
+        return (
+            await receive_headless_session_token(
+                websocket,
+                timeout_seconds=timeout_seconds,
+            ),
+            "",
+        )
+    if websocket.query_params.get("handshake") != "1":
+        return "", ""
+    try:
+        raw = await asyncio.wait_for(
+            websocket.receive_text(),
+            timeout=max(1, timeout_seconds),
+        )
+        message = json.loads(raw)
+    except (TimeoutError, json.JSONDecodeError, WebSocketDisconnect):
+        return "", ""
+    if not isinstance(message, dict):
+        return "", ""
+    if message.get("type") == "resume":
+        return "", str(message.get("resume_token") or "")
+    if message.get("type") == "start":
+        return "", ""
+    return "", ""
+
+
 async def hydrate_respondent_interview_context(
     state,
     campaign_id: UUID,
@@ -171,14 +211,32 @@ async def hydrate_respondent_interview_context(
 
     interview_context = await state.memory.load(interview_id)
     if "interview_history" not in interview_context:
-        history = [{"role": "interviewer", "text": opening_text}] if opening_text else []
+        history: list[dict[str, str]] = []
+        started_at: float | None = None
+        event_store = getattr(state, "event_store", None)
+        if event_store is not None:
+            stored_events = await event_store.read_stream(campaign_id)
+            for stored in stored_events:
+                event = stored.event
+                if (
+                    isinstance(event, InterviewStarted)
+                    and event.interview_id == interview_id
+                ):
+                    started_at = event.ts.timestamp()
+                elif (
+                    isinstance(event, TurnRecorded)
+                    and event.interview_id == interview_id
+                ):
+                    history.append({"role": event.role, "text": event.text})
+        if not history and opening_text:
+            history = [{"role": "interviewer", "text": opening_text}]
         await state.memory.update(
             interview_id,
             {
                 "interview_history": history,
                 "outline_coverage": {},
                 "interview_seconds": 0,
-                "interview_started_at": datetime.now(UTC).timestamp(),
+                "interview_started_at": started_at or datetime.now(UTC).timestamp(),
             },
         )
     else:

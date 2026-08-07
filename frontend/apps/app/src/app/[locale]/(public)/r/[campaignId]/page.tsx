@@ -56,6 +56,8 @@ const REPLY_WATCHDOG_MS = 45000;
 // How long the "thanks" screen holds before following a configured redirect —
 // long enough to read the thank-you copy, short enough not to feel stuck.
 const THANKS_REDIRECT_DELAY_S = 5;
+const resumeStorageKey = (campaignId: string) =>
+  `telepace:interview-resume:${campaignId}`;
 
 export default function RespondentPage(props: {
   params: Promise<Params>;
@@ -242,10 +244,11 @@ export default function RespondentPage(props: {
 
   useEffect(() => {
     if (phase !== "done") return;
+    window.sessionStorage.removeItem(resumeStorageKey(campaignId));
     postEmbedEvent("telepace:complete", {
       answerCount: answeredRef.current,
     });
-  }, [phase, postEmbedEvent]);
+  }, [campaignId, phase, postEmbedEvent]);
 
   const interviewSocketUrl = useCallback(
     (path: string) => {
@@ -254,6 +257,9 @@ export default function RespondentPage(props: {
       if (embedded) params.set("embed", "1");
       if (requestedParentOrigin) params.set("parent_origin", requestedParentOrigin);
       params.set("consent", publicInfo?.consent_text ? "checkbox" : "continue");
+      // Opt into a first-frame handshake so the continuation secret never
+      // appears in the WebSocket URL, referrer, or access log.
+      params.set("handshake", "1");
       return `${env.wsBaseUrl}${path}?${params.toString()}`;
     },
     [embedSource, embedded, publicInfo?.consent_text, requestedParentOrigin],
@@ -266,6 +272,16 @@ export default function RespondentPage(props: {
     const ws = new WebSocket(interviewSocketUrl(wsEndpoints.interview(campaignId)));
     wsRef.current = ws;
     ws.onopen = () => {
+      const resumeToken = window.sessionStorage.getItem(
+        resumeStorageKey(campaignId),
+      );
+      ws.send(
+        JSON.stringify(
+          resumeToken
+            ? { type: "resume", resume_token: resumeToken }
+            : { type: "start" },
+        ),
+      );
       setConnected(true);
       setDropped(false);
     };
@@ -286,6 +302,9 @@ export default function RespondentPage(props: {
         reason?: string;
         recoverable?: boolean;
         opening?: string;
+        resume_token?: string;
+        resumed?: boolean;
+        history?: Array<{ role: string; text: string }>;
         language?: string;
         progress?: { question_order?: number | null; total_questions?: number };
         result?: {
@@ -303,12 +322,38 @@ export default function RespondentPage(props: {
         return;
       }
       if (msg.type === VoiceEventType.Hello) {
+        if (msg.resume_token) {
+          window.sessionStorage.setItem(
+            resumeStorageKey(campaignId),
+            msg.resume_token,
+          );
+        }
         if (msg.progress?.total_questions) {
           setProgress({
             current: msg.progress.question_order ?? 1,
             total: msg.progress.total_questions,
             probe: 0,
           });
+        }
+        if (msg.resumed && msg.history?.length) {
+          const restored = msg.history
+            .filter(
+              (item) =>
+                (item.role === "interviewer" ||
+                  item.role === "respondent" ||
+                  item.role === "system") &&
+                item.text,
+            )
+            .map((item) => ({
+              id: crypto.randomUUID(),
+              role: item.role as ChatMessage["role"],
+              text: item.text,
+            }));
+          setMessages(restored);
+          answeredRef.current = restored.filter(
+            (item) => item.role === "respondent",
+          ).length;
+          setAwaiting(false);
         }
         const opening = msg.opening;
         if (opening) {
@@ -362,6 +407,19 @@ export default function RespondentPage(props: {
           recoverable,
         });
         if (!recoverable) {
+          if (msg.reason === "interview_resume_invalid") {
+            window.sessionStorage.removeItem(resumeStorageKey(campaignId));
+            setDropped(true);
+            ws.close();
+            return;
+          }
+          if (msg.reason === "interview_already_completed") {
+            window.sessionStorage.removeItem(resumeStorageKey(campaignId));
+            closedByUs = true;
+            setPhase("done");
+            ws.close();
+            return;
+          }
           // A rejected handshake means no interview ever started, so showing
           // "your previous answers are saved" would be both confusing and
           // untrue. Move to the stable unavailable state before closing.

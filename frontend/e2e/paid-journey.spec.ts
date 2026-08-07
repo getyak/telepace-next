@@ -75,7 +75,7 @@ test.describe("paid journey — fresh account", () => {
     // Regressing T-501 (falling back to the shared default org) would surface
     // other tenants' studies here and fail this assertion.
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.locator("body")).toContainText(/no studies yet/i);
+    await expect(page.locator("body")).toContainText(/first Eval Pack starts with a failure/i);
 
     // Belt-and-braces: no real study cards (links into /studies/<uuid>).
     const hrefs = await page

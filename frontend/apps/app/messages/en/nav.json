@@ -1,11 +1,11 @@
 {
   "app": {
     "sidebar": {
-      "studies": "Studies",
-      "inbox": "Inbox",
-      "audience": "Audience",
-      "insights": "Insights",
-      "copilot": "Copilot",
+      "studies": "Eval programs",
+      "inbox": "Evidence inbox",
+      "audience": "Authorities",
+      "insights": "Eval library",
+      "copilot": "Judge copilot",
       "workspaceLabel": "Workspace",
       "integrations": "Integrations",
       "settings": "Settings",
@@ -25,20 +25,20 @@
     }
   },
   "marketing": {
-    "voice": "Voice",
-    "agent": "Agent",
+    "voice": "Evidence",
+    "agent": "Eval Agent",
     "pricing": "Pricing",
     "docs": "Docs",
     "mcp": "MCP",
     "signIn": "Sign in",
-    "startFree": "Start free",
+    "startFree": "Build Eval Pack",
     "dashboard": "Go to app",
     "settings": "Settings",
     "signOut": "Sign out",
     "signedInAs": "Signed in as",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "tagline": "Voice-native user research for the agent era.",
+    "tagline": "From user evidence to production evals.",
     "footer": {
       "product": "Product",
       "company": "Company",

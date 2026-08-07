@@ -84,6 +84,281 @@ export async function getRespondentCampaign(
   return apiFetch<RespondentCampaignInfo>(apiEndpoints.campaigns.respondent(campaignId));
 }
 
+export type EvalPack = {
+  schema_version: "telepace.eval-pack.v1";
+  exported_at: string;
+  evaluation_program: {
+    id: string;
+    version: number;
+    title: string;
+    status: string;
+    goal: string;
+    research_task: ResearchTaskInput | null;
+  };
+  evaluation_plan: Record<string, unknown> | null;
+  release_readiness: {
+    decision: "hold" | "ship" | "rollback";
+    state: "not_run" | "running" | "complete";
+    blocker_codes?: string[];
+    blockers: string[];
+    evaluated_cases: number;
+    critical_failures: number | null;
+    overall_score?: number | null;
+    baseline_score?: number | null;
+    candidate_delta?: number | null;
+    score_standard_deviation?: number | null;
+    confidence_low_95?: number | null;
+    confidence_high_95?: number | null;
+    slice_scores?: Record<string, number>;
+    judge_agreement?: number | null;
+  };
+  candidate_eval_cases: Record<string, unknown>[];
+  evaluation_workspace?: Record<string, unknown>;
+  evidence_questions: Record<string, unknown>[];
+  evidence: Record<string, unknown>;
+};
+
+export type EvidenceArtifactDoc = {
+  id: string;
+  kind:
+    | "trace"
+    | "policy"
+    | "expert_verdict"
+    | "affected_user_answer"
+    | "outcome"
+    | "comparison_pair";
+  title: string;
+  source_system: string;
+  source_uri: string;
+  authority: "end_user" | "domain_expert" | "product_owner" | "policy" | "telemetry";
+  captured_at: string;
+  content_sha256: string;
+  raw_content: string;
+  display_content: string;
+  redaction_manifest: string[];
+  trace_id: string;
+  policy_version: string;
+  model_version: string;
+};
+
+export type EvidenceClaimDoc = {
+  id: string;
+  assertion: string;
+  artifact_ids: string[];
+  status: "needs_review" | "accepted" | "rejected";
+  target_type: string;
+  target_id: string;
+  reviewer: string;
+  rationale: string;
+  reviewed_at: string | null;
+};
+
+export type EvaluationBindingsDoc = {
+  baseline: { name: string; version: string; config_hash: string };
+  candidate: { name: string; version: string; config_hash: string };
+  bound_by: string;
+  bound_at: string;
+};
+
+export type TrialRunDoc = {
+  id: string;
+  case_id: string;
+  repetition: number;
+  slice: string;
+  baseline_name: string;
+  baseline_version: string;
+  candidate_name: string;
+  candidate_version: string;
+  baseline_score: number;
+  candidate_score: number;
+  baseline_passed: boolean;
+  candidate_passed: boolean;
+  candidate_critical_failure: boolean;
+  source_uri: string;
+  recorded_at: string;
+};
+
+export type CalibrationExampleInput = {
+  pair_id: string;
+  slice: string;
+  split: "development" | "holdout";
+  candidate_a_ref: string;
+  candidate_b_ref: string;
+  judge_verdict: "a" | "b" | "tie" | "pass" | "fail";
+  expert_verdict: "a" | "b" | "tie" | "pass" | "fail";
+  rationale?: string;
+};
+
+export type JudgeCalibrationDoc = {
+  id: string;
+  judge_name: string;
+  judge_version: string;
+  rubric_version: string;
+  reviewer: string;
+  examples: CalibrationExampleInput[];
+  notes: string;
+  created_at: string;
+};
+
+export type ReleaseReadinessDoc = {
+  id: string;
+  decision: "hold" | "ship" | "rollback";
+  state: "not_run" | "running" | "complete";
+  blocker_codes: string[];
+  blockers: string[];
+  evaluated_cases: number;
+  critical_failures: number | null;
+  overall_score: number | null;
+  baseline_score: number | null;
+  candidate_delta: number | null;
+  score_standard_deviation: number | null;
+  confidence_low_95: number | null;
+  confidence_high_95: number | null;
+  slice_scores: Record<string, number>;
+  judge_agreement: number | null;
+  gate_version: number;
+  computed_at: string;
+};
+
+export type EvaluationState = {
+  campaign_id: string;
+  version: number;
+  workspace: {
+    evidence_artifacts: EvidenceArtifactDoc[];
+    evidence_claims: EvidenceClaimDoc[];
+    case_promotions: Array<Record<string, unknown>>;
+    bindings: EvaluationBindingsDoc | null;
+    trial_runs: TrialRunDoc[];
+    judge_calibrations: JudgeCalibrationDoc[];
+    release_decisions: ReleaseReadinessDoc[];
+  };
+  candidate_eval_cases: Array<Record<string, unknown>>;
+  release_readiness: ReleaseReadinessDoc;
+  artifact_id?: string;
+  deduplicated?: boolean;
+};
+
+/** Export the complete versioned evidence-to-eval artifact. */
+export async function getEvalPack(campaignId: string): Promise<EvalPack> {
+  return apiFetch<EvalPack>(apiEndpoints.campaigns.evalPack(campaignId));
+}
+
+export async function getEvaluationState(campaignId: string): Promise<EvaluationState> {
+  return apiFetch<EvaluationState>(
+    apiEndpoints.campaigns.evaluationState(campaignId),
+  );
+}
+
+export async function attachEvaluationEvidence(
+  campaignId: string,
+  body: {
+    expected_version: number;
+    kind: EvidenceArtifactDoc["kind"];
+    title: string;
+    source_system: string;
+    source_uri?: string;
+    authority: EvidenceArtifactDoc["authority"];
+    content: string;
+    trace_id?: string;
+    policy_version?: string;
+    model_version?: string;
+  },
+): Promise<EvaluationState> {
+  return apiFetch<EvaluationState>(
+    apiEndpoints.campaigns.evaluationEvidence(campaignId),
+    { method: "POST", json: body },
+  );
+}
+
+export async function reviewEvaluationEvidence(
+  campaignId: string,
+  body: {
+    expected_version: number;
+    artifact_ids: string[];
+    case_id: string;
+    assertion: string;
+    status: "needs_review" | "accepted" | "rejected";
+    rationale?: string;
+    promote_to?: "evidence_backed" | "regression";
+    frozen_input?: string;
+  },
+): Promise<EvaluationState> {
+  return apiFetch<EvaluationState>(
+    apiEndpoints.campaigns.evaluationEvidenceReview(campaignId),
+    { method: "POST", json: body },
+  );
+}
+
+export async function bindEvaluationVersions(
+  campaignId: string,
+  body: {
+    expected_version: number;
+    baseline_name: string;
+    baseline_version: string;
+    baseline_config_hash?: string;
+    candidate_name: string;
+    candidate_version: string;
+    candidate_config_hash?: string;
+  },
+): Promise<EvaluationState> {
+  return apiFetch<EvaluationState>(
+    apiEndpoints.campaigns.evaluationBindings(campaignId),
+    { method: "PUT", json: body },
+  );
+}
+
+export async function recordEvaluationTrial(
+  campaignId: string,
+  body: {
+    expected_version: number;
+    case_id: string;
+    repetition?: number;
+    baseline_output: string;
+    candidate_output: string;
+    baseline_score: number;
+    candidate_score: number;
+    baseline_passed: boolean;
+    candidate_passed: boolean;
+    candidate_critical_failure: boolean;
+    source_uri: string;
+  },
+): Promise<EvaluationState> {
+  return apiFetch<EvaluationState>(
+    apiEndpoints.campaigns.evaluationTrials(campaignId),
+    { method: "POST", json: body },
+  );
+}
+
+export async function recordJudgeCalibration(
+  campaignId: string,
+  body: {
+    expected_version: number;
+    judge_name: string;
+    judge_version: string;
+    rubric_version: string;
+    examples: CalibrationExampleInput[];
+    notes?: string;
+  },
+): Promise<EvaluationState> {
+  return apiFetch<EvaluationState>(
+    apiEndpoints.campaigns.evaluationCalibrations(campaignId),
+    { method: "POST", json: body },
+  );
+}
+
+export async function recomputeReleaseDecision(
+  campaignId: string,
+  expectedVersion: number,
+): Promise<EvaluationState> {
+  return apiFetch<EvaluationState>(
+    apiEndpoints.campaigns.evaluationReleaseDecision(campaignId),
+    {
+      method: "POST",
+      json: { expected_version: expectedVersion },
+    },
+  );
+}
+
 /** A clarifying question the assessment agent asks when intent is unclear. */
 export type AssessClarifyQuestion = {
   id: string;
@@ -209,11 +484,21 @@ export type OutlineItemDoc = {
   order: number;
   question: string;
   goal: string;
+  evidence_target?: string;
+  answer_schema?: "behavior" | "boundary" | "exception" | "correction" | "comparison" | "outcome";
+  authority?: "end_user" | "domain_expert" | "product_owner" | "policy" | "telemetry";
+  ask_when?: string;
+  stop_when?: string;
+  decision_impact?: number;
+  uncertainty?: number;
+  severity?: number;
+  respondent_cost?: number;
 };
 
 export type CampaignSpecDoc = {
   goal?: string;
   background?: string;
+  research_task?: ResearchTaskInput | null;
   hypotheses?: string[];
   target_persona?: string;
   audience_screener?: string[];
@@ -224,6 +509,9 @@ export type CampaignSpecDoc = {
   };
   channels?: { kind: string }[];
   target_completions?: number;
+  evaluation_plan?: Record<string, unknown> | null;
+  candidate_eval_cases?: Record<string, unknown>[];
+  evaluation_workspace?: Record<string, unknown>;
 };
 
 export type CampaignProgress = {
@@ -242,6 +530,7 @@ export type CampaignDetail = {
     title: string;
     status: string;
     spec: CampaignSpecDoc;
+    version: number;
     created_at: string;
     updated_at: string;
   };

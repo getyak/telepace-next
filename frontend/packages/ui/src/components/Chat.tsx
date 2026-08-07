@@ -264,7 +264,11 @@ export function ReadinessSpine({
   label?: string;
 }) {
   return (
-    <div className="flex items-center" role="group" aria-label={label}>
+    <div
+      className="grid min-w-0 grid-cols-2 gap-x-3 gap-y-2 sm:flex sm:items-center sm:gap-0"
+      role="group"
+      aria-label={label}
+    >
       {pips.map((pip, idx) => {
         const satisfied = pip.status === "satisfied";
         const na = pip.status === "na";
@@ -279,14 +283,14 @@ export function ReadinessSpine({
               <span
                 aria-hidden
                 className={cn(
-                  "h-px w-5 shrink-0 transition-colors duration-300",
+                  "hidden h-px w-5 shrink-0 transition-colors duration-300 sm:block",
                   prevSatisfied ? "bg-accent" : "bg-hairline",
                 )}
               />
             )}
             <span
               className={cn(
-                "inline-flex items-center gap-1.5 whitespace-nowrap px-1 text-xs transition-colors",
+                "inline-flex min-w-0 items-center gap-1.5 whitespace-nowrap text-xs transition-colors sm:px-1",
                 satisfied ? "font-medium text-ink" : "text-muted",
               )}
             >

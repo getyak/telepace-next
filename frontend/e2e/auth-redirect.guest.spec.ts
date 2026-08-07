@@ -23,7 +23,7 @@ test.describe("guest -> login -> intended page", () => {
     await page.waitForURL(/\/zh\/studies\/new$/, { timeout: 15_000 });
     // The bug rendered a real 404 page, so URL alone is not proof.
     await expect(page.locator("body")).not.toContainText("404");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("新建问卷");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("新建 AI 评测项目");
   });
 
   test("keeps the locale it was asked for", async ({ page }) => {

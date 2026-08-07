@@ -8,7 +8,7 @@
 export const siteConfig = {
   brand: {
     name: "telepace",
-    tagline: "Voice-native, Agent-first user research infrastructure",
+    tagline: "From user evidence to production evals",
   },
   contact: {
     supportEmail: "support@telepace.io",

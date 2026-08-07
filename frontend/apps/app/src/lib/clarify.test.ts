@@ -83,90 +83,127 @@ describe("deriveAudienceClarify", () => {
 // A minimal spec builder — mirrors the fields deriveReadiness reads, so tests
 // state only what they exercise.
 function spec(over: Partial<ReadinessSpecInput> = {}): ReadinessSpecInput {
-  const outline = (over.outline ?? []) as ReadinessSpecInput["outline"];
   return {
     goal: over.goal ?? "",
+    research_task: over.research_task ?? null,
     target_persona: over.target_persona ?? "",
     audience_screener: over.audience_screener ?? [],
-    outline,
+    outline: over.outline ?? [],
+    evaluation_plan: over.evaluation_plan ?? null,
+    candidate_eval_cases: over.candidate_eval_cases ?? [],
   };
 }
-const qs = (n: number) => Array.from({ length: n }, (_, i) => ({ order: i + 1 })) as unknown[] as ReadinessSpecInput["outline"];
+const task = {
+  decision: "Ship candidate B",
+  objective: "Handle account recovery safely",
+  audience: "Security policy owner",
+};
+const contract = {
+  contract: {
+    capability: "Account recovery",
+    expected_outcome: "Recover the verified account",
+    prohibited_outcomes: ["Expose an account"],
+    critical_slices: ["identity mismatch"],
+  },
+};
+const evidenceQuestion = {
+  evidence_target: "contract.identity_boundary",
+  authority: "policy",
+  ask_when: "The identity boundary is unresolved",
+  stop_when: "The policy owner accepts the rule",
+};
 
 describe("deriveReadiness", () => {
-  it("an empty spec leaves every applicable pip pending (na for who-pays)", () => {
+  it("an empty spec leaves every applicable blueprint field pending", () => {
     const r = deriveReadiness(spec());
     expect(r.decision).toBe("pending");
     expect(r.audience).toBe("pending");
     expect(r.depth).toBe("pending");
     expect(r.questions).toBe("pending");
-    // Non-pricing (empty) goal → who-pays is not-applicable, never "pending".
     expect(r.whopays).toBe("na");
   });
 
-  it("a non-blank goal satisfies the decision pip", () => {
-    expect(deriveReadiness(spec({ goal: "Why did trial users churn?" })).decision).toBe("satisfied");
-    // Whitespace-only is not a decision.
-    expect(deriveReadiness(spec({ goal: "   " })).decision).toBe("pending");
-  });
-
-  it("audience is satisfied by a persona OR any screener", () => {
-    expect(deriveReadiness(spec({ target_persona: "Freelance UI designers" })).audience).toBe("satisfied");
-    expect(deriveReadiness(spec({ audience_screener: ["Uses a calibrated monitor?"] })).audience).toBe("satisfied");
-    expect(deriveReadiness(spec()).audience).toBe("pending");
-  });
-
-  it("who-pays is na for non-pricing studies (visually distinct from pending)", () => {
-    const churn = deriveReadiness(spec({ goal: "Why did users cancel their subscription?" }));
-    expect(churn.whopays).toBe("na");
-  });
-
-  it("who-pays is pending on a pricing goal until a payer screener appears, then satisfied", () => {
-    const pricingNoPayer = deriveReadiness(spec({ goal: "What premium will designers pay for color accuracy?" }));
-    expect(pricingNoPayer.whopays).toBe("pending");
-    const pricingWithPayer = deriveReadiness(
-      spec({
-        goal: "What premium will designers pay for color accuracy?",
-        audience_screener: ["Do you buy it yourself or does your company reimburse?"],
-      }),
+  it("does not mistake a generated goal for an explicit release decision", () => {
+    expect(
+      deriveReadiness(spec({ goal: "Why did trial users churn?" })).decision,
+    ).toBe("pending");
+    expect(deriveReadiness(spec({ research_task: task })).decision).toBe(
+      "satisfied",
     );
-    expect(pricingWithPayer.whopays).toBe("satisfied");
   });
 
-  it("detects Chinese pricing goals + reimbursement screeners (报销)", () => {
-    const r = deriveReadiness(
-      spec({ goal: "设计师愿意为色准溢价付多少", audience_screener: ["自己付费还是公司报销？"] }),
+  it("requires named authority rather than an inferred persona or screener", () => {
+    expect(
+      deriveReadiness(spec({ target_persona: "Freelance UI designers" }))
+        .audience,
+    ).toBe("pending");
+    expect(
+      deriveReadiness(
+        spec({ audience_screener: ["Uses a calibrated monitor?"] }),
+      ).audience,
+    ).toBe("pending");
+    expect(deriveReadiness(spec({ research_task: task })).audience).toBe(
+      "satisfied",
     );
-    expect(r.whopays).toBe("satisfied");
   });
 
-  it("depth vs questions honor the outline-length boundary (0 / 1 / 3)", () => {
-    expect(deriveReadiness(spec({ outline: qs(0) })).depth).toBe("pending");
-    expect(deriveReadiness(spec({ outline: qs(0) })).questions).toBe("pending");
-    // One question: started (depth) but not yet substantial (questions).
-    expect(deriveReadiness(spec({ outline: qs(1) })).depth).toBe("satisfied");
-    expect(deriveReadiness(spec({ outline: qs(1) })).questions).toBe("pending");
-    // Three questions: both satisfied.
-    expect(deriveReadiness(spec({ outline: qs(3) })).depth).toBe("satisfied");
-    expect(deriveReadiness(spec({ outline: qs(3) })).questions).toBe("satisfied");
+  it("retires the survey-specific payer pip for evaluation programs", () => {
+    expect(
+      deriveReadiness(spec({ goal: "What premium will buyers pay?" })).whopays,
+    ).toBe("na");
+  });
+
+  it("requires a complete correctness contract for the boundaries pip", () => {
+    expect(deriveReadiness(spec({ research_task: task })).depth).toBe("pending");
+    expect(
+      deriveReadiness(
+        spec({ research_task: task, evaluation_plan: contract }),
+      ).depth,
+    ).toBe("satisfied");
+  });
+
+  it("requires evidence metadata and candidate cases, not a question count", () => {
+    expect(
+      deriveReadiness(
+        spec({
+          outline: [{}],
+          candidate_eval_cases: [{ status: "hypothesis" }],
+        }),
+      ).questions,
+    ).toBe("pending");
+    expect(
+      deriveReadiness(
+        spec({
+          outline: [evidenceQuestion],
+          candidate_eval_cases: [{ status: "hypothesis" }],
+        }),
+      ).questions,
+    ).toBe("satisfied");
   });
 });
 
 describe("readinessDelta", () => {
   it("reports only pips that newly flipped to satisfied", () => {
-    const prev = deriveReadiness(spec({ goal: "Why did users churn?" })); // decision satisfied
-    const next = deriveReadiness(spec({ goal: "Why did users churn?", outline: qs(3) }));
+    const prev = deriveReadiness(spec({ research_task: task }));
+    const next = deriveReadiness(
+      spec({
+        research_task: task,
+        evaluation_plan: contract,
+        outline: [evidenceQuestion],
+        candidate_eval_cases: [{ status: "hypothesis" }],
+      }),
+    );
     expect(readinessDelta(prev, next)).toEqual(["depth", "questions"]);
   });
 
   it("is empty when nothing newly satisfied (no phantom flash)", () => {
-    const r = deriveReadiness(spec({ goal: "Why did users churn?" }));
+    const r = deriveReadiness(spec({ research_task: task }));
     expect(readinessDelta(r, r)).toEqual([]);
   });
 
   it("does not report a pip that regressed (satisfied → pending)", () => {
-    const prev = deriveReadiness(spec({ goal: "Why did users churn?", outline: qs(3) }));
-    const next = deriveReadiness(spec({ goal: "Why did users churn?", outline: qs(0) }));
+    const prev = deriveReadiness(spec({ research_task: task }));
+    const next = deriveReadiness(spec());
     expect(readinessDelta(prev, next)).toEqual([]);
   });
 });
@@ -179,7 +216,12 @@ describe("pendingCount", () => {
 
   it("reaches zero when every applicable pip is satisfied", () => {
     const r = deriveReadiness(
-      spec({ goal: "Why did users churn?", target_persona: "Trial users", outline: qs(3) }),
+      spec({
+        research_task: task,
+        evaluation_plan: contract,
+        outline: [evidenceQuestion],
+        candidate_eval_cases: [{ status: "hypothesis" }],
+      }),
     );
     expect(pendingCount(r)).toBe(0);
   });

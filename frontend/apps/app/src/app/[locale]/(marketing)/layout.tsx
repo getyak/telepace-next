@@ -14,11 +14,16 @@ export default async function MarketingLayout({
   // The session cookie is httpOnly and scoped to path "/", so the server can
   // detect logged-in-ness and hand it to the nav as a first-paint hint.
   const cookieStore = await cookies();
-  const hasSession =
-    cookieStore.has(ACCESS_COOKIE) || cookieStore.has(REFRESH_COOKIE);
+  const hasAccess = cookieStore.has(ACCESS_COOKIE);
+  const hasRefresh = cookieStore.has(REFRESH_COOKIE);
+  const hasSession = hasAccess || hasRefresh;
 
   return (
-    <AuthProvider redirectOnExpiry={false} initialHasSession={hasSession}>
+    <AuthProvider
+      redirectOnExpiry={false}
+      initialHasSession={hasSession}
+      initialNeedsRefresh={!hasAccess && hasRefresh}
+    >
       {/* Scroll-reveal blocks start at opacity:0 and only fade in once JS
           (IntersectionObserver) marks them visible. Without JS — a crawler that
           doesn't execute scripts, or a reader who disabled them — that content
