@@ -28,6 +28,20 @@ export const apiEndpoints = {
     simulate: (id: string) => `/v1/campaigns/${id}/simulate`,
     insights: (id: string) => `/v1/campaigns/${id}/insights`,
     evidence: (id: string) => `/v1/campaigns/${id}/evidence`,
+    evalPack: (id: string) => `/v1/campaigns/${id}/eval-pack`,
+    evaluationState: (id: string) => `/v1/campaigns/${id}/evaluation-state`,
+    evaluationEvidence: (id: string) =>
+      `/v1/campaigns/${id}/evaluation/evidence`,
+    evaluationEvidenceReview: (id: string) =>
+      `/v1/campaigns/${id}/evaluation/evidence/review`,
+    evaluationBindings: (id: string) =>
+      `/v1/campaigns/${id}/evaluation/bindings`,
+    evaluationTrials: (id: string) =>
+      `/v1/campaigns/${id}/evaluation/trials`,
+    evaluationCalibrations: (id: string) =>
+      `/v1/campaigns/${id}/evaluation/calibrations`,
+    evaluationReleaseDecision: (id: string) =>
+      `/v1/campaigns/${id}/evaluation/release-decision`,
     settings: (id: string) => `/v1/campaigns/${id}/settings`,
     respondent: (id: string) => `/v1/campaigns/${id}/respondent`,
   },

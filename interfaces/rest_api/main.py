@@ -18,7 +18,14 @@ from interfaces.rest_api.auth.router import router as auth_router
 from interfaces.rest_api.config import cors_allow_origin_regex, get_settings
 from interfaces.rest_api.deps import AppState, build_state
 from interfaces.rest_api.metering import meter_completion
-from interfaces.rest_api.routers import agent, billing, campaigns, health, interviews
+from interfaces.rest_api.routers import (
+    agent,
+    billing,
+    campaigns,
+    evaluations,
+    health,
+    interviews,
+)
 from interfaces.rest_api.worker import analyze_completion
 
 logger = logging.getLogger(__name__)
@@ -96,6 +103,7 @@ def create_app() -> FastAPI:
     application.include_router(auth_router)
     application.include_router(oauth_google_router)
     application.include_router(campaigns.router)
+    application.include_router(evaluations.router)
     application.include_router(interviews.router)
     application.include_router(billing.router)
     application.include_router(agent.router)

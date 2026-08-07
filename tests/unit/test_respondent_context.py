@@ -7,7 +7,7 @@ from uuid import uuid4
 import pytest
 
 from core.domain.models import CampaignStatus
-from core.events import RespondentJoined
+from core.events import InterviewStarted, RespondentJoined, TurnRecorded
 from harness.memory import InMemoryMemory
 from interfaces.rest_api.config import cors_allow_origin_regex
 from interfaces.rest_api.embed_session import issue_embed_session
@@ -16,10 +16,12 @@ from interfaces.rest_api.respondent_context import (
     normalize_referrer_origin,
     normalize_respondent_source,
     receive_headless_session_token,
+    receive_interview_handshake,
     respondent_campaign_state,
     respondent_connection_context,
     respondent_origin_allowed,
 )
+from storage.event_store import InMemoryEventStore
 
 TEST_SECRET = "test-secret-that-is-at-least-thirty-two-bytes"
 
@@ -30,6 +32,14 @@ class _AuthWebSocket:
 
     async def receive_text(self):
         return '{"type":"authenticate","session_token":"first-frame-token"}'
+
+
+class _ResumeWebSocket:
+    def __init__(self) -> None:
+        self.query_params = {"handshake": "1"}
+
+    async def receive_text(self):
+        return '{"type":"resume","resume_token":"continuation-token"}'
 
 
 class _Projector:
@@ -69,6 +79,16 @@ def test_old_respondent_joined_events_keep_safe_defaults() -> None:
 async def test_headless_token_is_read_from_first_frame_not_query_string() -> None:
     token = await receive_headless_session_token(_AuthWebSocket(), timeout_seconds=1)
     assert token == "first-frame-token"
+
+
+@pytest.mark.asyncio
+async def test_public_resume_token_is_read_from_first_frame_not_url() -> None:
+    session_token, resume_token = await receive_interview_handshake(
+        _ResumeWebSocket(),
+        timeout_seconds=1,
+    )
+    assert session_token == ""
+    assert resume_token == "continuation-token"
 
 
 @pytest.mark.asyncio
@@ -332,6 +352,61 @@ async def test_hydrate_restores_campaign_spec_and_isolates_interview_history() -
         (await memory.load(interview_id))["interview_started_at"],
         float,
     )
+
+
+@pytest.mark.asyncio
+async def test_hydrate_rebuilds_interview_history_from_durable_events() -> None:
+    campaign_id = uuid4()
+    interview_id = uuid4()
+    memory = InMemoryMemory()
+    events = InMemoryEventStore()
+    campaign = SimpleNamespace(
+        org_id=uuid4(),
+        spec=SimpleNamespace(
+            model_dump=lambda mode: {
+                "primary_language": "en",
+                "budget_usd": 5,
+                "target_completions": 1,
+            }
+        ),
+    )
+    await events.append(
+        InterviewStarted(campaign_id=campaign_id, interview_id=interview_id)
+    )
+    await events.append(
+        TurnRecorded(
+            campaign_id=campaign_id,
+            interview_id=interview_id,
+            order=1,
+            role="respondent",
+            text="My original answer",
+        )
+    )
+    await events.append(
+        TurnRecorded(
+            campaign_id=campaign_id,
+            interview_id=interview_id,
+            order=2,
+            role="interviewer",
+            text="The next question",
+        )
+    )
+    state = SimpleNamespace(
+        projector=_Projector(campaign),
+        memory=memory,
+        event_store=events,
+    )
+
+    await hydrate_respondent_interview_context(
+        state,
+        campaign_id,
+        interview_id,
+    )
+
+    assert (await memory.load(interview_id))["interview_history"] == [
+        {"role": "respondent", "text": "My original answer"},
+        {"role": "interviewer", "text": "The next question"},
+    ]
 
 
 @pytest.mark.asyncio

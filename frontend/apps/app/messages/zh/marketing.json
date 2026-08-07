@@ -1,13 +1,13 @@
 {
   "home": {
     "hero": {
-      "eyebrow": "语音原生，Agent 优先",
-      "titleLine1": "理解用户",
-      "titleEmphasis": "真正想要什么，以及原因。",
-      "subtitle": "telepace 自动为你的用户发起语音访谈，并将结构化的洞察结果回传给你的 Agent，让它能够据此采取行动。",
-      "ctaPrimary": "免费开始",
-      "ctaSecondary": "体验 60 秒实时访谈 →",
-      "footnote": "免费版每月包含 3 项研究，无需信用卡。"
+      "eyebrow": "从证据到 Eval",
+      "titleLine1": "教会你的 AI",
+      "titleEmphasis": "什么才叫正确。",
+      "subtitle": "Telepace 把线上失败、专家判断、政策与用户证据，编译成 Eval Case、校准后的裁判和发布门禁。",
+      "ctaPrimary": "创建 Eval Pack",
+      "ctaSecondary": "查看退款失败案例 →",
+      "footnote": "一次代价高昂的失败就能开始，不需要问卷级的大样本。"
     },
     "heroDemo": {
       "liveLabel": "实时 · 试着回答",
@@ -28,147 +28,168 @@
       "send": "发送",
       "ctaFull": "体验完整 60 秒访谈",
       "restart": "重新开始"
+      ,"candidate": "候选版本 B · 发布检查",
+      "decision": "暂缓",
+      "releaseScore": "发布评分",
+      "delta": "比线上版本 +9",
+      "slicesLabel": "评测切片",
+      "slice_overall": "总体",
+      "slice_refund": "退款",
+      "slice_missing": "信息缺失",
+      "slice_escalation": "人工升级",
+      "blocker": "关键阻断",
+      "caseId": "CASE-042",
+      "blockerText": "Agent 在核验退款政策资格前就向用户承诺退款。",
+      "blockerMeta": "1 次关键失败 · 模糊退款切片 · 零容忍",
+      "evidenceLabel": "来源",
+      "evidenceQuote": "资格不明确时禁止承诺，必须携带订单上下文升级人工。",
+      "evidenceSource": "退款政策 v12 · 负责人已确认",
+      "gateRule": "任何关键政策违规都会阻断发布",
+      "gateResult": "暂缓发布"
     },
     "trustBar": {
       "stats": {
         "channels": {
-          "value": "5 种渠道",
-          "detail": "一次访谈"
+          "value": "1 次失败",
+          "detail": "即可开始"
         },
         "launchTime": {
-          "value": "< 60 秒",
-          "detail": "即可发起一项研究"
+          "value": "< 3 分钟",
+          "detail": "得到第一版评测合同"
         },
         "surfaces": {
-          "value": "MCP · Skill · REST",
-          "detail": "无论你的 Agent 运行在哪里"
+          "value": "JSON · MCP · CI",
+          "detail": "进入真实发布流程"
         }
       }
     },
     "howItWorks": {
       "eyebrow": "工作原理",
-      "title": "一次对话，从想法到洞察。",
+      "title": "从一次坏结果，到一道永久发布门禁。",
       "steps": {
         "design": {
-          "title": "在对话中设计",
-          "description": "描述你想了解的内容，我们的 Designer Agent 会在几秒内给出访谈大纲——你可以在对话中随时调整。"
+          "title": "定义任务合同",
+          "description": "明确发布决策、预期结果、禁止结果、可用工具与关键切片。"
         },
         "send": {
-          "title": "通过语音、电话或链接发送",
-          "description": "推送邮件、分享链接，或直接拨打电话邀约。同一份访谈，五种触达渠道。"
+          "title": "定位证据缺口",
+          "description": "Telepace 展示未知项、谁有资格回答，以及每个问题为什么值得问。"
         },
         "moderate": {
-          "title": "AI 主持整场访谈",
-          "description": "每一场访谈都由同样细致的“研究员”主持：耐心追问、覆盖度追踪，关键时刻自动升级处理。"
+          "title": "只收集缺失证据",
+          "description": "把轨迹、政策、工单、专家纠正或一次短用户澄清连接到同一证据图谱。"
         },
         "insights": {
-          "title": "洞察即刻可用",
-          "description": "主题、原声引述、用户画像——自动同步到你的 Agent、Notion 或 Linear，无需在仪表盘里翻找。"
+          "title": "编译并阻断",
+          "description": "导出可重放 Eval Case、评分锚点、分层裁判，以及发布或暂缓结论。"
         }
       }
     },
     "insights": {
-      "eyebrow": "你将得到什么",
-      "title": "读起来像研究员亲笔写的洞察。",
-      "description": "不是让你逐字翻阅的转录稿——而是带置信度的主题排序，每一条都有可溯源的原声引述作为支撑。下面就是一份完成态的研究产出。",
-      "cta": "在演示中亲自体验 →",
+      "eyebrow": "持续复利的产物",
+      "title": "真正能保护下一次发布的证据。",
+      "description": "一句引述不是终点。Telepace 把确认过的证据编译成有版本的任务合同、回归用例、评分标准、裁判方案和发布门禁。",
+      "cta": "创建第一份 Eval Pack →",
       "panel": {
-        "study": "定价研究 — Q3",
-        "meta": "24 场访谈 · 3 个主题 · 综合分析完成",
+        "study": "退款政策回归评测",
+        "meta": "1 次线上失败 · 政策 v12 · 负责人已校准",
+        "sourceLabel": "真实证据",
+        "compiledLabel": "编译产物",
+        "trace": "trace_8f21 · 第 14 轮 · policy_refund_v12",
         "themes": {
           "t1": {
-            "title": "价格被锚定在缺失的企业级功能上",
-            "count": "14 / 24 场访谈"
+            "title": "任务合同",
+            "count": "承诺前必须核验退款资格"
           },
           "t2": {
-            "title": "年付折扣会改变用户的决策逻辑",
-            "count": "11 / 24 场访谈"
+            "title": "关键 Eval Case",
+            "count": "模糊退款请求必须升级人工"
           },
           "t3": {
-            "title": "按用量计费比两档订阅更有吸引力",
-            "count": "9 / 24 场访谈"
+            "title": "发布门禁",
+            "count": "政策违规容忍次数为 0"
           }
         },
         "quote": {
-          "text": "每月 79 美元本来没问题——直到我发现 SSO 不包含在内，那一刻就开始觉得是在被惩罚。",
-          "attribution": "第 17 场访谈 · B2B SaaS 产品负责人 · 14:32"
+          "text": "机器人说退款已经批准，后来人工客服却告诉我根本不符合资格。",
+          "attribution": "客服工单 #1842 · 已关联线上轨迹 · 已核验"
         },
-        "exportHint": "自动同步到你团队工作的地方"
+        "exportHint": "telepace.eval-pack.v1 · 完整保留来源"
       }
     },
     "channels": {
-      "eyebrow": "五种渠道，一次访谈",
-      "title": "在受访者所在之处与他们相遇。",
+      "eyebrow": "一张证据图谱",
+      "title": "选择真正有权威的来源，而不是数量最多的来源。",
       "items": {
         "link": {
-          "name": "可分享链接",
-          "meta": "秒级发起"
+          "name": "线上轨迹",
+          "meta": "还原实际发生了什么"
         },
         "browserVoice": {
-          "name": "浏览器语音",
-          "meta": "实时 · 低延迟"
+          "name": "客服工单",
+          "meta": "保留高代价失败上下文"
         },
         "phone": {
-          "name": "外呼电话",
-          "meta": "Vapi + 真人般的温度"
+          "name": "领域专家",
+          "meta": "定义质量门槛与边界"
         },
         "hotline": {
-          "name": "呼入热线",
-          "meta": "专属号码"
+          "name": "政策与规格",
+          "meta": "生成确定性硬门禁"
         },
         "email": {
-          "name": "邮件邀约",
-          "meta": "异步 · 适合批量"
+          "name": "用户澄清",
+          "meta": "仅在行为无法解释意图时"
         }
       }
     },
     "agentSurfaces": {
-      "eyebrow": "Agent 优先",
-      "title": "让你的 Agent 拥有一位用户研究员。",
-      "description": "telepace 提供 MCP 服务、Skill 和 REST API 三种接入方式。无论你的 Agent 运行在 Claude Desktop、Cursor、Codex 还是自建编排系统中，现在都能设计研究方案、发起访谈，并读取结构化的洞察结果。",
-      "cta": "浏览 MCP 工具 →",
+      "eyebrow": "Agent 原生",
+      "title": "你的 Coding Agent 负责构建，Telepace 告诉它什么绝不能再次出错。",
+      "description": "通过 MCP、Skill、REST 或版本化 JSON，把线上证据编译为评测，并将完全一致的发布门禁带入现有 runner 与 CI。",
+      "cta": "查看集成方式 →",
       "tabs": {
         "mcp": "MCP",
         "rest": "REST API",
         "skill": "Skill"
       },
       "insights": {
-        "mcp1": "「不含 SSO 的 $79 有惩罚感」",
-        "mcp2": "「年付折扣改变了他们的算账方式」",
-        "mcp3": "「按量计费会胜过两档订阅」",
-        "skill1": "「onboarding 太早要银行卡」",
-        "skill2": "「空白工作区像是在布置作业」",
-        "skill3": "「邀请协作者才是真正的激活时刻」"
+        "mcp1": "线上轨迹已关联政策 v12",
+        "mcp2": "模糊退款请求已编译为 Eval Case",
+        "mcp3": "零容忍发布门禁已保留",
+        "skill1": "1 次关键政策违规",
+        "skill2": "已记录 3 次重复运行",
+        "skill3": "必须完成专家校准"
       }
     },
     "useCases": {
-      "eyebrow": "适用于",
-      "title": "为那些追问「为什么」的人而造。",
+      "eyebrow": "明确的付费负责人",
+      "title": "为真正对 AI 行为负责的团队而造。",
       "items": {
         "pm": {
-          "role": "产品经理",
-          "description": "让用户声音进入每一次路线图评审。"
+          "role": "AI 产品负责人",
+          "description": "做出可辩护的发布、暂缓或回滚决策。"
         },
         "researchers": {
-          "role": "用户研究员",
-          "description": "在不扩招团队的前提下，规模化开展深度访谈。"
+          "role": "评测工程师",
+          "description": "把真实失败变成永久回归覆盖。"
         },
         "growth": {
-          "role": "增长团队",
-          "description": "在流失用户忘记原因之前，及时访谈他们。"
+          "role": "领域专家",
+          "description": "一次编码专业判断，持续测量裁判一致性。"
         },
         "founders": {
-          "role": "创始人",
-          "description": "在打磨 MVP 的同一周内完成 30 场访谈。"
+          "role": "风险与运营团队",
+          "description": "让政策边界可观察，并能真正阻断发布。"
         }
       }
     },
     "finalCta": {
-      "titleLine1": "别再靠猜测。",
-      "titleEmphasis": "开始倾听用户。",
-      "subtitle": "每一个产品决策，都值得有上百位用户的声音作为支撑。",
-      "ctaPrimary": "免费开始",
-      "ctaSecondary": "体验 60 秒实时访谈 →"
+      "titleLine1": "不要发布",
+      "titleEmphasis": "尚未定义正确性的 AI。",
+      "subtitle": "从团队最不能承受再次发生的那次失败开始。",
+      "ctaPrimary": "创建 Eval Pack",
+      "ctaSecondary": "查看完整流程 →"
     }
   },
   "pricing": {

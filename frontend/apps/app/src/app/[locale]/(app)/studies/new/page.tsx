@@ -38,10 +38,16 @@ import {
   type SimulateResponse,
 } from "@/lib/api";
 import { friendlyMessage } from "@/lib/errors";
+import { downloadEvalPack } from "@/lib/evalPack";
 import { useErrorsCopy } from "@/components/app/ErrorsCopyContext";
 import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { WelcomeEndConfig } from "@/components/wizard/WelcomeEndConfig";
+import {
+  EvaluationBlueprint,
+  type EvalCaseDraftDoc,
+  type EvaluationPlanDoc,
+} from "@/components/evaluation/EvaluationBlueprint";
 
 type OutlineItem = {
   order: number;
@@ -50,6 +56,15 @@ type OutlineItem = {
   max_followups?: number;
   branch_if_positive?: string | null;
   branch_if_negative?: string | null;
+  evidence_target?: string;
+  answer_schema?: "behavior" | "boundary" | "exception" | "correction" | "comparison" | "outcome";
+  authority?: "end_user" | "domain_expert" | "product_owner" | "policy" | "telemetry";
+  ask_when?: string;
+  stop_when?: string;
+  decision_impact?: number;
+  uncertainty?: number;
+  severity?: number;
+  respondent_cost?: number;
 };
 
 type ChannelEntry = { kind: string; config?: Record<string, string> };
@@ -79,6 +94,8 @@ type Spec = {
   target_completions: number;
   estimated_minutes: number;
   success_criteria: string[];
+  evaluation_plan: EvaluationPlanDoc | null;
+  candidate_eval_cases: EvalCaseDraftDoc[];
 } & Required<RespondentExperienceSettings>;
 
 const INITIAL_SPEC: Spec = {
@@ -94,6 +111,8 @@ const INITIAL_SPEC: Spec = {
   target_completions: 10,
   estimated_minutes: 15,
   success_criteria: [],
+  evaluation_plan: null,
+  candidate_eval_cases: [],
   welcome_message: "",
   consent_text: "",
   end_message: "",
@@ -115,6 +134,8 @@ type ServerSpec = {
   };
   channels?: ChannelEntry[];
   target_completions?: number;
+  evaluation_plan?: EvaluationPlanDoc | null;
+  candidate_eval_cases?: EvalCaseDraftDoc[];
 } & RespondentExperienceSettings;
 
 // Merge any subset of server-shaped spec fields into local Spec state.
@@ -141,6 +162,9 @@ function mergeServerSpec(prev: Spec, patch: ServerSpec, title?: string): Spec {
     next.channels = patch.channels.map((c) => c.kind).filter(Boolean);
   if (typeof patch.target_completions === "number")
     next.target_completions = patch.target_completions;
+  if (patch.evaluation_plan !== undefined) next.evaluation_plan = patch.evaluation_plan;
+  if (Array.isArray(patch.candidate_eval_cases))
+    next.candidate_eval_cases = patch.candidate_eval_cases;
   if (typeof patch.welcome_message === "string") next.welcome_message = patch.welcome_message;
   if (typeof patch.consent_text === "string") next.consent_text = patch.consent_text;
   if (typeof patch.end_message === "string") next.end_message = patch.end_message;
@@ -148,6 +172,14 @@ function mergeServerSpec(prev: Spec, patch: ServerSpec, title?: string): Spec {
     next.reward_description = patch.reward_description;
   if (typeof patch.redirect_url === "string") next.redirect_url = patch.redirect_url;
   return next;
+}
+
+function questionPriority(item: OutlineItem): number {
+  const impact = item.decision_impact ?? 3;
+  const uncertainty = item.uncertainty ?? 3;
+  const severity = item.severity ?? 3;
+  const cost = Math.max(1, item.respondent_cost ?? 2);
+  return (impact * uncertainty * severity) / cost;
 }
 
 export default function NewStudyPage() {
@@ -182,6 +214,7 @@ export default function NewStudyPage() {
   const [phaseStartedAt, setPhaseStartedAt] = useState<number | null>(null);
   const [phaseElapsedSeconds, setPhaseElapsedSeconds] = useState(0);
   const [publishing, setPublishing] = useState(false);
+  const [exporting, setExporting] = useState(false);
   // Respondent-experience settings (welcome/consent/end/reward/redirect) are
   // collapsed by default — most studies never touch them, and showing five
   // more text fields above the publish button by default would bury it.
@@ -259,6 +292,10 @@ export default function NewStudyPage() {
   const priorContextRef = useRef<string>("");
   const clarifyRoundsRef = useRef<number>(0);
   const originalGoalRef = useRef<string>("");
+  // Preserve the exact evidence gap that produced the current chips. Sending
+  // only a bare answer back made the intake model occasionally ask the same
+  // question twice because it could not tell what the answer referred to.
+  const lastGateQuestionRef = useRef<{ id: string; prompt: string } | null>(null);
   // After how many clarify rounds we stop gating and create with best-effort
   // task — respects the researcher's time (never an infinite interrogation).
   // Two keeps parity with Listen Labs' typical decision→audience rhythm; a
@@ -436,6 +473,10 @@ export default function NewStudyPage() {
     if (JSON.stringify(next.outline) !== JSON.stringify(prev.outline)) moved.add("outline");
     if (JSON.stringify(next.success_criteria) !== JSON.stringify(prev.success_criteria))
       moved.add("criteria");
+    if (JSON.stringify(next.evaluation_plan) !== JSON.stringify(prev.evaluation_plan))
+      moved.add("evaluation");
+    if (JSON.stringify(next.candidate_eval_cases) !== JSON.stringify(prev.candidate_eval_cases))
+      moved.add("cases");
     prevSpecRef.current = next;
 
     // Readiness spine: did any pip newly flip to satisfied on this patch?
@@ -586,8 +627,13 @@ export default function NewStudyPage() {
       priorContextRef.current = "";
       clarifyRoundsRef.current = 0;
       taskDraftRef.current = { decision: "", objective: "", audience: "" };
+      lastGateQuestionRef.current = null;
     } else {
-      priorContextRef.current = `${priorContextRef.current}\n${text}`.trim();
+      const lastQuestion = lastGateQuestionRef.current;
+      const labeledAnswer = lastQuestion
+        ? `Question (${lastQuestion.id}): ${lastQuestion.prompt}\nAnswer: ${text}`
+        : `Answer: ${text}`;
+      priorContextRef.current = `${priorContextRef.current}\n${labeledAnswer}`.trim();
       clarifyRoundsRef.current += 1;
     }
     inGateRef.current = true;
@@ -625,21 +671,66 @@ export default function NewStudyPage() {
       objective: assess.objective || taskDraftRef.current.objective,
       audience: assess.audience || taskDraftRef.current.audience,
     };
+    // A structured option already carries a trustworthy answer to the gap that
+    // was asked. Keep it even if an upstream model fails to copy it into the
+    // matching field on the next assessment round.
+    const answeredGap = lastGateQuestionRef.current?.id.toLowerCase() ?? "";
+    if (answeredGap.includes("decision") && !taskDraftRef.current.decision) {
+      taskDraftRef.current.decision = text;
+    }
+    if (
+      (answeredGap.includes("audience") || answeredGap.includes("authority")) &&
+      !taskDraftRef.current.audience
+    ) {
+      taskDraftRef.current.audience = text;
+    }
 
     const hitCeiling = clarifyRoundsRef.current >= MAX_CLARIFY_ROUNDS;
-    const nextQuestion = assess.clarifying_questions[0];
+    let nextQuestion = assess.clarifying_questions[0];
+    // A network fallback or malformed model response must not silently turn a
+    // missing decision/authority into a completed blueprint.
+    if (!nextQuestion && !taskDraftRef.current.decision) {
+      nextQuestion = {
+        id: "release_decision",
+        prompt:
+          locale === "zh"
+            ? "这套评测最终要支持哪个发布或变更决策？"
+            : "Which release or change decision must this evaluation support?",
+        multi: false,
+        options: [],
+        allow_freeform: true,
+      };
+    } else if (!nextQuestion && !taskDraftRef.current.audience) {
+      nextQuestion = {
+        id: "correctness_authority",
+        prompt:
+          locale === "zh"
+            ? "谁或哪份政策有权定义这个场景中的正确行为？"
+            : "Who or which policy has authority to define correct behavior here?",
+        multi: false,
+        options: [],
+        allow_freeform: true,
+      };
+    }
+    const taskComplete = Boolean(
+      taskDraftRef.current.decision &&
+        taskDraftRef.current.objective &&
+        taskDraftRef.current.audience,
+    );
 
-    if (assess.ready || hitCeiling || !nextQuestion) {
+    if (assess.ready || (hitCeiling && taskComplete) || (!nextQuestion && taskComplete)) {
       // Intent is clear enough — create. Prepend a brief "got it" note when we
       // have a decision to state back, so the transition never feels abrupt.
       patchMessage(agentId, { text: tc("gateReady"), pending: true });
       await createFromTask(agentId, goal, taskDraftRef.current);
+      lastGateQuestionRef.current = null;
       return;
     }
 
     // Not ready — surface the next clarifying question as chips. The researcher
     // steers (or types, or skips) without a study existing yet.
     const notResearch = !assess.looks_like_research;
+    lastGateQuestionRef.current = { id: nextQuestion.id, prompt: nextQuestion.prompt };
     patchMessage(agentId, {
       text: notResearch ? tc("gateNotResearch") : nextQuestion.prompt,
       pending: false,
@@ -937,6 +1028,34 @@ export default function NewStudyPage() {
     }
   }
 
+  async function handleExport() {
+    if (!campaignId || exporting) return;
+    setExporting(true);
+    try {
+      await downloadEvalPack(campaignId);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: "system",
+          text: tc("exportSuccessDescription"),
+        },
+      ]);
+    } catch (err) {
+      const copy = friendlyMessage(err, errorsCopy);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: "system",
+          text: `${tc("exportFailTitle")}: ${copy.description}`,
+        },
+      ]);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   const guideMaterializing =
     busy &&
     spec.outline.length === 0 &&
@@ -1179,6 +1298,15 @@ export default function NewStudyPage() {
               competing with it. */}
           <div className="flex shrink-0 items-center justify-end gap-2">
             <Button
+              variant="secondary"
+              size="sm"
+              loading={exporting}
+              disabled={!campaignId || !spec.evaluation_plan}
+              onClick={handleExport}
+            >
+              {exporting ? tc("exportingEvalPack") : tc("exportEvalPack")}
+            </Button>
+            <Button
               variant="ghost"
               size="sm"
               loading={simLoading}
@@ -1324,6 +1452,23 @@ export default function NewStudyPage() {
                 </div>
               )}
 
+            {spec.evaluation_plan && (() => {
+              const d = diffMark("evaluation");
+              return (
+                <div
+                  key={d.key}
+                  className={`tp-study-emerge ${d.className}`}
+                  style={{ animationDelay: "160ms" }}
+                >
+                  {d.badge}
+                  <EvaluationBlueprint
+                    plan={spec.evaluation_plan}
+                    cases={spec.candidate_eval_cases}
+                  />
+                </div>
+              );
+            })()}
+
             {spec.target_persona && (() => {
               const d = diffMark("persona");
               return (
@@ -1425,8 +1570,43 @@ export default function NewStudyPage() {
                         {String(q.order).padStart(2, "0")}
                       </div>
                       <div>
+                        {(q.evidence_target || q.authority) && (
+                          <div className="mb-2 flex flex-wrap items-center gap-2">
+                            {q.evidence_target && (
+                              <span className="rounded-pill bg-accent-soft/65 px-2 py-0.5 font-mono text-[10px] text-accent">
+                                {q.evidence_target}
+                              </span>
+                            )}
+                            {q.authority && (
+                              <span className="rounded-pill border border-hairline px-2 py-0.5 text-[10px] font-medium text-muted">
+                                {tc(`authority_${q.authority}`)}
+                              </span>
+                            )}
+                            <span className="ml-auto font-mono text-[10px] text-muted">
+                              {tc("questionPriority", {
+                                value: questionPriority(q).toFixed(1),
+                              })}
+                            </span>
+                          </div>
+                        )}
                         <p className="leading-[1.7] text-ink">{q.question}</p>
                         <p className="mt-1.5 text-xs leading-relaxed text-muted">{tc("goalPrefix")}{q.goal}</p>
+                        {(q.ask_when || q.stop_when) && (
+                          <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
+                            {q.ask_when && (
+                              <div>
+                                <dt className="font-semibold text-body">{tc("questionAskWhen")}</dt>
+                                <dd className="mt-0.5 leading-relaxed text-muted">{q.ask_when}</dd>
+                              </div>
+                            )}
+                            {q.stop_when && (
+                              <div>
+                                <dt className="font-semibold text-body">{tc("questionStopWhen")}</dt>
+                                <dd className="mt-0.5 leading-relaxed text-muted">{q.stop_when}</dd>
+                              </div>
+                            )}
+                          </dl>
+                        )}
                       </div>
                     </li>
                   ))}
@@ -1511,7 +1691,7 @@ export default function NewStudyPage() {
               channelLabels={CHANNEL_LABELS}
               onPublish={handlePublish}
               publishing={publishing}
-              canPublish={!!campaignId && spec.outline.length > 0}
+              canPublish={!!campaignId && readinessOpen === 0}
               openReadiness={readinessOpen}
               copy={{
                 title: tc("launchTitle"),

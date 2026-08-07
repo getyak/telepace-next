@@ -1,37 +1,60 @@
 # telepace
 
-Voice-native, Agent-first user research infrastructure.
+Evidence-to-eval infrastructure for AI products.
 
-> Your Claude / Cursor / Codex can now interview 100 users while you sleep, and wake up to structured insights it can act on.
+> Turn one costly production failure, policy correction, or expert judgment into
+> a versioned regression case and an enforceable release gate.
 
 ## What this is
 
-telepace is a **user research platform** designed for AI agents as the first-class user. Three surfaces:
+telepace is an **evidence-to-eval compiler**. It connects the people and systems
+that know what “correct” means to the evals that decide whether an AI change can
+ship.
 
-1. **MCP Server** — Claude / Cursor / Codex call `create_campaign`, `get_insights`, etc.
-2. **Web App** — traditional research team dashboard with chat-first study composer
-3. **REST API + Webhook** — embed in your own agent or product
+The core loop is:
+
+1. **Define correctness** — release decision, capability, authority, boundaries,
+   prohibited outcomes, and critical slices.
+2. **Collect only missing evidence** — production traces, telemetry, policy
+   interpretation, expert corrections, and end-user intent.
+3. **Compile an Eval Pack** — replayable cases, observable rubric anchors,
+   layered graders, provenance, and a versioned release gate.
+4. **Improve continuously** — evidence promotes hypotheses into durable
+   regressions; judge disagreements trigger human calibration.
+
+The product ships through three surfaces:
+
+1. **Web workbench** — chat-first correctness contract and evidence compiler.
+2. **REST API + Eval Pack JSON** — embed collection and release gating into an
+   AI product or CI workflow.
+3. **MCP Server** — let Claude, Codex, and other agents create and inspect
+   evaluation programs.
 
 ## Positioning
 
-- vs Outset / Listen Labs: **Agent-first**, not dashboard-first
-- vs Perspective / Voicepanel: **Voice-native** (real-time voice interviews, not text-only)
-- vs Tally / Typeform MCP: **Research closed-loop** (moderate + analyze + push back to agent), not form CRUD
+- vs generic model prompts: **durable evidence, provenance, judge calibration,
+  and release decisions**, not one-off generation.
+- vs survey tools: **questions exist only to close a named eval gap**, not to
+  collect large samples by default.
+- vs benchmark dashboards: **production failures and policy corrections become
+  replayable regression cases**, not aggregate scores detached from real harm.
+- vs horizontal eval tooling: **vertical correctness recipes** make high-value
+  domains fast, concrete, and testable.
 
 ## Architecture
 
 ```
-Ingress (Marketing / Web App / Respondent UI / MCP)
+Ingress (Production trace / Product telemetry / Expert / User / MCP)
     ↓
-Contract Layer (Pydantic — single source of truth)
+Correctness Contract (decision / authority / boundaries / prohibited outcomes)
     ↓
-Harness (Orchestrator + Router + Memory + Policies + Observability)
+Evidence Gap Planner (ask only what is missing)
     ↓
-Agents (Designer / Interviewer / Analyst / Coordinator)
+Eval Compiler (cases / rubric / layered graders / release gate)
     ↓
-Domain Services (voiceflow / analysis lib / channel workers)
+Evidence Collection (web / voice / phone / API)
     ↓
-Event Store (Postgres append-only) + Projections + pgvector
+Event Store + Provenance + Versioned Eval Pack
 ```
 
 See [docs/architecture.md](docs/architecture.md) for the full design.

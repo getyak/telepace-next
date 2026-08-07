@@ -2,11 +2,11 @@ import { getTranslations } from "next-intl/server";
 import { Button, Card } from "@telepace/ui";
 import { routes } from "@telepace/config";
 import {
-  LinkIcon,
-  MailIcon,
-  MicIcon,
-  PhoneInIcon,
-  PhoneOutIcon,
+  AudienceIcon,
+  CopilotIcon,
+  InboxIcon,
+  InsightsIcon,
+  StudiesIcon,
 } from "@telepace/icons";
 
 import { Link } from "@/i18n/navigation";
@@ -14,8 +14,8 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { buildPageMetadata, softwareApplicationSchema } from "@/lib/seo";
 import { AgentSurfacesTabs } from "@/components/marketing/AgentSurfacesTabs";
 import { HeroBackdrop } from "@/components/marketing/HeroBackdrop";
-import { HeroInterview } from "@/components/marketing/HeroInterview";
-import { InsightsShowcase } from "@/components/marketing/InsightsShowcase";
+import { EvalGateDemo } from "@/components/marketing/EvalGateDemo";
+import { EvalPackShowcase } from "@/components/marketing/EvalPackShowcase";
 import { Reveal } from "@/components/marketing/Reveal";
 
 export async function generateMetadata({
@@ -49,8 +49,8 @@ export default async function Home({
       <Hero />
       <TrustBar />
       <HowItWorks />
-      <InsightsShowcase />
-      <Channels />
+      <EvalPackShowcase />
+      <EvidenceSources />
       <AgentSurfaces />
       <UseCases />
       <FinalCTA />
@@ -85,7 +85,7 @@ async function Hero() {
           <p className="mt-4 text-sm text-muted">{t("footnote")}</p>
         </div>
         <div className="md:col-span-5">
-          <HeroInterview />
+          <EvalGateDemo />
         </div>
       </div>
     </section>
@@ -167,19 +167,19 @@ async function HowItWorks() {
   );
 }
 
-async function Channels() {
+async function EvidenceSources() {
   const t = await getTranslations("marketing.home.channels");
   const chs = [
-    { id: "link", Icon: LinkIcon, name: t("items.link.name"), meta: t("items.link.meta") },
+    { id: "link", Icon: StudiesIcon, name: t("items.link.name"), meta: t("items.link.meta") },
     {
       id: "browserVoice",
-      Icon: MicIcon,
+      Icon: InboxIcon,
       name: t("items.browserVoice.name"),
       meta: t("items.browserVoice.meta"),
     },
-    { id: "phone", Icon: PhoneOutIcon, name: t("items.phone.name"), meta: t("items.phone.meta") },
-    { id: "hotline", Icon: PhoneInIcon, name: t("items.hotline.name"), meta: t("items.hotline.meta") },
-    { id: "email", Icon: MailIcon, name: t("items.email.name"), meta: t("items.email.meta") },
+    { id: "phone", Icon: AudienceIcon, name: t("items.phone.name"), meta: t("items.phone.meta") },
+    { id: "hotline", Icon: CopilotIcon, name: t("items.hotline.name"), meta: t("items.hotline.meta") },
+    { id: "email", Icon: InsightsIcon, name: t("items.email.name"), meta: t("items.email.meta") },
   ];
   return (
     <section className="section-padding border-t border-hairline">

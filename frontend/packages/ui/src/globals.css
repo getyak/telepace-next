@@ -214,6 +214,27 @@
   background: rgba(220, 228, 210, 0.42);
 }
 
+/* The correctness contract is the strongest object on an evaluation sheet.
+   It uses one quiet inset surface and a double rule, borrowing the visual
+   language of an audited record rather than adding another dashboard card. */
+.tp-eval-contract {
+  position: relative;
+  border-top: 3px double rgba(74, 93, 59, 0.42);
+  border-bottom: 1px solid rgba(74, 93, 59, 0.18);
+  background:
+    linear-gradient(110deg, rgba(220, 228, 210, 0.54), rgba(250, 248, 243, 0.72));
+  padding: 1.5rem;
+}
+.tp-eval-contract::before {
+  position: absolute;
+  top: 1.45rem;
+  bottom: 1.45rem;
+  left: 0;
+  width: 2px;
+  content: "";
+  background: rgba(74, 93, 59, 0.72);
+}
+
 /* Questions behave like document rows. Resting dividers preserve scan rhythm;
    the quiet wash and 2px nudge appear only when the row is actionable. */
 .tp-study-question-list {

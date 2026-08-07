@@ -93,17 +93,22 @@ async def test_pii_redacts_phone_number() -> None:
     assert "phone" in d.events[0].fields
 
 
-async def test_pii_phone_regex_shadows_cn_id_regex() -> None:
-    """Regression pin: The PHONE regex `\\+?\\d[\\d\\s\\-]{7,}\\d` also matches
-    an 18-char Chinese ID number, and it runs BEFORE the CN_ID regex, so in
-    practice CN ids are surfaced as phone redactions and the cn_id branch is
-    unreachable. Fixing this is a deliberate change; this test locks the
-    current behaviour so it is not a silent regression."""
+async def test_pii_redacts_cn_id_before_the_broader_phone_pattern() -> None:
     from harness.policies.pii import redact
 
     cleaned, fields = redact("11010119900101101X")
-    assert "[phone]" in cleaned
-    assert fields == ["phone"]
+    assert "[id]" in cleaned
+    assert fields == ["cn_id"]
+
+
+async def test_pii_does_not_corrupt_iso_timestamp_or_trace_id() -> None:
+    from harness.policies.pii import redact
+
+    original = "trace tr_123 started at 2026-08-05T14:22:00Z"
+    cleaned, fields = redact(original)
+
+    assert cleaned == original
+    assert fields == []
 
 
 async def test_pii_emits_no_event_when_text_is_clean() -> None:

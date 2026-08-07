@@ -83,7 +83,7 @@ const DOMAIN_LENSES: Array<{ test: RegExp; keys: Array<keyof ClarifyCopy["generi
  * backend `_RESEARCH_SIGNAL`. Not NLP; just enough to tell a research goal from
  * a greeting or a pasted speech script. */
 const RESEARCH_SIGNAL =
-  /understand|learn|why|research|study|interview|feedback|user|customer|survey|explore|discover|reaction|decide|了解|调研|研究|访谈|反馈|用户|客户|为什么|流失|留存|偏好|体验|决策|洞察/i;
+  /understand|learn|why|research|study|interview|feedback|user|customer|survey|explore|discover|reaction|decide|eval|agent|model|release|ship|judge|trace|policy|production|baseline|candidate|correct|safety|了解|调研|研究|访谈|反馈|用户|客户|为什么|流失|留存|偏好|体验|决策|洞察|评测|评估|智能体|模型|发布|上线|裁判|轨迹|政策|正确|安全/i;
 
 /** The local mirror of the server AssessResult — only the fields the create
  * loop reads when the backend is unreachable. */
@@ -218,45 +218,66 @@ export const READINESS_ORDER: Array<keyof Readiness> = [
  * in isolation. */
 export type ReadinessSpecInput = {
   goal: string;
+  research_task?: {
+    decision: string;
+    objective: string;
+    audience: string;
+  } | null;
   target_persona: string;
   audience_screener: string[];
-  outline: { length: number } & unknown[];
+  outline: Array<{
+    evidence_target?: string;
+    authority?: string;
+    ask_when?: string;
+    stop_when?: string;
+  }>;
+  evaluation_plan?: {
+    contract: {
+      capability: string;
+      expected_outcome: string;
+      prohibited_outcomes: string[];
+      critical_slices: string[];
+    };
+  } | null;
+  candidate_eval_cases?: Array<{ status?: string }>;
 };
 
-/** A pay/reimbursement screener signals the "who pays" question is answered.
- * Distinct from {@link PRICING_SIGNAL} (which classifies the goal): this looks
- * for an actual payer screener among the audience questions. */
-const PAYER_SCREENER = /pay|reimburs|fund|budget|expens|付费|报销|预算|资金|公司/i;
-
-/** How many questions constitute a "real" outline vs a bare start. */
-const OUTLINE_READY = 3;
-
 /**
- * Derive the readiness spine from the current spec — pure, no side effects,
- * no stored state. Each pip answers one wizard-equivalent question:
+ * Derive blueprint readiness from authoritative evaluation fields.
  *
- * - decision  — do we know what decision this supports?  (`goal` present)
- * - audience  — do we know who we're listening to?       (persona or screener)
- * - whopays   — pricing studies only: is the payer named? (else `na`)
- * - depth     — has the outline started?                 (any questions)
- * - questions — is the outline substantial?              (>= OUTLINE_READY)
+ * Generated prose is not proof of captured intent. A goal does not satisfy a
+ * release decision, and a guessed persona does not satisfy authority. The
+ * final two pips mean "contract and evidence plan are complete", never "real
+ * evidence or trials already exist".
  */
 export function deriveReadiness(spec: ReadinessSpecInput): Readiness {
-  const goal = spec.goal?.trim() ?? "";
-  const isPricing = goal.length > 0 && PRICING_SIGNAL.test(goal);
-  const hasPayerScreener = spec.audience_screener.some((q) => PAYER_SCREENER.test(q));
+  const task = spec.research_task;
+  const contract = spec.evaluation_plan?.contract;
+  const hasContract =
+    Boolean(task?.objective.trim()) &&
+    Boolean(contract?.capability.trim()) &&
+    Boolean(contract?.expected_outcome.trim()) &&
+    Boolean(contract?.prohibited_outcomes.length) &&
+    Boolean(contract?.critical_slices.length);
+  const hasEvidencePlan =
+    spec.outline.length > 0 &&
+    spec.outline.every(
+      (item) =>
+        Boolean(item.evidence_target?.trim()) &&
+        Boolean(item.authority?.trim()) &&
+        Boolean(item.ask_when?.trim()) &&
+        Boolean(item.stop_when?.trim()),
+    ) &&
+    Boolean(spec.candidate_eval_cases?.length);
 
   return {
-    decision: goal.length > 0 ? "satisfied" : "pending",
-    audience:
-      spec.target_persona.trim().length > 0 || spec.audience_screener.length > 0
-        ? "satisfied"
-        : "pending",
-    // Only pricing studies have a "who pays" step; on everything else it is
-    // genuinely not-applicable, not merely unfinished.
-    whopays: !isPricing ? "na" : hasPayerScreener ? "satisfied" : "pending",
-    depth: spec.outline.length > 0 ? "satisfied" : "pending",
-    questions: spec.outline.length >= OUTLINE_READY ? "satisfied" : "pending",
+    decision: task?.decision.trim() ? "satisfied" : "pending",
+    audience: task?.audience.trim() ? "satisfied" : "pending",
+    // Kept for backwards-compatible rendering order; evaluation authority now
+    // subsumes the old survey-specific payer step.
+    whopays: "na",
+    depth: hasContract ? "satisfied" : "pending",
+    questions: hasEvidencePlan ? "satisfied" : "pending",
   };
 }
 

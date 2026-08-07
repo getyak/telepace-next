@@ -38,6 +38,7 @@ data/
 
 # Playwright MCP debug artifacts
 .playwright-mcp/
+.playwright-cli/
 
 # Playwright E2E
 # .auth holds a real signed-in session cookie — never commit it.
@@ -47,3 +48,7 @@ frontend/playwright-report/
 frontend/blob-report/
 frontend/.cache/
 .gstack/
+
+# Local audit renders and scratch output
+output/
+tmp/

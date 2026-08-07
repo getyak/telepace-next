@@ -25,7 +25,19 @@ from uuid import UUID, uuid4
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from core.domain.models import CampaignSpec, CampaignStatus
+from core.domain.models import (
+    CampaignSpec,
+    CampaignStatus,
+    EvalCaseDraft,
+    EvaluationContract,
+    EvaluationPlan,
+    GraderKind,
+    GraderSpec,
+    Outline,
+    OutlineItem,
+    ReleaseGate,
+    ResearchTask,
+)
 from interfaces.rest_api.auth.router import router as auth_router
 from interfaces.rest_api.auth.users_repo import (
     UserAlreadyExistsError,
@@ -34,6 +46,7 @@ from interfaces.rest_api.auth.users_repo import (
 )
 from interfaces.rest_api.config import get_settings
 from interfaces.rest_api.routers.campaigns import router as campaigns_router
+from interfaces.rest_api.routers.evaluations import router as evaluations_router
 from storage.projections.campaign_projector import (
     CampaignProjection,
     ProgressSnapshot,
@@ -125,7 +138,15 @@ class _FakeProjector:
     def __init__(self) -> None:
         self._campaigns: dict[UUID, CampaignProjection] = {}
 
-    def add(self, *, campaign_id: UUID, org_id: UUID, author_id: UUID, title: str) -> None:
+    def add(
+        self,
+        *,
+        campaign_id: UUID,
+        org_id: UUID,
+        author_id: UUID,
+        title: str,
+        spec: CampaignSpec | None = None,
+    ) -> None:
         now = datetime.now(tz=UTC)
         self._campaigns[campaign_id] = CampaignProjection(
             id=campaign_id,
@@ -133,7 +154,7 @@ class _FakeProjector:
             author_id=author_id,
             title=title,
             status=CampaignStatus.DRAFT,
-            spec=CampaignSpec(goal="isolation test"),
+            spec=spec or CampaignSpec(goal="isolation test"),
             version=1,
             created_at=now,
             updated_at=now,
@@ -171,9 +192,25 @@ class _FakeProjector:
         if isinstance(event, SpecUpdated):
             existing = self._campaigns.get(event.campaign_id)
             if existing is not None:
-                merged_spec = existing.spec.model_copy(update=event.patch)
+                title = event.patch.get("title")
+                spec_patch = {
+                    key: value
+                    for key, value in event.patch.items()
+                    if key != "title"
+                }
+                merged_spec = CampaignSpec.model_validate(
+                    {
+                        **existing.spec.model_dump(mode="json"),
+                        **spec_patch,
+                    }
+                )
                 self._campaigns[event.campaign_id] = existing.model_copy(
-                    update={"spec": merged_spec}
+                    update={
+                        "title": title if isinstance(title, str) else existing.title,
+                        "spec": merged_spec,
+                        "version": existing.version + 1,
+                        "last_event_seq": seq,
+                    }
                 )
 
 
@@ -207,6 +244,7 @@ def _build_client() -> tuple[TestClient, _MemUsersRepo, _FakeProjector]:
     app = FastAPI()
     app.include_router(auth_router)
     app.include_router(campaigns_router)
+    app.include_router(evaluations_router)
 
     users = _MemUsersRepo()
     projector = _FakeProjector()
@@ -256,7 +294,9 @@ def test_campaign_list_is_scoped_to_own_org() -> None:
     alex = users.users[users.by_email["alex@example.com"]]
 
     alex_campaign = uuid4()
-    projector.add(campaign_id=alex_campaign, org_id=alex.org_id, author_id=alex.id, title="Alex study")
+    projector.add(
+        campaign_id=alex_campaign, org_id=alex.org_id, author_id=alex.id, title="Alex study"
+    )
 
     r = client.get("/v1/campaigns", headers=_auth(alex_token))
     assert r.status_code == 200
@@ -284,18 +324,320 @@ def test_cross_tenant_by_id_reads_return_404() -> None:
 
     # Outsider gets 404 (existence not leaked), not 200 and not 403.
     assert client.get(f"/v1/campaigns/{cid}", headers=_auth(mia_token)).status_code == 404
-    assert (
-        client.get(f"/v1/campaigns/{cid}/insights", headers=_auth(mia_token)).status_code == 404
-    )
-    assert (
-        client.get(f"/v1/campaigns/{cid}/evidence", headers=_auth(mia_token)).status_code == 404
-    )
+    assert client.get(f"/v1/campaigns/{cid}/insights", headers=_auth(mia_token)).status_code == 404
+    assert client.get(f"/v1/campaigns/{cid}/evidence", headers=_auth(mia_token)).status_code == 404
 
 
 def test_unknown_campaign_id_is_404_for_owner_too() -> None:
     client, _, _ = _build_client()
     token = _register(client, "alex@example.com")
     assert client.get(f"/v1/campaigns/{uuid4()}", headers=_auth(token)).status_code == 404
+
+
+def test_eval_pack_preserves_contract_provenance_and_priority() -> None:
+    client, users, projector = _build_client()
+    token = _register(client, "alex@example.com")
+    alex = users.users[users.by_email["alex@example.com"]]
+    cid = uuid4()
+    spec = CampaignSpec(
+        goal="Prevent unauthorized refund promises",
+        research_task=ResearchTask(
+            decision="Ship candidate B",
+            objective="Prevent unauthorized refund promises",
+            audience="Refund policy owner",
+        ),
+        outline=Outline(
+            items=[
+                OutlineItem(
+                    order=1,
+                    question="Provide the latest failing production trace.",
+                    goal="Freeze a replayable regression.",
+                    evidence_target="case.refund_promise.trace",
+                    authority="telemetry",
+                    decision_impact=5,
+                    uncertainty=4,
+                    severity=5,
+                    respondent_cost=2,
+                )
+            ]
+        ),
+        evaluation_plan=EvaluationPlan(
+            contract=EvaluationContract(
+                release_decision="Ship candidate B",
+                capability="Refund eligibility verification",
+                prohibited_outcomes=["Promise before verification"],
+                critical_slices=["missing eligibility"],
+            ),
+            graders=[
+                GraderSpec(
+                    name="Policy assertions",
+                    kind=GraderKind.DETERMINISTIC,
+                    checks=["eligibility fields", "tool calls"],
+                )
+            ],
+            release_gate=ReleaseGate(max_critical_failures=0),
+        ),
+        candidate_eval_cases=[
+            EvalCaseDraft(
+                title="Missing eligibility",
+                scenario="A required order field is absent.",
+                expected_behavior="Do not promise; escalate.",
+                severity=5,
+            )
+        ],
+    )
+    projector.add(
+        campaign_id=cid,
+        org_id=alex.org_id,
+        author_id=alex.id,
+        title="Refund policy gate",
+        spec=spec,
+    )
+
+    response = client.get(f"/v1/campaigns/{cid}/eval-pack", headers=_auth(token))
+
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["schema_version"] == "telepace.eval-pack.v1"
+    assert body["evaluation_program"]["version"] == 1
+    assert body["evaluation_program"]["research_task"]["audience"] == "Refund policy owner"
+    assert body["evaluation_plan"]["release_gate"]["max_critical_failures"] == 0
+    assert body["release_readiness"]["decision"] == "hold"
+    assert body["release_readiness"]["state"] == "not_run"
+    assert body["release_readiness"]["critical_failures"] is None
+    assert {
+        "hypothesis_cases",
+        "bindings_missing",
+        "trials_missing",
+        "calibration_examples_missing",
+    }.issubset(body["release_readiness"]["blocker_codes"])
+    assert body["candidate_eval_cases"][0]["status"] == "hypothesis"
+    assert body["evidence_questions"][0]["evidence_target"] == "case.refund_promise.trace"
+    assert body["evidence_questions"][0]["priority_score"] == 50.0
+
+
+def test_eval_pack_is_tenant_scoped() -> None:
+    client, users, projector = _build_client()
+    alex_token = _register(client, "alex@example.com")
+    mia_token = _register(client, "mia@example.com")
+    alex = users.users[users.by_email["alex@example.com"]]
+    cid = uuid4()
+    projector.add(
+        campaign_id=cid,
+        org_id=alex.org_id,
+        author_id=alex.id,
+        title="Private eval",
+    )
+    assert (
+        client.get(
+            f"/v1/campaigns/{cid}/eval-pack",
+            headers=_auth(alex_token),
+        ).status_code
+        == 200
+    )
+    assert (
+        client.get(
+            f"/v1/campaigns/{cid}/eval-pack",
+            headers=_auth(mia_token),
+        ).status_code
+        == 404
+    )
+
+
+def test_evidence_to_regression_to_ship_flow_is_durable_and_computed() -> None:
+    client, users, projector = _build_client()
+    token = _register(client, "owner@example.com")
+    owner = users.users[users.by_email["owner@example.com"]]
+    case = EvalCaseDraft(
+        title="Do not promise when eligibility is unknown",
+        scenario="A required eligibility field is missing.",
+        expected_behavior="Escalate without promising a refund.",
+        failure_signals=["Refund promise"],
+        slice="missing eligibility",
+        severity=5,
+    )
+    spec = CampaignSpec(
+        goal="Gate candidate B against a production refund failure",
+        evaluation_plan=EvaluationPlan(
+            contract=EvaluationContract(
+                release_decision="Ship candidate B",
+                capability="Refund handling",
+                expected_outcome="Escalate unverified requests",
+                prohibited_outcomes=["Promise before verification"],
+                critical_slices=[case.slice],
+            ),
+            release_gate=ReleaseGate(
+                minimum_overall_score=85,
+                minimum_slice_score=80,
+                max_critical_failures=0,
+                minimum_repetitions=3,
+                requires_human_calibration=True,
+            ),
+        ),
+        candidate_eval_cases=[case],
+    )
+    cid = uuid4()
+    projector.add(
+        campaign_id=cid,
+        org_id=owner.org_id,
+        author_id=owner.id,
+        title="Refund release gate",
+        spec=spec,
+    )
+    headers = _auth(token)
+
+    attached = client.post(
+        f"/v1/campaigns/{cid}/evaluation/evidence",
+        headers=headers,
+        json={
+            "expected_version": 1,
+            "kind": "trace",
+            "title": "Production failure tr_123",
+            "source_system": "support-production",
+            "source_uri": "trace://tr_123",
+            "authority": "telemetry",
+            "content": "tr_123 failed at 2026-08-05T14:22Z",
+            "trace_id": "tr_123",
+            "policy_version": "refund-v12",
+            "model_version": "production-a",
+        },
+    )
+    assert attached.status_code == 200, attached.text
+    attached_body = attached.json()
+    assert attached_body["version"] == 2
+    artifact = attached_body["workspace"]["evidence_artifacts"][0]
+    assert artifact["raw_content"] == "tr_123 failed at 2026-08-05T14:22Z"
+    assert artifact["display_content"] == artifact["raw_content"]
+    assert len(artifact["content_sha256"]) == 64
+
+    reviewed = client.post(
+        f"/v1/campaigns/{cid}/evaluation/evidence/review",
+        headers=headers,
+        json={
+            "expected_version": 2,
+            "artifact_ids": [attached_body["artifact_id"]],
+            "case_id": str(case.id),
+            "assertion": "The production agent promised a refund before verification.",
+            "status": "accepted",
+            "rationale": "The trace and policy version establish the boundary.",
+            "promote_to": "regression",
+            "frozen_input": "Customer requests a refund with eligibility missing.",
+        },
+    )
+    assert reviewed.status_code == 200, reviewed.text
+    assert reviewed.json()["version"] == 3
+    promoted_case = reviewed.json()["candidate_eval_cases"][0]
+    assert promoted_case["status"] == "regression"
+    assert promoted_case["source_artifact_ids"] == [attached_body["artifact_id"]]
+
+    bound = client.put(
+        f"/v1/campaigns/{cid}/evaluation/bindings",
+        headers=headers,
+        json={
+            "expected_version": 3,
+            "baseline_name": "support-agent",
+            "baseline_version": "production-a",
+            "candidate_name": "support-agent",
+            "candidate_version": "candidate-b",
+        },
+    )
+    assert bound.status_code == 200, bound.text
+    version = bound.json()["version"]
+
+    for repetition in range(1, 4):
+        trial = client.post(
+            f"/v1/campaigns/{cid}/evaluation/trials",
+            headers=headers,
+            json={
+                "expected_version": version,
+                "case_id": str(case.id),
+                "repetition": repetition,
+                "baseline_output": "Escalated to the policy owner.",
+                "candidate_output": "Escalated with the order context.",
+                "baseline_score": 88,
+                "candidate_score": 94,
+                "baseline_passed": True,
+                "candidate_passed": True,
+                "candidate_critical_failure": False,
+                "source_uri": f"runner://refund/{repetition}",
+            },
+        )
+        assert trial.status_code == 200, trial.text
+        version = trial.json()["version"]
+
+    examples = [
+        {
+            "pair_id": f"blind-pair-{index}",
+            "slice": case.slice,
+            "split": "holdout" if index >= 8 else "development",
+            "candidate_a_ref": f"artifact://pair/{index}/a",
+            "candidate_b_ref": f"artifact://pair/{index}/b",
+            "judge_verdict": "b",
+            "expert_verdict": "b",
+            "rationale": "B preserves the escalation boundary.",
+        }
+        for index in range(10)
+    ]
+    calibrated = client.post(
+        f"/v1/campaigns/{cid}/evaluation/calibrations",
+        headers=headers,
+        json={
+            "expected_version": version,
+            "judge_name": "refund-judge",
+            "judge_version": "v2",
+            "rubric_version": "v3",
+            "examples": examples,
+            "notes": "Eight development examples and two protected holdouts.",
+        },
+    )
+    assert calibrated.status_code == 200, calibrated.text
+    assert calibrated.json()["release_readiness"]["decision"] == "ship"
+    assert calibrated.json()["release_readiness"]["blockers"] == []
+    assert calibrated.json()["release_readiness"]["judge_agreement"] == 1.0
+
+    reloaded = client.get(
+        f"/v1/campaigns/{cid}/evaluation-state",
+        headers=headers,
+    )
+    assert reloaded.status_code == 200
+    assert reloaded.json()["release_readiness"]["decision"] == "ship"
+    assert len(reloaded.json()["workspace"]["trial_runs"]) == 3
+
+    exported = client.get(f"/v1/campaigns/{cid}/eval-pack", headers=headers)
+    assert exported.status_code == 200
+    assert exported.json()["release_readiness"]["decision"] == "ship"
+    exported_artifact = exported.json()["evaluation_workspace"]["evidence_artifacts"][0]
+    assert "raw_content" not in exported_artifact
+    assert exported_artifact["content_sha256"] == artifact["content_sha256"]
+
+
+def test_evaluation_mutations_reject_stale_program_versions() -> None:
+    client, users, projector = _build_client()
+    token = _register(client, "owner@example.com")
+    owner = users.users[users.by_email["owner@example.com"]]
+    cid = uuid4()
+    projector.add(
+        campaign_id=cid,
+        org_id=owner.org_id,
+        author_id=owner.id,
+        title="Versioned eval",
+    )
+
+    response = client.post(
+        f"/v1/campaigns/{cid}/evaluation/evidence",
+        headers=_auth(token),
+        json={
+            "expected_version": 99,
+            "kind": "trace",
+            "title": "stale",
+            "source_system": "test",
+            "authority": "telemetry",
+            "content": "must not persist",
+        },
+    )
+
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "evaluation_version_conflict"
 
 
 # -- T-111 (respondent-facing welcome/consent/end/reward/redirect) -------------

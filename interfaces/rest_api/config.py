@@ -88,6 +88,10 @@ class Settings(BaseSettings):
     )
     embed_session_ttl_seconds: int = 10 * 60
     embed_auth_timeout_seconds: int = 8
+    # A respondent may resume the same durable interview after a tab reload or
+    # transport failure. The signed token contains no answer text and remains
+    # scoped to one campaign/interview/respondent tuple.
+    interview_resume_ttl_seconds: int = 60 * 60 * 24 * 30
 
     # --- FastAPI metadata (shown in /docs)
     api_title: str = "telepace API"
@@ -267,10 +271,10 @@ class Settings(BaseSettings):
     # --- Agent LLM tuning (max_tokens / temperature per agent)
     designer_max_tokens: int = 4000
     designer_temperature: float = 0.3
-    designer_assess_timeout_seconds: float = 12.0
+    designer_assess_timeout_seconds: float = 4.0
     # Keep interactive campaign creation below the browser's request deadline.
     # A deterministic, usable discussion guide is returned when this expires.
-    designer_seed_timeout_seconds: float = 25.0
+    designer_seed_timeout_seconds: float = 12.0
     interviewer_max_tokens: int = 1600
     interviewer_temperature: float = 0.5
     analyst_max_tokens: int = 3000

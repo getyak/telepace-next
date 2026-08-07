@@ -14,19 +14,31 @@ import {
   getCampaign,
   getCampaignEvidence,
   getCampaignInsights,
+  getEvaluationState,
   startCampaign,
   type CampaignDetail,
   type CampaignEvidence,
   type CampaignInsights,
+  type EvaluationState,
   type InsightItem,
 } from "@/lib/api";
 import { buildResponseRows } from "@/lib/evidenceGraph";
 import { friendlyMessage } from "@/lib/errors";
+import { newestEvaluationState } from "@/lib/evaluationState";
 import { useErrorsCopy } from "@/components/app/ErrorsCopyContext";
+import {
+  EvaluationBlueprint,
+  type EvalCaseDraftDoc,
+  type EvaluationPlanDoc,
+} from "@/components/evaluation/EvaluationBlueprint";
+import { EvaluationWorkbench } from "@/components/evaluation/EvaluationWorkbench";
+import { downloadEvalPack } from "@/lib/evalPack";
 
 type Params = { id: string; locale: string };
 
-const POLL_MS = 5000;
+const POLL_MIN_MS = 15000;
+const POLL_HIDDEN_MS = 30000;
+const POLL_MAX_MS = 60000;
 
 const statusVariant: Record<string, "accent" | "neutral" | "success"> = {
   live: "accent",
@@ -63,28 +75,63 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
     phone_outbound: t("channelPhoneOutbound"),
   };
   const tReport = useTranslations("app.report");
+  const tEval = useTranslations("app.newStudy");
+  const tWorkbench = useTranslations("app.evaluationWorkbench");
   const errorsCopy = useErrorsCopy();
 
   const [detail, setDetail] = useState<CampaignDetail | null>(null);
   const [insights, setInsights] = useState<CampaignInsights | null>(null);
   const [evidence, setEvidence] = useState<CampaignEvidence | null>(null);
+  const [evaluationState, setEvaluationState] =
+    useState<EvaluationState | null>(null);
+  const [evaluationError, setEvaluationError] = useState<string | null>(null);
+  const [evaluationLoading, setEvaluationLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
   const [closing, setClosing] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const copiedTimer = useRef<number | null>(null);
 
+  // Evaluation mutations and the live-study poll can finish out of order.
+  // Event-stream versions are monotonic, so never let an older poll response
+  // overwrite a newer mutation that the reviewer has already saved.
+  const acceptEvaluationState = useCallback((next: EvaluationState) => {
+    setEvaluationState((current) => newestEvaluationState(current, next));
+  }, []);
+
   const refresh = useCallback(async () => {
-    const [d, i, e] = await Promise.all([
-      getCampaign(id),
-      getCampaignInsights(id),
-      getCampaignEvidence(id),
-    ]);
-    setDetail(d);
-    setInsights(i);
-    setEvidence(e);
+    const [detailResult, insightsResult, evidenceResult] =
+      await Promise.allSettled([
+        getCampaign(id),
+        getCampaignInsights(id),
+        getCampaignEvidence(id),
+      ]);
+    if (detailResult.status === "rejected") throw detailResult.reason;
+    setDetail(detailResult.value);
+    setLoadError(null);
+    if (insightsResult.status === "fulfilled") {
+      setInsights(insightsResult.value);
+    }
+    if (evidenceResult.status === "fulfilled") {
+      setEvidence(evidenceResult.value);
+    }
   }, [id]);
+
+  const refreshEvaluation = useCallback(async () => {
+    setEvaluationLoading(true);
+    try {
+      const next = await getEvaluationState(id);
+      acceptEvaluationState(next);
+      setEvaluationError(null);
+    } catch (error) {
+      setEvaluationError(friendlyMessage(error, errorsCopy).description);
+      throw error;
+    } finally {
+      setEvaluationLoading(false);
+    }
+  }, [id, errorsCopy, acceptEvaluationState]);
 
   useEffect(() => {
     let cancelled = false;
@@ -96,18 +143,49 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
     };
   }, [refresh, errorsCopy]);
 
+  const hasEvaluationPlan = Boolean(detail?.campaign.spec.evaluation_plan);
+  useEffect(() => {
+    if (!hasEvaluationPlan || evaluationState) return;
+    void refreshEvaluation().catch(() => {
+      // The blueprint remains readable and exposes a local retry if the
+      // versioned evaluation state is temporarily unavailable.
+    });
+  }, [evaluationState, hasEvaluationPlan, refreshEvaluation]);
+
   // Live studies keep themselves fresh: interviews land and insights appear
-  // without a manual reload.
+  // without a manual reload. Polls never overlap, slow down in hidden tabs,
+  // and back off after transient failures.
   const status = detail?.campaign.status;
   useEffect(() => {
     if (status !== "live") return;
-    const timer = window.setInterval(() => {
-      refresh().catch(() => {
-        /* transient poll failure -- next tick retries */
-      });
-    }, POLL_MS);
-    return () => window.clearInterval(timer);
-  }, [status, refresh]);
+    let cancelled = false;
+    let timer: number | null = null;
+    let delay = POLL_MIN_MS;
+
+    const schedule = (wait: number) => {
+      if (!cancelled) timer = window.setTimeout(poll, wait);
+    };
+    const poll = async () => {
+      if (document.visibilityState === "hidden") {
+        schedule(POLL_HIDDEN_MS);
+        return;
+      }
+      try {
+        await refresh();
+        if (hasEvaluationPlan) await refreshEvaluation();
+        delay = POLL_MIN_MS;
+      } catch {
+        delay = Math.min(delay * 2, POLL_MAX_MS);
+      }
+      schedule(delay);
+    };
+
+    schedule(delay);
+    return () => {
+      cancelled = true;
+      if (timer !== null) window.clearTimeout(timer);
+    };
+  }, [hasEvaluationPlan, refresh, refreshEvaluation, status]);
 
   useEffect(() => {
     const title = detail?.campaign.title;
@@ -155,7 +233,23 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
     }
   }
 
-  if (loadError) {
+  async function handleExport() {
+    setExporting(true);
+    try {
+      await downloadEvalPack(id);
+      toast.success({
+        title: tEval("exportSuccessTitle"),
+        description: tEval("exportSuccessDescription"),
+      });
+    } catch (err) {
+      const copy = friendlyMessage(err, errorsCopy);
+      toast.error({ title: tEval("exportFailTitle"), description: copy.description });
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  if (loadError && !detail) {
     return (
       <div className="mx-auto max-w-content p-10">
         <Link href={routes.app.root} className="rounded-input text-sm text-muted transition-colors hover:text-ink active:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-paper">
@@ -196,6 +290,12 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
   const isLive = campaign.status === "live";
   const canPublish = campaign.status === "draft" || campaign.status === "ready";
   const totalInsights = insights?.total ?? 0;
+  const evaluationPlan = spec.evaluation_plan as EvaluationPlanDoc | null | undefined;
+  const candidateEvalCases = (
+    evaluationState?.candidate_eval_cases ??
+    spec.candidate_eval_cases ??
+    []
+  ) as EvalCaseDraftDoc[];
 
   return (
     <div className="mx-auto max-w-content p-6 md:p-10">
@@ -226,24 +326,90 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
           <h1 className="font-display text-4xl">{campaign.title}</h1>
           {spec.goal && <p className="mt-3 max-w-2xl text-body">{spec.goal}</p>}
         </div>
-        <div className="flex shrink-0 gap-2">
-          <Link href={`${routes.app.studies.byId(id)}/report`}>
-            <Button variant="ghost" size="sm">
+        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:shrink-0">
+          {evaluationPlan && (
+            <Button
+              className="w-full sm:w-auto"
+              variant="secondary"
+              size="sm"
+              loading={exporting}
+              onClick={handleExport}
+            >
+              {exporting ? tEval("exportingEvalPack") : tEval("exportEvalPack")}
+            </Button>
+          )}
+          <Link className="block" href={`${routes.app.studies.byId(id)}/report`}>
+            <Button className="w-full sm:w-auto" variant="ghost" size="sm">
               {tReport("title")}
             </Button>
           </Link>
           {canPublish && (
-            <Button size="sm" loading={publishing} onClick={handlePublish}>
+            <Button
+              className="col-span-2 w-full sm:col-span-1 sm:w-auto"
+              size="sm"
+              loading={publishing}
+              onClick={handlePublish}
+            >
               {publishing ? t("publishing") : t("publishStudy")}
             </Button>
           )}
           {isLive && (
-            <Button variant="secondary" size="sm" onClick={() => setConfirmClose(true)}>
+            <Button
+              className="col-span-2 w-full sm:col-span-1 sm:w-auto"
+              variant="secondary"
+              size="sm"
+              onClick={() => setConfirmClose(true)}
+            >
               {t("closeStudy")}
             </Button>
           )}
         </div>
       </header>
+
+      {evaluationPlan && (
+        <section
+          className="tp-study-sheet mx-auto mb-14 max-w-[920px] px-6 py-8 sm:px-10 sm:py-10"
+          aria-label={tEval("discussionGuide")}
+        >
+          <EvaluationBlueprint
+            className="mt-0"
+            plan={evaluationPlan}
+            cases={candidateEvalCases}
+            releaseReadiness={evaluationState?.release_readiness}
+          />
+        </section>
+      )}
+
+      {evaluationPlan && evaluationState && (
+        <EvaluationWorkbench
+          campaignId={id}
+          state={evaluationState}
+          onChange={acceptEvaluationState}
+        />
+      )}
+
+      {evaluationPlan && !evaluationState && (
+        <Card className="mb-14 p-6">
+          <p className="font-medium text-ink">
+            {evaluationLoading
+              ? tWorkbench("loading")
+              : tWorkbench("loadError")}
+          </p>
+          {evaluationError && (
+            <p className="mt-2 text-sm text-body">{evaluationError}</p>
+          )}
+          {!evaluationLoading && (
+            <Button
+              className="mt-4"
+              variant="secondary"
+              size="sm"
+              onClick={() => void refreshEvaluation().catch(() => {})}
+            >
+              {tWorkbench("retry")}
+            </Button>
+          )}
+        </Card>
+      )}
 
       {(isLive || campaign.status === "ready") && (
         <section className="mb-10">
@@ -297,15 +463,15 @@ export default function StudyPage({ params }: { params: Promise<Params> }) {
               {outline.map((q) => (
                 <li key={q.order}>
                   <Card className="p-4">
-                  <div className="flex gap-4">
-                    <div className="w-6 pt-0.5 font-mono text-sm text-muted">
-                      {String(q.order).padStart(2, "0")}
+                    <div className="flex gap-4">
+                      <div className="w-6 pt-0.5 font-mono text-sm text-muted">
+                        {String(q.order).padStart(2, "0")}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-ink">{q.question}</p>
+                        <p className="mt-1 text-xs text-muted">{t("goalPrefix", { goal: q.goal })}</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="text-ink">{q.question}</p>
-                      <p className="mt-1 text-xs text-muted">{t("goalPrefix", { goal: q.goal })}</p>
-                    </div>
-                  </div>
                   </Card>
                 </li>
               ))}

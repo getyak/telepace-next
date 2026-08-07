@@ -1,8 +1,8 @@
 {
   "marketing": {
     "home": {
-      "title": "telepace — Voice-native, Agent-first user research infrastructure",
-      "description": "telepace runs voice interviews with your users on autopilot — and hands the structured insights back to your agent, so it can act on them."
+      "title": "telepace — From user evidence to production evals",
+      "description": "Turn production failures, expert judgment, policy, and user evidence into Eval Cases, calibrated judges, and release gates."
     },
     "pricing": {
       "title": "Pricing",
@@ -65,12 +65,12 @@
   },
   "app": {
     "newStudy": {
-      "title": "New study",
-      "description": "Describe your research goal and shape it into a publishable study with the agent."
+      "title": "New evaluation",
+      "description": "Turn a production failure or release decision into a versioned Eval Pack with evidence questions, graders, and hard gates."
     },
     "studies": {
-      "title": "Studies",
-      "description": "Manage your voice interview studies — drafts, live, and finished."
+      "title": "Evaluation programs",
+      "description": "Manage correctness contracts, evidence collection, candidate Eval Cases, and release gates."
     },
     "copilot": {
       "title": "Copilot",

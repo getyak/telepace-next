@@ -49,6 +49,7 @@ through it and come back 502. Either unset them for the run or export
 | `auth-redirect.guest.spec.ts` | guest → login → intended page; guards the `/zh/zh/…` 404 regression |
 | `app-metadata.spec.ts` | 16 routes: localized title, `noindex`, exactly one `h1` |
 | `app-smoke.spec.ts` | every app surface renders, console stays clean, sidebar resolves |
+| `eval-program.spec.ts` | production failure → vertical intake → contract → mobile layout → Eval Pack JSON → persisted detail |
 
 `*.guest.spec.ts` runs signed-out; everything else inherits the stored session.
 

@@ -1,8 +1,8 @@
 {
   "marketing": {
     "home": {
-      "title": "telepace — 语音原生、Agent 优先的用户研究基础设施",
-      "description": "telepace 自动为你的用户发起语音访谈，并将结构化的洞察结果回传给你的 Agent，让它能够据此采取行动。"
+      "title": "telepace — 从用户证据到生产级 AI 评测",
+      "description": "把线上失败、专家判断、政策与用户证据，转化为 Eval Case、校准后的裁判和发布门禁。"
     },
     "pricing": {
       "title": "价格方案",
@@ -65,12 +65,12 @@
   },
   "app": {
     "newStudy": {
-      "title": "新建问卷",
-      "description": "描述你的研究目标，与 Agent 一起把它变成一份可发布的问卷。"
+      "title": "新建 AI 评测",
+      "description": "把线上失败或发布决策，转化为带证据问题、裁判和硬门禁的版本化 Eval Pack。"
     },
     "studies": {
-      "title": "问卷",
-      "description": "管理你的语音访谈研究——草稿、进行中与已完成。"
+      "title": "AI 评测项目",
+      "description": "管理正确性合同、证据采集、候选 Eval Case 与发布门禁。"
     },
     "copilot": {
       "title": "Copilot",

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from contextlib import suppress
 from typing import Any
 from uuid import UUID
 
@@ -20,8 +21,15 @@ _FIELD_PHONE = "phone"
 _FIELD_CN_ID = "cn_id"
 
 _EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
-_PHONE = re.compile(r"(?:\+?\d[\d\s\-]{7,}\d)")
 _CN_ID = re.compile(r"\d{17}[\dXx]")
+# Dates and trace identifiers are evaluation evidence, not phone numbers.
+# Require a bounded 8-15 digit phone-shaped token and explicitly protect an
+# ISO-8601 date prefix. Parentheses are accepted for common international
+# display formats without letting the expression consume arbitrary prose.
+_PHONE = re.compile(
+    r"(?<!\w)(?!(?:19|20)\d{2}-\d{2}-\d{2}(?:T|\b))"
+    r"(?:\+?\d(?:[\s().-]?\d){7,14})(?!\w)"
+)
 
 
 def redact(text: str) -> tuple[str, list[str]]:
@@ -29,12 +37,12 @@ def redact(text: str) -> tuple[str, list[str]]:
     if _EMAIL.search(text):
         fields.append(_FIELD_EMAIL)
         text = _EMAIL.sub(REDACTION_TOKEN_EMAIL, text)
-    if _PHONE.search(text):
-        fields.append(_FIELD_PHONE)
-        text = _PHONE.sub(REDACTION_TOKEN_PHONE, text)
     if _CN_ID.search(text):
         fields.append(_FIELD_CN_ID)
         text = _CN_ID.sub(REDACTION_TOKEN_ID, text)
+    if _PHONE.search(text):
+        fields.append(_FIELD_PHONE)
+        text = _PHONE.sub(REDACTION_TOKEN_PHONE, text)
     return text, fields
 
 
@@ -53,8 +61,6 @@ class PIIPolicy(Policy):
             iid = getattr(command, "interview_id", None)
             if isinstance(cid, UUID) and isinstance(iid, UUID):
                 events.append(PIIRedacted(campaign_id=cid, interview_id=iid, fields=fields))
-            try:
+            with suppress(Exception):
                 object.__setattr__(command, "text", cleaned)
-            except Exception:
-                pass
         return PolicyDecision(allowed=True, events=events)
