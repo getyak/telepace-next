@@ -2,7 +2,7 @@ name: ci
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
 
 jobs:
@@ -55,11 +55,11 @@ jobs:
           fi
       - name: Typecheck
         run: uv run mypy core harness agents storage interfaces || true
-      - name: Test
+      - name: Test backend (external API e2e runs separately)
         env:
           TELEPACE_DATABASE_URL: postgresql://telepace:telepace@localhost:5432/telepace
           TELEPACE_REDIS_URL: redis://localhost:6379/0
-        run: uv run pytest -q || true
+        run: uv run pytest -q --ignore=tests/e2e
 
   frontend:
     runs-on: ubuntu-latest

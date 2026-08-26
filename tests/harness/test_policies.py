@@ -111,6 +111,24 @@ async def test_pii_does_not_corrupt_iso_timestamp_or_trace_id() -> None:
     assert fields == []
 
 
+async def test_pii_redacts_multiple_email_shapes() -> None:
+    from harness.policies.pii import redact
+
+    cleaned, fields = redact("alice+study@example.com and bob@sub.example.org")
+
+    assert cleaned == "[email] and [email]"
+    assert fields == ["email"]
+
+
+async def test_pii_email_scan_is_bounded_for_long_adversarial_input() -> None:
+    from harness.policies.pii import redact
+
+    cleaned, fields = redact(f"{'+' * 100_000}@example.com")
+
+    assert cleaned == "[email]"
+    assert fields == ["email"]
+
+
 async def test_pii_emits_no_event_when_text_is_clean() -> None:
     p = PIIPolicy()
     d = await p.allow(_reply("nothing sensitive here", cid=uuid4()), {})

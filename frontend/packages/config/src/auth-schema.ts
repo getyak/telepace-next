@@ -11,8 +11,6 @@
  * `{field, code}` to a translated string via `useTranslations`.
  */
 
-export const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 256;
 export const DISPLAY_NAME_MAX_LENGTH = 256;
@@ -21,10 +19,29 @@ export type ValidationErrorCode = "required" | "invalid_email" | "too_short" | "
 
 export type ValidationError = { field: string; code: ValidationErrorCode };
 
+function containsWhitespace(value: string): boolean {
+  for (const character of value) {
+    if (character.trim() === "") return true;
+  }
+  return false;
+}
+
+/** Mirrors the previous simple email rule with a bounded linear scan. */
+export function isValidEmail(value: string): boolean {
+  if (containsWhitespace(value)) return false;
+
+  const at = value.indexOf("@");
+  if (at <= 0 || at !== value.lastIndexOf("@")) return false;
+
+  const domain = value.slice(at + 1);
+  const dot = domain.indexOf(".");
+  return dot > 0 && dot < domain.length - 1;
+}
+
 export function validateEmail(value: string): ValidationError | null {
   const trimmed = value.trim();
   if (!trimmed) return { field: "email", code: "required" };
-  if (!EMAIL_PATTERN.test(trimmed)) {
+  if (!isValidEmail(trimmed)) {
     return { field: "email", code: "invalid_email" };
   }
   return null;

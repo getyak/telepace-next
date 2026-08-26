@@ -20,7 +20,6 @@ _FIELD_EMAIL = "email"
 _FIELD_PHONE = "phone"
 _FIELD_CN_ID = "cn_id"
 
-_EMAIL = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
 _CN_ID = re.compile(r"\d{17}[\dXx]")
 # Dates and trace identifiers are evaluation evidence, not phone numbers.
 # Require a bounded 8-15 digit phone-shaped token and explicitly protect an
@@ -32,11 +31,78 @@ _PHONE = re.compile(
 )
 
 
+def _is_word(character: str) -> bool:
+    return character == "_" or character.isalnum()
+
+
+def _is_local_email_character(character: str) -> bool:
+    return _is_word(character) or character in ".+-"
+
+
+def _is_domain_head_character(character: str) -> bool:
+    return _is_word(character) or character == "-"
+
+
+def _is_domain_tail_character(character: str) -> bool:
+    return _is_word(character) or character in ".-"
+
+
+def _email_spans(text: str) -> list[tuple[int, int]]:
+    """Find the legacy email-shaped tokens with a bounded linear scan."""
+
+    spans: list[tuple[int, int]] = []
+    cursor = 0
+    while cursor < len(text):
+        at = text.find("@", cursor)
+        if at < 0:
+            break
+
+        start = at
+        while start > cursor and _is_local_email_character(text[start - 1]):
+            start -= 1
+
+        domain_start = at + 1
+        domain_end = domain_start
+        while domain_end < len(text) and _is_domain_head_character(text[domain_end]):
+            domain_end += 1
+
+        tail_start = domain_end + 1
+        tail_end = tail_start
+        if (
+            start < at
+            and domain_end > domain_start
+            and domain_end < len(text)
+            and text[domain_end] == "."
+        ):
+            while tail_end < len(text) and _is_domain_tail_character(text[tail_end]):
+                tail_end += 1
+            if tail_end > tail_start:
+                spans.append((start, tail_end))
+                cursor = tail_end
+                continue
+
+        cursor = at + 1
+    return spans
+
+
+def _replace_spans(text: str, spans: list[tuple[int, int]], replacement: str) -> str:
+    parts: list[str] = []
+    cursor = 0
+    for start, end in spans:
+        if start < cursor:
+            continue
+        parts.extend((text[cursor:start], replacement))
+        cursor = end
+    parts.append(text[cursor:])
+    return "".join(parts)
+
+
 def redact(text: str) -> tuple[str, list[str]]:
     fields: list[str] = []
-    if _EMAIL.search(text):
+    email_spans = _email_spans(text)
+    if email_spans:
         fields.append(_FIELD_EMAIL)
-        text = _EMAIL.sub(REDACTION_TOKEN_EMAIL, text)
+        text = _replace_spans(text, email_spans, REDACTION_TOKEN_EMAIL)
     if _CN_ID.search(text):
         fields.append(_FIELD_CN_ID)
         text = _CN_ID.sub(REDACTION_TOKEN_ID, text)

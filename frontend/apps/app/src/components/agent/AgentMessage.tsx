@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { ClarifyChips, TypingDots, cn, renderInlineMarkdown } from "@telepace/ui";
+import { toBlocks } from "./messageBlocks";
 
 import type { ChatMessage, ClarifyLabels } from "@telepace/ui";
 
@@ -19,54 +20,6 @@ import type { ChatMessage, ClarifyLabels } from "@telepace/ui";
  * code, and `- ` / `1.` bullet lists — is parsed into real elements so the raw
  * markers never leak and a list reads as a list, not a wrapped run of text.
  */
-
-type Block =
-  | { kind: "p"; text: string }
-  | { kind: "ul"; items: string[] }
-  | { kind: "ol"; items: string[] };
-
-const BULLET_RE = /^\s*[-*•]\s+(.*)$/;
-const ORDERED_RE = /^\s*\d+[.)]\s+(.*)$/;
-
-/**
- * Group a reply's lines into paragraphs and lists. A run of `- ` lines becomes
- * one <ul>, a run of `1.` lines one <ol>; blank lines separate paragraphs.
- * Kept intentionally small — this is chat prose, not a document engine.
- */
-function toBlocks(text: string): Block[] {
-  const blocks: Block[] = [];
-  const lines = text.split("\n");
-  let para: string[] = [];
-
-  const flushPara = () => {
-    if (para.length) {
-      blocks.push({ kind: "p", text: para.join(" ") });
-      para = [];
-    }
-  };
-
-  for (const line of lines) {
-    const bullet = line.match(BULLET_RE);
-    const ordered = line.match(ORDERED_RE);
-    if (bullet) {
-      flushPara();
-      const last = blocks[blocks.length - 1];
-      if (last && last.kind === "ul") last.items.push(bullet[1]);
-      else blocks.push({ kind: "ul", items: [bullet[1]] });
-    } else if (ordered) {
-      flushPara();
-      const last = blocks[blocks.length - 1];
-      if (last && last.kind === "ol") last.items.push(ordered[1]);
-      else blocks.push({ kind: "ol", items: [ordered[1]] });
-    } else if (line.trim() === "") {
-      flushPara();
-    } else {
-      para.push(line.trim());
-    }
-  }
-  flushPara();
-  return blocks;
-}
 
 function AssistantProse({ text }: { text: string }) {
   const blocks = React.useMemo(() => toBlocks(text), [text]);

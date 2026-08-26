@@ -29,6 +29,7 @@ import {
 } from "@telepace/config";
 
 import { getRespondentCampaign, type RespondentCampaignInfo } from "@/lib/api";
+import { safeRedirectUrl } from "@/lib/redirectUrl";
 
 type Params = { campaignId: string; locale: string };
 type SearchParams = {
@@ -1025,16 +1026,17 @@ function Thanks({
 }) {
   const t = useTranslations("respondent.thanks");
   const [secondsLeft, setSecondsLeft] = useState(THANKS_REDIRECT_DELAY_S);
+  const safeRedirect = safeRedirectUrl(redirectUrl);
 
   useEffect(() => {
-    if (!redirectUrl) return;
+    if (!safeRedirect) return;
     if (secondsLeft <= 0) {
-      window.location.href = redirectUrl;
+      window.location.assign(safeRedirect);
       return;
     }
     const timer = window.setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
     return () => window.clearTimeout(timer);
-  }, [redirectUrl, secondsLeft]);
+  }, [safeRedirect, secondsLeft]);
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6">
@@ -1052,10 +1054,10 @@ function Thanks({
         {rewardDescription && (
           <p className="mt-4 text-body text-base">{t("reward", { reward: rewardDescription })}</p>
         )}
-        {redirectUrl ? (
+        {safeRedirect ? (
           <p className="text-xs text-muted mt-6">
             {t("redirecting", { seconds: secondsLeft })}{" "}
-            <a href={redirectUrl} className="text-accent underline">
+            <a href={safeRedirect} className="text-accent underline">
               {t("continueNow")}
             </a>
           </p>
