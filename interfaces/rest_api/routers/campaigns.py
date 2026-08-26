@@ -754,9 +754,11 @@ async def refine_outline_stream(
                 yield _sse_pack(event)
         except asyncio.CancelledError:
             raise
-        except Exception as exc:
+        except Exception:
             logger.exception("refine_stream failed for campaign %s", campaign_id)
-            yield _sse_pack({"type": "error", "message": str(exc)})
+            yield _sse_pack(
+                {"type": "error", "message": ErrorMessages.REFINE_STREAM_FAILED}
+            )
 
     async def _persist() -> None:
         try:

@@ -24,6 +24,7 @@ class ErrorMessages:
     CAMPAIGN_NOT_FOUND = "campaign not found"
     CAMPAIGN_NOT_LIVE = "campaign is not accepting responses"
     DESIGNER_AGENT_MISSING = "designer agent not registered"
+    REFINE_STREAM_FAILED = "refinement stream failed"
 
     # Voice / WebSocket
     EMBED_ORIGIN_NOT_ALLOWED = "embed origin is not allowed"
