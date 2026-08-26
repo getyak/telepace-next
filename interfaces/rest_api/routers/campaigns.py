@@ -1016,12 +1016,33 @@ def _prior_answers(prior_context: str) -> dict[str, str]:
     from asking the same gap twice.
     """
 
-    pairs = re.findall(
-        r"Question\s*\(([^)]+)\):[^\n]*\nAnswer:\s*([^\n]+)",
-        prior_context,
-        flags=re.IGNORECASE,
-    )
-    return {question_id.strip().casefold(): answer.strip() for question_id, answer in pairs}
+    answers: dict[str, str] = {}
+    lines = prior_context.splitlines()
+    for index, line in enumerate(lines[:-1]):
+        lowered = line.casefold()
+        question_at = lowered.find("question")
+        if question_at < 0:
+            continue
+
+        cursor = question_at + len("question")
+        while cursor < len(line) and line[cursor].isspace():
+            cursor += 1
+        if cursor >= len(line) or line[cursor] != "(":
+            continue
+
+        close = line.find(")", cursor + 1)
+        if close <= cursor + 1 or close + 1 >= len(line) or line[close + 1] != ":":
+            continue
+
+        answer_line = lines[index + 1]
+        if not answer_line.casefold().startswith("answer:"):
+            continue
+
+        question_id = line[cursor + 1 : close].strip().casefold()
+        answer = answer_line[len("answer:") :].strip()
+        if question_id and answer:
+            answers[question_id] = answer
+    return answers
 
 
 def _assess_vertical_fast_path(goal: str, prior_context: str) -> dict[str, Any] | None:

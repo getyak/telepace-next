@@ -16,6 +16,7 @@ from interfaces.rest_api.routers.campaigns import (
     _clean_clarify_questions,
     _complete_assessment_with_deadline,
     _parse_assessment,
+    _prior_answers,
 )
 
 
@@ -59,6 +60,22 @@ class TestAssessFallback:
         )
         assert r["looks_like_research"] is True
         assert r["ready"] is True
+
+
+class TestPriorAnswers:
+    def test_reads_labeled_question_answer_pairs(self) -> None:
+        assert _prior_answers(
+            "Question (release_decision): What decision?\n"
+            "Answer: Ship candidate B\n"
+            "Question (correctness_authority): Who decides?\n"
+            "Answer: Policy owner"
+        ) == {
+            "release_decision": "Ship candidate B",
+            "correctness_authority": "Policy owner",
+        }
+
+    def test_rejects_malformed_adversarial_input_with_a_bounded_scan(self) -> None:
+        assert _prior_answers("Question((" * 100_000) == {}
 
 
 class TestVerticalAssessFastPath:
