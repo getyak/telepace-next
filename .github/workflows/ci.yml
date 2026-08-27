@@ -63,6 +63,19 @@ jobs:
           TELEPACE_DATABASE_URL: postgresql://telepace:telepace@localhost:5432/telepace
           TELEPACE_REDIS_URL: redis://localhost:6379/0
         run: uv run pytest -q --ignore=tests/e2e
+      - name: Run Eval scoreboard
+        run: >-
+          uv run python -m eval.ci.scoreboard
+          --out "$RUNNER_TEMP/scoreboard.md"
+          --fail-under 10.5
+      - name: Preserve Eval scoreboard
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: eval-scoreboard-${{ github.run_id }}
+          path: ${{ runner.temp }}/scoreboard.md
+          if-no-files-found: error
+          retention-days: 30
 
   frontend:
     runs-on: ubuntu-latest
