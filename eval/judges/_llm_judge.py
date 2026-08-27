@@ -12,7 +12,12 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-from agents.shared.llm import LLMMessage, LLMResponse, MockLLM
+from agents.shared.llm import (
+    LLMMessage,
+    LLMResponse,
+    MockLLM,
+    build_llm_from_settings,
+)
 from core.constants import (
     JUDGE_FALLBACK_TEMPERATURE,
     JUDGE_MAX_TOKENS,

@@ -9,8 +9,8 @@ Reads:
     docs/scoreboard.md @ HEAD               -> previous run for regression comparison
 
 Writes a Markdown table (rows=scenarios, cols=12 dims + median + trend) to
-`--out`, and exits 1 if any median is below `--fail-under` OR if any dim
-regressed by >=1.0 vs. the previous commit.
+`--out`, and exits 1 if a judge crashes, any median is below `--fail-under`,
+or any dim regressed by >=1.0 vs. the previous commit.
 """
 
 from __future__ import annotations
@@ -29,6 +29,11 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 
+from core.constants import (
+    SCOREBOARD_CONCURRENCY,
+    SCOREBOARD_FAIL_UNDER,
+    SCOREBOARD_REGRESSION_THRESHOLD,
+)
 from eval.judges.types import RubricEvidence, Score
 
 log = logging.getLogger("scoreboard")
@@ -51,12 +56,6 @@ DIM_MODULES: list[tuple[int, str]] = [
     (11, "eval.judges.dim11_ops_observability"),
     (12, "eval.judges.dim12_aesthetic_polish"),
 ]
-
-from core.constants import (
-    SCOREBOARD_CONCURRENCY,
-    SCOREBOARD_FAIL_UNDER,
-    SCOREBOARD_REGRESSION_THRESHOLD,
-)
 
 CONCURRENCY = SCOREBOARD_CONCURRENCY
 REGRESSION_THRESHOLD = SCOREBOARD_REGRESSION_THRESHOLD  # dim drop >= threshold vs. prior commit
@@ -133,7 +132,7 @@ async def score_scenarios(scenario_ids: list[str]) -> dict[str, list[Score]]:
         for dim, module_name in DIM_MODULES:
             task = asyncio.create_task(_score_one(dim, module_name, evidence, sem))
             tasks.append((sid, dim, task))
-    for sid, dim, task in tasks:
+    for sid, _dim, task in tasks:
         s = await task
         scores[sid].append(s)
     # Ensure per-scenario score list is dim-ordered.
@@ -225,6 +224,9 @@ def render_markdown(
         numeric_values: list[float] = []
         trend_flag = ""
         for s in sc_list:
+            if s.rationale.startswith("judge crashed:"):
+                trend_flag = "⚠️"
+                failures.append(f"judge failure: {sid} D{s.dim}: {s.rationale}")
             has_evidence = "no evidence" not in s.rationale.lower() and "missing" not in s.rationale.lower()
             if has_evidence:
                 cells.append(_fmt_score(s.score))
