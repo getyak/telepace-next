@@ -245,3 +245,5 @@
 2026-10-23 T-308 implementation recovered, commit 9564265 — scoped API-key storage/expiry/revocation, HTTP using shared AppState, strict JWT key management and stdio preservation; 399 backend tests and 138 frontend tests passed, lint/typecheck/build green. Independent review pending; task checkbox remains open.
 
 2026-10-23 T-308 independent review fix — API-key verification now checks current user existence/active/org membership; management rejects stale owner JWTs. Actual Postgres disable/delete/org-move cases passed; backend total 405 passed. CI test database is explicitly disposable.
+
+2026-10-23 T-308 review follow-up, commit 3bd6b1e — owner account lifecycle validation and actual-PG regressions; 405 backend tests passed.
