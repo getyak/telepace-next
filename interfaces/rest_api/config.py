@@ -148,6 +148,10 @@ class Settings(BaseSettings):
     actor_prefix_respondent: str = "respondent"
     actor_prefix_interview: str = "interview"
 
+    # Remote MCP uses API keys independently of stdio JWT authentication.
+    mcp_http_enabled: bool = False
+    api_key_default_expiry_days: int | None = Field(default=None, ge=1, le=3650)
+
     # --- Dev fallback (only used when auth_enabled=False)
     dev_fallback_user_email: str = "dev@telepace.local"
 

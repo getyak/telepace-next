@@ -4,15 +4,18 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from contextlib import asynccontextmanager
+from contextlib import AsyncExitStack, asynccontextmanager
+from uuid import UUID
 
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.events import InterviewCompleted, StudyDrafted
+from interfaces.mcp_server.http_app import build_http_app
 from interfaces.realtime import voice_ws
 from interfaces.rest_api import ws
+from interfaces.rest_api.auth.api_keys_repo import ApiKeyRecord, ApiKeysRepo
 from interfaces.rest_api.auth.oauth_google import router as oauth_google_router
 from interfaces.rest_api.auth.router import router as auth_router
 from interfaces.rest_api.config import cors_allow_origin_regex, get_settings
@@ -20,6 +23,7 @@ from interfaces.rest_api.deps import AppState, build_state
 from interfaces.rest_api.metering import meter_completion
 from interfaces.rest_api.routers import (
     agent,
+    api_keys,
     billing,
     campaigns,
     evaluations,
@@ -29,6 +33,25 @@ from interfaces.rest_api.routers import (
 from interfaces.rest_api.worker import analyze_completion
 
 logger = logging.getLogger(__name__)
+
+
+class _LazyApiKeyVerifier:
+    """Resolve the shared repository after parent startup initializes AppState."""
+
+    def __init__(self, app: FastAPI) -> None:
+        self._app = app
+
+    def _repo(self) -> ApiKeysRepo:
+        state: AppState = self._app.state.telepace
+        if state.api_keys_repo is None:
+            raise RuntimeError("API-key repository is not ready")
+        return state.api_keys_repo
+
+    async def verify(self, key_hash: str) -> ApiKeyRecord | None:
+        return await self._repo().verify(key_hash)
+
+    async def touch_last_used(self, key_id: UUID) -> None:
+        await self._repo().touch_last_used(key_id)
 
 
 async def _tail_loop(state: AppState) -> None:
@@ -75,7 +98,12 @@ async def lifespan(app: FastAPI):
     if resumed:
         logger.info("resumed %d agent runs after startup", resumed)
     try:
-        yield
+        # Mounted Starlette apps do not automatically inherit parent lifespan.
+        async with AsyncExitStack() as stack:
+            mcp_app = getattr(app.state, "mcp_http_app", None)
+            if mcp_app is not None:
+                await stack.enter_async_context(mcp_app.router.lifespan_context(mcp_app))
+            yield
     finally:
         tail_task.cancel()
         for task in state.agent_run_tasks or set():
@@ -101,6 +129,7 @@ def create_app() -> FastAPI:
     )
     application.include_router(health.router)
     application.include_router(auth_router)
+    application.include_router(api_keys.router, prefix=settings.api_version_prefix)
     application.include_router(oauth_google_router)
     application.include_router(campaigns.router)
     application.include_router(evaluations.router)
@@ -109,6 +138,14 @@ def create_app() -> FastAPI:
     application.include_router(agent.router)
     application.include_router(ws.router)
     application.include_router(voice_ws.router)
+    if settings.mcp_http_enabled:
+        mcp_app = build_http_app(
+            settings=settings,
+            api_keys_repo=_LazyApiKeyVerifier(application),
+            state_provider=lambda: application.state.telepace,
+        )
+        application.state.mcp_http_app = mcp_app
+        application.mount("/mcp", mcp_app)
     return application
 
 

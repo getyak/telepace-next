@@ -68,6 +68,15 @@ HTTP_AUTH_SCHEME: str = "bearer"
 MCP_READ_SCOPE: str = "mcp:read"
 MCP_WRITE_SCOPE: str = "mcp:write"
 
+# --- API keys (machine/Agent credentials for MCP; see docs/mcp-key-auth-design.md)
+# Prefixes label the environment; database membership is the auth boundary.
+# Only the SHA-256 of the full key is persisted; plaintext is returned once.
+API_KEY_PREFIX_LIVE: str = "tp_live_"
+API_KEY_PREFIX_TEST: str = "tp_test_"
+# Random entropy per key (bytes → urlsafe token). 32 bytes = 256 bit, well above
+# the >=192 bit floor that makes salting/rainbow-tables irrelevant.
+API_KEY_ENTROPY_BYTES: int = 32
+
 # --- Auth field length caps
 EMAIL_MIN_LEN: int = 3
 EMAIL_MAX_LEN: int = 254

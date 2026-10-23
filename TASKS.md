@@ -152,6 +152,11 @@
   - 做：把"发起研究/查询洞察/导出证据片段/触发分析"暴露为 MCP 工具（基于已有 mcp.telepace.io 接入）。
   - 验收：Claude Code/Cursor 连上后能调用≥3 个工具并返回真实数据。
 
+- [ ] **T-308 · Remote MCP API-key authentication**
+  - Do: add revocable hashed API keys, explicit tool scopes, Streamable HTTP and JWT-authenticated issuance/list/revocation; preserve stdio JWT behavior and tenant checks.
+  - Verify: key storage/expiry/revocation against a disposable local Postgres; missing/invalid credentials, scope delegation, cross-tenant tools, concurrent request isolation and stdio regressions; frontend lint/typecheck/build/test. Independent review remains required before marking done.
+  - Recovery: adapted from local `feat/mcp-key-auth-p1` onto current main; HTTP shares AppState. See `docs/mcp-key-auth-design.md`.
+
 - [x] **T-205 · 跨研究 Copilot + 落地闭环**
   - 依赖: T-107
   - 做：跨研究会话式分析(All/Select studies) 生成图表/memo + 一键落 Notion/Linear。
