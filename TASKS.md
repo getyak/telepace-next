@@ -194,6 +194,10 @@
   - 集成：Blog About 以自身 DOM 和设计系统渲染完整访谈，不加载 Telepace respondent 页面，不修改顶层 URL；保留显式、非自动跳转的兼容链接。
   - 验收：页面运行时不存在 iframe；从 About 选择主题到完成访谈全程不发生导航；来源、同意、completed 与 Analyst insights 真实落库；SDK/backend/Blog 测试及构建全绿，桌面/移动端、键盘、深色、reduced-motion、断网与重试均通过真实浏览器验证。
 
+- [ ] **T-703 · Frontend dependency security baseline**
+  - Scope: Next 15.5 patch fixes, compatible dependency updates, and source-bound local braces recursion mitigation.
+  - Acceptance: retain the raw audit; reject every unmitigated high/critical advisory; verify exact patch and installed-source hashes plus attack/normal regressions; pass lint, typecheck, tests, build, and design guards.
+
 ---
 
 ## 进度记录（每完成一个任务在此追加一行）

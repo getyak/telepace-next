@@ -87,12 +87,24 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "20"
+          node-version: "22.23.2"
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
-          version: 9
+          version: 9.14.0
       - run: pnpm install --frozen-lockfile
-      - run: pnpm audit --audit-level=high
+      - name: Audit dependencies with verified local mitigation
+        env:
+          DEPENDENCY_AUDIT_REPORT: ${{ runner.temp }}/frontend-audit-raw.json
+        run: pnpm audit:security
+      - name: Preserve raw dependency audit
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: frontend-audit-${{ github.run_id }}
+          path: ${{ runner.temp }}/frontend-audit-raw.json
+          if-no-files-found: error
+          retention-days: 30
+      - run: pnpm lint
       - run: bash scripts/design-guard.sh
       - run: pnpm typecheck
       - run: pnpm check:tokens
