@@ -48,6 +48,7 @@ from interfaces.rest_api.auth.api_keys_repo import (
     hash_key,
 )
 from interfaces.rest_api.auth.jwt import issue_token_pair
+from interfaces.rest_api.auth.users_repo import USERS_SCHEMA_SQL, UsersRepo
 from interfaces.rest_api.config import get_settings
 from interfaces.rest_api.routers import api_keys
 
@@ -94,10 +95,20 @@ def client() -> Iterator[TestClient]:
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         pool = await asyncpg.create_pool(settings.database_url, min_size=1, max_size=2)
         async with pool.acquire() as conn:
+            await conn.execute(USERS_SCHEMA_SQL)
             await conn.execute(API_KEYS_SCHEMA_SQL)
+            await conn.execute(
+                "INSERT INTO users(id,email,password_hash,org_id,created_at,updated_at) VALUES($1,$2,$3,$4,NOW(),NOW())",
+                UUID(settings.default_author_id),
+                f"key-router-{uuid4()}@example.test",
+                "synthetic-not-a-password",
+                UUID(settings.default_org_id),
+            )
         app.state.telepace = SimpleNamespace(
             settings=settings,
             api_keys_repo=ApiKeysRepo(pool),
+            users_repo=UsersRepo(pool),
+            pool=pool,
         )
         try:
             yield
@@ -106,6 +117,7 @@ def client() -> Iterator[TestClient]:
                 "DELETE FROM api_keys WHERE org_id = $1",
                 UUID(settings.default_org_id),
             )
+            await pool.execute("DELETE FROM users WHERE id = $1", UUID(settings.default_author_id))
             await pool.close()
 
     app = FastAPI(lifespan=lifespan)
@@ -205,3 +217,19 @@ def test_delete_revokes_and_key_stops_verifying(client: TestClient) -> None:
 def test_delete_unknown_id_is_404(client: TestClient) -> None:
     r = client.delete(f"{_BASE}/{uuid4()}")
     assert r.status_code == 404, r.text
+
+
+@pytest.mark.parametrize("change", ["disable", "delete", "move"])
+def test_management_rejects_stale_jwt_owner(client: TestClient, change: str) -> None:
+    state = client.app.state.telepace
+    user_id = UUID(state.settings.default_author_id)
+    if change == "disable":
+        query, args = "UPDATE users SET is_active = FALSE WHERE id = $1", (user_id,)
+    elif change == "delete":
+        query, args = "DELETE FROM users WHERE id = $1", (user_id,)
+    else:
+        query, args = "UPDATE users SET org_id = $2 WHERE id = $1", (user_id, uuid4())
+    client.portal.call(state.pool.execute, query, *args)
+    assert client.post(_BASE, json={"name": "must not mint", "scopes": ["*"]}).status_code == 401
+    assert client.get(_BASE).status_code == 401
+    assert client.delete(f"{_BASE}/{uuid4()}").status_code == 401

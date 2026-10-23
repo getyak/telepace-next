@@ -32,6 +32,7 @@ from interfaces.rest_api.auth.api_keys_repo import (
     ApiKeysRepo,
     hash_key,
 )
+from interfaces.rest_api.auth.users_repo import USERS_SCHEMA_SQL, UserRecord, UsersRepo
 from interfaces.rest_api.config import get_settings
 
 # tp_test_ prefix: this only ever runs against a test/dev database.
@@ -63,6 +64,7 @@ async def pool() -> asyncpg.Pool:
         pytest.skip(f"Postgres not reachable at {settings.database_url}: {exc}")
 
     async with created.acquire() as conn:
+        await conn.execute(USERS_SCHEMA_SQL)
         await conn.execute(API_KEYS_SCHEMA_SQL)
     try:
         yield created
@@ -70,10 +72,25 @@ async def pool() -> asyncpg.Pool:
         await created.close()
 
 
-async def test_create_verify_revoke_lifecycle(pool: asyncpg.Pool) -> None:
+@pytest.fixture()
+async def owner(pool: asyncpg.Pool):
+    record = await UsersRepo(pool).create(
+        email=f"key-fixture-{uuid4()}@example.test",
+        password_hash="synthetic-not-a-password",
+        display_name="Key fixture",
+        org_id=uuid4(),
+    )
+    try:
+        yield record
+    finally:
+        await pool.execute("DELETE FROM api_keys WHERE user_id = $1", record.id)
+        await pool.execute("DELETE FROM users WHERE id = $1", record.id)
+
+
+async def test_create_verify_revoke_lifecycle(pool: asyncpg.Pool, owner: UserRecord) -> None:
     repo = ApiKeysRepo(pool)
-    org_id = uuid4()
-    user_id = uuid4()
+    org_id = owner.org_id
+    user_id = owner.id
 
     # create: returns the one-time plaintext and a stored record.
     new_key = await repo.create(
@@ -119,13 +136,13 @@ async def test_create_verify_revoke_lifecycle(pool: asyncpg.Pool) -> None:
         await pool.execute("DELETE FROM api_keys WHERE id = $1", new_key.record.id)
 
 
-async def test_expired_key_not_verified(pool: asyncpg.Pool) -> None:
+async def test_expired_key_not_verified(pool: asyncpg.Pool, owner: UserRecord) -> None:
     repo = ApiKeysRepo(pool)
-    org_id = uuid4()
+    org_id = owner.org_id
 
     new_key = await repo.create(
         org_id=org_id,
-        user_id=uuid4(),
+        user_id=owner.id,
         name="expired",
         scopes=["campaigns:read"],
         prefix=_TEST_PREFIX,
@@ -141,11 +158,12 @@ async def test_expired_key_not_verified(pool: asyncpg.Pool) -> None:
 
 async def test_revoked_timestamp_fails_closed_even_if_active_flag_is_inconsistent(
     pool: asyncpg.Pool,
+    owner: UserRecord,
 ) -> None:
     repo = ApiKeysRepo(pool)
     new = await repo.create(
-        org_id=uuid4(),
-        user_id=uuid4(),
+        org_id=owner.org_id,
+        user_id=owner.id,
         name="inconsistent fixture",
         scopes=["campaigns:read"],
         prefix=_TEST_PREFIX,
@@ -156,3 +174,26 @@ async def test_revoked_timestamp_fails_closed_even_if_active_flag_is_inconsisten
         assert await repo.verify(hash_key(new.plaintext)) is None
     finally:
         await pool.execute("DELETE FROM api_keys WHERE id = $1", new.record.id)
+
+
+@pytest.mark.parametrize("change", ["disable", "delete", "move"])
+async def test_key_revoked_by_owner_lifecycle(
+    pool: asyncpg.Pool, owner: UserRecord, change: str
+) -> None:
+    repo = ApiKeysRepo(pool)
+    key = await repo.create(
+        org_id=owner.org_id,
+        user_id=owner.id,
+        name="owner lifecycle",
+        scopes=["campaigns:read"],
+        prefix=_TEST_PREFIX,
+        entropy_bytes=_ENTROPY_BYTES,
+    )
+    assert await repo.verify(hash_key(key.plaintext)) is not None
+    if change == "disable":
+        await pool.execute("UPDATE users SET is_active = FALSE WHERE id = $1", owner.id)
+    elif change == "delete":
+        await pool.execute("DELETE FROM users WHERE id = $1", owner.id)
+    else:
+        await pool.execute("UPDATE users SET org_id = $2 WHERE id = $1", owner.id, uuid4())
+    assert await repo.verify(hash_key(key.plaintext)) is None

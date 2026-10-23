@@ -38,7 +38,10 @@ def _client(scopes: list[str] | None, *, dev: bool = False):
     )
     repo.create.return_value = NewApiKey(record, "tp_live_one-time-synthetic-secret")
     app = FastAPI()
-    app.state.telepace = SimpleNamespace(settings=settings, api_keys_repo=repo)
+    users = SimpleNamespace(
+        get_by_id=AsyncMock(return_value=SimpleNamespace(id=user_id, org_id=org_id, is_active=True))
+    )
+    app.state.telepace = SimpleNamespace(settings=settings, api_keys_repo=repo, users_repo=users)
     app.include_router(router, prefix="/v1")
     client = TestClient(app)
     if scopes is not None:

@@ -174,11 +174,13 @@ class ApiKeysRepo:
         """
         row = await self._pool.fetchrow(
             """
-            SELECT * FROM api_keys
-            WHERE key_hash = $1
-              AND is_active = TRUE
-              AND revoked_at IS NULL
-              AND (expires_at IS NULL OR expires_at > NOW())
+            SELECT k.* FROM api_keys AS k
+            JOIN users AS u ON u.id = k.user_id AND u.org_id = k.org_id
+            WHERE k.key_hash = $1
+              AND k.is_active = TRUE
+              AND k.revoked_at IS NULL
+              AND (k.expires_at IS NULL OR k.expires_at > NOW())
+              AND u.is_active = TRUE
             """,
             key_hash,
         )

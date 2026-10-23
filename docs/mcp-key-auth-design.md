@@ -18,7 +18,8 @@ startup-schema convention. This change does not run a deployment or migration
 against an existing environment.
 
 Verification checks the digest, active flag, null revocation timestamp, and
-expiry in one SQL query on every HTTP request. There is no authentication
+expiry in one SQL query on every HTTP request. The query also joins the current
+user record: a missing/disabled user or a changed org invalidates the old key. There is no authentication
 cache: the next request after revocation is rejected. Updating last-used is
 best effort and does not change the authentication decision.
 
@@ -51,7 +52,10 @@ opening another Harness, database pool, or Redis connection.
 ## Management API
 
 The existing signed user JWT authenticates all management requests, even when
-REST development fallback is enabled. An API key cannot manage other keys.
+REST development fallback is enabled. Current account existence, active status,
+and org membership are checked again before key management, so a stale JWT
+cannot mint a key after account disable/delete/org change. An API key cannot
+manage other keys.
 
 | Route | Permission and result |
 |---|---|
@@ -88,3 +92,6 @@ Database tests require an explicit `TELEPACE_TEST_DATABASE_URL` pointing to a
 loopback database whose name begins `telepace_test`. They never fall back to a
 configured application database. They exercise real create/verify/expiry/
 wrong-org-revoke/revoke SQL and JWT-authenticated management requests.
+
+CI uses its disposable `telepace_test_mcp` database for the same real SQL lifecycle
+regressions; it does not skip these tests for lack of a dedicated test URL.

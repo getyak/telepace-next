@@ -27,6 +27,7 @@ from core.protocols.mcp_tools import MCPScopes
 from interfaces.rest_api.auth.api_keys_repo import ApiKeyNotFoundError, ApiKeysRepo
 from interfaces.rest_api.auth.deps import get_current_user, require_current_user
 from interfaces.rest_api.auth.models import AuthUser
+from interfaces.rest_api.auth.users_repo import UserNotFoundError
 from interfaces.rest_api.config import Settings
 from interfaces.rest_api.errors import ErrorMessages
 
@@ -52,10 +53,23 @@ def _get_settings(request: Request) -> Settings:
     return get_state(request).settings
 
 
-def _require_key_user(request: Request, settings: Settings = Depends(_get_settings)) -> AuthUser:
+async def _require_key_user(
+    request: Request, settings: Settings = Depends(_get_settings)
+) -> AuthUser:
     # Key management never accepts the REST development fallback identity.
     strict = settings.model_copy(update={"auth_enabled": True})
     user = require_current_user(get_current_user(request, strict))
+    from interfaces.rest_api.deps import get_state
+
+    users_repo = get_state(request).users_repo
+    if users_repo is None:
+        raise HTTPException(status_code=503, detail=ErrorMessages.AUTH_UNAVAILABLE)
+    try:
+        current = await users_repo.get_by_id(user.id)
+    except UserNotFoundError as exc:
+        raise HTTPException(status_code=401, detail="Account no longer available") from exc
+    if not current.is_active or current.org_id != user.org_id:
+        raise HTTPException(status_code=401, detail="Account no longer available")
     if not {MCP_READ_SCOPE, MCP_WRITE_SCOPE}.intersection(user.scopes):
         raise HTTPException(status_code=403, detail="MCP access scope required")
     return user

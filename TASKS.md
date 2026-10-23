@@ -243,3 +243,5 @@
 2026-07-30 T-702 follow-up, commit 1f0ce49 — allow explicit localhost/127.0.0.1 dynamic development ports across both CORS and Headless SDK origin checks without widening production HTTPS origins; verified the previously failing localhost:1314 flow through completed interview and Analyst insights.
 
 2026-10-23 T-308 implementation recovered, commit 9564265 — scoped API-key storage/expiry/revocation, HTTP using shared AppState, strict JWT key management and stdio preservation; 399 backend tests and 138 frontend tests passed, lint/typecheck/build green. Independent review pending; task checkbox remains open.
+
+2026-10-23 T-308 independent review fix — API-key verification now checks current user existence/active/org membership; management rejects stale owner JWTs. Actual Postgres disable/delete/org-move cases passed; backend total 405 passed. CI test database is explicitly disposable.
