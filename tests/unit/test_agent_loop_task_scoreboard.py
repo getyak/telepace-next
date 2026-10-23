@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from eval.agent_loop.task_scoreboard import (
@@ -79,6 +80,7 @@ def _write_run(
     agent: str,
     fixture_id: str,
     duration_seconds: float,
+    started_at: datetime | None = None,
 ) -> None:
     run = _perfect_run()
     run.update(
@@ -89,7 +91,7 @@ def _write_run(
             "model_version": f"{agent}-model-v1",
             "runner_version": "runner-v1",
             "task_set_version": "2",
-            "started_at": "2026-07-31T00:00:00Z",
+            "started_at": (started_at or (datetime.now(UTC) - timedelta(days=1))).isoformat(),
             "duration_seconds": duration_seconds,
         }
     )
@@ -124,3 +126,18 @@ def test_win_gate_requires_paired_statistical_lead(tmp_path: Path) -> None:
     assert gate.passed
     assert gate.comparisons["manus"][0] >= 2
     assert gate.comparisons["manus"][1] > 0
+
+
+def test_win_gate_rejects_stale_observations(tmp_path: Path) -> None:
+    for agent in ("telepace", "manus", "codex_cloud"):
+        for fixture_id in ("fixture-1", "fixture-2"):
+            _write_run(
+                tmp_path,
+                agent=agent,
+                fixture_id=fixture_id,
+                duration_seconds=5 if agent == "telepace" else 19,
+                started_at=datetime.now(UTC) - timedelta(days=31),
+            )
+    gate = evaluate_task_win_gate([TASK], tmp_path, bootstrap_samples=1_000)
+    assert not gate.passed
+    assert any("older than 30 days" in reason for reason in gate.reasons)

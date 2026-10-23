@@ -274,3 +274,35 @@ MCP_TOOL_REGISTRY: dict[str, tuple[type[_ToolBase], type[_ToolBase], str]] = {
         "Send invitations to respondents over email / SMS / phone.",
     ),
 }
+
+
+class MCPScopes:
+    """Scope constants an API key can grant. See docs/mcp-key-auth-design.md §5.
+
+    A key's scope set is matched against a tool's required scope with support
+    for `<prefix>:*` and `*` wildcards (see mcp_server.auth.require_scope).
+    """
+
+    SESSION_READ = "session:read"
+    CAMPAIGNS_READ = "campaigns:read"
+    CAMPAIGNS_WRITE = "campaigns:write"
+    INSIGHTS_READ = "insights:read"
+    INSIGHTS_PUSH = "insights:push"
+    INVITES_SEND = "invites:send"
+
+
+# Tool name -> the scope required to call it. Kept as a separate mapping (rather
+# than a 4th tuple element in MCP_TOOL_REGISTRY) so existing 3-tuple unpacking
+# stays intact. Every registry key MUST appear here; enforced by a test.
+TOOL_REQUIRED_SCOPES: dict[str, str] = {
+    "get_session": MCPScopes.SESSION_READ,
+    "create_campaign": MCPScopes.CAMPAIGNS_WRITE,
+    "start_campaign": MCPScopes.CAMPAIGNS_WRITE,
+    "refine_outline": MCPScopes.CAMPAIGNS_WRITE,
+    "list_campaigns": MCPScopes.CAMPAIGNS_READ,
+    "get_campaign_progress": MCPScopes.CAMPAIGNS_READ,
+    "get_campaign_insights": MCPScopes.INSIGHTS_READ,
+    "ask_followup": MCPScopes.INSIGHTS_READ,
+    "push_insights": MCPScopes.INSIGHTS_PUSH,
+    "dispatch_invites": MCPScopes.INVITES_SEND,
+}

@@ -152,6 +152,11 @@
   - 做：把"发起研究/查询洞察/导出证据片段/触发分析"暴露为 MCP 工具（基于已有 mcp.telepace.io 接入）。
   - 验收：Claude Code/Cursor 连上后能调用≥3 个工具并返回真实数据。
 
+- [x] **T-308 · Remote MCP API-key authentication**
+  - Do: add revocable hashed API keys, explicit tool scopes, Streamable HTTP and JWT-authenticated issuance/list/revocation; preserve stdio JWT behavior and tenant checks.
+  - Verify: key storage/expiry/revocation against a disposable local Postgres; missing/invalid credentials, scope delegation, cross-tenant tools, concurrent request isolation and stdio regressions; frontend lint/typecheck/build/test. Independent review remains required before marking done.
+  - Recovery: adapted from local `feat/mcp-key-auth-p1` onto current main; HTTP shares AppState. See `docs/mcp-key-auth-design.md`.
+
 - [x] **T-205 · 跨研究 Copilot + 落地闭环**
   - 依赖: T-107
   - 做：跨研究会话式分析(All/Select studies) 生成图表/memo + 一键落 Notion/Linear。
@@ -188,6 +193,10 @@
   - 做：提供不创建 DOM、不使用 iframe 的依赖零 Headless JavaScript SDK；把 campaign、consent、文本 WebSocket、进度、结束、错误和关闭生命周期暴露为状态订阅与命令 API；为 SDK 连接签发短期、Campaign 与 Origin 绑定的匿名 session token。
   - 集成：Blog About 以自身 DOM 和设计系统渲染完整访谈，不加载 Telepace respondent 页面，不修改顶层 URL；保留显式、非自动跳转的兼容链接。
   - 验收：页面运行时不存在 iframe；从 About 选择主题到完成访谈全程不发生导航；来源、同意、completed 与 Analyst insights 真实落库；SDK/backend/Blog 测试及构建全绿，桌面/移动端、键盘、深色、reduced-motion、断网与重试均通过真实浏览器验证。
+
+- [x] **T-703 · Frontend dependency security baseline**
+  - Scope: Next 15.5 patch fixes, compatible dependency updates, and source-bound local braces recursion mitigation.
+  - Acceptance: retain the raw audit; reject every unmitigated high/critical advisory; verify exact patch and installed-source hashes plus attack/normal regressions; pass lint, typecheck, tests, build, and design guards.
 
 ---
 
@@ -236,3 +245,13 @@
 2026-07-23 T-621/T-622/T-623/T-624/T-613 done, commit 5fb6f7f — full Stripe billing loop from issue #31 epic: subscription + included quota + metered overage (Pro $79/200, Team $249/1000, Free 20 hard cap), minimal quality gate (>=60s, goal_coverage>=0.3, env-tunable), idempotent per-interview metering from the event tail loop, 402 quota enforcement on start/dispatch, /v1/billing/{summary,checkout,portal,webhook}, BillingPanel on Settings, stripe_bootstrap.py provisioning. End-to-end tested on Stripe test mode: real browser Checkout payment ($79.00 paid), meter aggregation 3.0 -> next invoice $80.50 = $79 + 3x$0.50, webhook up/downgrade, 208 backend tests green. Fixed during testing: checkout was missing the metered overage line item (overage would never bill).
 2026-07-23 design P0 done, commit 4830e90 — live-product design audit (6 pages screenshotted): fixed .tp-reveal hiding content from crawlers/JS-off users (progressive enhancement via html.tp-js gate, viewport-aware no-blink hydration), replaced fake "Acme Research"/members/API-key placeholders in authenticated Settings with signed-in-identity derivation + honest empty states. Added frontend/DESIGN.md brand contract (referenced from CLAUDE.md) and docs/design/ (agent-loop gap analysis, open-design integration study, redesign direction decision).
 2026-07-30 T-702 follow-up, commit 1f0ce49 — allow explicit localhost/127.0.0.1 dynamic development ports across both CORS and Headless SDK origin checks without widening production HTTPS origins; verified the previously failing localhost:1314 flow through completed interview and Analyst insights.
+
+2026-10-23 T-308 implementation recovered, commit 9564265 — scoped API-key storage/expiry/revocation, HTTP using shared AppState, strict JWT key management and stdio preservation; 399 backend tests and 138 frontend tests passed, lint/typecheck/build green. Independent review pending; task checkbox remains open.
+
+2026-10-23 T-308 independent review fix — API-key verification now checks current user existence/active/org membership; management rejects stale owner JWTs. Actual Postgres disable/delete/org-move cases passed; backend total 405 passed. CI test database is explicitly disposable.
+
+2026-10-23 T-308 review follow-up, commit 3bd6b1e — owner account lifecycle validation and actual-PG regressions; 405 backend tests passed.
+
+2026-10-23 T-308 independent review complete, combined implementation c657cda — account lifecycle/tenant/scope/request-isolation reviewed; 405 disposable-database backend tests and independent 51 focused checks passed (8 DB cases skipped in the independent rerun). Integration with T-703 is in PR63; merge remains gated on exact-head complete CI.
+
+2026-10-23 T-703 independent review complete, combined implementation c657cda — full frontend gates and 138 app tests passed, 7 installed-source/security/CSS regression groups independently rechecked; raw audit retains the one locally mitigated braces advisory. Security and authentication share one integration PR because their baseline gates depend on each other. No production migration/deployment performed.

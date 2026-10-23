@@ -43,6 +43,7 @@ from interfaces.mcp_server.readers import (
     ProjectorInsightReader,
 )
 from interfaces.mcp_server.tools import TOOL_HANDLERS
+from interfaces.rest_api.auth.api_keys_repo import API_KEYS_SCHEMA_SQL, ApiKeysRepo
 from interfaces.rest_api.auth.users_repo import USERS_SCHEMA_SQL, UsersRepo
 from interfaces.rest_api.config import Settings, get_settings
 from storage.agent_runs import (
@@ -70,6 +71,7 @@ class AppState:
     sms_dispatcher: SmsDispatcher
     phone_dispatcher: PhoneDispatcher
     users_repo: UsersRepo | None
+    api_keys_repo: ApiKeysRepo | None = None
     llm: object = None  # LLMClient — used by ad-hoc endpoints (e.g. simulate)
     memory: object = None  # HarnessMemory — used to hydrate projection sync
     # Shared read-side services for the conversational agent. The Orchestrator
@@ -108,6 +110,7 @@ async def build_state() -> AppState:
     async with pool.acquire() as conn:
         await conn.execute(CAMPAIGN_PROJECTION_SQL)
         await conn.execute(USERS_SCHEMA_SQL)
+        await conn.execute(API_KEYS_SCHEMA_SQL)
         await conn.execute(BILLING_SCHEMA_SQL)
         await conn.execute(AGENT_RUNS_SCHEMA_SQL)
     projector = CampaignProjector(pool)
@@ -196,6 +199,7 @@ async def build_state() -> AppState:
         sms_dispatcher=sms_dispatcher,
         phone_dispatcher=phone_dispatcher,
         users_repo=users_repo,
+        api_keys_repo=ApiKeysRepo(pool),
         llm=llm,
         memory=memory,
         insight_reader=insight_reader,

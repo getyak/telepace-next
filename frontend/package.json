@@ -16,13 +16,20 @@
     "check:colors": "node scripts/check-color-tokens.mjs",
     "check:tokens": "bash scripts/check-design-tokens.sh",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "postinstall": "node scripts/dependency-security.mjs",
+    "test:dependency-security": "node --test scripts/dependency-security.test.mjs scripts/tailwind-security.test.mjs",
+    "audit:security": "node scripts/dependency-security.mjs --audit"
   },
   "pnpm": {
     "overrides": {
       "postcss": "8.5.26",
       "react": "18.3.1",
-      "react-dom": "18.3.1"
+      "react-dom": "18.3.1",
+      "postcss-selector-parser@6.1.4": "7.1.7"
+    },
+    "patchedDependencies": {
+      "braces@3.0.3": "patches/braces@3.0.3.patch"
     }
   },
   "devDependencies": {
