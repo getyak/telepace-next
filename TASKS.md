@@ -152,7 +152,7 @@
   - 做：把"发起研究/查询洞察/导出证据片段/触发分析"暴露为 MCP 工具（基于已有 mcp.telepace.io 接入）。
   - 验收：Claude Code/Cursor 连上后能调用≥3 个工具并返回真实数据。
 
-- [ ] **T-308 · Remote MCP API-key authentication**
+- [x] **T-308 · Remote MCP API-key authentication**
   - Do: add revocable hashed API keys, explicit tool scopes, Streamable HTTP and JWT-authenticated issuance/list/revocation; preserve stdio JWT behavior and tenant checks.
   - Verify: key storage/expiry/revocation against a disposable local Postgres; missing/invalid credentials, scope delegation, cross-tenant tools, concurrent request isolation and stdio regressions; frontend lint/typecheck/build/test. Independent review remains required before marking done.
   - Recovery: adapted from local `feat/mcp-key-auth-p1` onto current main; HTTP shares AppState. See `docs/mcp-key-auth-design.md`.
@@ -194,7 +194,7 @@
   - 集成：Blog About 以自身 DOM 和设计系统渲染完整访谈，不加载 Telepace respondent 页面，不修改顶层 URL；保留显式、非自动跳转的兼容链接。
   - 验收：页面运行时不存在 iframe；从 About 选择主题到完成访谈全程不发生导航；来源、同意、completed 与 Analyst insights 真实落库；SDK/backend/Blog 测试及构建全绿，桌面/移动端、键盘、深色、reduced-motion、断网与重试均通过真实浏览器验证。
 
-- [ ] **T-703 · Frontend dependency security baseline**
+- [x] **T-703 · Frontend dependency security baseline**
   - Scope: Next 15.5 patch fixes, compatible dependency updates, and source-bound local braces recursion mitigation.
   - Acceptance: retain the raw audit; reject every unmitigated high/critical advisory; verify exact patch and installed-source hashes plus attack/normal regressions; pass lint, typecheck, tests, build, and design guards.
 
@@ -251,3 +251,7 @@
 2026-10-23 T-308 independent review fix — API-key verification now checks current user existence/active/org membership; management rejects stale owner JWTs. Actual Postgres disable/delete/org-move cases passed; backend total 405 passed. CI test database is explicitly disposable.
 
 2026-10-23 T-308 review follow-up, commit 3bd6b1e — owner account lifecycle validation and actual-PG regressions; 405 backend tests passed.
+
+2026-10-23 T-308 independent review complete, combined implementation c657cda — account lifecycle/tenant/scope/request-isolation reviewed; 405 disposable-database backend tests and independent 51 focused checks passed (8 DB cases skipped in the independent rerun). Integration with T-703 is in PR63; merge remains gated on exact-head complete CI.
+
+2026-10-23 T-703 independent review complete, combined implementation c657cda — full frontend gates and 138 app tests passed, 7 installed-source/security/CSS regression groups independently rechecked; raw audit retains the one locally mitigated braces advisory. Security and authentication share one integration PR because their baseline gates depend on each other. No production migration/deployment performed.
